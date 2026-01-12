@@ -1,33 +1,33 @@
 'use client'
 
 import {
-    ConstellationDots,
-    CyanOrb,
-    DribbbleCard,
-    DribbbleSectionEnter,
-    DribbbleStaggerItem,
-    EditionBadge,
-    MicroInfoModule,
-    OrganicBlob,
-    OutlineStackTitle,
-    PillCTA,
-    WavyLines,
+  ConstellationDots,
+  CyanOrb,
+  DribbbleCard,
+  DribbbleSectionEnter,
+  DribbbleStaggerItem,
+  EditionBadge,
+  MicroInfoModule,
+  OrganicBlob,
+  OutlineStackTitle,
+  PillCTA,
+  WavyLines,
 } from '@/platform/ui'
 import {
-    Headphones,
-    Music,
-    Sparkles,
-    Users
+  Headphones,
+  Music,
+  Sparkles,
+  Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 // Info items for MicroInfoModule
 const platformInfo = [
-  { text: 'Best Music Platform of the Year' },
-  { text: '1000+ exclusive creators' },
-  { text: 'Top 20 product of 2024' },
-  { text: 'Award winning design' },
+  { text: 'Powered by Clerk Billing (subscriptioins)' },
+  { text: 'One-time payments via Stripe' },
+  { text: 'Licenses generated automatically' },
+  { text: 'Sell beats + services in one storefront' },
 ]
 
 // Hero Section - ELECTRI-X Style
