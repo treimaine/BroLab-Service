@@ -2,9 +2,15 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import type { Metadata } from "next";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+  : new URL("http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   title: "BroLab Entertainment",
   description: "Multi-tenant platform for music Providers to sell beats and services",
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({
