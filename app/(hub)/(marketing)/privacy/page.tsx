@@ -1,6 +1,5 @@
-'use client'
-
 import { MarketingPageShell } from '@/platform/ui'
+import type { Metadata } from 'next'
 
 /**
  * Privacy Policy Page - ELECTRI-X Design Language
@@ -14,6 +13,31 @@ import { MarketingPageShell } from '@/platform/ui'
  * 
  * Requirements: 19 (Marketing Pages), 31 (Marketing Visual Consistency)
  */
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy - BroLab Entertainment',
+  description: 'BroLab Entertainment Privacy Policy. Learn how we collect, use, and protect your personal information. GDPR and CCPA compliant. Last updated January 10, 2026.',
+  keywords: ['privacy policy', 'data protection', 'GDPR', 'CCPA', 'user privacy', 'data security'],
+  openGraph: {
+    title: 'Privacy Policy - BroLab Entertainment',
+    description: 'Learn how we collect, use, and protect your personal information. GDPR and CCPA compliant.',
+    url: 'https://brolabentertainment.com/privacy',
+    siteName: 'BroLab Entertainment',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Privacy Policy - BroLab Entertainment',
+    description: 'Learn how we collect, use, and protect your personal information.',
+  },
+  alternates: {
+    canonical: 'https://brolabentertainment.com/privacy',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
 
 // ============ TOC Items ============
 

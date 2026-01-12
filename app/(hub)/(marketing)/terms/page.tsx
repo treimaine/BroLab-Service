@@ -1,6 +1,5 @@
-'use client'
-
 import { MarketingPageShell } from '@/platform/ui'
+import type { Metadata } from 'next'
 
 /**
  * Terms of Service Page - ELECTRI-X Design Language
@@ -14,6 +13,31 @@ import { MarketingPageShell } from '@/platform/ui'
  * 
  * Requirements: 19 (Marketing Pages), 31 (Marketing Visual Consistency)
  */
+
+export const metadata: Metadata = {
+  title: 'Terms of Service - BroLab Entertainment',
+  description: 'BroLab Entertainment Terms of Service. Read our terms and conditions for using the platform. Provider and Artist terms, licensing, payments, and more. Last updated January 10, 2026.',
+  keywords: ['terms of service', 'terms and conditions', 'user agreement', 'platform terms', 'legal terms'],
+  openGraph: {
+    title: 'Terms of Service - BroLab Entertainment',
+    description: 'Read our terms and conditions for using the BroLab Entertainment platform.',
+    url: 'https://brolabentertainment.com/terms',
+    siteName: 'BroLab Entertainment',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Terms of Service - BroLab Entertainment',
+    description: 'Read our terms and conditions for using the platform.',
+  },
+  alternates: {
+    canonical: 'https://brolabentertainment.com/terms',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
 
 // ============ TOC Items ============
 

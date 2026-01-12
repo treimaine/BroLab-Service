@@ -276,13 +276,13 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 3.13: Wire header/footer navigation links: Replace all `href="#"` in Footer.tsx and Header.tsx with real routes: `/about`, `/contact`, `/privacy`, `/terms`, `/pricing`. Add active states (underline or subtle glow on current page). Ensure focus-visible rings on all links. _Requirements: 19_
 
-- [ ] Task 3.14: SEO foundation - metadata per page: Add `export const metadata: Metadata` to each marketing page with title, description, openGraph, twitter, canonical. _Requirements: 19_
+- [x] Task 3.14: SEO foundation - metadata per page: Add `export const metadata: Metadata` to each marketing page with title, description, openGraph, twitter, canonical. _Requirements: 19_
 
-- [ ] Task 3.14.1: SEO foundation - FAQPage JSON-LD schema: Add FAQPage schema to /pricing page (8-12 FAQ questions). Use `<script type="application/ld+json">` tag. _Requirements: 19_
+- [x] Task 3.14.1: SEO foundation - FAQPage JSON-LD schema: Add FAQPage schema to /pricing page (8-12 FAQ questions). Use `<script type="application/ld+json">` tag. _Requirements: 19_
 
-- [ ] Task 3.14.2: SEO foundation - SoftwareApplication JSON-LD schema: Add SoftwareApplication schema to landing page with pricing info (BASIC/PRO plans). Use `<script type="application/ld+json">` tag. _Requirements: 19_
+- [x] Task 3.14.2: SEO foundation - SoftwareApplication JSON-LD schema: Add SoftwareApplication schema to landing page with pricing info (BASIC/PRO plans). Use `<script type="application/ld+json">` tag. _Requirements: 19_
 
-- [ ] Task 3.15: SEO foundation - sitemap and robots: Create `app/sitemap.ts` with all public URLs. Create `app/robots.ts` with rules (allow `/`, disallow `/studio/`, `/artist/`, `/_t/`). _Requirements: 19_
+- [x] Task 3.15: SEO foundation - sitemap and robots: Create `app/sitemap.ts` with all public URLs. Create `app/robots.ts` with rules (allow `/`, disallow `/studio/`, `/artist/`, `/_t/`). _Requirements: 19_
 
 #### Phase 3.5.x: Unify Marketing Hero (Stop Hero Drift)
 
