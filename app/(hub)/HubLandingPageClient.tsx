@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react'
 
 // Info items for MicroInfoModule
 const platformInfo = [
-  { text: 'Powered by Clerk Billing (subscriptioins)' },
+  { text: 'Powered by Clerk Billing (subscriptions)' },
   { text: 'One-time payments via Stripe' },
   { text: 'Licenses generated automatically' },
   { text: 'Sell beats + services in one storefront' },

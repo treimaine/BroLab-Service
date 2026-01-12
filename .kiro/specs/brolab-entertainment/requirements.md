@@ -237,14 +237,22 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 ### Requirement 17: Hub Landing Page
 
-**User Story:** As a visitor, I want to see a compelling landing page, so that I understand the platform's value proposition.
+**User Story:** As a visitor, I want to see a compelling landing page with clear value proposition, so that I understand what the platform offers and can make an informed decision.
 
 #### Acceptance Criteria
 
 1. THE Landing_Page SHALL display a cinematic hero section with outline typography (text-[clamp(48px,12vw,140px)] heavy weight)
-2. THE Landing_Page SHALL include CTAs: "Start as Producer", "Start as Engineer", "I'm an Artist"
-3. THE Landing_Page SHALL apply glass morphism and cyan glow design tokens
-4. THE Landing_Page SHALL use framer-motion animations respecting prefers-reduced-motion
+2. THE Hero_Section SHALL include an eyebrow label ("FOR PRODUCERS & AUDIO ENGINEERS")
+3. THE Hero_Section SHALL display a clear value proposition ("Sell beats. Book sessions. Get paid directly.")
+4. THE Hero_Section SHALL include dual CTAs (primary: "Get Started Free", secondary: "View Demo")
+5. THE Hero_Section SHALL display trust microcopy ("No credit card • Cancel anytime")
+6. THE Landing_Page SHALL include a trust row with 5 trust signals immediately after the hero
+7. THE Landing_Page SHALL include CTAs: "Start as Producer", "Start as Engineer", "I'm an Artist" with explanatory microcopy
+8. THE Landing_Page SHALL include a "How It Works" section with 3 clear steps
+9. THE Landing_Page SHALL include a FAQ section with 6 common questions before the final CTA
+10. THE Landing_Page SHALL apply glass morphism and cyan glow design tokens
+11. THE Landing_Page SHALL use framer-motion animations respecting prefers-reduced-motion
+12. THE Landing_Page MAY include a product preview section with screenshot or demo link (optional for MVP)
 
 ### Requirement 18: Pricing Page
 
@@ -442,3 +450,36 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 - ❌ Generic SaaS hero (centered block, no pixel/outline/glow/dribbble motifs)
 - ❌ Manual theme toggle with `document.documentElement.classList.toggle('dark')`
 - ❌ Unverifiable claims ("Top platform", "Best in class") without data source
+- ❌ Typos in platform info (e.g., "subscriptioins" instead of "subscriptions")
+
+### Requirement 32: Landing Page Conversion Optimization
+
+**User Story:** As a visitor, I want clear information about the platform's value and how it works, so that I can make an informed decision to sign up.
+
+#### Acceptance Criteria
+
+1. THE Hero_Section SHALL display business value above-the-fold (eyebrow + value prop + CTAs + microcopy)
+2. THE Landing_Page SHALL include trust signals immediately after the hero (trust row with 5 chips)
+3. THE Landing_Page SHALL explain the process in 3 simple steps ("How It Works" section)
+4. THE Role_CTAs SHALL include explanatory microcopy for each role (Producer, Engineer, Artist)
+5. THE Landing_Page SHALL answer common objections via FAQ section (6 questions minimum)
+6. THE Landing_Page MAY include a product preview section (screenshot + demo link) for better understanding
+7. ALL new sections SHALL use Dribbble primitives (DribbbleCard, PillCTA, SectionHeader, etc.)
+8. ALL new sections SHALL respect the ELECTRI-X design language
+9. ALL new sections SHALL be responsive (375px, 768px, 1024px, 1440px)
+10. ALL new sections SHALL respect prefers-reduced-motion
+
+#### Implementation Priority
+
+**Priority 1 (Critical - Impact Conversion):**
+1. Fix typo "subscriptioins" → "subscriptions"
+2. Add hero copy block (eyebrow + value prop + dual CTAs + microcopy)
+3. Add trust row (5 chips)
+
+**Priority 2 (Important - Clarity & Conversion):**
+4. Add "How It Works" section (3 steps)
+5. Add microcopy under role CTAs
+6. Add FAQ section (6 questions)
+
+**Priority 3 (Nice-to-Have):**
+7. Add product preview section (screenshot + demo link)

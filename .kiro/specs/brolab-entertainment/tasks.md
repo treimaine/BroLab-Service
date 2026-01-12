@@ -298,7 +298,126 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 3.5.x.5: Extract BackgroundMusicPattern as reusable component: If BackgroundMusicPattern exists separately, ensure it's exported from @/platform/ui. Otherwise, keep inline BackgroundWordPattern in MarketingPageShell. _Requirements: Code Architecture_
 
-- [x] CP-3.5.x: Manual Checkpoint Marketing Hero Unified (Playwright): Navigate to /pricing. Verify hero uses OutlineStackTitle with "Press Start 2P" font. Verify cyan glow visible on title. Verify scanlines (2 horizontal lines). Verify background pattern with "PRICING" repeated. Verify asymmetric layout on desktop (text left, card right). Navigate to /about. Verify same visual language. Verify no PricingHero() or AboutHero() components exist. Test theme toggle uses next-themes (no flash, no manual classList).
+- [x] CP-3.5.x: Manual Checkpoint Marketing Hero Unified (Playwright): Navigate to /pricing. Verify hero uses OutlineStackTitle with "Press Start 2P" font. Verify cyan glow visible on title. Verify scanlines (2 horizontal lines). Verify background pattern with "PRICING" repeated. Verify asymmetric layout on desktop (text left, card right). Navigate to /about. Verify same visual language. Verify no PricingHero() or AboutHero() components exist. Test responsive breakpoints.
+
+### Phase D4: Kit UI Anti-Derivation (RÈGLE D'OR)
+
+> 🔴 **PHASE CRITIQUE**: Éliminer toutes les violations de la règle d'or du kit UI et verrouiller l'architecture pour empêcher la dérive.
+
+**Règle d'Or (Source de Vérité):**
+- ✅ **Autorisé**: Composants et helpers dans `src/platform/ui/**` (particulièrement `src/platform/ui/dribbble/**`)
+- ⚠️ **Toléré**: Wrappers "feature" (ex: `src/components/hub/**`) mais SANS styles maison → juste composition des composants du kit
+- ❌ **Interdit**: Créer un nouveau header, pattern, animation, ou style "à côté" du kit
+
+**Objectif**: Un seul langage visuel (spacing, glass, blur, radius, motion, typography, layout).
+
+**Référence**: Retour ChatGPT + Analyse code duplication + `docs/landing-improvements.md`
+
+#### D4.1: Créer GlassSurface (Primitive Générique)
+
+> **Principe**: Un composant générique au lieu de multiples composants spécifiques (GlassHeader, GlassFooter, GlassContainer).
+
+- [ ] Task D4.1.1: Create GlassSurface component: Create `src/platform/ui/dribbble/GlassSurface.tsx`. Props: `as` (polymorphic element), `radius` (none/md/xl/2xl/full), `padding` (none/sm/md/lg), `bordered` (boolean), `blur` (none/sm/md), `className`. Use `cn()` utility for class merging. Support all HTML elements via `as` prop. _Requirements: 31, Code Architecture_
+
+- [ ] Task D4.1.2: Export GlassSurface from kit: Add to `src/platform/ui/dribbble/index.ts`. Add to `src/platform/ui/index.ts`. Verify single import point works. _Requirements: Code Architecture_
+
+#### D4.2: Créer Wrappers DX Optionnels
+
+> **Principe**: Wrappers pour DX agréable, mais tous basés sur GlassSurface.
+
+- [ ] Task D4.2.1: Create GlassHeader wrapper: Create `src/platform/ui/dribbble/GlassHeader.tsx`. Wrapper around `GlassSurface as="header"`. Props: `isScrolled` (boolean), `children`, `className`. Apply fixed positioning, z-index, transition. Conditional glass + backdrop-blur based on `isScrolled`. _Requirements: 31_
+
+- [ ] Task D4.2.2: Create GlassFooter wrapper: Create `src/platform/ui/dribbble/GlassFooter.tsx`. Wrapper around `GlassSurface as="footer"`. Props: `children`, `className`. Apply border-top, glass styling. _Requirements: 31_
+
+- [ ] Task D4.2.3: Export glass wrappers from kit: Add GlassHeader and GlassFooter to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
+
+#### D4.3: Refactoriser Header Hub pour Utiliser TopMinimalBar
+
+> **Principe**: Pas de duplication. Header = wrapper de TopMinimalBar avec config Hub-specific.
+
+- [ ] Task D4.3.1: Update TopMinimalBar to support slots: Add `right` slot prop to TopMinimalBar for custom actions (theme toggle, etc.). Remove `onThemeToggle` and `isDark` props (trop spécifique). Keep `brand`, `brandHref`, `navItems`, `cta`, `secondaryAction`. _Requirements: 31_
+
+- [ ] Task D4.3.2: Create ThemeToggle component: Create `src/components/hub/ThemeToggle.tsx`. Use `useTheme()` from next-themes. Render sun/moon icon. Apply focus-visible ring. _Requirements: 31_
+
+- [ ] Task D4.3.3: Refactor Header to use TopMinimalBar: Replace entire `src/components/hub/Header.tsx` implementation. Use TopMinimalBar with Hub-specific config. Pass `<ThemeToggle />` to `right` slot. Remove all duplicated logic (mobile menu, theme toggle, glass styling). _Requirements: 31_
+
+#### D4.4: Éliminer Tous les Styles Glass Hors du Kit
+
+> **Principe**: Aucun `className="glass"`, `backdrop-blur`, ou `border-[rgba(var(--border)` hors de `src/platform/ui/dribbble/**`.
+
+- [ ] Task D4.4.1: Replace glass styles in Header.tsx: Replace `className="glass border-b border-[rgba(var(--border),0.3)]"` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+
+- [ ] Task D4.4.2: Replace glass styles in Footer.tsx: Replace `className="border-t border-border glass"` with `<GlassFooter>`. _Requirements: 31_
+
+- [ ] Task D4.4.3: Replace glass styles in HubLandingPageClient.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+
+- [ ] Task D4.4.4: Replace glass styles in loading.tsx: Replace `className="glass rounded-xl"` with `<GlassSurface radius="xl">`. _Requirements: 31_
+
+- [ ] Task D4.4.5: Replace glass styles in PricingPageClient.tsx: Replace all `className="glass rounded-full"` with `<GlassSurface radius="full" padding="sm">`. Replace toggle switch glass with GlassSurface. _Requirements: 31_
+
+- [ ] Task D4.4.6: Replace glass styles in marketing layout.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+
+#### D4.5: Centraliser Motion Variants
+
+> **Principe**: Aucun variant motion défini localement. Tous dans `src/platform/ui/dribbble/motion.ts`.
+
+- [ ] Task D4.5.1: Add dribbblePlayerBarEnter to motion.ts: Create `dribbblePlayerBarEnter` variant in `src/platform/ui/dribbble/motion.ts`. Initial: opacity 0, y 20, filter blur(10px). Animate: opacity 1, y 0, filter blur(0px). Exit: opacity 0, y 10, filter blur(5px). _Requirements: 31_
+
+- [ ] Task D4.5.2: Export dribbblePlayerBarEnter from kit: Add to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
+
+- [ ] Task D4.5.3: Refactor PlayerBar to use dribbblePlayerBarEnter: Replace local `playerBarVariants` definition with import from `@/platform/ui`. Use `prefersReducedMotion ? dribbbleReducedMotion : dribbblePlayerBarEnter`. _Requirements: 31_
+
+#### D4.6: Garde-Fous Anti-Dérive
+
+> **Principe**: Empêcher la dérive future avec des contrôles automatiques.
+
+- [ ] Task D4.6.1: Add ESLint rule for glass styles: Add custom ESLint rule or use `no-restricted-syntax` to forbid `className="glass"`, `backdrop-blur`, `border-[rgba(var(--border)` outside `src/platform/ui/`. Document in `.eslintrc.json`. _Requirements: Code Quality_
+
+- [ ] Task D4.6.2: Add CI check for glass styles: Create `.github/workflows/ui-lint.yml`. Add grep check: `grep -R "glass\|backdrop-blur" src app | exclude src/platform/ui`. Fail CI if violations found. _Requirements: Code Quality_
+
+- [ ] Task D4.6.3: Document UI architecture rules: Update `docs/decisions.md` with "UI Architecture Rules" section. Document: single import point (@/platform/ui), no styles outside kit, GlassSurface as primitive, motion centralization. Add examples of violations. _Requirements: Documentation_
+
+#### D4.7: Landing Page Improvements (ChatGPT Feedback)
+
+> **Objectif**: Implémenter les 7 points de feedback ChatGPT pour améliorer la conversion.
+
+**Référence**: `docs/landing-improvements.md`
+
+##### D4.7.1: Priorité 1 - Fixes Critiques
+
+- [ ] Task D4.7.1.1: Fix typo "subscriptioins": Replace `'Powered by Clerk Billing (subscriptioins)'` with `'Powered by Clerk Billing (subscriptions)'` in `platformInfo` constant. _Requirements: 31_
+
+- [ ] Task D4.7.1.2: Add hero copy block: Add eyebrow ("FOR PRODUCERS & AUDIO ENGINEERS"), value prop ("Sell beats. Book sessions. Get paid directly."), dual CTAs (Get Started Free + View Demo), microcopy ("No credit card • Cancel anytime"). Desktop: left of "EXPLORE" title. Mobile: below title, centered. _Requirements: 31_
+
+- [ ] Task D4.7.1.3: Create TrustChip component: Create `src/platform/ui/dribbble/TrustChip.tsx`. Small pill with glass background, border, muted text. Export from kit. _Requirements: 31_
+
+- [ ] Task D4.7.1.4: Add TrustRow section: Create TrustRow section after HeroSection. 5 chips: "Stripe-ready payments", "Clerk auth & billing", "Instant license delivery", "Creator-first pricing", "No marketplace noise". Use TrustChip component. _Requirements: 31_
+
+##### D4.7.2: Priorité 2 - Clarté & Conversion
+
+- [ ] Task D4.7.2.1: Add "How It Works" section: Create HowItWorksSection with 3 steps: "01 Create your storefront", "02 Upload beats / services", "03 Get paid + deliver licenses". Use DribbbleCard, numbered sections, stagger animation. Insert after FeaturesSection. _Requirements: 31_
+
+- [ ] Task D4.7.2.2: Add microcopy to role CTAs: Refactor CTASection. Add descriptions under each button: "Sell beats & packs" (Producer), "Book sessions & services" (Engineer), "Find beats & hire pros" (Artist). Create RoleCTACard component. _Requirements: 31_
+
+- [ ] Task D4.7.2.3: Add FAQ section: Create FAQSection with 6 questions: Stripe account, license delivery, beats + services, commission, custom domain, free plan. Accordion expand/collapse with useState. Use DribbbleCard. Insert before FinalCTASection. _Requirements: 31_
+
+##### D4.7.3: Priorité 3 - Nice-to-Have
+
+- [ ] Task D4.7.3.1: Add Product Preview section (optional): Create ProductPreviewSection with screenshot placeholder or mock card. Link to `/tenant-demo`. Use DribbbleCard with glow. Insert after HowItWorksSection. _Requirements: 31_
+
+#### D4.8: Validation & Documentation
+
+- [ ] Task D4.8.1: Audit all files for glass violations: Run grep search: `grep -R "className=.*glass\|className=.*blur\|className=.*backdrop" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
+
+- [ ] Task D4.8.2: Audit all files for motion violations: Run grep search: `grep -R "const.*Variants.*=\|export const.*variants" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
+
+- [ ] Task D4.8.3: Audit all files for direct dribbble imports: Run grep search: `grep -R "import.*from.*dribbble" src app --exclude-dir=src/platform/ui`. Verify zero results (all imports via @/platform/ui). _Requirements: Code Quality_
+
+- [ ] Task D4.8.4: Update visual-parity-check.md with anti-patterns: Add "Anti-Patterns" section with examples: glass styles outside kit, motion variants outside kit, direct dribbble imports, Header duplication. _Requirements: Documentation_
+
+- [ ] Task D4.8.5: Create UI architecture diagram: Create `docs/ui-architecture.md` with ASCII diagram showing: @/platform/ui (single entry), dribbble/ (internal), app/ (consumers), components/ (wrappers only). _Requirements: Documentation_
+
+- [ ] CP-D4: Manual Checkpoint Phase D4 Complete (Playwright): Navigate to localhost:3000. Verify hero has eyebrow + value prop + dual CTAs + microcopy. Verify TrustRow visible after hero. Verify "How It Works" section with 3 steps. Verify role CTAs have descriptions. Verify FAQ section with 6 questions. Verify typo "subscriptioins" fixed. Run grep checks: verify zero glass violations, zero motion violations, zero direct dribbble imports. Verify Header uses TopMinimalBar (no duplication). Verify Footer uses GlassFooter. Test responsive: 375px, 768px, 1024px, 1440px. Verify no horizontal scroll. Take screenshots for documentation. theme toggle uses next-themes (no flash, no manual classList).
 
 - [x] CP-3 Manual Checkpoint: Phase 3 Complete (Playwright): Navigate to localhost:3000 (landing page). Verify cinematic hero with outline typography. Verify CTAs visible: "Start as Producer", "Start as Engineer", "I'm an Artist". Verify glass cards and cyan glow effects. Navigate to /pricing. Verify BASIC ($9.99/mo, $59.99/yr) and PRO ($29.99/mo, $107.99/yr) cards. Verify feature comparison table and FAQ with FAQPage JSON-LD schema. Navigate to /about, /contact, /privacy, /terms. Verify consistent ELECTRI-X styling with MarketingPageShell. Verify glass skeleton loading state on navigation. Verify TOC on privacy/terms pages with prose-marketing styling. Verify all footer/header links work (no more #) with active states. Verify focus-visible rings on all interactive elements. Test theme toggle with next-themes (no flash). Test animations (pageEnter, heroFloat). Verify sitemap.xml and robots.txt accessible. Verify JSON-LD schemas: FAQPage on /pricing, SoftwareApplication on landing page. Verify /pricing and /about have hero visually consistent with / (same patterns: OutlineStackTitle/PressStart, scanlines, background pattern, accents cyan, modules Dribbble). Verify no occurrence of function *Hero() in app/(hub)/(marketing)/**/page.tsx.
 
