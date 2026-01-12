@@ -1,0 +1,24 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "submit": "Soumettre"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signOut": "Se déconnecter"
+  },
+  "landing": {
+    "title": "BroLab Entertainment",
+    "subtitle": "Vos beats. Votre marque. Votre business.",
+    "ctaProducer": "Commencer en tant que Producteur",
+    "ctaEngineer": "Commencer en tant qu'Ingénieur",
+    "ctaArtist": "Je suis un Artiste"
+  }
+}

@@ -1,0 +1,482 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   BroLab Entertainment Design System
+   Requirements: 23.1-23.9
+   ============================================ */
+
+/* --------------------------------------------
+   CSS Custom Properties (Design Tokens)
+   23.1: Light and dark color schemes
+   23.2: All required tokens
+   -------------------------------------------- */
+
+:root {
+  color-scheme: light;
+  
+  /* Background tokens */
+  --bg: 247 250 255;
+  --bg-2: 236 245 255;
+  
+  /* Card tokens (glass morphism) */
+  --card: 255 255 255;
+  --card-alpha: 0.70;
+  
+  /* Border tokens */
+  --border: 15 23 42;
+  --border-alpha: 0.12;
+  
+  /* Text tokens */
+  --text: 7 16 34;
+  --muted: 71 85 105;
+  
+  /* Accent tokens (cyan theme) */
+  --accent: 8 145 178;
+  --accent-2: 6 182 212;
+  
+  /* Glow tokens */
+  --glow: 8 145 178;
+  --glow-alpha: 0.22;
+}
+
+.dark {
+  color-scheme: dark;
+  
+  /* Background tokens */
+  --bg: 7 10 15;
+  --bg-2: 10 16 32;
+  
+  /* Card tokens (glass morphism) */
+  --card: 255 255 255;
+  --card-alpha: 0.04;
+  
+  /* Border tokens */
+  --border: 255 255 255;
+  --border-alpha: 0.10;
+  
+  /* Text tokens */
+  --text: 234 242 255;
+  --muted: 155 168 199;
+  
+  /* Accent tokens (cyan theme) */
+  --accent: 34 211 238;
+  --accent-2: 6 182 212;
+  
+  /* Glow tokens */
+  --glow: 34 211 238;
+  --glow-alpha: 0.35;
+}
+
+/* --------------------------------------------
+   Base Styles
+   23.8: Inter font family, 8px spacing grid
+   -------------------------------------------- */
+
+html {
+  /* 8px spacing grid base */
+  font-size: 16px;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* 8px grid: line-height based on 8px multiples */
+  line-height: 1.5; /* 24px at 16px font = 3 * 8px */
+}
+
+/* --------------------------------------------
+   Utility Classes
+   -------------------------------------------- */
+
+/* 23.6: Radial gradient background */
+.bg-app {
+  background:
+    radial-gradient(1200px 600px at 60% 20%, rgba(var(--accent), 0.16), transparent 60%),
+    radial-gradient(900px 500px at 20% 80%, rgba(var(--accent), 0.08), transparent 60%),
+    linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg-2)));
+  min-height: 100vh;
+}
+
+/* 23.3: Glass morphism utility class */
+.glass {
+  background: rgba(var(--card), var(--card-alpha));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(var(--border), var(--border-alpha));
+}
+
+/* 23.4: Glow effect utility class */
+.glow {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent), 0.20),
+    0 0 30px rgba(var(--glow), var(--glow-alpha));
+}
+
+/* 23.5: Outline text utility class */
+.outline-word {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--text), 0.40);
+}
+
+/* 23.9: Signature outline hero word */
+.outline-hero {
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(var(--text), 0.40);
+  font-size: clamp(48px, 12vw, 140px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* 23.7: Safe-area padding for mobile */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* --------------------------------------------
+   Additional Token-Based Utilities
+   -------------------------------------------- */
+
+/* Text utilities */
+.text-text {
+  color: rgb(var(--text));
+}
+
+.text-muted {
+  color: rgb(var(--muted));
+}
+
+.text-accent {
+  color: rgb(var(--accent));
+}
+
+.text-accent-2 {
+  color: rgb(var(--accent-2));
+}
+
+/* Background utilities */
+.bg-card {
+  background: rgb(var(--card));
+}
+
+.bg-card-alpha {
+  background: rgba(var(--card), var(--card-alpha));
+}
+
+/* Border utilities */
+.border-border {
+  border-color: rgba(var(--border), var(--border-alpha));
+}
+
+/* Glow utilities */
+.glow-accent {
+  box-shadow: 0 0 20px rgba(var(--accent), 0.3);
+}
+
+.glow-strong {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent), 0.30),
+    0 0 40px rgba(var(--glow), calc(var(--glow-alpha) * 1.5));
+}
+
+/* --------------------------------------------
+   8px Spacing Grid Utilities
+   -------------------------------------------- */
+
+.space-1 { margin: 8px; }
+.space-2 { margin: 16px; }
+.space-3 { margin: 24px; }
+.space-4 { margin: 32px; }
+.space-5 { margin: 40px; }
+.space-6 { margin: 48px; }
+
+.gap-grid-1 { gap: 8px; }
+.gap-grid-2 { gap: 16px; }
+.gap-grid-3 { gap: 24px; }
+.gap-grid-4 { gap: 32px; }
+
+/* --------------------------------------------
+   Focus States (Accessibility)
+   -------------------------------------------- */
+
+.focus-ring:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------
+   Prose Marketing Styles
+   For long-form content (/privacy, /terms)
+   Requirements: 19
+   -------------------------------------------- */
+
+.prose-marketing {
+  /* Base typography */
+  line-height: 1.75;
+  color: rgb(var(--text));
+  font-size: 1rem;
+}
+
+/* Headings hierarchy */
+.prose-marketing h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: rgb(var(--text));
+  letter-spacing: -0.02em;
+}
+
+.prose-marketing h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: rgb(var(--text));
+  letter-spacing: -0.01em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--border), var(--border-alpha));
+}
+
+.prose-marketing h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: rgb(var(--text));
+}
+
+.prose-marketing h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: rgb(var(--text));
+}
+
+/* Paragraphs */
+.prose-marketing p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+.prose-marketing p:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+.prose-marketing a {
+  color: rgb(var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.prose-marketing a:hover {
+  color: rgb(var(--accent-2));
+  text-decoration-color: rgb(var(--accent-2));
+}
+
+.prose-marketing a:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Lists */
+.prose-marketing ul,
+.prose-marketing ol {
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.prose-marketing ul {
+  list-style-type: disc;
+}
+
+.prose-marketing ol {
+  list-style-type: decimal;
+}
+
+.prose-marketing li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-marketing li::marker {
+  color: rgb(var(--accent));
+}
+
+/* Nested lists */
+.prose-marketing ul ul,
+.prose-marketing ol ol,
+.prose-marketing ul ol,
+.prose-marketing ol ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes */
+.prose-marketing blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid rgb(var(--accent));
+  background: rgba(var(--card), var(--card-alpha));
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: rgb(var(--muted));
+}
+
+.prose-marketing blockquote p {
+  margin-bottom: 0;
+}
+
+/* Code (inline) */
+.prose-marketing code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  padding: 0.2em 0.4em;
+  background: rgba(var(--card), calc(var(--card-alpha) * 2));
+  border-radius: 4px;
+  color: rgb(var(--accent));
+}
+
+/* Code blocks */
+.prose-marketing pre {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: rgba(var(--card), calc(var(--card-alpha) * 2));
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid rgba(var(--border), var(--border-alpha));
+}
+
+.prose-marketing pre code {
+  padding: 0;
+  background: transparent;
+  color: rgb(var(--text));
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Horizontal rules */
+.prose-marketing hr {
+  margin: 2.5rem 0;
+  border: none;
+  border-top: 1px solid rgba(var(--border), var(--border-alpha));
+}
+
+/* Tables */
+.prose-marketing table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.prose-marketing th,
+.prose-marketing td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(var(--border), var(--border-alpha));
+}
+
+.prose-marketing th {
+  font-weight: 600;
+  color: rgb(var(--text));
+  background: rgba(var(--card), var(--card-alpha));
+}
+
+.prose-marketing tr:last-child td {
+  border-bottom: none;
+}
+
+/* Strong and emphasis */
+.prose-marketing strong {
+  font-weight: 600;
+  color: rgb(var(--text));
+}
+
+.prose-marketing em {
+  font-style: italic;
+}
+
+/* Images */
+.prose-marketing img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+/* Figure and figcaption */
+.prose-marketing figure {
+  margin: 1.5rem 0;
+}
+
+.prose-marketing figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(var(--muted));
+  text-align: center;
+}
+
+/* First paragraph after heading - no top margin */
+.prose-marketing h1 + p,
+.prose-marketing h2 + p,
+.prose-marketing h3 + p,
+.prose-marketing h4 + p {
+  margin-top: 0;
+}
+
+/* Section spacing for legal documents */
+.prose-marketing section {
+  margin-bottom: 2.5rem;
+}
+
+.prose-marketing section:last-child {
+  margin-bottom: 0;
+}
+
+/* Definition lists (for legal terms) */
+.prose-marketing dl {
+  margin: 1.5rem 0;
+}
+
+.prose-marketing dt {
+  font-weight: 600;
+  color: rgb(var(--text));
+  margin-top: 1rem;
+}
+
+.prose-marketing dt:first-child {
+  margin-top: 0;
+}
+
+.prose-marketing dd {
+  margin-left: 1.5rem;
+  margin-top: 0.25rem;
+  color: rgb(var(--muted));
+}
+
+/* --------------------------------------------
+   Reduced Motion Support
+   -------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

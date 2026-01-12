@@ -1,0 +1,283 @@
+{
+  "id": "brolab_license_terms",
+  "version": "v1.1-2026-01",
+  "status": "active",
+  "language": "en",
+  "currency_base": "USD",
+  "created_at": "2026-01-07",
+  "notes": "BeatStars-like fixed tiers (Basic/Premium/Unlimited). Stems only in Unlimited. Publishing split optional. Snapshot these terms into each purchase license record.",
+  "global": {
+    "definitions": {
+      "licensor": "The Provider (Producer/Audio Engineer) selling the Beat/Service",
+      "licensee": "The Buyer (Artist) purchasing the license",
+      "beat": "The musical instrumental/audio composition provided by Licensor",
+      "master": "The final sound recording created by Licensee using the Beat",
+      "composition": "Underlying musical composition (music) embodied in the Beat and any derivative composition created with it",
+      "stems": "Separated trackouts / multitrack stems of the Beat",
+      "project": "Any song, recording, audio-visual work, live performance, or commercial use that incorporates the Beat"
+    },
+    "common_terms": {
+      "grant_type": "non-exclusive",
+      "ownership": {
+        "beat_and_composition_owner": "Licensor retains ownership of the original Beat and underlying composition embodied in the Beat",
+        "master_owner": "Licensee owns the new Master recording created using the Beat, subject to this license and its restrictions",
+        "transfer": "No ownership is transferred. This is a license only."
+      },
+      "credit": {
+        "required": true,
+        "credit_line_template": "Prod. by {PROVIDER_DISPLAY_NAME}",
+        "where_required": [
+          "Streaming platforms",
+          "Video descriptions (YouTube, TikTok, etc.) where credits are customarily placed",
+          "Metadata fields where available"
+        ],
+        "timeframe_days": 30,
+        "failure_consequence": "Failure to provide credit after written notice may be treated as a breach subject to cure."
+      },
+      "publishing": {
+        "enabled": true,
+        "optional": true,
+        "default_split": {
+          "composition": {
+            "licensor_writer_share_percent": 50,
+            "licensee_writer_share_percent": 50
+          },
+          "publishing": {
+            "licensor_publisher_share_percent": 50,
+            "licensee_publisher_share_percent": 50
+          }
+        },
+        "registration_rules": {
+          "licensee_may_register_master": true,
+          "licensee_may_register_composition": true,
+          "required_credit_on_registration": true,
+          "pro_note": "If registering with a PRO (SACEM, ASCAP, BMI, PRS, etc.), Licensee must list Licensor as co-writer with the agreed shares. This license does not transfer ownership of the underlying composition."
+        },
+        "administration": {
+          "each_party_administers_own_share": true,
+          "publisher_entity_optional": true,
+          "note": "If a party has no publisher entity, they may self-administer their publisher share."
+        }
+      },
+      "prohibited_uses": [
+        "Resale, redistribution, or sublicensing of the Beat or any portion of it as a standalone product",
+        "Uploading the Beat as-is to Content ID systems or claiming ownership of the Beat itself",
+        "Using the Beat in a way that is unlawful, defamatory, or violates third-party rights"
+      ],
+      "content_id_policy": {
+        "allow_master_claims": true,
+        "disallow_beat_claims": true,
+        "note": "Licensee may register/claim the new Master recording, but may not claim or block the Beat itself."
+      },
+      "refund_policy": {
+        "default": "all_sales_final",
+        "exception": "duplicate_purchase_or_technical_error",
+        "note": "Due to the digital nature of the product, purchases are generally final."
+      },
+      "termination": {
+        "breach_cure_days": 7,
+        "termination_effect": "Upon termination, Licensee must cease distribution/monetization of new uses, but may keep existing releases during cure period if actively curing. Specific enforcement may vary."
+      },
+      "governing_law": {
+        "jurisdiction": "France",
+        "venue": "Paris",
+        "note": "Adjust per your company legal setup if needed."
+      },
+      "support_contact": {
+        "email": "support@brolabentertainment.com"
+      }
+    }
+  },
+  "tiers": {
+    "basic": {
+      "tier_key": "basic",
+      "display_name": "Basic",
+      "includes_stems": false,
+      "typical_price_usd": 29.99,
+      "deliverables": {
+        "audio_files": ["mp3", "wav"],
+        "stems": []
+      },
+      "rights": {
+        "commercial_use": true,
+        "distribution": {
+          "allowed": true,
+          "platforms": "all"
+        },
+        "audio_streaming": {
+          "allowed": true,
+          "cap": 100000
+        },
+        "music_videos": {
+          "allowed": true,
+          "cap": 1
+        },
+        "live_performance": {
+          "allowed": true,
+          "cap": 10
+        },
+        "radio_broadcast": {
+          "allowed": true,
+          "cap": 0,
+          "note": "Not included in Basic. Upgrade for radio."
+        },
+        "sync": {
+          "allowed": false,
+          "note": "TV/Film/Ads/Games sync not included in Basic."
+        }
+      },
+      "publishing_split": {
+        "enabled": true,
+        "composition": {
+          "licensor_writer_share_percent": 50,
+          "licensee_writer_share_percent": 50
+        },
+        "publishing": {
+          "licensor_publisher_share_percent": 50,
+          "licensee_publisher_share_percent": 50
+        },
+        "note": "Applies to composition created from Beat + new elements. Ownership not transferred."
+      }
+    },
+    "premium": {
+      "tier_key": "premium",
+      "display_name": "Premium",
+      "includes_stems": false,
+      "typical_price_usd": 49.99,
+      "deliverables": {
+        "audio_files": ["mp3", "wav"],
+        "stems": []
+      },
+      "rights": {
+        "commercial_use": true,
+        "distribution": {
+          "allowed": true,
+          "platforms": "all"
+        },
+        "audio_streaming": {
+          "allowed": true,
+          "cap": 500000
+        },
+        "music_videos": {
+          "allowed": true,
+          "cap": 2
+        },
+        "live_performance": {
+          "allowed": true,
+          "cap": 25
+        },
+        "radio_broadcast": {
+          "allowed": true,
+          "cap": 10
+        },
+        "sync": {
+          "allowed": false,
+          "note": "Sync not included in Premium by default."
+        }
+      },
+      "publishing_split": {
+        "enabled": true,
+        "composition": {
+          "licensor_writer_share_percent": 50,
+          "licensee_writer_share_percent": 50
+        },
+        "publishing": {
+          "licensor_publisher_share_percent": 50,
+          "licensee_publisher_share_percent": 50
+        },
+        "note": "Applies to composition created from Beat + new elements. Ownership not transferred."
+      }
+    },
+    "unlimited": {
+      "tier_key": "unlimited",
+      "display_name": "Unlimited",
+      "includes_stems": true,
+      "typical_price_usd": 149.99,
+      "deliverables": {
+        "audio_files": ["mp3", "wav"],
+        "stems": ["stems_zip"]
+      },
+      "rights": {
+        "commercial_use": true,
+        "distribution": {
+          "allowed": true,
+          "platforms": "all"
+        },
+        "audio_streaming": {
+          "allowed": true,
+          "cap": -1,
+          "note": "-1 means unlimited"
+        },
+        "music_videos": {
+          "allowed": true,
+          "cap": -1
+        },
+        "live_performance": {
+          "allowed": true,
+          "cap": -1
+        },
+        "radio_broadcast": {
+          "allowed": true,
+          "cap": -1
+        },
+        "sync": {
+          "allowed": true,
+          "cap": -1,
+          "note": "Unlimited includes sync by default (TV/Film/Ads/Games)."
+        }
+      },
+      "publishing_split": {
+        "enabled": true,
+        "composition": {
+          "licensor_writer_share_percent": 50,
+          "licensee_writer_share_percent": 50
+        },
+        "publishing": {
+          "licensor_publisher_share_percent": 50,
+          "licensee_publisher_share_percent": 50
+        },
+        "note": "Applies to composition created from Beat + new elements. Ownership not transferred."
+      }
+    }
+  },
+  "purchase_snapshot_template": {
+    "purpose": "Fields to snapshot at purchase time so future changes to tier definitions do not affect old purchases.",
+    "fields_to_bind": [
+      "termsVersion",
+      "tierKey",
+      "includesStems",
+      "rights",
+      "prohibitedUses",
+      "creditLine",
+      "publishingSplit",
+      "licensorWriterSharePercent",
+      "licenseeWriterSharePercent",
+      "licensorPublisherSharePercent",
+      "licenseePublisherSharePercent"
+    ]
+  },
+  "pdf_layout": {
+    "template_key": "license_pdf_v1",
+    "page_size": "A4",
+    "sections_order": [
+      "Title",
+      "Parties",
+      "Beat Details",
+      "License Tier Summary",
+      "Rights & Caps",
+      "Stems & Deliverables",
+      "Publishing & Writer Shares",
+      "Credit",
+      "Prohibited Uses",
+      "Content ID Policy",
+      "Ownership",
+      "Refund & Termination",
+      "Signatures"
+    ],
+    "branding": {
+      "brand_name": "BroLab Entertainment",
+      "accent": "cyan",
+      "footer_note": "This document is generated electronically and is valid without a physical signature unless required by law."
+    }
+  }
+}
