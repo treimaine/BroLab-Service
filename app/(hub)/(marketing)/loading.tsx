@@ -1,6 +1,6 @@
 'use client'
 
-import { GlassSkeletonCard } from '@/platform/ui'
+import { GlassSkeletonCard, GlassSkeletonPulse } from '@/platform/ui'
 import { motion } from 'framer-motion'
 
 /**
@@ -12,31 +12,6 @@ import { motion } from 'framer-motion'
  * 
  * Requirements: 19 (Marketing Pages)
  */
-
-function SkeletonPulse({ className = '' }: { readonly className?: string }) {
-  return (
-    <motion.div
-      className={`${className} rounded-xl bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm`}
-      animate={{
-        opacity: [0.4, 0.7, 0.4],
-      }}
-      transition={{
-        duration: 1.8,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
-      style={{
-        background: `linear-gradient(
-          90deg,
-          rgba(var(--bg-2), 0.6) 0%,
-          rgba(var(--accent), 0.08) 50%,
-          rgba(var(--bg-2), 0.6) 100%
-        )`,
-        backgroundSize: '200% 100%',
-      }}
-    />
-  )
-}
 
 export default function MarketingLoading() {
   return (
@@ -50,15 +25,15 @@ export default function MarketingLoading() {
       >
         {/* Hero title skeleton */}
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <SkeletonPulse className="h-12 md:h-16 w-3/4 mx-auto" />
-          <SkeletonPulse className="h-5 w-2/3 mx-auto" />
-          <SkeletonPulse className="h-5 w-1/2 mx-auto" />
+          <GlassSkeletonPulse className="h-12 md:h-16 w-3/4 mx-auto" />
+          <GlassSkeletonPulse className="h-5 w-2/3 mx-auto" />
+          <GlassSkeletonPulse className="h-5 w-1/2 mx-auto" />
         </div>
 
         {/* CTA skeleton */}
         <div className="flex justify-center gap-4 mt-10">
-          <SkeletonPulse className="h-12 w-32 rounded-full" />
-          <SkeletonPulse className="h-12 w-32 rounded-full" />
+          <GlassSkeletonPulse className="h-12 w-32 rounded-full" />
+          <GlassSkeletonPulse className="h-12 w-32 rounded-full" />
         </div>
       </motion.section>
 

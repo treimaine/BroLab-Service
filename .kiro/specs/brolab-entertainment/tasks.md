@@ -373,7 +373,7 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task D4.6.1: Add ESLint rule for glass styles: Add custom ESLint rule or use `no-restricted-syntax` to forbid `className="glass"`, `backdrop-blur`, `border-[rgba(var(--border)` outside `src/platform/ui/`. Document in `.eslintrc.json`. _Requirements: Code Quality_
 
-- [ ] Task D4.6.2: Add CI check for glass styles: Create `.github/workflows/ui-lint.yml`. Add grep check: `grep -R "glass\|backdrop-blur" src app | exclude src/platform/ui`. Fail CI if violations found. _Requirements: Code Quality_
+- [x] Task D4.6.2: Add CI check for glass styles: Create `.github/workflows/ui-lint.yml`. Add grep check: `grep -R "glass\|backdrop-blur" src app | exclude src/platform/ui`. Fail CI if violations found. _Requirements: Code Quality_
 
 - [x] Task D4.6.3: Document UI architecture rules: Update `docs/decisions.md` with "UI Architecture Rules" section. Document: single import point (@/platform/ui), no styles outside kit, GlassSurface as primitive, motion centralization. Add examples of violations. _Requirements: Documentation_
 
@@ -430,35 +430,35 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [ ] Task D4.7.1.1: Fix typo "subscriptioins": Replace `'Powered by Clerk Billing (subscriptioins)'` with `'Powered by Clerk Billing (subscriptions)'` in `platformInfo` constant. _Requirements: 31_
 
-- [ ] Task D4.7.1.2: Add hero copy block: Add eyebrow ("FOR PRODUCERS & AUDIO ENGINEERS"), value prop ("Sell beats. Book sessions. Get paid directly."), dual CTAs (Get Started Free + View Demo), microcopy ("No credit card • Cancel anytime"). Desktop: left of "EXPLORE" title. Mobile: below title, centered. _Requirements: 31_
+- [x] Task D4.7.1.2: Add hero copy block: Add eyebrow ("FOR PRODUCERS & AUDIO ENGINEERS"), value prop ("Sell beats. Book sessions. Get paid directly."), dual CTAs (Get Started Free + View Demo), microcopy ("No credit card • Cancel anytime"). Desktop: left of "EXPLORE" title. Mobile: below title, centered. _Requirements: 31_
 
-- [ ] Task D4.7.1.3: Create TrustChip component: Create `src/platform/ui/dribbble/TrustChip.tsx`. Small pill with glass background, border, muted text. Export from kit. _Requirements: 31_
+- [x] Task D4.7.1.3: Create TrustChip component: Create `src/platform/ui/dribbble/TrustChip.tsx`. Small pill with glass background, border, muted text. Export from kit. _Requirements: 31_
 
-- [ ] Task D4.7.1.4: Add TrustRow section: Create TrustRow section after HeroSection. 5 chips: "Stripe-ready payments", "Clerk auth & billing", "Instant license delivery", "Creator-first pricing", "No marketplace noise". Use TrustChip component. _Requirements: 31_
+- [x] Task D4.7.1.4: Add TrustRow section: Create TrustRow section after HeroSection. 5 chips: "Stripe-ready payments", "Clerk auth & billing", "Instant license delivery", "Creator-first pricing", "No marketplace noise". Use TrustChip component. _Requirements: 31_
 
 ##### D4.7.2: Priorité 2 - Clarté & Conversion
 
-- [ ] Task D4.7.2.1: Add "How It Works" section: Create HowItWorksSection with 3 steps: "01 Create your storefront", "02 Upload beats / services", "03 Get paid + deliver licenses". Use DribbbleCard, numbered sections, stagger animation. Insert after FeaturesSection. _Requirements: 31_
+- [x] Task D4.7.2.1: Add "How It Works" section: Create HowItWorksSection with 3 steps: "01 Create your storefront", "02 Upload beats / services", "03 Get paid + deliver licenses". Use DribbbleCard, numbered sections, stagger animation. Insert after FeaturesSection. _Requirements: 31_
 
-- [ ] Task D4.7.2.2: Add microcopy to role CTAs: Refactor CTASection. Add descriptions under each button: "Sell beats & packs" (Producer), "Book sessions & services" (Engineer), "Find beats & hire pros" (Artist). Create RoleCTACard component. _Requirements: 31_
+- [x] Task D4.7.2.2: Add microcopy to role CTAs: Refactor CTASection. Add descriptions under each button: "Sell beats & packs" (Producer), "Book sessions & services" (Engineer), "Find beats & hire pros" (Artist). Create RoleCTACard component. _Requirements: 31_
 
-- [ ] Task D4.7.2.3: Add FAQ section: Create FAQSection with 6 questions: Stripe account, license delivery, beats + services, commission, custom domain, free plan. Accordion expand/collapse with useState. Use DribbbleCard. Insert before FinalCTASection. _Requirements: 31_
+- [x] Task D4.7.2.3: Add FAQ section: Create FAQSection with 6 questions: Stripe account, license delivery, beats + services, commission, custom domain, free plan. Accordion expand/collapse with useState. Use DribbbleCard. Insert before FinalCTASection. _Requirements: 31_
 
 ##### D4.7.3: Priorité 3 - Nice-to-Have
 
-- [ ] Task D4.7.3.1: Add Product Preview section (optional): Create ProductPreviewSection with screenshot placeholder or mock card. Link to `/tenant-demo`. Use DribbbleCard with glow. Insert after HowItWorksSection. _Requirements: 31_
+- [x] Task D4.7.3.1: Add Product Preview section (optional): Create ProductPreviewSection with screenshot placeholder or mock card. Link to `/tenant-demo`. Use DribbbleCard with glow. Insert after HowItWorksSection. _Requirements: 31_
 
 #### D4.8: Validation & Documentation
 
-- [ ] Task D4.8.1: Audit all files for glass violations: Run grep search: `grep -R "className=.*glass\|className=.*blur\|className=.*backdrop" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
+- [x] Task D4.8.1: Audit all files for glass violations: Run grep search: `grep -R "className=.*glass\|className=.*blur\|className=.*backdrop" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
 
-- [ ] Task D4.8.2: Audit all files for motion violations: Run grep search: `grep -R "const.*Variants.*=\|export const.*variants" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
+- [x] Task D4.8.2: Audit all files for motion violations: Run grep search: `grep -R "const.*Variants.*=\|export const.*variants" src app --exclude-dir=src/platform/ui`. Verify zero results outside kit. _Requirements: Code Quality_
 
-- [ ] Task D4.8.3: Audit all files for direct dribbble imports: Run grep search: `grep -R "import.*from.*dribbble" src app --exclude-dir=src/platform/ui`. Verify zero results (all imports via @/platform/ui). _Requirements: Code Quality_
+- [x] Task D4.8.3: Audit all files for direct dribbble imports: Run grep search: `grep -R "import.*from.*dribbble" src app --exclude-dir=src/platform/ui`. Verify zero results (all imports via @/platform/ui). _Requirements: Code Quality_
 
-- [ ] Task D4.8.4: Update visual-parity-check.md with anti-patterns: Add "Anti-Patterns" section with examples: glass styles outside kit, motion variants outside kit, direct dribbble imports, Header duplication. _Requirements: Documentation_
+- [x] Task D4.8.4: Update visual-parity-check.md with anti-patterns: Add "Anti-Patterns" section with examples: glass styles outside kit, motion variants outside kit, direct dribbble imports, Header duplication. _Requirements: Documentation_
 
-- [ ] Task D4.8.5: Create UI architecture diagram: Create `docs/ui-architecture.md` with ASCII diagram showing: @/platform/ui (single entry), dribbble/ (internal), app/ (consumers), components/ (wrappers only). _Requirements: Documentation_
+- [x] Task D4.8.5: Create UI architecture diagram: Create `docs/ui-architecture.md` with ASCII diagram showing: @/platform/ui (single entry), dribbble/ (internal), app/ (consumers), components/ (wrappers only). _Requirements: Documentation_
 
 - [ ] CP-D4: Manual Checkpoint Phase D4 Complete (Playwright): Navigate to localhost:3000. Verify hero has eyebrow + value prop + dual CTAs + microcopy. Verify TrustRow visible after hero. Verify "How It Works" section with 3 steps. Verify role CTAs have descriptions. Verify FAQ section with 6 questions. Verify typo "subscriptioins" fixed. Run grep checks: verify zero glass violations, zero motion violations, zero direct dribbble imports. Verify Header uses TopMinimalBar (no duplication). Verify Footer uses GlassFooter. Test responsive: 375px, 768px, 1024px, 1440px. Verify no horizontal scroll. Take screenshots for documentation. theme toggle uses next-themes (no flash, no manual classList).
 

@@ -143,6 +143,15 @@
 
 ## 🚫 Anti-Patterns à Éviter
 
+### Code Architecture Anti-Patterns
+
+| Anti-Pattern | Problème | Solution Correcte |
+|--------------|----------|-------------------|
+| **Glass styles outside kit** | `className="backdrop-blur-sm bg-white/10"` dans composants | Utiliser `<GlassSurface>` ou `<DribbbleCard>` de `@/platform/ui` |
+| **Motion variants outside kit** | `animate={{ opacity: 1, y: 0 }}` inline | Utiliser `dribbblePageEnter`, `dribbbleHoverLift` de `@/platform/ui/dribbble/motion` |
+| **Direct dribbble imports** | `import { OutlineStackTitle } from '@/platform/ui/dribbble/OutlineStackTitle'` | Importer via `@/platform/ui` : `import { OutlineStackTitle } from '@/platform/ui'` |
+| **Header duplication** | Multiples composants `Header`, `TopBar`, `NavBar` | Un seul `TopMinimalBar` réutilisé via `@/platform/ui` |
+
 ### Layout Anti-Patterns
 
 | Anti-Pattern | Problème | Solution Dribbble |

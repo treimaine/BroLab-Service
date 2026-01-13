@@ -9,6 +9,7 @@ import {
   VolumePill,
   WaveformPlaceholder,
   dribbbleHoverLift,
+  dribbbleHoverScale,
   dribbblePlayerBarEnter,
   dribbbleReducedMotion
 } from '@/platform/ui'
@@ -123,20 +124,10 @@ export function PlayerBar({
     ? {}
     : dribbbleHoverLift
 
-  // Micro module hover animation
+  // Micro module hover animation - using design system utility
   const microModuleHover = prefersReducedMotion
     ? {}
-    : {
-        whileHover: {
-          y: -2,
-          scale: 1.02,
-          transition: { duration: 0.2 },
-        },
-        whileTap: {
-          scale: 0.98,
-          transition: { duration: 0.1 },
-        },
-      }
+    : dribbbleHoverScale
 
   return (
     <AnimatePresence mode="wait">

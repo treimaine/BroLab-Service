@@ -39,10 +39,13 @@ export { GlassChip, type GlassChipProps } from './GlassChip'
 export { GlassFooter } from './GlassFooter'
 export { GlassHeader } from './GlassHeader'
 export { GlassSkeletonCard, type GlassSkeletonCardProps } from './GlassSkeletonCard'
+export { GlassSkeletonPulse, type GlassSkeletonPulseProps } from './GlassSkeletonPulse'
 export { GlassSurface } from './GlassSurface'
 export { GlassToggle } from './GlassToggle'
 export { MicroInfoModule } from './MicroInfoModule'
 export { MicroModule, MicroModuleList } from './MicroModule'
+export { RoleCTACard } from './RoleCTACard'
+export { TrustChip, type TrustChipProps } from './TrustChip'
 
 // Decorations (ELECTRI-X style)
 export { ConstellationDots } from './ConstellationDots'

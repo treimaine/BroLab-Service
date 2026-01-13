@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# Local test script for glass styles violations
+# Simulates the CI workflow checks
+
+echo "🔍 Checking for raw backdrop-blur CSS usage outside src/platform/ui..."
+echo ""
+echo "Rule: Use Glass* components from @/platform/ui instead of raw backdrop-blur classes."
+echo ""
+
+# Find raw backdrop-blur CSS class usage (not imports)
+VIOLATIONS=""
+
+# Check src/ (excluding src/platform/ui/)
+SRC_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" --include="*.css" \
+  -E "backdrop-blur" src/ 2>/dev/null | \
+  grep -v "src/platform/ui/" | \
+  grep -v "^[^:]*:[^:]*:.*import " | \
+  grep -v "^[^:]*:[^:]*:.*\* " | \
+  grep -v "^[^:]*:[^:]*:.*// " || true)
+
+# Check app/
+APP_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" --include="*.css" \
+  -E "backdrop-blur" app/ 2>/dev/null | \
+  grep -v "^[^:]*:[^:]*:.*import " | \
+  grep -v "^[^:]*:[^:]*:.*\* " | \
+  grep -v "^[^:]*:[^:]*:.*// " || true)
+
+# Combine violations
+if [ -n "$SRC_VIOLATIONS" ]; then
+  VIOLATIONS="$SRC_VIOLATIONS"
+fi
+if [ -n "$APP_VIOLATIONS" ]; then
+  if [ -n "$VIOLATIONS" ]; then
+    VIOLATIONS="$VIOLATIONS
+$APP_VIOLATIONS"
+  else
+    VIOLATIONS="$APP_VIOLATIONS"
+  fi
+fi
+
+# Check if any violations found
+if [ -n "$VIOLATIONS" ]; then
+  echo "❌ Raw backdrop-blur CSS violations found!"
+  echo ""
+  echo "The following files use backdrop-blur CSS classes directly:"
+  echo "These styles should only be used via @/platform/ui components."
+  echo ""
+  echo "$VIOLATIONS"
+  echo ""
+  echo "📝 To fix:"
+  echo "   - Use <GlassSurface> from @/platform/ui for glass backgrounds"
+  echo "   - Use <ChromeSurface> for chrome-style glass effects"
+  echo "   - Use <DribbbleCard> for card components with glass styling"
+  echo "   - Use <GlassHeader> for header components"
+  echo ""
+  echo "   ❌ Bad:  className=\"backdrop-blur-sm bg-white/10\""
+  echo "   ✅ Good: <GlassSurface>...</GlassSurface>"
+  exit 1
+else
+  echo "✅ No raw backdrop-blur CSS violations found!"
+  echo "   All glass styles are properly encapsulated in src/platform/ui/"
+fi
+
+echo ""
+echo "🔍 Checking for raw .glass CSS class usage outside src/platform/ui..."
+echo ""
+
+# Find raw .glass class usage in className attributes
+VIOLATIONS=""
+
+# Check src/ (excluding src/platform/ui/)
+SRC_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" \
+  -E 'className="[^"]*\bglass\b[^"]*"' src/ 2>/dev/null | \
+  grep -v "src/platform/ui/" || true)
+
+# Check app/
+APP_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" \
+  -E 'className="[^"]*\bglass\b[^"]*"' app/ 2>/dev/null || true)
+
+# Also check template literals with glass class
+SRC_VIOLATIONS2=$(grep -rn --include="*.tsx" --include="*.ts" \
+  -E 'className=\{?`[^`]*\bglass\b[^`]*`' src/ 2>/dev/null | \
+  grep -v "src/platform/ui/" || true)
+
+APP_VIOLATIONS2=$(grep -rn --include="*.tsx" --include="*.ts" \
+  -E 'className=\{?`[^`]*\bglass\b[^`]*`' app/ 2>/dev/null || true)
+
+# Combine all violations
+for V in "$SRC_VIOLATIONS" "$APP_VIOLATIONS" "$SRC_VIOLATIONS2" "$APP_VIOLATIONS2"; do
+  if [ -n "$V" ]; then
+    if [ -n "$VIOLATIONS" ]; then
+      VIOLATIONS="$VIOLATIONS
+$V"
+    else
+      VIOLATIONS="$V"
+    fi
+  fi
+done
+
+# Check if any violations found
+if [ -n "$VIOLATIONS" ]; then
+  echo "❌ Raw .glass CSS class violations found!"
+  echo ""
+  echo "The following files use the .glass CSS class directly:"
+  echo "These styles should only be used via @/platform/ui components."
+  echo ""
+  echo "$VIOLATIONS"
+  echo ""
+  echo "📝 To fix:"
+  echo "   - Use <GlassSurface> from @/platform/ui instead of className=\"glass\""
+  echo "   - Use <ChromeSurface> for chrome-style surfaces"
+  echo ""
+  echo "   ❌ Bad:  <div className=\"glass\">...</div>"
+  echo "   ✅ Good: <GlassSurface>...</GlassSurface>"
+  exit 1
+else
+  echo "✅ No raw .glass CSS class violations found!"
+fi
+
+echo ""
+echo "🎉 All checks passed! Glass styles are properly encapsulated."

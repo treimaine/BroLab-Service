@@ -34,10 +34,13 @@ export { GlassChip, type GlassChipProps } from './dribbble/GlassChip'
 export { GlassFooter } from './dribbble/GlassFooter'
 export { GlassHeader } from './dribbble/GlassHeader'
 export { GlassSkeletonCard, type GlassSkeletonCardProps } from './dribbble/GlassSkeletonCard'
+export { GlassSkeletonPulse, type GlassSkeletonPulseProps } from './dribbble/GlassSkeletonPulse'
 export { GlassSurface } from './dribbble/GlassSurface'
 export { GlassToggle } from './dribbble/GlassToggle'
 export { MicroInfoModule } from './dribbble/MicroInfoModule'
 export { MicroModule, MicroModuleList } from './dribbble/MicroModule'
+export { RoleCTACard } from './dribbble/RoleCTACard'
+export { TrustChip, type TrustChipProps } from './dribbble/TrustChip'
 
 // Surface Primitives (Theme-Coherent)
 export { CardSurface } from './dribbble/CardSurface'
