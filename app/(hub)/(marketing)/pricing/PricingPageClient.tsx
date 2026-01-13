@@ -4,6 +4,8 @@ import {
   DribbbleCard,
   DribbbleSectionEnter,
   DribbbleStaggerItem,
+  GlassChip,
+  GlassToggle,
   MarketingPageShell,
   PillCTA,
   SectionHeader
@@ -143,29 +145,16 @@ function PricingToggle({
   onToggle 
 }: Readonly<{ 
   isAnnual: boolean
-  onToggle: () => void 
+  onToggle: (checked: boolean) => void 
 }>) {
   return (
     <div className="flex items-center justify-center gap-4 mb-12">
-      <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-muted' : 'text-text'}`}>
-        Monthly
-      </span>
-      <button
-        onClick={onToggle}
-        className="relative w-24 h-8 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--accent),0.2)] transition-all duration-300 hover:border-[rgba(var(--accent),0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-        role="switch"
-        aria-checked={isAnnual}
-        aria-label="Toggle annual billing"
-      >
-        <span 
-          className={`absolute top-0.5 left-0.5 w-7 h-7 rounded-full bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_2px_8px_rgba(var(--accent),0.4)] transition-transform duration-300 ${
-            isAnnual ? 'translate-x-[4rem]' : 'translate-x-0'
-          }`}
-        />
-      </button>
-      <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-text' : 'text-muted'}`}>
-        Annual
-      </span>
+      <GlassToggle 
+        checked={isAnnual} 
+        onChange={onToggle} 
+        leftLabel="Monthly" 
+        rightLabel="Annual" 
+      />
       <span className="ml-2 px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_2px_8px_rgba(var(--accent),0.3)]">
         SAVE UP TO 70%
       </span>
@@ -358,18 +347,9 @@ function FAQSection() {
 function TrustBadges() {
   return (
     <div className="flex flex-wrap justify-center gap-6">
-      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
-        <Lock className="w-4 h-4 text-accent" />
-        <span className="text-sm text-muted">Powered by secure billing</span>
-      </div>
-      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
-        <CreditCard className="w-4 h-4 text-accent" />
-        <span className="text-sm text-muted">One-time purchases via Stripe</span>
-      </div>
-      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
-        <Shield className="w-4 h-4 text-accent" />
-        <span className="text-sm text-muted">14-day money-back guarantee</span>
-      </div>
+      <GlassChip icon={Lock} label="Powered by secure billing" />
+      <GlassChip icon={CreditCard} label="One-time purchases via Stripe" />
+      <GlassChip icon={Shield} label="14-day money-back guarantee" />
     </div>
   )
 }
@@ -436,7 +416,7 @@ export default function PricingPageClient() {
       {/* Pricing Cards */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-5xl">
-          <PricingToggle isAnnual={isAnnual} onToggle={() => setIsAnnual(!isAnnual)} />
+          <PricingToggle isAnnual={isAnnual} onToggle={setIsAnnual} />
           
           <DribbbleSectionEnter stagger>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">

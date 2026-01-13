@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { type ReactNode } from 'react'
 
-// Import Dribbble motion utilities from @/platform/ui
-import { dribbbleHoverLift, springTransition } from '@/platform/ui'
+// Import Dribbble motion utilities and ChromeSurface from @/platform/ui
+import { ChromeSurface, dribbbleHoverLift, springTransition } from '@/platform/ui'
 
 export interface MobileNavItem {
   /** Unique identifier */
@@ -78,13 +78,11 @@ export function MobileNav({
   }
 
   return (
-    <nav 
-      className="
-        lg:hidden fixed bottom-0 left-0 right-0 z-40
-        h-16
-        glass border-t border-[rgba(var(--border),var(--border-alpha))]
-        pb-safe
-      "
+    <ChromeSurface
+      as="nav"
+      blur="sm"
+      border="top"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 pb-safe"
       aria-label="Mobile navigation"
     >
       <div className="h-full flex items-center justify-around px-2">
@@ -159,7 +157,7 @@ export function MobileNav({
           )
         })}
       </div>
-    </nav>
+    </ChromeSurface>
   )
 }
 

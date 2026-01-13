@@ -1,5 +1,6 @@
 'use client'
 
+import { GlassSkeletonCard } from '@/platform/ui'
 import { motion } from 'framer-motion'
 
 /**
@@ -72,15 +73,11 @@ export default function MarketingLoading() {
           {[0, 1, 2].map((i) => (
             <motion.div
               key={`skeleton-card-${i}`}
-              className="space-y-4 p-6 rounded-2xl bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.15 + i * 0.08 }}
             >
-              <SkeletonPulse className="h-6 w-1/2" />
-              <SkeletonPulse className="h-4 w-full" />
-              <SkeletonPulse className="h-4 w-4/5" />
-              <SkeletonPulse className="h-4 w-3/5" />
+              <GlassSkeletonCard rows={3} />
             </motion.div>
           ))}
         </div>

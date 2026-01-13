@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  ChromeSurface,
+  GlassChip,
   NowPlayingChip,
   PlayerPillButton,
   ProgressRail,
@@ -8,10 +10,10 @@ import {
   WaveformPlaceholder,
   dribbbleHoverLift,
   dribbblePlayerBarEnter,
-  dribbbleReducedMotion,
+  dribbbleReducedMotion
 } from '@/platform/ui'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Clock, Music2 } from 'lucide-react'
+import { Clock, Music } from 'lucide-react'
 import { useState } from 'react'
 
 export interface PlayerBarProps {
@@ -139,27 +141,31 @@ export function PlayerBar({
   return (
     <AnimatePresence mode="wait">
       {isVisible && (
-        <motion.section
+        <motion.div
           key="player-bar"
           className="
             fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px]
             h-[72px] md:h-[80px]
             z-30
-            bg-[rgba(var(--bg-2),0.8)]
-            backdrop-blur-xl
-            border-t border-[rgba(var(--border),var(--border-alpha))]
           "
           style={{
             boxShadow: hasTrack 
               ? '0 -4px 30px rgba(var(--accent), 0.1), 0 0 0 1px rgba(var(--border), 0.05)'
               : '0 -2px 20px rgba(0, 0, 0, 0.1)',
           }}
-          aria-label="Audio player"
           variants={playerBarVariants}
           initial="initial"
           animate="animate"
           exit="exit"
         >
+          <ChromeSurface
+            as="section"
+            blur="xl"
+            border="top"
+            opacity={80}
+            className="h-full"
+            aria-label="Audio player"
+          >
           {/* Glow effect layer (only when track is playing) */}
           {hasTrack && isPlaying && (
             <motion.div
@@ -204,48 +210,29 @@ export function PlayerBar({
               {/* MicroModule-style track metadata (BPM, Key) - Hidden on mobile */}
               {hasTrack && (bpm || trackKey) && (
                 <div className="hidden lg:flex items-center gap-2">
-                  {/* BPM Micro Module with hover */}
+                  {/* BPM Chip with hover */}
                   {bpm && (
-                    <motion.div 
-                      className="
-                        flex items-center gap-1.5 px-2.5 py-1
-                        rounded-full
-                        bg-[rgba(var(--bg-2),0.8)]
-                        backdrop-blur-sm
-                        border border-[rgba(var(--border),var(--border-alpha))]
-                        cursor-default
-                      "
-                      title={`${bpm} BPM`}
-                      {...microModuleHover}
-                    >
-                      <Clock className="w-3 h-3 text-[rgb(var(--accent))]" />
-                      <span className="text-xs font-medium text-[rgb(var(--text))]">
-                        {bpm}
-                      </span>
-                      <span className="text-[10px] text-[rgb(var(--muted))] uppercase">
-                        BPM
-                      </span>
+                    <motion.div {...microModuleHover}>
+                      <GlassChip
+                        icon={Clock}
+                        label={bpm.toString()}
+                        sublabel="BPM"
+                        size="sm"
+                        aria-label={`${bpm} BPM`}
+                      />
                     </motion.div>
                   )}
 
-                  {/* Key Micro Module with hover */}
+                  {/* Key Chip with hover */}
                   {trackKey && (
-                    <motion.div 
-                      className="
-                        flex items-center gap-1.5 px-2.5 py-1
-                        rounded-full
-                        bg-[rgba(var(--bg-2),0.8)]
-                        backdrop-blur-sm
-                        border border-[rgba(var(--border),var(--border-alpha))]
-                        cursor-default
-                      "
-                      title={`Key: ${trackKey}`}
-                      {...microModuleHover}
-                    >
-                      <Music2 className="w-3 h-3 text-[rgb(var(--accent))]" />
-                      <span className="text-xs font-medium text-[rgb(var(--text))]">
-                        {trackKey}
-                      </span>
+                    <motion.div {...microModuleHover}>
+                      <GlassChip
+                        icon={Music}
+                        label={trackKey}
+                        sublabel="KEY"
+                        size="sm"
+                        aria-label={`Key: ${trackKey}`}
+                      />
                     </motion.div>
                   )}
                 </div>
@@ -298,7 +285,8 @@ export function PlayerBar({
               />
             </motion.div>
           </div>
-        </motion.section>
+          </ChromeSurface>
+        </motion.div>
       )}
     </AnimatePresence>
   )

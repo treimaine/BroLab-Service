@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  ChromeSurface,
   ConstellationDots,
   CyanOrb,
   DribbbleCard,
@@ -95,12 +96,11 @@ function HeroSection() {
       <ConstellationDots className="top-[10%] right-[20%] w-[150px] h-[150px] hidden lg:block" />
 
       {/* Header - Transparent at top, opaque on scroll */}
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 py-6 transition-[background-color,backdrop-filter] duration-300 ${
-          isScrolled 
-            ? 'bg-[rgb(var(--bg))]/95 backdrop-blur-sm' 
-            : 'bg-transparent'
-        }`}
+      <ChromeSurface
+        as="header"
+        blur="sm"
+        mode={isScrolled ? 'elevated' : 'transparent'}
+        className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 py-6 transition-[background-color,backdrop-filter] duration-300"
       >
         <div className="container mx-auto flex items-center justify-between">
           {/* Left: Theme toggle */}
@@ -135,7 +135,7 @@ function HeroSection() {
             </Link>
           </div>
         </div>
-      </header>
+      </ChromeSurface>
 
       {/* Main Content */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-screen flex items-center">

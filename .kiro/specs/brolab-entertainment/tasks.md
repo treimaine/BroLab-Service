@@ -398,27 +398,27 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ##### D4.6.5.2: Phase 2 - Replace Violations (Chrome Elements)
 
-- [ ] Task D4.6.5.2.1: Fix HubLandingPageClient.tsx header: Replace line 101 `className={... backdrop-blur-sm ...}` with `<ChromeSurface as="header" blur="sm" className="fixed top-0 left-0 right-0 z-50">`. Remove manual bg/blur classes. _Requirements: Chrome Component, 18 violations fix_
+- [x] Task D4.6.5.2.1: Fix HubLandingPageClient.tsx header: Replace line 101 `className={... backdrop-blur-sm ...}` with `<ChromeSurface as="header" blur="sm" className="fixed top-0 left-0 right-0 z-50">`. Remove manual bg/blur classes. _Requirements: Chrome Component, 18 violations fix_
 
-- [ ] Task D4.6.5.2.2: Fix PlayerBar.tsx container: Replace line 144 `className="... backdrop-blur-xl border-t ..."` with `<ChromeSurface as="section" blur="xl" border="top" className="fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px] h-[72px] md:h-[80px] z-30">`. Remove manual bg/blur/border classes. _Requirements: Chrome Component, 18 violations fix_
+- [x] Task D4.6.5.2.2: Fix PlayerBar.tsx container: Replace line 144 `className="... backdrop-blur-xl border-t ..."` with `<ChromeSurface as="section" blur="xl" border="top" className="fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px] h-[72px] md:h-[80px] z-30">`. Remove manual bg/blur/border classes. _Requirements: Chrome Component, 18 violations fix_
 
-- [ ] Task D4.6.5.2.3: Fix MobileNav.tsx: Replace line 82 `className="... glass border-t ..."` with `<ChromeSurface as="nav" blur="sm" border="top" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 pb-safe">`. Remove `glass` class. _Requirements: Chrome Component, 18 violations fix_
+- [x] Task D4.6.5.2.3: Fix MobileNav.tsx: Replace line 82 `className="... glass border-t ..."` with `<ChromeSurface as="nav" blur="sm" border="top" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 pb-safe">`. Remove `glass` class. _Requirements: Chrome Component, 18 violations fix_
 
 ##### D4.6.5.2: Phase 2 - Replace Violations (Surface Elements)
 
-- [ ] Task D4.6.5.2.4: Fix loading.tsx skeleton cards: Replace line 75 `className="... backdrop-blur-sm border ..."` with `<GlassSkeletonCard rows={3} />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+- [x] Task D4.6.5.2.4: Fix loading.tsx skeleton cards: Replace line 75 `className="... backdrop-blur-sm border ..."` with `<GlassSkeletonCard rows={3} />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
 
-- [ ] Task D4.6.5.2.5: Fix PricingPageClient.tsx toggle: Replace line 155 `className="... backdrop-blur-sm border ..."` with `<GlassToggle checked={isAnnual} onChange={onToggle} leftLabel="Monthly" rightLabel="Annual" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+- [x] Task D4.6.5.2.5: Fix PricingPageClient.tsx toggle: Replace line 155 `className="... backdrop-blur-sm border ..."` with `<GlassToggle checked={isAnnual} onChange={onToggle} leftLabel="Monthly" rightLabel="Annual" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
 
-- [ ] Task D4.6.5.2.6: Fix PricingPageClient.tsx trust badges: Replace lines 361, 365, 369 (3 badges) with `<GlassChip icon={Lock} label="Powered by secure billing" />`, `<GlassChip icon={CreditCard} label="One-time purchases via Stripe" />`, `<GlassChip icon={Shield} label="14-day money-back guarantee" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+- [x] Task D4.6.5.2.6: Fix PricingPageClient.tsx trust badges: Replace lines 361, 365, 369 (3 badges) with `<GlassChip icon={Lock} label="Powered by secure billing" />`, `<GlassChip icon={CreditCard} label="One-time purchases via Stripe" />`, `<GlassChip icon={Shield} label="14-day money-back guarantee" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
 
-- [ ] Task D4.6.5.2.7: Fix PlayerBar.tsx BPM/Key chips: Replace lines 210 and 234 (2 chips) with `<GlassChip icon={Clock} label={bpm.toString()} sublabel="BPM" size="sm" />` and `<GlassChip icon={Music} label={trackKey} sublabel="KEY" size="sm" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+- [x] Task D4.6.5.2.7: Fix PlayerBar.tsx BPM/Key chips: Replace lines 210 and 234 (2 chips) with `<GlassChip icon={Clock} label={bpm.toString()} sublabel="BPM" size="sm" />` and `<GlassChip icon={Music} label={trackKey} sublabel="KEY" size="sm" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
 
 ##### D4.6.5.3: Phase 3 - Verification
 
-- [ ] Task D4.6.5.3.1: Run ESLint and verify zero violations: Run `npm run lint`. Expect 0 errors related to glass/backdrop-blur/border-[rgba. All 18 violations should be fixed. _Requirements: Code Quality_
+- [x] Task D4.6.5.3.1: Run ESLint and verify zero violations: Run `npm run lint`. Expect 0 errors related to glass/backdrop-blur/border-[rgba. All 18 violations should be fixed. _Requirements: Code Quality_
 
-- [ ] Task D4.6.5.3.2: Visual regression check: Navigate to all affected pages (/, /pricing, tenant demo). Verify visual parity: glass effects still present, no broken layouts, theme coherence (no grey tint on Chrome elements). Take screenshots. _Requirements: Visual QA_
+- [x] Task D4.6.5.3.2: Visual regression check: Navigate to all affected pages (/, /pricing, tenant demo). Verify visual parity: glass effects still present, no broken layouts, theme coherence (no grey tint on Chrome elements). Take screenshots. _Requirements: Visual QA_
 
 #### D4.7: Landing Page Improvements (ChatGPT Feedback)
 
