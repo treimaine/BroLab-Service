@@ -46,7 +46,7 @@ export function GlassHeader({ isScrolled, children, className }: GlassHeaderProp
       as="header"
       radius="none"
       padding="none"
-      bordered={isScrolled}
+      bordered={false}
       blur={isScrolled ? 'md' : 'none'}
       className={cn(
         // Fixed positioning
@@ -60,9 +60,6 @@ export function GlassHeader({ isScrolled, children, className }: GlassHeaderProp
         
         // Conditional glass background (uses bg-2 for theme coherence)
         isScrolled ? 'bg-[rgba(var(--bg-2),0.8)]' : 'bg-transparent',
-        
-        // Border styling when scrolled
-        isScrolled && 'border-b border-border/30',
         
         // Custom classes
         className

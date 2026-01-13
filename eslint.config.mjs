@@ -37,11 +37,47 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-object-type": "off",
+      
+      // Glass styles restriction - only allowed in src/platform/ui/
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/glass/]",
+          message: "Direct 'glass' className is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] TemplateLiteral[quasis=/glass/]",
+          message: "Direct 'glass' className is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/backdrop-blur/]",
+          message: "Direct 'backdrop-blur' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] TemplateLiteral[quasis=/backdrop-blur/]",
+          message: "Direct 'backdrop-blur' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/border-\\[rgba\\(var\\(--border\\)/]",
+          message: "Direct 'border-[rgba(var(--border)' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] TemplateLiteral[quasis=/border-\\[rgba\\(var\\(--border\\)/]",
+          message: "Direct 'border-[rgba(var(--border)' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
+        },
+      ],
     },
     settings: {
       react: {
         version: "detect",
       },
+    },
+  },
+  {
+    // Allow glass styles in src/platform/ui/ (design system primitives)
+    files: ["src/platform/ui/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   {

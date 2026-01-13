@@ -7,6 +7,7 @@ import {
   VolumePill,
   WaveformPlaceholder,
   dribbbleHoverLift,
+  dribbblePlayerBarEnter,
   dribbbleReducedMotion,
 } from '@/platform/ui'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -110,24 +111,10 @@ export function PlayerBar({
 
   const hasTrack = Boolean(trackTitle)
 
-  // Motion variants for enter/exit (opacity + y + blur)
+  // Motion variants for enter/exit - using Dribbble motion utility
   const playerBarVariants = prefersReducedMotion
     ? dribbbleReducedMotion
-    : {
-        initial: { opacity: 0, y: 20, filter: 'blur(8px)' },
-        animate: { 
-          opacity: 1, 
-          y: 0, 
-          filter: 'blur(0px)',
-          transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }
-        },
-        exit: { 
-          opacity: 0, 
-          y: 20, 
-          filter: 'blur(4px)',
-          transition: { duration: 0.2 }
-        },
-      }
+    : dribbblePlayerBarEnter
 
   // Hover lift for controls (reduced motion compliant)
   const controlHoverProps = prefersReducedMotion

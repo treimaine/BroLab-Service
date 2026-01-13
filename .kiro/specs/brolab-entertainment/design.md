@@ -1257,6 +1257,144 @@ export function formatPrice(
 }
 ```
 
+## Chrome vs Surface (Règle Non-Négociable)
+
+### Définition
+
+Le design system distingue deux types de surfaces glass avec des backgrounds différents:
+
+#### 1. Chrome (UI Fixe)
+
+**Usage:** Header, Footer, Navigation, PlayerBar - éléments d'interface permanents
+
+**Background:** `rgb(var(--bg))` + alpha (typiquement 95%)
+
+**Composant:** `<ChromeSurface>`
+
+**Pourquoi?** Les éléments Chrome sont **permanents** et doivent se fondre dans le fond de l'application. Le tint gris de `bg-card` est visible et crée une incohérence visuelle sur ces éléments fixes.
+
+**Exemple:**
+```tsx
+// ✅ CORRECT - Header sticky
+<ChromeSurface 
+  as="header" 
+  blur="sm" 
+  border="bottom"
+  className="fixed top-0 left-0 right-0 z-50"
+>
+  <nav>...</nav>
+</ChromeSurface>
+
+// ✅ CORRECT - PlayerBar
+<ChromeSurface 
+  as="section" 
+  blur="xl" 
+  border="top"
+  className="fixed bottom-0 left-0 right-0"
+>
+  <div>...</div>
+</ChromeSurface>
+
+// ❌ INCORRECT - Ne jamais utiliser GlassSurface pour Chrome
+<GlassSurface> {/* bg-card a un tint gris visible */}
+  <header>...</header>
+</GlassSurface>
+```
+
+#### 2. Surface (Contenu)
+
+**Usage:** Cards, Chips, Badges, Modules - éléments de contenu
+
+**Background:** `bg-card` ou `bg-[rgba(var(--bg-2))]`
+
+**Composants:** `<GlassSurface>`, `<DribbbleCard>`, `<GlassChip>`
+
+**Pourquoi?** Les éléments Surface sont du **contenu** qui doit se distinguer légèrement du fond. Le tint subtil de `bg-card` crée une hiérarchie visuelle appropriée.
+
+**Exemple:**
+```tsx
+// ✅ CORRECT - Content card
+<DribbbleCard>
+  <h3>Feature Title</h3>
+  <p>Description...</p>
+</DribbbleCard>
+
+// ✅ CORRECT - Badge/Chip
+<GlassChip icon={Lock} label="Secure" />
+
+// ❌ INCORRECT - Ne jamais utiliser ChromeSurface pour du contenu
+<ChromeSurface> {/* Pas assez de contraste pour du contenu */}
+  <div className="card">...</div>
+</ChromeSurface>
+```
+
+### Tableau Récapitulatif
+
+| Élément | Type | Composant | Background | Blur |
+|---------|------|-----------|------------|------|
+| Header (sticky/fixed) | Chrome | `<ChromeSurface>` | `rgb(var(--bg))/95` | sm |
+| Footer | Chrome | `<ChromeSurface>` | `rgb(var(--bg))/95` | sm |
+| Left Rail Navigation | Chrome | `<ChromeSurface>` | `rgb(var(--bg))/95` | sm |
+| Bottom Mobile Nav | Chrome | `<ChromeSurface>` | `rgb(var(--bg))/95` | sm |
+| PlayerBar | Chrome | `<ChromeSurface>` | `rgb(var(--bg))/95` | xl |
+| Content Card | Surface | `<DribbbleCard>` | `bg-card` | md |
+| Badge/Chip | Surface | `<GlassChip>` | `bg-[rgba(var(--bg-2))]` | sm |
+| Module | Surface | `<MicroModule>` | `bg-card` | sm |
+| Skeleton Loader | Surface | `<GlassSkeletonCard>` | `bg-[rgba(var(--bg-2))]` | sm |
+
+### Règle d'Or
+
+> **Si l'élément est fixe/sticky et fait partie de l'interface permanente → Chrome**  
+> **Si l'élément est du contenu qui scroll avec la page → Surface**
+
+### Conséquence du Non-Respect
+
+**Problème:** Utiliser `GlassSurface` (ou `bg-card`) sur des éléments Chrome crée un **tint gris visible** en dark mode qui rompt la cohérence visuelle.
+
+**Exemple du problème:**
+```tsx
+// ❌ MAUVAIS - Gris clair visible sur header dark
+<header className="glass"> {/* utilise bg-card */}
+  ...
+</header>
+
+// ✅ BON - Se fond dans le fond dark
+<ChromeSurface as="header">
+  ...
+</ChromeSurface>
+```
+
+### ChromeSurface API
+
+```tsx
+interface ChromeSurfaceProps {
+  children: React.ReactNode
+  blur?: 'none' | 'sm' | 'md' | 'lg' | 'xl' // default: 'sm'
+  border?: 'top' | 'bottom' | 'all' | 'none' // default: 'none'
+  opacity?: number // 0-100, default: 95
+  className?: string
+  as?: 'div' | 'header' | 'footer' | 'nav' | 'section' // default: 'div'
+}
+```
+
+**Exemples d'usage:**
+```tsx
+// Header avec blur léger et bordure bottom
+<ChromeSurface as="header" blur="sm" border="bottom">
+  <nav>...</nav>
+</ChromeSurface>
+
+// PlayerBar avec blur intense et bordure top
+<ChromeSurface as="section" blur="xl" border="top" opacity={90}>
+  <div>...</div>
+</ChromeSurface>
+
+// Footer avec blur moyen
+<ChromeSurface as="footer" blur="md" border="top">
+  <div>...</div>
+</ChromeSurface>
+```
+
 ### Design System CSS
 
 ```css

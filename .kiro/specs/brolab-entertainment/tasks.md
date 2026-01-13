@@ -355,27 +355,70 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task D4.4.5: Replace glass styles in PricingPageClient.tsx: ~~Replace all `className="glass rounded-full"` with `<GlassSurface radius="full" padding="sm">`.~~ **FIXED**: Trust badges and toggle now use `bg-[rgba(var(--bg-2),0.8)]` instead of card tokens for theme coherence. _Requirements: 31, 33_
 
-- [ ] Task D4.4.6: Replace glass styles in marketing layout.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+- [x] Task D4.4.6: Replace glass styles in marketing layout.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
 
 #### D4.5: Centraliser Motion Variants
 
 > **Principe**: Aucun variant motion défini localement. Tous dans `src/platform/ui/dribbble/motion.ts`.
 
-- [ ] Task D4.5.1: Add dribbblePlayerBarEnter to motion.ts: Create `dribbblePlayerBarEnter` variant in `src/platform/ui/dribbble/motion.ts`. Initial: opacity 0, y 20, filter blur(10px). Animate: opacity 1, y 0, filter blur(0px). Exit: opacity 0, y 10, filter blur(5px). _Requirements: 31_
+- [x] Task D4.5.1: Add dribbblePlayerBarEnter to motion.ts: Create `dribbblePlayerBarEnter` variant in `src/platform/ui/dribbble/motion.ts`. Initial: opacity 0, y 20, filter blur(10px). Animate: opacity 1, y 0, filter blur(0px). Exit: opacity 0, y 10, filter blur(5px). _Requirements: 31_
 
-- [ ] Task D4.5.2: Export dribbblePlayerBarEnter from kit: Add to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
+- [x] Task D4.5.2: Export dribbblePlayerBarEnter from kit: Add to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
 
-- [ ] Task D4.5.3: Refactor PlayerBar to use dribbblePlayerBarEnter: Replace local `playerBarVariants` definition with import from `@/platform/ui`. Use `prefersReducedMotion ? dribbbleReducedMotion : dribbblePlayerBarEnter`. _Requirements: 31_
+- [x] Task D4.5.3: Refactor PlayerBar to use dribbblePlayerBarEnter: Replace local `playerBarVariants` definition with import from `@/platform/ui`. Use `prefersReducedMotion ? dribbbleReducedMotion : dribbblePlayerBarEnter`. _Requirements: 31_
 
 #### D4.6: Garde-Fous Anti-Dérive
 
 > **Principe**: Empêcher la dérive future avec des contrôles automatiques.
 
-- [ ] Task D4.6.1: Add ESLint rule for glass styles: Add custom ESLint rule or use `no-restricted-syntax` to forbid `className="glass"`, `backdrop-blur`, `border-[rgba(var(--border)` outside `src/platform/ui/`. Document in `.eslintrc.json`. _Requirements: Code Quality_
+- [x] Task D4.6.1: Add ESLint rule for glass styles: Add custom ESLint rule or use `no-restricted-syntax` to forbid `className="glass"`, `backdrop-blur`, `border-[rgba(var(--border)` outside `src/platform/ui/`. Document in `.eslintrc.json`. _Requirements: Code Quality_
 
 - [ ] Task D4.6.2: Add CI check for glass styles: Create `.github/workflows/ui-lint.yml`. Add grep check: `grep -R "glass\|backdrop-blur" src app | exclude src/platform/ui`. Fail CI if violations found. _Requirements: Code Quality_
 
-- [ ] Task D4.6.3: Document UI architecture rules: Update `docs/decisions.md` with "UI Architecture Rules" section. Document: single import point (@/platform/ui), no styles outside kit, GlassSurface as primitive, motion centralization. Add examples of violations. _Requirements: Documentation_
+- [x] Task D4.6.3: Document UI architecture rules: Update `docs/decisions.md` with "UI Architecture Rules" section. Document: single import point (@/platform/ui), no styles outside kit, GlassSurface as primitive, motion centralization. Add examples of violations. _Requirements: Documentation_
+
+#### D4.6.5: Fix Glass Violations (Phase 0-2)
+
+> **Objectif**: Corriger les 18 violations ESLint détectées par la règle D4.6.1.
+> **Référence**: `docs/glass-violations-report.md`
+
+##### D4.6.5.0: Phase 0 - Base Anti-Dérive
+
+- [x] Task D4.6.5.0.1: Create ChromeSurface component: Create `src/platform/ui/dribbble/ChromeSurface.tsx`. Background: `rgb(var(--bg))` + alpha (95% default). Border: token-based. Props: `blur`, `border`, `opacity`, `as`. Export from kit. **CRITICAL**: NEVER use `bg-card` (has grey tint on fixed UI). _Requirements: Code Quality, Chrome vs Surface Rule_
+
+- [x] Task D4.6.5.0.2: Document Chrome vs Surface rule: Add "Chrome vs Surface (Règle Non-Négociable)" section in `design.md`. Document: Chrome (UI fixe: header/footer/nav/player) uses `rgb(var(--bg))`, Surface (contenu: cards/chips/badges) uses `bg-card`. Include examples, API, table. _Requirements: Documentation_
+
+##### D4.6.5.1: Phase 1 - Reusable Components
+
+- [x] Task D4.6.5.1.1: Create GlassChip component: Create `src/platform/ui/dribbble/GlassChip.tsx`. For badges and content chips. Props: `icon` (LucideIcon), `label` (string), `sublabel` (optional string), `size` ('sm' | 'md'). Background: `bg-[rgba(var(--bg-2),0.8)]` + `backdrop-blur-sm`. Export from kit. _Requirements: Surface Component_
+
+- [x] Task D4.6.5.1.2: Create GlassToggle component: Create `src/platform/ui/dribbble/GlassToggle.tsx`. For annual/monthly toggle. Props: `checked` (boolean), `onChange` (function), `leftLabel` (string), `rightLabel` (string). Background: `bg-[rgba(var(--bg-2),0.8)]` + `backdrop-blur-sm`. Export from kit. _Requirements: Surface Component_
+
+- [x] Task D4.6.5.1.3: Create GlassSkeletonCard component: Create `src/platform/ui/dribbble/GlassSkeletonCard.tsx`. For loading states. Props: `rows` (number, default 3), `hasImage` (boolean, default false). Background: `bg-[rgba(var(--bg-2),0.8)]` + `backdrop-blur-sm`. Export from kit. _Requirements: Surface Component_
+
+##### D4.6.5.2: Phase 2 - Replace Violations (Chrome Elements)
+
+- [ ] Task D4.6.5.2.1: Fix HubLandingPageClient.tsx header: Replace line 101 `className={... backdrop-blur-sm ...}` with `<ChromeSurface as="header" blur="sm" className="fixed top-0 left-0 right-0 z-50">`. Remove manual bg/blur classes. _Requirements: Chrome Component, 18 violations fix_
+
+- [ ] Task D4.6.5.2.2: Fix PlayerBar.tsx container: Replace line 144 `className="... backdrop-blur-xl border-t ..."` with `<ChromeSurface as="section" blur="xl" border="top" className="fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px] h-[72px] md:h-[80px] z-30">`. Remove manual bg/blur/border classes. _Requirements: Chrome Component, 18 violations fix_
+
+- [ ] Task D4.6.5.2.3: Fix MobileNav.tsx: Replace line 82 `className="... glass border-t ..."` with `<ChromeSurface as="nav" blur="sm" border="top" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 pb-safe">`. Remove `glass` class. _Requirements: Chrome Component, 18 violations fix_
+
+##### D4.6.5.2: Phase 2 - Replace Violations (Surface Elements)
+
+- [ ] Task D4.6.5.2.4: Fix loading.tsx skeleton cards: Replace line 75 `className="... backdrop-blur-sm border ..."` with `<GlassSkeletonCard rows={3} />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+
+- [ ] Task D4.6.5.2.5: Fix PricingPageClient.tsx toggle: Replace line 155 `className="... backdrop-blur-sm border ..."` with `<GlassToggle checked={isAnnual} onChange={onToggle} leftLabel="Monthly" rightLabel="Annual" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+
+- [ ] Task D4.6.5.2.6: Fix PricingPageClient.tsx trust badges: Replace lines 361, 365, 369 (3 badges) with `<GlassChip icon={Lock} label="Powered by secure billing" />`, `<GlassChip icon={CreditCard} label="One-time purchases via Stripe" />`, `<GlassChip icon={Shield} label="14-day money-back guarantee" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+
+- [ ] Task D4.6.5.2.7: Fix PlayerBar.tsx BPM/Key chips: Replace lines 210 and 234 (2 chips) with `<GlassChip icon={Clock} label={bpm.toString()} sublabel="BPM" size="sm" />` and `<GlassChip icon={Music} label={trackKey} sublabel="KEY" size="sm" />`. Remove manual bg/blur/border classes. _Requirements: Surface Component, 18 violations fix_
+
+##### D4.6.5.3: Phase 3 - Verification
+
+- [ ] Task D4.6.5.3.1: Run ESLint and verify zero violations: Run `npm run lint`. Expect 0 errors related to glass/backdrop-blur/border-[rgba. All 18 violations should be fixed. _Requirements: Code Quality_
+
+- [ ] Task D4.6.5.3.2: Visual regression check: Navigate to all affected pages (/, /pricing, tenant demo). Verify visual parity: glass effects still present, no broken layouts, theme coherence (no grey tint on Chrome elements). Take screenshots. _Requirements: Visual QA_
 
 #### D4.7: Landing Page Improvements (ChatGPT Feedback)
 

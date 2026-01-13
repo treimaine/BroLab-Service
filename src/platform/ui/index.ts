@@ -30,9 +30,12 @@ export { PillCTA } from './dribbble/PillCTA'
 
 // Cards & Modules
 export { DribbbleCard } from './dribbble/DribbbleCard'
+export { GlassChip, type GlassChipProps } from './dribbble/GlassChip'
 export { GlassFooter } from './dribbble/GlassFooter'
 export { GlassHeader } from './dribbble/GlassHeader'
+export { GlassSkeletonCard, type GlassSkeletonCardProps } from './dribbble/GlassSkeletonCard'
 export { GlassSurface } from './dribbble/GlassSurface'
+export { GlassToggle } from './dribbble/GlassToggle'
 export { MicroInfoModule } from './dribbble/MicroInfoModule'
 export { MicroModule, MicroModuleList } from './dribbble/MicroModule'
 
@@ -73,6 +76,7 @@ export {
     dribbbleHoverLift,
     dribbbleHoverScale,
     dribbblePageEnter,
+    dribbblePlayerBarEnter,
     dribbbleReducedMotion,
     dribbbleScrollReveal,
     dribbbleSlideInLeft,

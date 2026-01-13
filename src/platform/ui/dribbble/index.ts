@@ -32,11 +32,15 @@ export { TopMinimalBar } from './TopMinimalBar'
 export { PillCTA } from './PillCTA'
 
 // Cards & Modules
+export { ChromeSurface, type ChromeSurfaceProps } from './ChromeSurface'
 export { ConstellationInfo } from './ConstellationInfo'
 export { DribbbleCard } from './DribbbleCard'
+export { GlassChip, type GlassChipProps } from './GlassChip'
 export { GlassFooter } from './GlassFooter'
 export { GlassHeader } from './GlassHeader'
+export { GlassSkeletonCard, type GlassSkeletonCardProps } from './GlassSkeletonCard'
 export { GlassSurface } from './GlassSurface'
+export { GlassToggle } from './GlassToggle'
 export { MicroInfoModule } from './MicroInfoModule'
 export { MicroModule, MicroModuleList } from './MicroModule'
 
@@ -68,6 +72,8 @@ export {
     dribbbleHoverLift, dribbbleHoverScale,
     // Page transitions
     dribbblePageEnter,
+    // PlayerBar animation
+    dribbblePlayerBarEnter,
     // Reduced motion
     dribbbleReducedMotion,
     // Scroll reveal

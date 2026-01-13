@@ -1,6 +1,6 @@
 'use client'
 
-import { PillCTA } from '@/platform/ui'
+import { GlassHeader, PillCTA } from '@/platform/ui'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -55,13 +55,7 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <>
       {/* Header - TopMinimalBar pattern */}
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 py-6 transition-[background-color,backdrop-filter] duration-300 ${
-          isScrolled 
-            ? 'bg-[rgb(var(--bg))]/95 backdrop-blur-sm' 
-            : 'bg-transparent'
-        }`}
-      >
+      <GlassHeader isScrolled={isScrolled} className="px-4 lg:px-8 py-6">
         <div className="container mx-auto flex items-center justify-between">
           {/* Left: Theme toggle */}
           <div className="flex-1 flex items-center gap-6">
@@ -135,7 +129,7 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
             </Link>
           </div>
         </div>
-      </header>
+      </GlassHeader>
 
       {/* Main content with top padding for fixed header */}
       <div className="pt-24">
