@@ -20,10 +20,6 @@
   --bg: 247 250 255;
   --bg-2: 236 245 255;
   
-  /* Card tokens (glass morphism) */
-  --card: 255 255 255;
-  --card-alpha: 0.70;
-  
   /* Border tokens */
   --border: 15 23 42;
   --border-alpha: 0.12;
@@ -47,10 +43,6 @@
   /* Background tokens */
   --bg: 7 10 15;
   --bg-2: 10 16 32;
-  
-  /* Card tokens (glass morphism) */
-  --card: 255 255 255;
-  --card-alpha: 0.04;
   
   /* Border tokens */
   --border: 255 255 255;
@@ -101,9 +93,11 @@ body {
   min-height: 100vh;
 }
 
-/* 23.3: Glass morphism utility class */
+/* 23.3: Glass morphism utility class 
+   Uses bg-2 tokens for theme coherence.
+   Creates subtle glass effect with low alpha. */
 .glass {
-  background: rgba(var(--card), var(--card-alpha));
+  background: rgba(var(--bg-2), 0.6);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(var(--border), var(--border-alpha));
@@ -158,13 +152,6 @@ body {
 }
 
 /* Background utilities */
-.bg-card {
-  background: rgb(var(--card));
-}
-
-.bg-card-alpha {
-  background: rgba(var(--card), var(--card-alpha));
-}
 
 /* Border utilities */
 .border-border {
@@ -329,7 +316,7 @@ body {
   margin: 1.5rem 0;
   padding: 1rem 1.5rem;
   border-left: 4px solid rgb(var(--accent));
-  background: rgba(var(--card), var(--card-alpha));
+  background: rgba(var(--bg-2), 0.8);
   border-radius: 0 8px 8px 0;
   font-style: italic;
   color: rgb(var(--muted));
@@ -344,7 +331,7 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.875em;
   padding: 0.2em 0.4em;
-  background: rgba(var(--card), calc(var(--card-alpha) * 2));
+  background: rgba(var(--bg-2), 0.8);
   border-radius: 4px;
   color: rgb(var(--accent));
 }
@@ -353,7 +340,7 @@ body {
 .prose-marketing pre {
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
-  background: rgba(var(--card), calc(var(--card-alpha) * 2));
+  background: rgba(var(--bg-2), 0.8);
   border-radius: 8px;
   overflow-x: auto;
   border: 1px solid rgba(var(--border), var(--border-alpha));
@@ -392,7 +379,7 @@ body {
 .prose-marketing th {
   font-weight: 600;
   color: rgb(var(--text));
-  background: rgba(var(--card), var(--card-alpha));
+  background: rgba(var(--bg-2), 0.8);
 }
 
 .prose-marketing tr:last-child td {

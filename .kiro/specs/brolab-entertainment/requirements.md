@@ -483,3 +483,58 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 **Priority 3 (Nice-to-Have):**
 7. Add product preview section (screenshot + demo link)
+
+
+### Requirement 33: Theme-Coherent Chrome Surfaces (Non-Negotiable)
+
+**User Story:** As a user, I want header and footer to always match the current theme (light/dark), so that the interface feels cohesive and professional without visual inconsistencies.
+
+#### Acceptance Criteria
+
+1. THE Header and Footer SHALL ALWAYS be coherent with the current theme (light/dark)
+2. THE Header and Footer SHALL NEVER use card tokens (--card, bg-card/*) which create light grey overlays
+3. THE Header SHALL be transparent at top (unscrolled) AND theme-coherent tinted glass on scroll using BACKGROUND tokens only
+4. THE Footer SHALL have theme-coherent background at all times using BACKGROUND tokens only
+5. THE System SHALL provide ChromeSurface primitive for chrome elements (header/footer/nav bars)
+6. THE System SHALL provide CardSurface primitive for card elements (cards/modules/overlays)
+7. THE ChromeSurface SHALL use ONLY bg tokens (rgb(var(--bg)), rgb(var(--bg-2)))
+8. THE CardSurface SHALL use ONLY card tokens (bg-card/*, bg-card-alpha)
+9. THE System SHALL prevent bg-card/* usage in header/footer via dev-time warnings
+10. THE System SHALL enforce chrome surface rules via lint script (npm run lint:chrome)
+
+#### Surface Taxonomy
+
+**Chrome Surfaces (use ChromeSurface):**
+- Header / Top bars
+- Footer
+- Navigation bars
+- App chrome elements
+
+**Card Surfaces (use CardSurface):**
+- Cards
+- Modules
+- Overlays
+- Floating panels
+
+#### Forbidden Patterns
+
+❌ Using bg-card/* in header/footer components
+❌ Using GlassSurface default for header/footer (applies card tokens)
+❌ Hardcoded light greys (bg-white, bg-slate-50) in chrome surfaces
+❌ Manual theme toggle with document.documentElement.classList
+
+#### Implementation
+
+1. ChromeSurface component with modes: transparent, base, elevated
+2. CardSurface component for card-style elements
+3. Dev-time runtime warning in ChromeSurface for forbidden patterns
+4. Lint script (lint:chrome) to catch violations in CI
+5. Updated documentation in requirements.md and design.md
+
+#### Verification
+
+1. Visual checks: Header transparent at top, tinted on scroll (both themes)
+2. Visual checks: Footer theme-coherent background (both themes)
+3. Lint checks: npm run lint:chrome passes
+4. Build: TypeScript compilation passes
+5. No bg-card usage in chrome components

@@ -54,7 +54,7 @@ const variantStyles = {
     bg-transparent
     text-muted font-medium
     hover:text-text
-    hover:bg-[rgba(var(--card),0.5)]
+    hover:bg-[rgba(var(--bg-2),0.5)]
   `,
 }
 

@@ -30,8 +30,15 @@ export { PillCTA } from './dribbble/PillCTA'
 
 // Cards & Modules
 export { DribbbleCard } from './dribbble/DribbbleCard'
+export { GlassFooter } from './dribbble/GlassFooter'
+export { GlassHeader } from './dribbble/GlassHeader'
+export { GlassSurface } from './dribbble/GlassSurface'
 export { MicroInfoModule } from './dribbble/MicroInfoModule'
 export { MicroModule, MicroModuleList } from './dribbble/MicroModule'
+
+// Surface Primitives (Theme-Coherent)
+export { CardSurface } from './dribbble/CardSurface'
+export { ChromeSurface } from './dribbble/ChromeSurface'
 
 // Decorations (ELECTRI-X style)
 export { ConstellationDots } from './dribbble/ConstellationDots'

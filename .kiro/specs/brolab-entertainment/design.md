@@ -2193,6 +2193,127 @@ import { PillCTA } from '@/components/ui-dribbble'
 
 ---
 
+## Surface Taxonomy (Theme-Coherent)
+
+### CRITICAL: Chrome vs Card Surfaces
+
+**Problem:** Using card tokens (--card, bg-card/*) for chrome surfaces (header/footer) creates light grey overlays that break theme coherence in dark mode.
+
+**Solution:** Strict separation between Chrome and Card surfaces with dedicated primitives.
+
+### Chrome Surfaces
+
+**Definition:** Top-level UI chrome elements (header, footer, navigation bars)
+
+**Component:** `ChromeSurface`
+
+**Tokens:** ONLY background tokens
+- `rgb(var(--bg))` - Base background
+- `rgb(var(--bg-2))` - Secondary background
+- `border-border` - Border colors
+
+**Modes:**
+- `transparent` - No background (header at top)
+- `base` - Solid background (footer, always visible)
+- `elevated` - Semi-transparent with blur (header on scroll)
+
+**Usage:**
+```tsx
+// Header (transparent → elevated on scroll)
+<ChromeSurface 
+  as="header" 
+  mode={isScrolled ? "elevated" : "transparent"}
+  blur={isScrolled ? "sm" : "none"}
+>
+  Header content
+</ChromeSurface>
+
+// Footer (always base)
+<ChromeSurface as="footer" mode="base" bordered>
+  Footer content
+</ChromeSurface>
+```
+
+### Card Surfaces
+
+**Definition:** Content cards, modules, overlays, floating panels
+
+**Component:** `CardSurface`
+
+**Tokens:** ONLY card tokens
+- `bg-card/80` - Glass card background
+- `bg-card-alpha` - Card with alpha
+- `border-border/50` - Card borders
+
+**Usage:**
+```tsx
+<CardSurface as="div" padding="md" radius="xl" bordered blur="md">
+  Card content
+</CardSurface>
+```
+
+### Forbidden Patterns
+
+| Pattern | Why Forbidden | Use Instead |
+|---------|---------------|-------------|
+| `bg-card/*` in header/footer | Creates light grey overlay in dark mode | `ChromeSurface` with bg tokens |
+| `GlassSurface` for header/footer | Applies card tokens by default | `ChromeSurface` |
+| `bg-white` in chrome | Hardcoded light color | `bg-[rgb(var(--bg))]` |
+| `bg-slate-50` in chrome | Hardcoded light color | `bg-[rgb(var(--bg))]` |
+
+### Guardrails
+
+**1. Dev-time Runtime Warning:**
+```tsx
+// ChromeSurface checks className for violations
+if (className?.includes('bg-card')) {
+  console.warn('[ChromeSurface] FORBIDDEN: card tokens in chrome surface')
+}
+```
+
+**2. Lint Script:**
+```bash
+npm run lint:chrome
+```
+
+Checks chrome surface files for:
+- `bg-card` usage
+- `bg-white` usage
+- `bg-slate-50` usage
+
+**3. CI Integration:**
+Add to CI pipeline to prevent regressions.
+
+### Migration Guide
+
+**Before (broken - light grey in dark mode):**
+```tsx
+<header className="bg-card/80 backdrop-blur-sm">
+  {/* Light grey overlay even in dark mode */}
+</header>
+```
+
+**After (correct - theme-coherent):**
+```tsx
+<ChromeSurface 
+  as="header" 
+  mode="elevated" 
+  blur="sm"
+>
+  {/* Matches theme background */}
+</ChromeSurface>
+```
+
+### Component Reference
+
+| Component | Purpose | Tokens | When to Use |
+|-----------|---------|--------|-------------|
+| `ChromeSurface` | Header/Footer/Nav | bg tokens | Top-level chrome |
+| `CardSurface` | Cards/Modules | card tokens | Content containers |
+| `GlassSurface` | Legacy | card tokens | Deprecated, use above |
+
+---
+
 ## Motion Language (Dribbble)
 
 ### Entrée/Sortie Standard

@@ -1,22 +1,28 @@
 'use client'
 
+import { ChromeSurface } from '@/platform/ui'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
 
 /**
  * Hub Footer Component (Dribbble Style)
  * 
  * Provides footer navigation and information for the hub domain.
- * Uses Dribbble design language with glass background and proper spacing.
+ * Uses ChromeSurface for theme-coherent background.
+ * 
+ * CRITICAL: Footer is a CHROME surface, not a CARD surface.
+ * It must use bg tokens (--bg) to stay theme-coherent.
  * 
  * Dribbble Design Language:
- * - Glass background with subtle border
+ * - Dark background (bg-[rgb(var(--bg))]) matching the page
  * - Dense layout with proper spacing
- * - PillCTA for primary action
  * - Responsive grid layout
  * 
  * Requirements: 17.1 (Hub Landing Page - footer component)
  * Requirements: Hub Dribbble
+ * Requirements: 31 (Marketing Visual Consistency)
+ * Requirements: Theme-Coherent Chrome Surfaces (no color drift)
  */
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -54,7 +60,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-border glass">
+    <ChromeSurface as="footer" mode="base">
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
@@ -141,6 +147,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </ChromeSurface>
   )
 }

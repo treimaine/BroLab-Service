@@ -1,13 +1,13 @@
 'use client'
 
 import {
-    NowPlayingChip,
-    PlayerPillButton,
-    ProgressRail,
-    VolumePill,
-    WaveformPlaceholder,
-    dribbbleHoverLift,
-    dribbbleReducedMotion,
+  NowPlayingChip,
+  PlayerPillButton,
+  ProgressRail,
+  VolumePill,
+  WaveformPlaceholder,
+  dribbbleHoverLift,
+  dribbbleReducedMotion,
 } from '@/platform/ui'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Clock, Music2 } from 'lucide-react'
@@ -158,7 +158,7 @@ export function PlayerBar({
             fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px]
             h-[72px] md:h-[80px]
             z-30
-            bg-[rgba(var(--card),var(--card-alpha))]
+            bg-[rgba(var(--bg-2),0.8)]
             backdrop-blur-xl
             border-t border-[rgba(var(--border),var(--border-alpha))]
           "
@@ -223,7 +223,7 @@ export function PlayerBar({
                       className="
                         flex items-center gap-1.5 px-2.5 py-1
                         rounded-full
-                        bg-[rgba(var(--card),var(--card-alpha))]
+                        bg-[rgba(var(--bg-2),0.8)]
                         backdrop-blur-sm
                         border border-[rgba(var(--border),var(--border-alpha))]
                         cursor-default
@@ -247,7 +247,7 @@ export function PlayerBar({
                       className="
                         flex items-center gap-1.5 px-2.5 py-1
                         rounded-full
-                        bg-[rgba(var(--card),var(--card-alpha))]
+                        bg-[rgba(var(--bg-2),0.8)]
                         backdrop-blur-sm
                         border border-[rgba(var(--border),var(--border-alpha))]
                         cursor-default

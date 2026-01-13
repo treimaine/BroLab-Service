@@ -27,7 +27,6 @@ const config: Config = {
         /* Design token colors using CSS variables */
         bg: "rgb(var(--bg) / <alpha-value>)",
         "bg-2": "rgb(var(--bg-2) / <alpha-value>)",
-        card: "rgb(var(--card) / <alpha-value>)",
         border: "rgb(var(--border) / <alpha-value>)",
         text: "rgb(var(--text) / <alpha-value>)",
         muted: "rgb(var(--muted) / <alpha-value>)",

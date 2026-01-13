@@ -8,11 +8,11 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 
 // Import all UI from @/platform/ui (Dribbble kit)
 import {
-  IconRail,
-  TopMinimalBar,
-  dribbblePageEnter,
-  dribbbleReducedMotion,
-  type IconRailItem
+    IconRail,
+    TopMinimalBar,
+    dribbblePageEnter,
+    dribbbleReducedMotion,
+    type IconRailItem
 } from '@/platform/ui'
 
 import { PlayerBar, type PlayerBarProps } from '../audio'
@@ -186,8 +186,15 @@ export function TenantLayout({
         }
         brandHref={basePath || '/'}
         cta={topBarCta}
-        onThemeToggle={toggleTheme}
-        isDark={theme === 'dark'}
+        right={
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-muted hover:text-text transition-colors"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+        }
         isScrolled={isScrolled}
         className="lg:pl-20" // Offset for IconRail on desktop
       />

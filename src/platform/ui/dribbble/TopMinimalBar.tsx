@@ -1,16 +1,25 @@
 'use client'
 
+import { ChromeSurface } from '@/platform/ui'
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 import { PillCTA } from './PillCTA'
 
+
 /**
  * TopMinimalBar - Minimal top bar with centered brand and CTA pill (Dribbble style)
  * 
  * Clean, minimal header with brand centered and primary CTA on the right.
  * Mobile: hamburger menu. Desktop: inline navigation.
+ * 
+ * CRITICAL: Header is a CHROME surface, not a CARD surface.
+ * It must use bg tokens (--bg) to stay theme-coherent.
+ * - Transparent at top (unscrolled)
+ * - Theme-coherent tinted glass on scroll (bg-[rgb(var(--bg))]/95)
+ * 
+ * Supports custom right slot for actions like theme toggle, user menu, etc.
  */
 
 interface TopMinimalBarProps {
@@ -33,10 +42,8 @@ interface TopMinimalBarProps {
     label: string
     href: string
   }
-  /** Theme toggle handler */
-  onThemeToggle?: () => void
-  /** Current theme */
-  isDark?: boolean
+  /** Custom right slot for actions (theme toggle, user menu, etc.) */
+  right?: ReactNode
   /** Whether the page is scrolled (for transparent → opaque transition) */
   isScrolled?: boolean
   /** Additional CSS classes */
@@ -49,24 +56,18 @@ export function TopMinimalBar({
   navItems = [],
   cta,
   secondaryAction,
-  onThemeToggle,
-  isDark,
+  right,
   isScrolled = false,
   className = '',
 }: Readonly<TopMinimalBarProps>) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header
-      className={`
-        fixed top-0 left-0 right-0 z-50
-        transition-[background-color,backdrop-filter] duration-300
-        ${isScrolled 
-          ? 'bg-[rgb(var(--bg))]/95 backdrop-blur-sm' 
-          : 'bg-transparent'
-        }
-        ${className}
-      `}
+    <ChromeSurface
+      as="header"
+      mode={isScrolled ? 'elevated' : 'transparent'}
+      blur={isScrolled ? 'sm' : 'none'}
+      className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,backdrop-filter] duration-300 ${className}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -101,16 +102,8 @@ export function TopMinimalBar({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-3">
-            {/* Theme toggle */}
-            {onThemeToggle && (
-              <button
-                onClick={onThemeToggle}
-                className="p-2 text-muted hover:text-text transition-colors"
-                aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? '☀️' : '🌙'}
-              </button>
-            )}
+            {/* Custom right slot (e.g., theme toggle, user menu) */}
+            {right}
 
             {/* Secondary action (desktop only) */}
             {secondaryAction && (
@@ -140,7 +133,7 @@ export function TopMinimalBar({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="lg:hidden border-t border-border glass"
+          className="lg:hidden border-t border-border"
         >
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
             {navItems.map((item) => (
@@ -166,7 +159,7 @@ export function TopMinimalBar({
           </nav>
         </motion.div>
       )}
-    </header>
+    </ChromeSurface>
   )
 }
 

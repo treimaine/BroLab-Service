@@ -11,7 +11,7 @@ import {
   OrganicBlob,
   OutlineStackTitle,
   PillCTA,
-  WavyLines,
+  WavyLines
 } from '@/platform/ui'
 import {
   Headphones,

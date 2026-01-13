@@ -310,7 +310,7 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
               className="
                 absolute -top-8 px-2 py-1
                 text-xs font-medium
-                bg-[rgba(var(--card),0.95)] backdrop-blur-sm
+                bg-[rgba(var(--bg-2),0.95)] backdrop-blur-sm
                 border border-[rgba(var(--border),var(--border-alpha))]
                 rounded-md shadow-lg
                 pointer-events-none

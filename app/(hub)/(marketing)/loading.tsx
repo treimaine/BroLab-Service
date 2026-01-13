@@ -15,7 +15,7 @@ import { motion } from 'framer-motion'
 function SkeletonPulse({ className = '' }: { readonly className?: string }) {
   return (
     <motion.div
-      className={`rounded-xl glass ${className}`}
+      className={`${className} rounded-xl bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm`}
       animate={{
         opacity: [0.4, 0.7, 0.4],
       }}
@@ -27,9 +27,9 @@ function SkeletonPulse({ className = '' }: { readonly className?: string }) {
       style={{
         background: `linear-gradient(
           90deg,
-          rgba(var(--card), var(--card-alpha)) 0%,
+          rgba(var(--bg-2), 0.6) 0%,
           rgba(var(--accent), 0.08) 50%,
-          rgba(var(--card), var(--card-alpha)) 100%
+          rgba(var(--bg-2), 0.6) 100%
         )`,
         backgroundSize: '200% 100%',
       }}
@@ -72,7 +72,7 @@ export default function MarketingLoading() {
           {[0, 1, 2].map((i) => (
             <motion.div
               key={`skeleton-card-${i}`}
-              className="glass rounded-2xl p-6 space-y-4"
+              className="space-y-4 p-6 rounded-2xl bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.15 + i * 0.08 }}

@@ -10,6 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "lint:chrome": "node scripts/lint-chrome-surfaces.mjs",
+    "lint:surfaces": "node scripts/lint-surfaces.mjs",
     "typecheck": "tsc --noEmit",
     "build:worker": "tsc -p worker/tsconfig.json",
     "worker": "node dist/worker/index.js"
@@ -40,6 +42,7 @@
     "eslint-config-next": "16.1.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "glob": "11.1.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.2",
     "typescript-eslint": "^8.52.0"

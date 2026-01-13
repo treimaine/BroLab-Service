@@ -76,7 +76,7 @@ export function IconRail({ items, brand, className = '' }: Readonly<IconRailProp
                   transition-colors duration-200
                   ${active 
                     ? 'bg-[rgba(var(--accent),0.15)] text-accent' 
-                    : 'text-muted hover:text-text hover:bg-[rgba(var(--card),0.5)]'
+                    : 'text-muted hover:text-text hover:bg-[rgba(var(--bg-2),0.5)]'
                   }
                 `}
                 whileHover={{ scale: 1.05 }}

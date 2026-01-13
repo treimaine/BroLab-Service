@@ -109,7 +109,7 @@ export function MobileNav({
                   ${
                     isActive
                       ? 'bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] text-white'
-                      : 'text-[rgb(var(--muted))] hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--card),0.5)]'
+                      : 'text-[rgb(var(--muted))] hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--bg-2),0.5)]'
                   }
                 `}
                 whileHover={dribbbleHoverLift.whileHover}

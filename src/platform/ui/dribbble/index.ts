@@ -34,6 +34,9 @@ export { PillCTA } from './PillCTA'
 // Cards & Modules
 export { ConstellationInfo } from './ConstellationInfo'
 export { DribbbleCard } from './DribbbleCard'
+export { GlassFooter } from './GlassFooter'
+export { GlassHeader } from './GlassHeader'
+export { GlassSurface } from './GlassSurface'
 export { MicroInfoModule } from './MicroInfoModule'
 export { MicroModule, MicroModuleList } from './MicroModule'
 

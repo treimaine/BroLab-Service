@@ -1,22 +1,22 @@
 'use client'
 
 import {
-    DribbbleCard,
-    DribbbleSectionEnter,
-    DribbbleStaggerItem,
-    MarketingPageShell,
-    PillCTA,
-    SectionHeader,
+  DribbbleCard,
+  DribbbleSectionEnter,
+  DribbbleStaggerItem,
+  MarketingPageShell,
+  PillCTA,
+  SectionHeader
 } from '@/platform/ui'
 import {
-    Check,
-    ChevronDown,
-    CreditCard,
-    Lock,
-    Shield,
-    Sparkles,
-    X,
-    Zap,
+  Check,
+  ChevronDown,
+  CreditCard,
+  Lock,
+  Shield,
+  Sparkles,
+  X,
+  Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react'
@@ -152,14 +152,14 @@ function PricingToggle({
       </span>
       <button
         onClick={onToggle}
-        className="relative w-24 h-8 rounded-full glass border border-[rgba(var(--accent),0.2)] transition-all duration-300 hover:border-[rgba(var(--accent),0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="relative w-24 h-8 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--accent),0.2)] transition-all duration-300 hover:border-[rgba(var(--accent),0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         role="switch"
         aria-checked={isAnnual}
         aria-label="Toggle annual billing"
       >
         <span 
-          className={`absolute top-0.5 w-7 h-7 rounded-full bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_2px_8px_rgba(var(--accent),0.4)] transition-transform duration-300 ${
-            isAnnual ? 'translate-x-8' : 'translate-x-0.5'
+          className={`absolute top-0.5 left-0.5 w-7 h-7 rounded-full bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_2px_8px_rgba(var(--accent),0.4)] transition-transform duration-300 ${
+            isAnnual ? 'translate-x-[4rem]' : 'translate-x-0'
           }`}
         />
       </button>
@@ -279,7 +279,7 @@ function FeatureTable() {
         <tbody>
           {FEATURE_COMPARISON.map((category) => (
             <React.Fragment key={category.category}>
-              <tr className="bg-[rgba(var(--card),0.3)]">
+              <tr className="bg-[rgba(var(--bg-2),0.3)]">
                 <td colSpan={3} className="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">
                   {category.category}
                 </td>
@@ -358,15 +358,15 @@ function FAQSection() {
 function TrustBadges() {
   return (
     <div className="flex flex-wrap justify-center gap-6">
-      <div className="flex items-center gap-2 px-4 py-2 glass rounded-full">
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
         <Lock className="w-4 h-4 text-accent" />
         <span className="text-sm text-muted">Powered by secure billing</span>
       </div>
-      <div className="flex items-center gap-2 px-4 py-2 glass rounded-full">
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
         <CreditCard className="w-4 h-4 text-accent" />
         <span className="text-sm text-muted">One-time purchases via Stripe</span>
       </div>
-      <div className="flex items-center gap-2 px-4 py-2 glass rounded-full">
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(var(--bg-2),0.8)] backdrop-blur-sm border border-[rgba(var(--border),var(--border-alpha))]">
         <Shield className="w-4 h-4 text-accent" />
         <span className="text-sm text-muted">14-day money-back guarantee</span>
       </div>

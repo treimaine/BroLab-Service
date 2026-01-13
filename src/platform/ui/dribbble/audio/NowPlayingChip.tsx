@@ -132,7 +132,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         className={`
           relative inline-flex items-center
           rounded-full
-          bg-[rgba(var(--card),var(--card-alpha))]
+          bg-[rgba(var(--bg-2),0.8)]
           backdrop-blur-md
           border border-[rgba(var(--border),var(--border-alpha))]
           transition-[background-color,box-shadow,transform] duration-200

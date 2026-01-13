@@ -1,25 +1,24 @@
 'use client'
 
-import { useId } from 'react'
-
 interface OrganicBlobProps {
   readonly className?: string
+  readonly id?: string
 }
 
 /**
  * OrganicBlob - ELECTRI-X decorative element
  * 
  * Organic blob shape with gradient fill and glow effect.
- * Uses useId() to generate unique gradient IDs for multiple instances.
+ * Uses a stable ID to avoid hydration mismatches.
  * 
  * @example
  * ```tsx
  * <OrganicBlob className="w-[180px] h-[140px]" />
  * ```
  */
-export function OrganicBlob({ className }: OrganicBlobProps) {
-  const gradientId = useId()
-  const glowId = useId()
+export function OrganicBlob({ className, id = 'organic-blob' }: OrganicBlobProps) {
+  const gradientId = `${id}-gradient`
+  const glowId = `${id}-glow`
 
   return (
     <svg viewBox="0 0 200 160" fill="none" className={className}>

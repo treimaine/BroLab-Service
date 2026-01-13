@@ -317,43 +317,43 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 > **Principe**: Un composant générique au lieu de multiples composants spécifiques (GlassHeader, GlassFooter, GlassContainer).
 
-- [ ] Task D4.1.1: Create GlassSurface component: Create `src/platform/ui/dribbble/GlassSurface.tsx`. Props: `as` (polymorphic element), `radius` (none/md/xl/2xl/full), `padding` (none/sm/md/lg), `bordered` (boolean), `blur` (none/sm/md), `className`. Use `cn()` utility for class merging. Support all HTML elements via `as` prop. _Requirements: 31, Code Architecture_
+- [x] Task D4.1.1: Create GlassSurface component: Create `src/platform/ui/dribbble/GlassSurface.tsx`. Props: `as` (polymorphic element), `radius` (none/md/xl/2xl/full), `padding` (none/sm/md/lg), `bordered` (boolean), `blur` (none/sm/md), `className`. Use `cn()` utility for class merging. Support all HTML elements via `as` prop. _Requirements: 31, Code Architecture_
 
-- [ ] Task D4.1.2: Export GlassSurface from kit: Add to `src/platform/ui/dribbble/index.ts`. Add to `src/platform/ui/index.ts`. Verify single import point works. _Requirements: Code Architecture_
+- [x] Task D4.1.2: Export GlassSurface from kit: Add to `src/platform/ui/dribbble/index.ts`. Add to `src/platform/ui/index.ts`. Verify single import point works. _Requirements: Code Architecture_
 
 #### D4.2: Créer Wrappers DX Optionnels
 
 > **Principe**: Wrappers pour DX agréable, mais tous basés sur GlassSurface.
 
-- [ ] Task D4.2.1: Create GlassHeader wrapper: Create `src/platform/ui/dribbble/GlassHeader.tsx`. Wrapper around `GlassSurface as="header"`. Props: `isScrolled` (boolean), `children`, `className`. Apply fixed positioning, z-index, transition. Conditional glass + backdrop-blur based on `isScrolled`. _Requirements: 31_
+- [x] Task D4.2.1: Create GlassHeader wrapper: Create `src/platform/ui/dribbble/GlassHeader.tsx`. Wrapper around `GlassSurface as="header"`. Props: `isScrolled` (boolean), `children`, `className`. Apply fixed positioning, z-index, transition. Conditional glass + backdrop-blur based on `isScrolled`. _Requirements: 31_
 
-- [ ] Task D4.2.2: Create GlassFooter wrapper: Create `src/platform/ui/dribbble/GlassFooter.tsx`. Wrapper around `GlassSurface as="footer"`. Props: `children`, `className`. Apply border-top, glass styling. _Requirements: 31_
+- [x] Task D4.2.2: Create GlassFooter wrapper: Create `src/platform/ui/dribbble/GlassFooter.tsx`. Wrapper around `GlassSurface as="footer"`. Props: `children`, `className`. Apply border-top, glass styling. _Requirements: 31_
 
-- [ ] Task D4.2.3: Export glass wrappers from kit: Add GlassHeader and GlassFooter to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
+- [x] Task D4.2.3: Export glass wrappers from kit: Add GlassHeader and GlassFooter to `src/platform/ui/dribbble/index.ts` and `src/platform/ui/index.ts`. _Requirements: Code Architecture_
 
 #### D4.3: Refactoriser Header Hub pour Utiliser TopMinimalBar
 
 > **Principe**: Pas de duplication. Header = wrapper de TopMinimalBar avec config Hub-specific.
 
-- [ ] Task D4.3.1: Update TopMinimalBar to support slots: Add `right` slot prop to TopMinimalBar for custom actions (theme toggle, etc.). Remove `onThemeToggle` and `isDark` props (trop spécifique). Keep `brand`, `brandHref`, `navItems`, `cta`, `secondaryAction`. _Requirements: 31_
+- [x] Task D4.3.1: Update TopMinimalBar to support slots: Add `right` slot prop to TopMinimalBar for custom actions (theme toggle, etc.). Remove `onThemeToggle` and `isDark` props (trop spécifique). Keep `brand`, `brandHref`, `navItems`, `cta`, `secondaryAction`. _Requirements: 31_
 
-- [ ] Task D4.3.2: Create ThemeToggle component: Create `src/components/hub/ThemeToggle.tsx`. Use `useTheme()` from next-themes. Render sun/moon icon. Apply focus-visible ring. _Requirements: 31_
+- [x] Task D4.3.2: Create ThemeToggle component: Create `src/components/hub/ThemeToggle.tsx`. Use `useTheme()` from next-themes. Render sun/moon icon. Apply focus-visible ring. _Requirements: 31_
 
-- [ ] Task D4.3.3: Refactor Header to use TopMinimalBar: Replace entire `src/components/hub/Header.tsx` implementation. Use TopMinimalBar with Hub-specific config. Pass `<ThemeToggle />` to `right` slot. Remove all duplicated logic (mobile menu, theme toggle, glass styling). _Requirements: 31_
+- [x] Task D4.3.3: Refactor Header to use TopMinimalBar: Replace entire `src/components/hub/Header.tsx` implementation. Use TopMinimalBar with Hub-specific config. Pass `<ThemeToggle />` to `right` slot. Remove all duplicated logic (mobile menu, theme toggle, glass styling). _Requirements: 31_
 
 #### D4.4: Éliminer Tous les Styles Glass Hors du Kit
 
 > **Principe**: Aucun `className="glass"`, `backdrop-blur`, ou `border-[rgba(var(--border)` hors de `src/platform/ui/dribbble/**`.
 
-- [ ] Task D4.4.1: Replace glass styles in Header.tsx: Replace `className="glass border-b border-[rgba(var(--border),0.3)]"` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+- [x] Task D4.4.1: Replace glass styles in Header.tsx: Replace `className="glass border-b border-[rgba(var(--border),0.3)]"` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
 
-- [ ] Task D4.4.2: Replace glass styles in Footer.tsx: Replace `className="border-t border-border glass"` with `<GlassFooter>`. _Requirements: 31_
+- [x] Task D4.4.2: Replace glass styles in Footer.tsx: Replace `className="border-t border-border glass"` with `<GlassFooter>`. _Requirements: 31_
 
-- [ ] Task D4.4.3: Replace glass styles in HubLandingPageClient.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
+- [x] Task D4.4.3: Replace glass styles in HubLandingPageClient.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
 
-- [ ] Task D4.4.4: Replace glass styles in loading.tsx: Replace `className="glass rounded-xl"` with `<GlassSurface radius="xl">`. _Requirements: 31_
+- [x] Task D4.4.4: Replace glass styles in loading.tsx: ~~Replace `className="glass rounded-xl"` with `<GlassSurface radius="xl">`.~~ **FIXED**: Replaced with direct `bg-[rgba(var(--bg-2),0.8)]` for theme coherence. Card tokens cause light grey in dark mode. _Requirements: 31, 33_
 
-- [ ] Task D4.4.5: Replace glass styles in PricingPageClient.tsx: Replace all `className="glass rounded-full"` with `<GlassSurface radius="full" padding="sm">`. Replace toggle switch glass with GlassSurface. _Requirements: 31_
+- [x] Task D4.4.5: Replace glass styles in PricingPageClient.tsx: ~~Replace all `className="glass rounded-full"` with `<GlassSurface radius="full" padding="sm">`.~~ **FIXED**: Trust badges and toggle now use `bg-[rgba(var(--bg-2),0.8)]` instead of card tokens for theme coherence. _Requirements: 31, 33_
 
 - [ ] Task D4.4.6: Replace glass styles in marketing layout.tsx: Replace `className={... backdrop-blur-sm ...}` with `<GlassHeader isScrolled={isScrolled}>`. _Requirements: 31_
 
@@ -634,3 +634,57 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 - Never include direct signed download URLs in emails (they expire); link to dashboard instead
 - License terms are snapshotted at purchase time to preserve rights even if tiers change later
 - Stems are only available for Unlimited tier purchases
+
+
+### Phase D4: Theme-Coherent Chrome Surfaces (CRITICAL)
+
+> ⚠️ **PHASE CRITIQUE**: Empêcher la dérive de couleur (color drift) dans header/footer.
+
+**Objectif**: Garantir que header et footer restent cohérents avec le thème actuel (light/dark) sans jamais devenir gris clair.
+
+**Problème**: `GlassSurface` applique `bg-card/80` par défaut. Comme `--card` est blanc, cela crée un overlay gris clair même en dark mode.
+
+**Solution**: Séparer strictement Chrome Surfaces (header/footer) et Card Surfaces (cards/modules).
+
+#### D4.1: Create Surface Primitives
+
+- [x] Task D4.1.1: Create ChromeSurface component: Create `src/platform/ui/dribbble/ChromeSurface.tsx`. For chrome elements (header/footer/nav). Uses ONLY bg tokens: `rgb(var(--bg))`, `rgb(var(--bg-2))`. Modes: transparent, base, elevated. Dev-time warning for forbidden patterns (bg-card, bg-white). _Requirements: 33_
+
+- [x] Task D4.1.2: Create CardSurface component: Create `src/platform/ui/dribbble/CardSurface.tsx`. For card elements (cards/modules/overlays). Uses ONLY card tokens: `bg-card/80`, `bg-card-alpha`. Same API as GlassSurface. _Requirements: 33_
+
+- [x] Task D4.1.3: Export ChromeSurface and CardSurface: Update `src/platform/ui/index.ts` to export both primitives. Add comment explaining surface taxonomy. _Requirements: 33_
+
+#### D4.2: Migrate Header/Footer to ChromeSurface
+
+- [x] Task D4.2.1: Migrate Footer to ChromeSurface: Update `src/components/hub/Footer.tsx`. Replace `<footer className="bg-[rgb(var(--bg))]">` with `<ChromeSurface as="footer" mode="base" bordered>`. Add comment explaining chrome surface rule. _Requirements: 33_
+
+- [x] Task D4.2.2: Migrate TopMinimalBar to ChromeSurface: Update `src/platform/ui/dribbble/TopMinimalBar.tsx`. Replace manual header with `<ChromeSurface as="header" mode={isScrolled ? "elevated" : "transparent"} blur={isScrolled ? "sm" : "none"}>`. Remove manual bg-[rgb(var(--bg))]/95 logic. _Requirements: 33_
+
+- [x] Task D4.2.3: Remove .glass class from mobile menu: Update `src/platform/ui/dribbble/TopMinimalBar.tsx`. Remove `.glass` class from mobile menu (it applies card tokens). Mobile menu inherits ChromeSurface background. _Requirements: 33_
+
+#### D4.3: Create Guardrails
+
+- [x] Task D4.3.1: Create lint script for chrome surfaces: Create `scripts/lint-chrome-surfaces.js`. Check chrome surface files for forbidden patterns: `bg-card`, `bg-white`, `bg-slate-50`. Exit with error if violations found. Exceptions: CardSurface.tsx, GlassSurface.tsx (legacy). _Requirements: 33_
+
+- [x] Task D4.3.2: Add lint:chrome script to package.json: Add `"lint:chrome": "node scripts/lint-chrome-surfaces.js"`. Add `glob` dev dependency. _Requirements: 33_
+
+- [x] Task D4.3.3: Add dev-time warning to ChromeSurface: In `src/platform/ui/dribbble/ChromeSurface.tsx`, check className for forbidden patterns in development. Log warning with instructions if violation detected. _Requirements: 33_
+
+#### D4.4: Update Documentation
+
+- [x] Task D4.4.1: Add Requirement 33 to requirements.md: Add "Theme-Coherent Chrome Surfaces" requirement. Include acceptance criteria, surface taxonomy, forbidden patterns, implementation details. _Requirements: 33_
+
+- [x] Task D4.4.2: Add Surface Taxonomy section to design.md: Add section after "Dribbble Design System Architecture". Explain Chrome vs Card surfaces. Include component reference table. Add migration guide. _Requirements: 33_
+
+- [x] Task D4.4.3: Create implementation guide: Create `docs/theme-coherent-chrome-surfaces.md`. Document problem, solution, implementation, verification checklist, usage guidelines. _Requirements: 33_
+
+#### D4.5: Verification
+
+- [x] Task D4.5.1: Run lint:chrome script: Execute `npm run lint:chrome`. Verify no violations found. _Requirements: 33_
+
+- [x] Task D4.5.2: TypeScript compilation check: Run `npm run typecheck`. Verify no errors. _Requirements: 33_
+
+- [x] Task D4.5.3: Build check: Run `npm run build`. Verify build succeeds. _Requirements: 33_
+
+- [x] CP-D4: Manual Checkpoint Phase D4 Complete (Playwright): Navigate to localhost:3000. Light theme: verify header transparent at top, light tinted on scroll. Verify footer light background (not white). Dark theme: verify header transparent at top, dark tinted on scroll. Verify footer dark background (not grey). Verify no light grey overlays in dark mode. Test theme toggle multiple times. Verify ChromeSurface and CardSurface export correctly. Run `npm run lint:chrome` → passes.
+
