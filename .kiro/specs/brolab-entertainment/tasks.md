@@ -476,9 +476,9 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] Task 4.6: Implement job queue in convex/platform/jobs.ts: enqueueJob mutation. Job status management (pending, processing, completed, failed). Concurrency lock helpers (lockedAt, lockedBy). Retry support with attempts tracking. _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
+- [x] Task 4.6: Implement job queue in convex/platform/jobs.ts: enqueueJob mutation. Job status management (pending, processing, completed, failed). Concurrency lock helpers (lockedAt, lockedBy). Retry support with attempts tracking. _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-- [ ] Task 4.7: Implement observability in convex/platform/: auditLogs.ts: log provider admin actions. events.ts: record lifecycle events. _Requirements: 9.1, 9.2, 9.3, 9.4_
+- [x] Task 4.7: Implement observability in convex/platform/: auditLogs.ts: log provider admin actions. events.ts: record lifecycle events. _Requirements: 9.1, 9.2, 9.3, 9.4_
 
 - [ ] CP-4 Manual Checkpoint: Phase 4 Complete (Playwright + Convex Dashboard): Open Convex Dashboard (npx convex dashboard). Verify all tables created: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents, tracks, services, orders, purchaseEntitlements, bookings. Verify indexes visible on each table. Test a simple query in Convex dashboard to confirm schema works.
 

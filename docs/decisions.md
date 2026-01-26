@@ -1347,3 +1347,207 @@ CLERK_JWT_ISSUER_DOMAIN=https://natural-rattler-88.clerk.accounts.dev
 - Task 4.6: Implement job queue
 - Task 4.7: Implement observability (auditLogs, events)
 
+
+
+---
+
+## Phase 4 Cleanup
+
+### Theme Management Unification
+
+**Date:** 2026-01-26
+
+**Problem:** `src/components/hub/HeroSection.tsx` was using manual DOM manipulation for theme toggling instead of the `next-themes` library used everywhere else in the application.
+
+**Code Before:**
+```typescript
+// ❌ Manual DOM manipulation
+const [isDark, setIsDark] = useState(true)
+
+const toggleTheme = () => {
+  const newIsDark = !isDark
+  setIsDark(newIsDark)
+  document.documentElement.classList.toggle('dark')
+  globalThis.localStorage?.setItem('theme', newIsDark ? 'dark' : 'light')
+}
+```
+
+**Code After:**
+```typescript
+// ✅ Using next-themes
+import { useTheme } from 'next-themes'
+
+const { theme, setTheme } = useTheme()
+const [mounted, setMounted] = useState(false)
+
+useEffect(() => {
+  setMounted(true)
+}, [])
+
+const toggleTheme = () => {
+  setTheme(theme === 'dark' ? 'light' : 'dark')
+}
+
+// In JSX - prevent hydration mismatch
+{mounted && (
+  <button onClick={toggleTheme}>
+    {theme === 'dark' ? '☀️' : '🌙'}
+  </button>
+)}
+```
+
+**Rationale:**
+- **Consistency:** All theme management now uses `next-themes`
+- **SSR-Safe:** Prevents hydration mismatch with `mounted` state
+- **No Flash:** `next-themes` handles theme persistence without flash
+- **Maintainability:** Single source of truth for theme logic
+
+**Impact:**
+- ✅ Eliminates duplication of theme logic
+- ✅ Prevents potential bugs from desynchronization
+- ✅ Improves user experience (no theme flash on load)
+- ✅ Consistent with rest of application
+
+**Files Modified:**
+- `src/components/hub/HeroSection.tsx`
+
+**Verification:**
+```bash
+# No more manual DOM manipulation
+grep -r "document.documentElement.classList" src/
+# Returns: No matches found ✅
+
+# No more manual localStorage for theme
+grep -r "localStorage.*theme" src/
+# Returns: No matches found ✅
+```
+
+---
+
+### Deprecated Components Cleanup
+
+**Date:** 2026-01-26
+
+**Problem:** Components marked `@deprecated` were still present in the codebase, causing confusion and potential misuse.
+
+**Actions Taken:**
+
+#### 1. Removed `LeftRail.tsx`
+- **File Deleted:** `src/components/tenant/LeftRail.tsx`
+- **Reason:** Component was deprecated and unused
+- **Replacement:** `IconRail` from `@/platform/ui/dribbble`
+- **Export Removed:** `src/components/tenant/index.ts`
+
+**Verification:**
+```bash
+# LeftRail no longer used anywhere
+grep -r "LeftRail" src/
+# Returns: Only comment in MobileNav.tsx ✅
+```
+
+#### 2. Removed `TenantNavItem` Type Alias
+- **File Modified:** `src/components/tenant/TenantLayout.tsx`
+- **Line Removed:** `export type TenantNavItem = NavItem`
+- **Reason:** Deprecated type alias, use `NavItem` directly
+
+**Rationale:**
+- **Code Cleanliness:** Removes confusing deprecated code
+- **Prevents Misuse:** Developers can't accidentally use deprecated components
+- **Simplifies Codebase:** Less code to maintain
+- **Clear Migration Path:** Only modern components available
+
+**Impact:**
+- ✅ Cleaner codebase
+- ✅ No confusion about which components to use
+- ✅ Easier onboarding for new developers
+- ✅ Reduced maintenance burden
+
+**Files Modified:**
+- `src/components/tenant/index.ts` (removed LeftRail export)
+- `src/components/tenant/TenantLayout.tsx` (removed TenantNavItem type)
+
+**Files Deleted:**
+- `src/components/tenant/LeftRail.tsx`
+
+---
+
+### Verification Summary
+
+**TypeScript Compilation:**
+```bash
+npm run typecheck
+# Exit Code: 0 ✅
+```
+
+**Production Build:**
+```bash
+npm run build
+# Exit Code: 0 ✅
+# 11 routes generated successfully
+```
+
+**Theme Management Consistency:**
+All files now use `next-themes`:
+- ✅ `src/components/ThemeProvider.tsx`
+- ✅ `src/components/tenant/TenantLayout.tsx`
+- ✅ `src/components/hub/ThemeToggle.tsx`
+- ✅ `src/components/hub/MarketingHeader.tsx`
+- ✅ `src/components/hub/HeroSection.tsx` (fixed)
+- ✅ `app/(hub)/(marketing)/layout.tsx`
+
+**No Manual DOM Manipulation:**
+```bash
+grep -r "document.documentElement" src/
+# Returns: No matches found ✅
+```
+
+**No Deprecated Components:**
+```bash
+grep -r "@deprecated" src/components/tenant/
+# Returns: No matches found ✅
+```
+
+---
+
+### Recommendations
+
+#### 1. Verify Convex Backend (Phase 4 Focus)
+Phase 4 primarily concerns backend implementation. Verify in Convex Dashboard:
+- [ ] All 17 tables created (users, workspaces, domains, etc.)
+- [ ] All 31 indexes present
+- [ ] Platform helpers implemented (users.ts, workspaces.ts, domains.ts, billing.ts)
+- [ ] Entitlements & quotas helpers functional
+- [ ] Job queue operational
+- [ ] Observability logs recording
+
+**Command:**
+```bash
+npx convex dashboard
+```
+
+#### 2. Test Theme Toggle
+- [ ] Test theme toggle on all pages (/, /pricing, /about, /tenant-demo)
+- [ ] Verify no flash on page load
+- [ ] Test in both light and dark modes
+- [ ] Verify system preference detection works
+
+#### 3. Document Phase 4 Decisions
+- [x] Theme management unification documented
+- [x] Deprecated components cleanup documented
+- [ ] Convex backend decisions to be documented after verification
+
+---
+
+### Next Steps
+
+1. **CP-4 Checkpoint:** Manually verify Convex backend in dashboard
+2. **Phase 5:** Implement Clerk authentication and onboarding flow
+3. **Phase 6:** Implement proxy.ts for tenant routing
+
+---
+
+**Status:** ✅ Phase 4 Cleanup Complete  
+**Build:** ✅ Passing  
+**TypeScript:** ✅ No Errors  
+**Theme Management:** ✅ Unified  
+**Deprecated Code:** ✅ Removed

@@ -15,9 +15,10 @@
  * Client-side checks are for UX only. Server-side checks are mandatory.
  */
 
+import { v } from "convex/values";
 import { PLAN_FEATURES, PlanFeatures } from "../../src/platform/billing/plans";
 import { Id } from "../_generated/dataModel";
-import { MutationCtx, QueryCtx } from "../_generated/server";
+import { MutationCtx, QueryCtx, query } from "../_generated/server";
 
 // ============ TYPES ============
 
@@ -392,8 +393,6 @@ export async function hasQuota(
 
 // ============ CONVEX QUERIES (Client-accessible) ============
 
-import { v } from "convex/values";
-import { query } from "../_generated/server";
 
 /**
  * Query: Get workspace plan (client-accessible)

@@ -6,7 +6,6 @@
  * for tenant pages accessed via subdomains or custom domains.
  */
 
-export { LeftRail, type LeftRailNavItem, type LeftRailProps } from './LeftRail';
 export { MobileNav, type MobileNavItem, type MobileNavProps } from './MobileNav';
 export { TenantLayout, type NavItem, type TenantLayoutProps } from './TenantLayout';
 

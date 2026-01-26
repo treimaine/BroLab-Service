@@ -1,5 +1,9 @@
 {
   "node": {
-    "externalPackages": ["stripe", "pdf-lib", "resend"]
+    "externalPackages": [
+      "stripe",
+      "pdf-lib",
+      "resend"
+    ]
   }
 }

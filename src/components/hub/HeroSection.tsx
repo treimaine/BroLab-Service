@@ -1,16 +1,17 @@
 'use client'
 
 import {
-    ChromeSurface,
-    ConstellationDots,
-    CyanOrb,
-    EditionBadge,
-    MicroInfoModule,
-    OrganicBlob,
-    OutlineStackTitle,
-    PillCTA,
-    WavyLines
+  ChromeSurface,
+  ConstellationDots,
+  CyanOrb,
+  EditionBadge,
+  MicroInfoModule,
+  OrganicBlob,
+  OutlineStackTitle,
+  PillCTA,
+  WavyLines
 } from '@/platform/ui'
+import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -89,14 +90,17 @@ const HeroCopy = () => (
 )
 
 export function HeroSection() {
-  const [isDark, setIsDark] = useState(true)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-    document.documentElement.classList.toggle('dark')
-    globalThis.localStorage?.setItem('theme', newIsDark ? 'dark' : 'light')
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   useEffect(() => {
@@ -136,13 +140,15 @@ export function HeroSection() {
       >
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex-1 flex items-center">
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-muted hover:text-text transition-colors"
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button>
+            {mounted && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-muted hover:text-text transition-colors"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            )}
           </div>
           
           <Link href="/" className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors">

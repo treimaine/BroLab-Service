@@ -58,9 +58,6 @@ export interface NavItem {
   exact?: boolean
 }
 
-/** @deprecated Use NavItem instead */
-export type TenantNavItem = NavItem
-
 /**
  * TenantLayout - Responsive layout for tenant storefronts (Dribbble style)
  * 
