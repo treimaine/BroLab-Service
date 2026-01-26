@@ -78,6 +78,161 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 }
 ```
 
+## Runtime Architecture & Responsibilities
+
+### Clerk Edge File (`src/proxy.ts`)
+
+**Purpose:** Authentication and route protection ONLY
+
+**Location:** `src/proxy.ts` (for Next.js ≥16 with `/src` directory)
+
+**Responsibilities:**
+- ✅ Authenticate users via `clerkMiddleware()`
+- ✅ Protect routes (redirect unauthenticated users)
+- ✅ Exclude static files from auth checks
+- ❌ NO tenancy resolution logic
+- ❌ NO custom domain routing
+- ❌ NO business logic
+
+**Implementation:**
+```typescript
+// src/proxy.ts
+import { clerkMiddleware } from '@clerk/nextjs/server'
+
+export default clerkMiddleware()
+
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
+}
+```
+
+### Tenancy Resolution (Next.js + Convex)
+
+**Purpose:** Resolve workspace from hostname
+
+**Responsibilities:**
+- ✅ Extract hostname from `headers()` in Server Components
+- ✅ Query Convex to resolve workspace by slug or custom domain
+- ✅ Pass workspace context to page components
+- ❌ NO separate Node proxy server for MVP
+
+**Implementation Pattern:**
+```typescript
+// app/(_t)/[workspaceSlug]/page.tsx
+import { headers } from 'next/headers'
+
+export default async function TenantPage({ params }: { params: { workspaceSlug: string } }) {
+  const headersList = headers()
+  const hostname = headersList.get('host') || ''
+  
+  // Query Convex to resolve workspace
+  const workspace = await convex.query(api.platform.workspaces.getBySlug, {
+    slug: params.workspaceSlug
+  })
+  
+  // Render tenant storefront
+}
+```
+
+### Convex Backend
+
+**Purpose:** Single source of truth for data and business logic
+
+**Responsibilities:**
+- ✅ Database schema and queries
+- ✅ Mutations and actions
+- ✅ File storage
+- ✅ Real-time subscriptions
+- ✅ Plans/entitlements/quotas logic
+- ❌ NO imports from `src/` (cross-runtime violation)
+
+### Frontend (Next.js App Router)
+
+**Purpose:** UI rendering and user interactions
+
+**Responsibilities:**
+- ✅ Server Components for data fetching
+- ✅ Client Components for interactivity
+- ✅ Consume Convex via queries/mutations
+- ❌ NO direct imports of Convex files
+- ❌ NO business logic duplication
+
+## Single Source of Truth: Billing Plans
+
+### Problem Statement
+
+**Duplicate plan definitions cause inconsistencies:**
+- `src/platform/billing/plans.ts` (snake_case: `max_published_tracks`)
+- `convex/platform/billing/plans.ts` (camelCase: `maxPublishedTracks`)
+- `convex/platform/entitlements.ts` imports from `src/` (cross-runtime ❌)
+
+### Solution: Convex as Canonical Source
+
+**Architecture:**
+```
+convex/platform/billing/plans.ts (CANONICAL)
+    ↓
+convex/platform/billing/getPlansPublic.ts (PUBLIC QUERY)
+    ↓
+Frontend consumes via useQuery(api.platform.billing.getPlansPublic)
+```
+
+**Rules:**
+1. **Convex is source of truth**: `convex/platform/billing/plans.ts` is the ONLY definition
+2. **Frontend uses queries**: Pricing page MUST use `getPlansPublic` query
+3. **No cross-runtime imports**: Convex MUST NOT import from `src/`
+4. **Remove duplicates**: `src/platform/billing/plans.ts` MUST be deleted or converted to thin wrapper
+
+**Implementation:**
+```typescript
+// convex/platform/billing/plans.ts (CANONICAL)
+export const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
+  basic: {
+    maxPublishedTracks: 25,
+    storageGb: 1,
+    maxCustomDomains: 0,
+  },
+  pro: {
+    maxPublishedTracks: -1,
+    storageGb: 50,
+    maxCustomDomains: 2,
+  },
+}
+
+// convex/platform/billing/getPlansPublic.ts (PUBLIC QUERY)
+export const getPlansPublic = query({
+  handler: async () => {
+    return {
+      plans: Object.keys(PLAN_FEATURES).map(key => ({
+        key,
+        features: PLAN_FEATURES[key],
+        pricing: PRICING[key],
+      }))
+    }
+  }
+})
+
+// Frontend (app/(hub)/(marketing)/pricing/page.tsx)
+'use client'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+
+export function PricingPage() {
+  const plansData = useQuery(api.platform.billing.getPlansPublic)
+  // Render pricing table
+}
+```
+
+**Migration Steps:**
+1. ✅ Keep `convex/platform/billing/plans.ts` as canonical
+2. ❌ Remove `src/platform/billing/plans.ts` entirely
+3. ✅ Fix `convex/platform/entitlements.ts` to import from `./billing/plans` (same runtime)
+4. ✅ Update pricing page to use `getPlansPublic` query
+5. ✅ Update all frontend components to consume via Convex queries
+
 ## Clerk Billing - Revenue Flow Clarification
 
 **Important: Clerk Billing = YOUR Stripe Account**
@@ -2990,3 +3145,62 @@ export default function PricingPage() {
   )
 }
 ```
+
+
+---
+
+## Changelog
+
+### 2026-01-26 - Architecture Clarifications & Cross-Runtime Rules
+
+**Changes:**
+
+1. **Runtime Architecture Section Added**: Documented clear separation of responsibilities:
+   - Clerk Edge file (`src/proxy.ts`): Authentication and route protection ONLY
+   - Tenancy Resolution: Next.js Server Components + Convex queries (NOT separate proxy)
+   - Convex Backend: Single source of truth for data and business logic
+   - Frontend: UI rendering via queries/mutations (NO direct Convex imports)
+
+2. **Single Source of Truth: Billing Plans Section Added**: Established canonical architecture:
+   - `convex/platform/billing/plans.ts` is the ONLY definition
+   - Frontend MUST use `getPlansPublic` query for pricing display
+   - `src/platform/billing/plans.ts` MUST be deleted (duplicate)
+   - Cross-runtime imports explicitly forbidden
+
+3. **Cross-Runtime Import Rules (CRITICAL)**: Added strict rules to prevent build failures:
+   - Convex MUST NOT import from `src/` (different runtime)
+   - Frontend MUST NOT import Convex files directly (use queries/mutations)
+   - Plans/entitlements source of truth: Convex canonical
+   - Migration steps documented for fixing violations
+
+4. **Clerk Edge File Clarification**: Corrected naming and location:
+   - File MUST be `src/proxy.ts` (NOT `middleware.ts`) for Next.js ≥16 with `/src` directory
+   - Purpose: Authentication and route protection ONLY (NO tenancy logic)
+   - Implementation example provided
+
+5. **Tenancy Resolution Pattern**: Documented correct implementation:
+   - Extract hostname from `headers()` in Server Components
+   - Query Convex to resolve workspace by slug or custom domain
+   - Pass workspace context to page components
+   - NO separate Node proxy server for MVP
+
+**Rationale:**
+- Align with actual Clerk documentation (Next.js ≥16 uses `proxy.ts` in `/src`)
+- Prevent cross-runtime import errors that break builds
+- Establish single source of truth for billing plans (Convex canonical)
+- Clarify that frontend must consume Convex via queries, not direct imports
+- Document correct tenancy resolution pattern (Next.js + Convex, not separate proxy)
+
+**Files Affected:**
+- `convex/platform/entitlements.ts` - Has cross-runtime import violation (imports from `src/`)
+- `src/platform/billing/plans.ts` - Duplicate file, must be removed
+- `convex/platform/billing/plans.ts` - Canonical source
+- `convex/platform/billing/getPlansPublic.ts` - Public query for frontend
+
+**Action Items:**
+- Remove cross-runtime import in `convex/platform/entitlements.ts`
+- Delete `src/platform/billing/plans.ts` entirely
+- Update pricing UI to consume `getPlansPublic` query
+- Create `src/proxy.ts` with `clerkMiddleware()`
+- Add `<ClerkProvider>` in `app/layout.tsx`
+- Create `ConvexClientProvider` with Clerk integration

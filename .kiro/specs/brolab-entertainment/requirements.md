@@ -40,7 +40,14 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 3. WHEN a request arrives at a custom domain, THE System SHALL resolve the hostname via Convex domains table (verified only) and rewrite to tenant routes
 4. THE System SHALL treat reserved subdomains (www, app, api, admin, studio, artist, pricing, sign-in, sign-up) as hub routes (redirect to hub OR return 404)
 5. IF a custom domain cannot be resolved or is not verified, THEN THE System SHALL return a 404 response
-6. THE Tenancy resolution SHALL be implemented via `proxy.ts` running in a Node runtime (Option B), not via Edge-only middleware constraints
+6. THE Tenancy resolution SHALL be implemented via Next.js routing and Convex queries (NOT via a separate proxy.ts Node server for MVP)
+
+#### Implementation Notes
+
+- **Clerk Edge File**: For Next.js ≥16, the Clerk middleware file MUST be named `src/proxy.ts` (NOT `middleware.ts`)
+- **Clerk Edge File Location**: Since the project uses `/src` directory, the file MUST be located at `src/proxy.ts`
+- **Clerk Edge File Purpose**: Handles ONLY authentication and route protection (NOT tenancy resolution)
+- **Tenancy Resolution**: Handled via Next.js Server Components using `headers()` to read hostname + Convex queries to resolve workspace
 
 ### Requirement 2: User Authentication and Roles
 
@@ -48,13 +55,21 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 #### Acceptance Criteria
 
-1. THE Auth_System SHALL store user roles (producer, engineer, artist) in Clerk publicMetadata.role
+1. THE Auth_System SHALL store user roles (producer, engineer, artist) in Clerk unsafeMetadata.role
 2. WHEN a user signs in without a role, THE Auth_System SHALL redirect to /onboarding
 3. WHEN a provider signs in, THE Auth_System SHALL grant access to /studio/* dashboard
 4. WHEN an artist signs in, THE Auth_System SHALL grant access to /artist/* dashboard
 5. THE Auth_System SHALL work across hub domain and all tenant subdomains (*.brolabentertainment.com)
 6. IF authentication on a custom domain fails due to cookie restrictions, THEN THE Auth_System SHALL use a documented auth-bridge redirect flow
 7. THE Artist accounts SHALL be global and usable across hub and any tenant domain
+
+#### Implementation Notes
+
+- **Clerk Provider**: `<ClerkProvider>` MUST wrap the entire app in `app/layout.tsx`
+- **Clerk Middleware**: `src/proxy.ts` MUST use `clerkMiddleware()` (NOT deprecated `authMiddleware()`)
+- **Convex Integration**: Frontend MUST use `ConvexProviderWithClerk` with `useAuth` from Clerk
+- **Auth State Components**: Use Convex components (`<Authenticated>`, `<Unauthenticated>`, `<AuthLoading>`) NOT Clerk components (`<SignedIn>`, `<SignedOut>`)
+- **Role Storage**: Roles stored in `user.unsafeMetadata.role` AND synced to Convex `users` table
 
 ### Requirement 3: Provider Subscription Management
 
@@ -94,6 +109,21 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 2. THE Platform_Core SHALL include: auth/roles, tenancy, billing/plan features, entitlements, quotas, domains, jobs, observability, i18n, design primitives (ui)
 3. THE Business_Modules SHALL include: beats module (tracks, preview, purchase) and services module (catalog, purchase/booking)
 4. THE Architecture SHALL be documented in docs/architecture.md with a module diagram
+
+#### Cross-Runtime Import Rules (CRITICAL)
+
+1. **Convex MUST NOT import from src/**: Convex runs in a separate runtime and cannot access frontend code
+2. **Frontend MUST NOT import Convex files directly**: Frontend should consume Convex via queries/mutations/actions only
+3. **Plans/Entitlements Source of Truth**: `convex/platform/billing/plans.ts` is the CANONICAL source
+4. **Frontend Pricing Display**: Frontend MUST use `convex/platform/billing/getPlansPublic.ts` query (NOT direct import)
+5. **Duplicate Files**: `src/platform/billing/plans.ts` MUST be removed or converted to a thin API consumer wrapper
+
+#### Forbidden Patterns
+
+❌ `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` in Convex files
+❌ `import { createWorkspace } from "../../../convex/platform/workspaces"` in frontend files
+❌ Maintaining duplicate plan definitions in both `src/` and `convex/`
+❌ Frontend components directly importing Convex constants instead of using queries
 
 ### Requirement 6: Centralized Access Control
 
@@ -538,3 +568,24 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 3. Lint checks: npm run lint:chrome passes
 4. Build: TypeScript compilation passes
 5. No bg-card usage in chrome components
+
+
+---
+
+## Changelog
+
+### 2026-01-26 - Architecture Clarifications
+
+**Changes:**
+1. **Req 1**: Clarified Clerk Edge file naming (`src/proxy.ts` for Next.js ≥16) and location (in `/src` directory)
+2. **Req 1**: Removed reference to separate Node proxy server - tenancy handled via Next.js + Convex queries
+3. **Req 2**: Corrected role storage location (`unsafeMetadata.role` not `publicMetadata.role`)
+4. **Req 2**: Added implementation notes for Clerk/Convex integration patterns
+5. **Req 5**: Added critical cross-runtime import rules to prevent Convex ↔ src/ imports
+6. **Req 5**: Documented forbidden patterns and source of truth for plans/entitlements
+
+**Rationale:**
+- Align with actual Clerk documentation (Next.js ≥16 uses `proxy.ts`)
+- Prevent cross-runtime import errors that break builds
+- Establish single source of truth for billing plans (Convex canonical)
+- Clarify that frontend must consume Convex via queries, not direct imports

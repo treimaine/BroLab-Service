@@ -464,6 +464,30 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] CP-3 Manual Checkpoint: Phase 3 Complete (Playwright): Navigate to localhost:3000 (landing page). Verify cinematic hero with outline typography. Verify CTAs visible: "Start as Producer", "Start as Engineer", "I'm an Artist". Verify glass cards and cyan glow effects. Navigate to /pricing. Verify BASIC ($9.99/mo, $59.99/yr) and PRO ($29.99/mo, $107.99/yr) cards. Verify feature comparison table and FAQ with FAQPage JSON-LD schema. Navigate to /about, /contact, /privacy, /terms. Verify consistent ELECTRI-X styling with MarketingPageShell. Verify glass skeleton loading state on navigation. Verify TOC on privacy/terms pages with prose-marketing styling. Verify all footer/header links work (no more #) with active states. Verify focus-visible rings on all interactive elements. Test theme toggle with next-themes (no flash). Test animations (pageEnter, heroFloat). Verify sitemap.xml and robots.txt accessible. Verify JSON-LD schemas: FAQPage on /pricing, SoftwareApplication on landing page. Verify /pricing and /about have hero visually consistent with / (same patterns: OutlineStackTitle/PressStart, scanlines, background pattern, accents cyan, modules Dribbble). Verify no occurrence of function *Hero() in app/(hub)/(marketing)/**/page.tsx.
 
+### Phase P0: Critical Fixes (MUST DO BEFORE PHASE 5)
+
+> ⚠️ **BLOCKER**: These tasks fix critical architecture violations that will break Phase 5 implementation.
+
+#### P0.1: Fix Cross-Runtime Import Violation
+
+- [ ] Task P0.1.1: Fix convex/platform/entitlements.ts import: Replace `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` with `import { PLAN_FEATURES } from "./billing/plans"`. Convex MUST NOT import from src/ (different runtime). _Requirements: 5.5_
+
+- [ ] Task P0.1.2: Verify entitlements.ts compiles: Run `npx convex dev` and verify no import errors. Test getWorkspacePlan query in Convex dashboard. _Requirements: 5.5_
+
+#### P0.2: Remove Duplicate Plans File
+
+- [ ] Task P0.2.1: Delete src/platform/billing/plans.ts: Remove entire file. This is a duplicate of convex/platform/billing/plans.ts with inconsistent naming (snake_case vs camelCase). Convex is the canonical source. _Requirements: 5.5_
+
+- [ ] Task P0.2.2: Verify no imports of deleted file: Run grep search: `grep -R "from.*src/platform/billing/plans" .`. Verify zero results. If any found, update to use Convex query instead. _Requirements: 5.5_
+
+#### P0.3: Update Pricing UI to Use Convex Query
+
+- [ ] Task P0.3.1: Audit pricing page imports: Check `app/(hub)/(marketing)/pricing/page.tsx` for direct imports of plan constants. If found, replace with `useQuery(api.platform.billing.getPlansPublic)`. _Requirements: 5.5_
+
+- [ ] Task P0.3.2: Verify pricing page uses getPlansPublic: Ensure pricing display consumes data from Convex query, not direct imports. Test in browser: navigate to /pricing, verify plans display correctly. _Requirements: 5.5_
+
+- [ ] CP-P0: Manual Checkpoint P0 Complete: Run `npx convex dev` → no import errors. Run `grep -R "from.*src/platform/billing/plans" .` → zero results. Navigate to /pricing → plans display correctly. Verify convex/platform/entitlements.ts imports from ./billing/plans (same runtime).
+
 ### Phase 4: Convex Schema + Platform Core Helpers
 
 - [x] Task 4.1: Initialize Convex project and configure environment: npx convex dev setup. Environment variables configuration. convex/http.ts for HTTP endpoints. _Requirements: Technology Stack_
@@ -472,15 +496,17 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 4.3: Create platform core helpers in convex/platform/: users.ts: user CRUD, role management. workspaces.ts: workspace CRUD, slug validation. domains.ts: domain CRUD, hostname resolution (verified only). _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [x] Task 4.4: Implement billing/plans configuration: src/platform/billing/plans.ts with PLAN_FEATURES. BASIC: max_published_tracks=25, storage_gb=1, max_custom_domains=0. PRO: max_published_tracks=-1 (unlimited), storage_gb=50, max_custom_domains=2. PREVIEW_DURATION_SEC = 30. _Requirements: 3.2, 3.3_
+- [x] Task 4.4: Implement billing/plans configuration: ~~src/platform/billing/plans.ts~~ **convex/platform/billing/plans.ts** (CANONICAL) with PLAN_FEATURES. BASIC: maxPublishedTracks=25, storageGb=1, maxCustomDomains=0. PRO: maxPublishedTracks=-1 (unlimited), storageGb=50, maxCustomDomains=2. PREVIEW_DURATION_SEC = 30. _Requirements: 3.2, 3.3, 5.5_
 
-- [x] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+- [x] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). **NOTE**: Has cross-runtime import violation (P0.1 fixes this). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [x] Task 4.6: Implement job queue in convex/platform/jobs.ts: enqueueJob mutation. Job status management (pending, processing, completed, failed). Concurrency lock helpers (lockedAt, lockedBy). Retry support with attempts tracking. _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
 - [x] Task 4.7: Implement observability in convex/platform/: auditLogs.ts: log provider admin actions. events.ts: record lifecycle events. _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [ ] CP-4 Manual Checkpoint: Phase 4 Complete (Playwright + Convex Dashboard): Open Convex Dashboard (npx convex dashboard). Verify all tables created: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents, tracks, services, orders, purchaseEntitlements, bookings. Verify indexes visible on each table. Test a simple query in Convex dashboard to confirm schema works.
+- [ ] Task 4.8: Create getPlansPublic query: Create `convex/platform/billing/getPlansPublic.ts`. Public query returning plan info for pricing UI. No auth required. Returns: slug, name, features, pricing, annualSavings. _Requirements: 5.5_
+
+- [ ] CP-4 Manual Checkpoint: Phase 4 Complete (Playwright + Convex Dashboard): Open Convex Dashboard (npx convex dashboard). Verify all tables created: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents, tracks, services, orders, purchaseEntitlements, bookings. Verify indexes visible on each table. Test getPlansPublic query in Convex dashboard → returns plan data. **BLOCKER**: Complete P0 tasks before proceeding to Phase 5.
 
 ### Phase 5: Clerk Auth + Onboarding + Branded Clerk UI
 
@@ -612,6 +638,58 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [ ] CP-10: Manual Checkpoint Phase 10 Complete (Playwright): Sign in as provider. Navigate to /studio/services → create a test service. Verify service appears in list, toggle active/inactive. Navigate to /studio/domains (PRO only) → verify entitlement check. Sign in as artist. Navigate to tenant storefront /{slug}/services. Verify only active services visible. Click service → verify detail page with features, price, book button. Complete service booking → verify booking created. Navigate to /artist → verify booking in list with status. Test tenant isolation: verify no cross-tenant data leakage.
 
+### Phase D5: Theme-Coherent Chrome Surfaces (CRITICAL)
+
+> ⚠️ **PHASE CRITIQUE**: Empêcher la dérive de couleur (color drift) dans header/footer.
+
+**Objectif**: Garantir que header et footer restent cohérents avec le thème actuel (light/dark) sans jamais devenir gris clair.
+
+**Problème**: `GlassSurface` applique `bg-card/80` par défaut. Comme `--card` est blanc, cela crée un overlay gris clair même en dark mode.
+
+**Solution**: Séparer strictement Chrome Surfaces (header/footer) et Card Surfaces (cards/modules).
+
+#### D5.1: Create Surface Primitives
+
+- [x] Task D5.1.1: Create ChromeSurface component: Create `src/platform/ui/dribbble/ChromeSurface.tsx`. For chrome elements (header/footer/nav). Uses ONLY bg tokens: `rgb(var(--bg))`, `rgb(var(--bg-2))`. Modes: transparent, base, elevated. Dev-time warning for forbidden patterns (bg-card, bg-white). _Requirements: 33_
+
+- [x] Task D5.1.2: Create CardSurface component: Create `src/platform/ui/dribbble/CardSurface.tsx`. For card elements (cards/modules/overlays). Uses ONLY card tokens: `bg-card/80`, `bg-card-alpha`. Same API as GlassSurface. _Requirements: 33_
+
+- [x] Task D5.1.3: Export ChromeSurface and CardSurface: Update `src/platform/ui/index.ts` to export both primitives. Add comment explaining surface taxonomy. _Requirements: 33_
+
+#### D5.2: Migrate Header/Footer to ChromeSurface
+
+- [x] Task D5.2.1: Migrate Footer to ChromeSurface: Update `src/components/hub/Footer.tsx`. Replace `<footer className="bg-[rgb(var(--bg))]">` with `<ChromeSurface as="footer" mode="base" bordered>`. Add comment explaining chrome surface rule. _Requirements: 33_
+
+- [x] Task D5.2.2: Migrate TopMinimalBar to ChromeSurface: Update `src/platform/ui/dribbble/TopMinimalBar.tsx`. Replace manual header with `<ChromeSurface as="header" mode={isScrolled ? "elevated" : "transparent"} blur={isScrolled ? "sm" : "none"}>`. Remove manual bg-[rgb(var(--bg))]/95 logic. _Requirements: 33_
+
+- [x] Task D5.2.3: Remove .glass class from mobile menu: Update `src/platform/ui/dribbble/TopMinimalBar.tsx`. Remove `.glass` class from mobile menu (it applies card tokens). Mobile menu inherits ChromeSurface background. _Requirements: 33_
+
+#### D5.3: Create Guardrails
+
+- [x] Task D5.3.1: Create lint script for chrome surfaces: Create `scripts/lint-chrome-surfaces.js`. Check chrome surface files for forbidden patterns: `bg-card`, `bg-white`, `bg-slate-50`. Exit with error if violations found. Exceptions: CardSurface.tsx, GlassSurface.tsx (legacy). _Requirements: 33_
+
+- [x] Task D5.3.2: Add lint:chrome script to package.json: Add `"lint:chrome": "node scripts/lint-chrome-surfaces.js"`. Add `glob` dev dependency. _Requirements: 33_
+
+- [x] Task D5.3.3: Add dev-time warning to ChromeSurface: In `src/platform/ui/dribbble/ChromeSurface.tsx`, check className for forbidden patterns in development. Log warning with instructions if violation detected. _Requirements: 33_
+
+#### D5.4: Update Documentation
+
+- [x] Task D5.4.1: Add Requirement 33 to requirements.md: Add "Theme-Coherent Chrome Surfaces" requirement. Include acceptance criteria, surface taxonomy, forbidden patterns, implementation details. _Requirements: 33_
+
+- [x] Task D5.4.2: Add Surface Taxonomy section to design.md: Add section after "Dribbble Design System Architecture". Explain Chrome vs Card surfaces. Include component reference table. Add migration guide. _Requirements: 33_
+
+- [x] Task D5.4.3: Create implementation guide: Create `docs/theme-coherent-chrome-surfaces.md`. Document problem, solution, implementation, verification checklist, usage guidelines. _Requirements: 33_
+
+#### D5.5: Verification
+
+- [x] Task D5.5.1: Run lint:chrome script: Execute `npm run lint:chrome`. Verify no violations found. _Requirements: 33_
+
+- [x] Task D5.5.2: TypeScript compilation check: Run `npm run typecheck`. Verify no errors. _Requirements: 33_
+
+- [x] Task D5.5.3: Build check: Run `npm run build`. Verify build succeeds. _Requirements: 33_
+
+- [x] CP-D5: Manual Checkpoint Phase D5 Complete (Playwright): Navigate to localhost:3000. Light theme: verify header transparent at top, light tinted on scroll. Verify footer light background (not white). Dark theme: verify header transparent at top, dark tinted on scroll. Verify footer dark background (not grey). Verify no light grey overlays in dark mode. Test theme toggle multiple times. Verify ChromeSurface and CardSurface export correctly. Run `npm run lint:chrome` → passes.
+
 ### Phase 11: i18n + Final Responsive Polish
 
 - [ ] Task 11.1: Set up i18n infrastructure: /src/i18n/messages/en.json and fr.json. Locale detection from Accept-Language header + navigator fallback. Locale context provider. Default to EN. _Requirements: 25.1, 25.2, 25.3_
@@ -731,3 +809,81 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] CP-D4: Manual Checkpoint Phase D4 Complete (Playwright): Navigate to localhost:3000. Light theme: verify header transparent at top, light tinted on scroll. Verify footer light background (not white). Dark theme: verify header transparent at top, dark tinted on scroll. Verify footer dark background (not grey). Verify no light grey overlays in dark mode. Test theme toggle multiple times. Verify ChromeSurface and CardSurface export correctly. Run `npm run lint:chrome` → passes.
 
+
+
+---
+
+## Changelog
+
+### 2026-01-26 - Task Duplication Fixes
+
+**Changes:**
+
+1. **Removed Phase P1 (duplicate of Phase 5)**: Phase P1 "Phase 5 Prerequisites (Auth Foundation)" was a complete duplicate of Phase 5 "Clerk Auth + Onboarding + Branded Clerk UI". All tasks in P1 were redundant:
+   - P1.1 (Create src/proxy.ts) = Phase 5 Task 5.1 (clerkMiddleware)
+   - P1.2 (Create auth pages) = Phase 5 Task 5.2 (branded Clerk UI)
+   - P1.3 (Create onboarding page) = Phase 5 Task 5.3 (onboarding flow)
+   - P1.4 (Add ClerkProvider) = Phase 5 Task 5.1 (ClerkProvider)
+   - P1.5 (Create ConvexClientProvider) = Phase 5 Task 5.4 (ConvexClientProvider)
+
+2. **Renamed Phase D4 to Phase D5**: Moved "Theme-Coherent Chrome Surfaces" phase to correct position (after Phase 10, before Phase 11) and renamed from D4 to D5 to avoid confusion with Phase 4.
+
+3. **Removed duplicate Phase D4**: Eliminated duplicate Phase D4 section that was incorrectly placed at end of file after Notes section.
+
+**Rationale:**
+- Phase P1 was created as "prerequisites" but duplicated all Phase 5 content
+- Keeping Phase 5 as the canonical auth implementation phase
+- Phase P0 (Critical Fixes) remains as true prerequisites that fix architecture violations
+
+**Execution Order (Updated):**
+1. Complete Phase P0 (Critical Fixes) - MUST DO FIRST
+2. Then proceed directly to Phase 5 (Clerk Auth + Onboarding) - no P1 needed
+
+### 2026-01-26 - Architecture Fixes & Phase Reordering
+
+**Changes:**
+
+1. **Added Phase P0 (Critical Fixes)**: Created new phase with 3 critical tasks to fix architecture violations:
+   - P0.1: Fix cross-runtime import in `convex/platform/entitlements.ts` (imports from `src/`)
+   - P0.2: Delete duplicate `src/platform/billing/plans.ts` file
+   - P0.3: Update pricing UI to consume `getPlansPublic` query instead of direct imports
+
+2. **Added Phase P1 (Phase 5 Prerequisites)**: Created new phase with 5 prerequisite tasks:
+   - P1.1: Create `src/proxy.ts` with `clerkMiddleware()` (NOT `middleware.ts`)
+   - P1.2: Create `/sign-in` and `/sign-up` pages with Clerk components
+   - P1.3: Create `/onboarding` page mounting `OnboardingClient`
+   - P1.4: Add `<ClerkProvider>` to `app/layout.tsx`
+   - P1.5: Create `ConvexClientProvider` with Clerk integration
+
+3. **Updated Phase 4 Task Statuses**: Corrected task descriptions to reflect actual implementation:
+   - Task 4.4: Clarified canonical source is `convex/platform/billing/plans.ts` (NOT `src/`)
+   - Task 4.5: Added note about cross-runtime import violation (fixed by P0.1)
+   - Task 4.8: Added new task for `getPlansPublic` query creation
+   - CP-4: Added blocker note requiring P0 completion before Phase 5
+
+4. **Phase 5 Blocked**: Phase 5 (Clerk Auth + Onboarding) cannot proceed until:
+   - P0 tasks completed (fix architecture violations)
+   - P1 tasks completed (create auth foundation)
+
+**Rationale:**
+- Prevent build failures from cross-runtime imports
+- Establish correct file structure before implementing auth
+- Ensure single source of truth for billing plans (Convex canonical)
+- Create proper foundation for Clerk integration (proxy.ts, providers, pages)
+
+**Execution Order:**
+1. Complete Phase P0 (Critical Fixes) - MUST DO FIRST
+2. Complete Phase P1 (Prerequisites) - MUST DO SECOND
+3. Then proceed to Phase 5 (Clerk Auth + Onboarding)
+
+**Files Affected:**
+- `convex/platform/entitlements.ts` - Has import violation
+- `src/platform/billing/plans.ts` - Duplicate, must delete
+- `convex/platform/billing/plans.ts` - Canonical source
+- `convex/platform/billing/getPlansPublic.ts` - Public query for frontend
+- `src/proxy.ts` - Must create (Clerk Edge file)
+- `app/(hub)/sign-in/[[...sign-in]]/page.tsx` - Must create
+- `app/(hub)/sign-up/[[...sign-up]]/page.tsx` - Must create
+- `app/(hub)/onboarding/page.tsx` - Must create
+- `app/layout.tsx` - Must add ClerkProvider + ConvexClientProvider
+- `src/components/ConvexClientProvider.tsx` - Must create
