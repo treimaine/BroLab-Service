@@ -50,6 +50,6 @@ next-env.d.ts
 *.swo
 .kiro/
 .brv/
-
+.agent/
 # Worker build output
 worker/dist/
