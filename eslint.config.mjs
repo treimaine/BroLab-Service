@@ -95,6 +95,8 @@ export default tseslint.config(
       "node_modules/**",
       "dist/**",
       "convex/_generated/**",
+      ".brv/**",
+      ".agent/**",
     ],
   }
 );

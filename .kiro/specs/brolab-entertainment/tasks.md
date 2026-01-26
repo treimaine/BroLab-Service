@@ -466,15 +466,15 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 4: Convex Schema + Platform Core Helpers
 
-- [ ] Task 4.1: Initialize Convex project and configure environment: npx convex dev setup. Environment variables configuration. convex/http.ts for HTTP endpoints. _Requirements: Technology Stack_
+- [x] Task 4.1: Initialize Convex project and configure environment: npx convex dev setup. Environment variables configuration. convex/http.ts for HTTP endpoints. _Requirements: Technology Stack_
 
-- [ ] Task 4.2: Implement Convex schema in convex/schema.ts: Platform tables: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents. Module tables: tracks, services, orders, purchaseEntitlements, bookings. All indexes as specified in design. _Requirements: 5.1, 5.2, 5.3_
+- [x] Task 4.2: Implement Convex schema in convex/schema.ts: Platform tables: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents. Module tables: tracks, services, orders, purchaseEntitlements, bookings. All indexes as specified in design. _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] Task 4.3: Create platform core helpers in convex/platform/: users.ts: user CRUD, role management. workspaces.ts: workspace CRUD, slug validation. domains.ts: domain CRUD, hostname resolution (verified only). _Requirements: 4.1, 4.2, 4.3, 4.4_
+- [x] Task 4.3: Create platform core helpers in convex/platform/: users.ts: user CRUD, role management. workspaces.ts: workspace CRUD, slug validation. domains.ts: domain CRUD, hostname resolution (verified only). _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] Task 4.4: Implement billing/plans configuration: src/platform/billing/plans.ts with PLAN_FEATURES. BASIC: max_published_tracks=25, storage_gb=1, max_custom_domains=0. PRO: max_published_tracks=-1 (unlimited), storage_gb=50, max_custom_domains=2. PREVIEW_DURATION_SEC = 30. _Requirements: 3.2, 3.3_
+- [x] Task 4.4: Implement billing/plans configuration: src/platform/billing/plans.ts with PLAN_FEATURES. BASIC: max_published_tracks=25, storage_gb=1, max_custom_domains=0. PRO: max_published_tracks=-1 (unlimited), storage_gb=50, max_custom_domains=2. PREVIEW_DURATION_SEC = 30. _Requirements: 3.2, 3.3_
 
-- [ ] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+- [x] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [ ] Task 4.6: Implement job queue in convex/platform/jobs.ts: enqueueJob mutation. Job status management (pending, processing, completed, failed). Concurrency lock helpers (lockedAt, lockedBy). Retry support with attempts tracking. _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 

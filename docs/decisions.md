@@ -1065,3 +1065,285 @@ _Document any additional deviations or architectural decisions here._
 - See `docs/dribbble-style-guide.md` for Dribbble design system reference
 
 ---
+
+## Convex Backend Configuration
+
+### Task 4.1: Convex Project Initialization
+
+**Date:** 2026-01-26
+
+**Decision:** Initialize Convex backend with proper configuration for Clerk authentication and HTTP endpoints.
+
+**Actions Taken:**
+1. Created `convex.json` configuration file with external packages:
+   - `stripe` - For Stripe Connect integration
+   - `pdf-lib` - For license PDF generation
+   - `resend` - For transactional emails
+
+2. Created `convex/auth.config.ts` for Clerk JWT validation:
+   - Domain: `process.env.CLERK_JWT_ISSUER_DOMAIN`
+   - Application ID: `convex` (must match Clerk JWT template name)
+
+3. Implemented `convex/http.ts` with HTTP endpoints:
+   - `GET /health` - Health check endpoint
+   - `POST /api/domains/resolve` - Domain resolution for proxy.ts (Phase 6)
+   - `POST /api/stripe/webhook` - Stripe webhook handler (Phase 9)
+
+4. Created `convex/README.md` with:
+   - Directory structure documentation
+   - Development commands
+   - Environment variables reference
+   - HTTP endpoints documentation
+   - Authentication setup guide
+
+5. Updated `.env.example` with all required Convex variables:
+   - `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL
+   - `CLERK_JWT_ISSUER_DOMAIN` - Clerk JWT issuer for auth
+   - `CONVEX_DEPLOYMENT` - Convex deployment identifier
+
+**Rationale:**
+- **Clerk Integration:** Convex validates Clerk JWT tokens for authenticated requests
+- **HTTP Endpoints:** Provides external API access for webhooks and domain resolution
+- **External Packages:** Allows using Node.js packages (Stripe, pdf-lib, Resend) in Convex actions
+- **Documentation:** Clear setup guide for developers
+
+**Environment Variables:**
+```env
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+CLERK_JWT_ISSUER_DOMAIN=https://your-clerk-domain.clerk.accounts.dev
+CONVEX_DEPLOYMENT=dev:your-deployment-name
+```
+
+**Clerk JWT Template:**
+- **CRITICAL:** The JWT template in Clerk Dashboard MUST be named `convex` (do not rename)
+- This name must match the `applicationID` in `auth.config.ts`
+- Template should be created using the "Convex" preset in Clerk Dashboard
+
+**HTTP Endpoints:**
+All HTTP endpoints are accessible at:
+```
+https://your-deployment.convex.cloud/endpoint-path
+```
+
+Current endpoints:
+- `GET /health` - Returns `{ status: "ok", timestamp: number }`
+- `POST /api/domains/resolve` - Accepts `{ hostname: string }`, returns `{ slug: string | null }`
+- `POST /api/stripe/webhook` - Stripe webhook handler (placeholder for Phase 9)
+
+**Development Workflow:**
+```bash
+# Start Convex dev server (watches for changes)
+npx convex dev
+
+# Deploy to production
+npx convex deploy
+
+# Open Convex dashboard
+npx convex dashboard
+```
+
+**Next Steps:**
+- **Phase 4 (Task 4.2)**: Implement full database schema in `convex/schema.ts`
+- **Phase 4 (Task 4.3-4.7)**: Implement platform core helpers (users, workspaces, billing, jobs)
+- **Phase 5 (Task 5.4)**: Create `ConvexClientProvider` with Clerk integration in Next.js
+- **Phase 6 (Task 6.3)**: Implement domain resolution logic in `/api/domains/resolve`
+- **Phase 9 (Task 9.4)**: Implement Stripe webhook handler in `/api/stripe/webhook`
+
+**Verification:**
+- ✅ TypeScript compilation passes (`npm run typecheck`)
+- ✅ `convex.json` exists with external packages configuration
+- ✅ `convex/auth.config.ts` exists with Clerk domain configuration
+- ✅ `convex/http.ts` implements health check and placeholder endpoints
+- ✅ `convex/README.md` documents setup and usage
+- ✅ `.env.example` includes all Convex variables
+
+**References:**
+- Convex Documentation: https://docs.convex.dev
+- Convex + Clerk Integration: https://docs.convex.dev/auth/clerk
+- Convex HTTP Endpoints: https://docs.convex.dev/functions/http-actions
+
+---
+
+
+---
+
+## Convex Backend Configuration
+
+### Task 4.1: Convex Project Initialization
+
+**Date:** 2026-01-26
+
+**Decision:** Initialize Convex backend with external packages and HTTP endpoints.
+
+**Actions Taken:**
+1. Created `convex.json` with external packages configuration:
+   - `stripe@17.5.0` - For Stripe Connect webhooks and checkout
+   - `pdf-lib@1.17.1` - For license PDF generation in actions
+   - `resend@4.1.2` - For transactional emails
+
+2. Created `convex/auth.config.ts` for Clerk JWT validation:
+   - Domain: `process.env.CLERK_JWT_ISSUER_DOMAIN`
+   - Application ID: `convex` (MUST match JWT template name in Clerk Dashboard)
+
+3. Implemented `convex/http.ts` with three HTTP endpoints:
+   - `GET /health` - Health check endpoint (returns 200 OK)
+   - `POST /api/domains/resolve` - Domain resolution (placeholder for Phase 6)
+   - `POST /api/stripe/webhook` - Stripe webhook handler (placeholder for Phase 9)
+
+4. Created `convex/README.md` with comprehensive documentation
+
+5. Updated `.env.example` with required Convex environment variables
+
+**Environment Variables:**
+```env
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://famous-starling-265.convex.cloud
+CONVEX_DEPLOYMENT=dev:famous-starling-265
+
+# Clerk (for Convex auth)
+CLERK_JWT_ISSUER_DOMAIN=https://natural-rattler-88.clerk.accounts.dev
+```
+
+**Rationale:**
+- **External Packages:** Allows Convex actions to use Stripe, pdf-lib, and Resend
+- **Auth Config:** Enables Clerk JWT validation in Convex functions
+- **HTTP Endpoints:** Provides webhook handlers and domain resolution API
+- **Documentation:** Ensures clear understanding of Convex setup
+
+**Verification:**
+- TypeScript compilation passes (`npm run typecheck`)
+- Production build succeeds (`npm run build`)
+- All 11 routes compile successfully
+
+---
+
+### Task 4.2: Convex Schema Implementation
+
+**Date:** 2026-01-26
+
+**Decision:** Implement complete Convex schema with all platform and module tables.
+
+**Schema Structure:**
+
+#### Platform Tables (9 tables)
+1. **users** - User profiles with Clerk integration
+   - Indexes: `by_clerk_id`
+   - Fields: `clerkUserId`, `role`, `createdAt`
+
+2. **workspaces** - Provider workspaces (storefronts)
+   - Indexes: `by_slug`, `by_owner`
+   - Fields: `slug`, `name`, `type`, `ownerClerkUserId`, `stripeAccountId`, `paymentsStatus`, `createdAt`
+
+3. **domains** - Custom domain management
+   - Indexes: `by_workspace`, `by_hostname`
+   - Fields: `workspaceId`, `hostname`, `status`, `createdAt`
+
+4. **providerSubscriptions** - Clerk Billing subscriptions
+   - Indexes: `by_workspace`, `by_clerk_user`
+   - Fields: `workspaceId`, `clerkUserId`, `planKey`, `status`, `updatedAt`
+
+5. **usage** - Workspace usage tracking
+   - Indexes: `by_workspace`
+   - Fields: `workspaceId`, `storageUsedBytes`, `publishedTracksCount`, `updatedAt`
+
+6. **auditLogs** - Provider admin action logs
+   - Indexes: `by_workspace`
+   - Fields: `workspaceId`, `actorClerkUserId`, `action`, `entityType`, `entityId`, `meta`, `createdAt`
+
+7. **events** - Lifecycle events
+   - Indexes: `by_workspace`
+   - Fields: `workspaceId`, `type`, `meta`, `createdAt`
+
+8. **jobs** - Background job queue
+   - Indexes: `by_workspace`, `by_status`, `by_status_createdAt`
+   - Fields: `workspaceId`, `type`, `status`, `payload`, `attempts`, `error`, `lockedAt`, `lockedBy`, `createdAt`, `updatedAt`
+
+9. **processedEvents** - Webhook idempotency
+   - Indexes: `by_event`
+   - Fields: `provider`, `eventId`, `createdAt`
+
+#### Module Tables (5 tables)
+1. **tracks** - Beat/track listings
+   - Indexes: `by_workspace`, `by_workspace_status`
+   - Fields: `workspaceId`, `title`, `bpm`, `key`, `tags`, `priceUsdByTier`, `priceEurByTier`, `status`, `fullStorageId`, `stemsStorageId`, `previewStorageId`, `processingStatus`, `previewDurationSec`, `previewPolicy`, `processingError`, `createdAt`
+
+2. **services** - Service listings (mixing, mastering, etc.)
+   - Indexes: `by_workspace`, `by_workspace_active`
+   - Fields: `workspaceId`, `title`, `description`, `priceUSD`, `priceEUR`, `turnaround`, `features`, `isActive`, `createdAt`
+
+3. **orders** - Purchase orders
+   - Indexes: `by_workspace`, `by_buyer`, `by_stripe_session`
+   - Fields: `workspaceId`, `buyerClerkUserId`, `buyerEmail`, `stripeSessionId`, `itemType`, `itemId`, `currency`, `amountCents`, `licenseTier`, `status`, `createdAt`
+
+4. **purchaseEntitlements** - Track purchase entitlements
+   - Indexes: `by_workspace`, `by_buyer`, `by_buyer_track`
+   - Fields: `workspaceId`, `buyerClerkUserId`, `trackId`, `licenseTier`, `licenseTermsVersion`, `licenseTermsSnapshot`, `licensePdfStorageId`, `createdAt`
+
+5. **bookings** - Service bookings
+   - Indexes: `by_workspace`, `by_buyer`
+   - Fields: `workspaceId`, `buyerClerkUserId`, `serviceId`, `status`, `createdAt`
+
+#### Licensing Tables (2 tables)
+1. **licenses** - License records with immutable terms
+   - Indexes: `by_workspace`, `by_buyer`, `by_entitlement`, `by_order`, `by_track`
+   - Fields: `workspaceId`, `orderId`, `buyerClerkUserId`, `buyerEmail`, `trackId`, `entitlementId`, `termsVersion`, `tierKey`, `includesStems`, `rightsSnapshot`, `prohibitedUsesSnapshot`, `creditLineSnapshot`, `publishingEnabled`, `licensorWriterSharePercent`, `licenseeWriterSharePercent`, `licensorPublisherSharePercent`, `licenseePublisherSharePercent`, `status`, `createdAt`
+
+2. **licenseDocuments** - Generated license PDFs
+   - Indexes: `by_license`, `by_workspace`
+   - Fields: `workspaceId`, `licenseId`, `kind`, `storageId`, `status`, `error`, `createdAt`, `updatedAt`
+
+#### Email Events Table (1 table)
+1. **emailEvents** - Email idempotency tracking
+   - Indexes: `by_dedupe`
+   - Fields: `provider`, `dedupeKey`, `createdAt`
+
+**Total:** 17 tables with 31 indexes
+
+**Key Design Decisions:**
+
+1. **License Tier Pricing:**
+   - Tracks use `priceUsdByTier` object with `basic`, `premium`, `unlimited` keys
+   - Replaces single `priceUSD` field to support tiered licensing
+   - Optional `priceEurByTier` for EUR pricing
+
+2. **Immutable License Terms:**
+   - `licenseTermsSnapshot` stores complete terms at purchase time
+   - `termsVersion` tracks which version was used (e.g., "v1.1-2026-01")
+   - Prevents retroactive changes to purchased licenses
+
+3. **Job Queue Pattern:**
+   - Generic `jobs` table supports multiple job types
+   - Concurrency lock via `lockedAt` and `lockedBy` fields
+   - Retry support with `attempts` counter
+   - Status tracking: pending → processing → completed/failed
+
+4. **Idempotency:**
+   - `processedEvents` table prevents duplicate webhook processing
+   - `emailEvents` table prevents duplicate email sends
+   - Both use `provider` + unique key pattern
+
+5. **Multi-Currency Support:**
+   - Optional `priceEUR` fields on tracks and services
+   - `currency` field on orders tracks actual payment currency
+   - Supports future expansion to additional currencies
+
+**Rationale:**
+- **Comprehensive:** Covers all platform and module requirements
+- **Scalable:** Indexes support efficient queries at scale
+- **Flexible:** Generic job queue and event tables support future features
+- **Compliant:** Immutable license terms ensure legal compliance
+- **Performant:** Proper indexing on all query patterns
+
+**Verification:**
+- TypeScript compilation passes (`npm run typecheck`)
+- Production build succeeds (`npm run build`)
+- Schema validates against Convex requirements
+
+**Next Steps:**
+- Task 4.3: Implement platform core helpers (users, workspaces, domains)
+- Task 4.4: Implement billing/plans configuration
+- Task 4.5: Implement entitlements and quotas helpers
+- Task 4.6: Implement job queue
+- Task 4.7: Implement observability (auditLogs, events)
+

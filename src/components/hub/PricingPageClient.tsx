@@ -1,5 +1,6 @@
 'use client'
 
+import { PRICING, getAnnualSavingsPercent } from '@/platform/billing/plans'
 import {
   DribbbleCard,
   DribbbleSectionEnter,
@@ -24,17 +25,6 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 
 // ============ Pricing Data ============
-
-const PRICING = {
-  basic: { monthly: 9.99, annual: 59.99 },
-  pro: { monthly: 29.99, annual: 107.99 },
-} as const
-
-function getAnnualSavingsPercent(plan: 'basic' | 'pro'): number {
-  const monthly = PRICING[plan].monthly * 12
-  const annual = PRICING[plan].annual
-  return Math.round((1 - annual / monthly) * 100)
-}
 
 const PLAN_FEATURES = {
   basic: {
