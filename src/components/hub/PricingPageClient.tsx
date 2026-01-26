@@ -70,31 +70,6 @@ const PLAN_FEATURES = {
   },
 } as const
 
-const FEATURE_COMPARISON = [
-  { category: 'Beats & Storage', features: [
-    { name: 'Published tracks', basic: '25', pro: 'Unlimited' },
-    { name: 'Storage space', basic: '1 GB', pro: '50 GB' },
-    { name: '30s preview generation', basic: true, pro: true },
-    { name: 'License PDF generation', basic: true, pro: true },
-  ]},
-  { category: 'Storefront', features: [
-    { name: 'Custom subdomain', basic: true, pro: true },
-    { name: 'Custom domains', basic: false, pro: '2 domains' },
-    { name: 'Service listings', basic: true, pro: true },
-    { name: 'Contact page', basic: true, pro: true },
-  ]},
-  { category: 'Payments', features: [
-    { name: 'Direct Stripe payments', basic: true, pro: true },
-    { name: 'Platform fee', basic: '0%', pro: '0%' },
-    { name: 'Multiple license tiers', basic: true, pro: true },
-  ]},
-  { category: 'Support & Analytics', features: [
-    { name: 'Analytics dashboard', basic: 'Basic', pro: 'Advanced' },
-    { name: 'Email support', basic: true, pro: true },
-    { name: 'Priority support', basic: false, pro: true },
-  ]},
-]
-
 const FAQ_ITEMS = [
   {
     question: 'What payment methods do you accept?',
@@ -138,6 +113,43 @@ const FAQ_ITEMS = [
   },
 ]
 
+const FEATURE_COMPARISON = [
+  { 
+    category: 'Beats & Storage', 
+    features: [
+      { name: 'Published tracks', basic: '25', pro: 'Unlimited' },
+      { name: 'Storage space', basic: '1 GB', pro: '50 GB' },
+      { name: '30s preview generation', basic: true, pro: true },
+      { name: 'License PDF generation', basic: true, pro: true },
+    ]
+  },
+  { 
+    category: 'Storefront', 
+    features: [
+      { name: 'Custom subdomain', basic: true, pro: true },
+      { name: 'Custom domains', basic: '0', pro: '2' },
+      { name: 'Service listings', basic: true, pro: true },
+      { name: 'Contact page', basic: true, pro: true },
+    ]
+  },
+  { 
+    category: 'Payments', 
+    features: [
+      { name: 'Direct Stripe payments', basic: true, pro: true },
+      { name: 'Platform fee', basic: '0%', pro: '0%' },
+      { name: 'Multiple license tiers', basic: true, pro: true },
+    ]
+  },
+  { 
+    category: 'Support & Analytics', 
+    features: [
+      { name: 'Analytics dashboard', basic: 'Basic', pro: 'Advanced' },
+      { name: 'Email support', basic: true, pro: true },
+      { name: 'Priority support', basic: false, pro: true },
+    ]
+  },
+]
+
 // ============ Components ============
 
 function PricingToggle({ 
@@ -163,16 +175,16 @@ function PricingToggle({
 }
 
 function PlanCard({ 
-  plan, 
+  plan,
   isAnnual 
 }: Readonly<{ 
   plan: 'basic' | 'pro'
   isAnnual: boolean 
 }>) {
-  const data = PLAN_FEATURES[plan]
+  const planData = PLAN_FEATURES[plan]
   const price = isAnnual ? PRICING[plan].annual : PRICING[plan].monthly
-  const savings = getAnnualSavingsPercent(plan)
   const isPro = plan === 'pro'
+  const savingsPercent = getAnnualSavingsPercent(plan)
 
   return (
     <div className={isPro ? 'pt-4' : ''}>
@@ -191,8 +203,8 @@ function PlanCard({
         className={`relative ${isPro ? 'border border-[rgba(var(--accent),0.3)] ring-1 ring-[rgba(var(--accent),0.2)]' : ''}`}
       >
         <div className={`text-center mb-6 ${isPro ? 'pt-2' : ''}`}>
-          <h3 className="text-2xl font-bold text-text mb-2">{data.name}</h3>
-          <p className="text-sm text-muted">{data.description}</p>
+          <h3 className="text-2xl font-bold text-text mb-2">{planData.name}</h3>
+          <p className="text-sm text-muted">{planData.description}</p>
         </div>
 
         <div className="text-center mb-6">
@@ -202,7 +214,7 @@ function PlanCard({
           </div>
           {isAnnual && (
             <p className="mt-2 text-sm text-accent font-medium">
-              Save {savings}% with annual billing
+              Save {savingsPercent}% with annual billing
             </p>
           )}
         </div>
@@ -219,7 +231,7 @@ function PlanCard({
         </Link>
 
         <ul className="space-y-3">
-          {data.features.map((feature) => (
+          {planData.features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-3">
               {feature.included ? (
                 <Check className="w-5 h-5 text-accent flex-shrink-0" />
@@ -312,9 +324,7 @@ function FAQItem({
       >
         <span className="text-sm font-medium text-text pr-4">{question}</span>
         <ChevronDown 
-          className={`w-5 h-5 text-muted flex-shrink-0 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`} 
+          className={`w-5 h-5 text-muted flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
       {isOpen && (
@@ -413,7 +423,6 @@ export default function PricingPageClient() {
       eyebrow="Simple Pricing"
       subtitle="Choose the plan that fits your needs. No hidden fees, no platform commission on your sales."
     >
-      {/* Pricing Cards */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-5xl">
           <PricingToggle isAnnual={isAnnual} onToggle={setIsAnnual} />
@@ -435,14 +444,10 @@ export default function PricingPageClient() {
         </div>
       </section>
 
-      {/* Feature Comparison Table */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <DribbbleSectionEnter>
-            <SectionHeader 
-              title="FEATURE COMPARISON" 
-              subtitle="See exactly what's included in each plan"
-            />
+            <SectionHeader title="FEATURE COMPARISON" subtitle="See exactly what's included in each plan" />
           </DribbbleSectionEnter>
           
           <DribbbleSectionEnter>
@@ -453,14 +458,10 @@ export default function PricingPageClient() {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <DribbbleSectionEnter>
-            <SectionHeader 
-              title="FREQUENTLY ASKED QUESTIONS" 
-              subtitle="Everything you need to know about our plans"
-            />
+            <SectionHeader title="FREQUENTLY ASKED QUESTIONS" subtitle="Everything you need to know about our plans" />
           </DribbbleSectionEnter>
           
           <DribbbleSectionEnter>
@@ -471,7 +472,6 @@ export default function PricingPageClient() {
         </div>
       </section>
 
-      {/* Final CTA */}
       <FinalCTASection />
     </MarketingPageShell>
   )

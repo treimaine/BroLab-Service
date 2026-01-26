@@ -49,6 +49,7 @@ next-env.d.ts
 *.swp
 *.swo
 .kiro/
+.brv/
 
 # Worker build output
 worker/dist/

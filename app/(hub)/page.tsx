@@ -1,5 +1,5 @@
+import HubLandingPageClient from '@/components/hub/HubLandingPageClient'
 import type { Metadata } from 'next'
-import HubLandingPageClient from './HubLandingPageClient'
 
 /**
  * Hub Landing Page - ELECTRI-X Design Language

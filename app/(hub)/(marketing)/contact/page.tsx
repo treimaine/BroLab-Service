@@ -1,5 +1,5 @@
+import ContactPageClient from '@/components/hub/ContactPageClient'
 import type { Metadata } from 'next'
-import ContactPageClient from './ContactPageClient'
 
 /**
  * Contact Page - ELECTRI-X Design Language

@@ -1,5 +1,5 @@
+import PricingPageClient from '@/components/hub/PricingPageClient'
 import type { Metadata } from 'next'
-import PricingPageClient from './PricingPageClient'
 
 /**
  * Pricing Page - ELECTRI-X Design Language
