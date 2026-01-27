@@ -467,3 +467,20 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+
+
+/* ============================================
+   Clerk Button Text Fix
+   Ensure button text is visible on cyan background
+   ============================================ */
+
+/* Force dark text on Clerk primary buttons for proper contrast */
+.cl-formButtonPrimary {
+  color: rgb(7 10 15) !important;
+}
+
+.cl-formButtonPrimary * {
+  color: rgb(7 10 15) !important;
+}

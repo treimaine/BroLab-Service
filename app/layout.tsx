@@ -37,7 +37,7 @@ export default function RootLayout({
         variables: {
           // Dribbble design tokens - cyan accent theme
           colorPrimary: "rgb(34 211 238)", // --accent in dark mode
-          colorTextOnPrimaryBackground: "rgb(7 10 15)", // --bg in dark mode
+          colorTextOnPrimaryBackground: "rgb(7 10 15)", // Dark text on cyan button for better contrast
           colorBackground: "rgba(10 16 32, 0.6)", // --bg-2 with glass alpha
           colorInputBackground: "rgba(10 16 32, 0.8)", // Slightly more opaque for inputs
           colorInputText: "rgb(234 242 255)", // --text in dark mode

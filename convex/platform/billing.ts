@@ -5,6 +5,7 @@
  * via api.platform.billing.* pattern in the generated API.
  */
 
-export { getPlansPublic } from "./billing/getPlansPublic";
-export type { PublicPlanInfo } from "./billing/getPlansPublic";
+export { getPlansPublic } from "./billing/plans";
+export type { PublicPlanInfo } from "./billing/plans";
+
 

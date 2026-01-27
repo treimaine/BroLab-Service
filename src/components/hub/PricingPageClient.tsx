@@ -24,7 +24,7 @@ import {
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { api } from '../../../convex/_generated/api'
-import type { PublicPlanInfo } from '../../../convex/platform/billing/getPlansPublic'
+import type { PublicPlanInfo } from '../../../convex/platform/billing/plans'
 
 // ============ Pricing Data ============
 
