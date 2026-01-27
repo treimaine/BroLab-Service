@@ -44,10 +44,16 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 #### Implementation Notes
 
-- **Clerk Edge File**: For Next.js ≥16, the Clerk middleware file MUST be named `src/proxy.ts` (NOT `middleware.ts`)
-- **Clerk Edge File Location**: Since the project uses `/src` directory, the file MUST be located at `src/proxy.ts`
-- **Clerk Edge File Purpose**: Handles ONLY authentication and route protection (NOT tenancy resolution)
-- **Tenancy Resolution**: Handled via Next.js Server Components using `headers()` to read hostname + Convex queries to resolve workspace
+- **Deployment**: Application deployed on Vercel (serverless Edge runtime)
+- **Clerk Edge File**: For Next.js ≥16 with `/src` directory, the Clerk middleware file MUST be `src/proxy.ts` (NOT `middleware.ts`)
+- **Clerk Edge File Purpose**: Handles ONLY authentication and route protection via `clerkMiddleware()` (NOT tenancy resolution)
+- **Clerk Edge File Config**: MUST include `config.matcher` to exclude static files (`_next/static`, `_next/image`, `favicon.ico`, etc.)
+- **Tenancy Resolution**: Implemented via Edge-compatible module (e.g., `src/platform/tenancy/edge-router.ts`) that:
+  - Extracts hostname from request headers
+  - Queries Convex to resolve workspace by slug or custom domain
+  - Rewrites to `/_t/[workspaceSlug]/*` pattern
+  - Verifies custom domain entitlements server-side
+- **No Separate Proxy Server**: NO Node.js reverse proxy server for MVP (Vercel handles routing)
 
 ### Requirement 2: User Authentication and Roles
 
@@ -65,11 +71,16 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 #### Implementation Notes
 
-- **Clerk Provider**: `<ClerkProvider>` MUST wrap the entire app in `app/layout.tsx`
-- **Clerk Middleware**: `src/proxy.ts` MUST use `clerkMiddleware()` (NOT deprecated `authMiddleware()`)
-- **Convex Integration**: Frontend MUST use `ConvexProviderWithClerk` with `useAuth` from Clerk
-- **Auth State Components**: Use Convex components (`<Authenticated>`, `<Unauthenticated>`, `<AuthLoading>`) NOT Clerk components (`<SignedIn>`, `<SignedOut>`)
-- **Role Storage**: Roles stored in `user.unsafeMetadata.role` AND synced to Convex `users` table
+- **MVP Approach**: NO Clerk Organizations for MVP (simplified role-based system)
+- **Role Storage**: Roles stored in `user.unsafeMetadata.role` (NOT `publicMetadata.role`)
+- **Convex Sync**: Roles synced to Convex `users` table for server-side queries
+- **Clerk Provider**: `<ClerkProvider>` MUST wrap entire app in `app/layout.tsx`
+- **Clerk Middleware**: `src/proxy.ts` MUST use `clerkMiddleware()` from `@clerk/nextjs/server` (NOT deprecated `authMiddleware()`)
+- **Provider Order**: MUST be `<ClerkProvider>` → `<ConvexClientProvider>` → app (order matters for auth context)
+- **Convex Integration**: Use `ConvexProviderWithClerk` from `convex/react-clerk` with `useAuth` from `@clerk/nextjs`
+- **Auth State Components**: Use Convex components (`<Authenticated>`, `<Unauthenticated>`, `<AuthLoading>` from `convex/react`) NOT Clerk components (`<SignedIn>`, `<SignedOut>`)
+- **Auth Pages**: Create `/sign-in` and `/sign-up` pages using Clerk's `<SignIn />` and `<SignUp />` components with Dribbble styling
+- **Onboarding Flow**: `/onboarding` page for role selection (producer/engineer/artist) + workspace creation for providers
 
 ### Requirement 3: Provider Subscription Management
 
@@ -112,16 +123,48 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 
 #### Cross-Runtime Import Rules (CRITICAL)
 
-1. **Convex MUST NOT import from src/**: Convex runs in a separate runtime and cannot access frontend code
+**These rules prevent build failures and runtime errors:**
+
+1. **Convex MUST NOT import from src/**: Convex runs in a separate serverless runtime and cannot access frontend code
+   - ❌ FORBIDDEN: `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` in Convex files
+   - ✅ CORRECT: Import from Convex files only: `import { PLAN_FEATURES } from "./billing/plans"`
+
 2. **Frontend MUST NOT import Convex files directly**: Frontend should consume Convex via queries/mutations/actions only
+   - ❌ FORBIDDEN: `import { createWorkspace } from "../../../convex/platform/workspaces"` in frontend
+   - ✅ CORRECT: Use Convex queries: `useQuery(api.platform.workspaces.create, { ... })`
+
 3. **Plans/Entitlements Source of Truth**: `convex/platform/billing/plans.ts` is the CANONICAL source
-4. **Frontend Pricing Display**: Frontend MUST use `convex/platform/billing/getPlansPublic.ts` query (NOT direct import)
-5. **Duplicate Files**: `src/platform/billing/plans.ts` MUST be removed or converted to a thin API consumer wrapper
+   - All plan definitions (PLAN_FEATURES, PRICING, PREVIEW_DURATION_SEC) MUST live in Convex
+   - Frontend MUST consume via `convex/platform/billing/getPlansPublic.ts` query
+
+4. **Frontend Pricing Display**: Frontend MUST use public query for pricing data
+   - ❌ FORBIDDEN: `import { PRICING } from '@/platform/billing/plans'` in frontend components
+   - ✅ CORRECT: `const plans = useQuery(api.platform.billing.getPlansPublic)`
+
+5. **Duplicate Files MUST be removed**: `src/platform/billing/plans.ts` is a duplicate and MUST be deleted
+   - This file creates confusion and violates single source of truth principle
+   - All plan logic belongs in `convex/platform/billing/plans.ts`
+
+#### Migration Steps for Fixing Violations
+
+1. **Fix `convex/platform/entitlements.ts`**:
+   - Change: `import { PLAN_FEATURES } from "../../src/platform/billing/plans"`
+   - To: `import { PLAN_FEATURES } from "./billing/plans"`
+
+2. **Fix `src/components/hub/PricingPageClient.tsx`**:
+   - Remove: `import { PRICING, getAnnualSavingsPercent } from '@/platform/billing/plans'`
+   - Add: `const plans = useQuery(api.platform.billing.getPlansPublic)`
+   - Use query data instead of direct imports
+
+3. **Delete `src/platform/billing/plans.ts`**:
+   - This file is a duplicate and must be removed entirely
+   - All references must be updated to use Convex query
 
 #### Forbidden Patterns
 
 ❌ `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` in Convex files
 ❌ `import { createWorkspace } from "../../../convex/platform/workspaces"` in frontend files
+❌ `import { PRICING } from '@/platform/billing/plans'` in frontend components
 ❌ Maintaining duplicate plan definitions in both `src/` and `convex/`
 ❌ Frontend components directly importing Convex constants instead of using queries
 
@@ -573,6 +616,55 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 ---
 
 ## Changelog
+
+### 2026-01-26 - Vercel Deployment & Cross-Runtime Clarifications
+
+**Changes:**
+
+1. **Req 1 (Multi-Tenant Architecture)**:
+   - Clarified deployment target: Vercel (serverless Edge runtime)
+   - Specified Clerk Edge file: `src/proxy.ts` for Next.js ≥16 with `/src` directory
+   - Clarified purpose: Authentication ONLY (NOT tenancy resolution)
+   - Added Edge-compatible tenancy module pattern (e.g., `src/platform/tenancy/edge-router.ts`)
+   - Removed reference to separate Node.js proxy server (not needed for Vercel deployment)
+   - Added custom domain entitlement verification requirement
+
+2. **Req 2 (User Authentication and Roles)**:
+   - Clarified MVP approach: NO Clerk Organizations (simplified role-based system)
+   - Corrected role storage: `unsafeMetadata.role` (NOT `publicMetadata.role`)
+   - Added provider order requirement: `<ClerkProvider>` → `<ConvexClientProvider>` → app
+   - Specified Convex integration: `ConvexProviderWithClerk` from `convex/react-clerk`
+   - Added auth pages requirement: `/sign-in`, `/sign-up` with Dribbble styling
+   - Added onboarding flow details: role selection + workspace creation
+
+3. **Req 5 (Micro-SaaS Modular Architecture)**:
+   - Expanded cross-runtime import rules with detailed explanations
+   - Added migration steps for fixing existing violations:
+     * Fix `convex/platform/entitlements.ts` import
+     * Fix `src/components/hub/PricingPageClient.tsx` to use query
+     * Delete `src/platform/billing/plans.ts` duplicate
+   - Added specific forbidden patterns with examples
+   - Clarified that `src/platform/billing/plans.ts` MUST be deleted (not just converted)
+
+**Rationale:**
+- Align with Vercel deployment model (no Node.js proxy needed)
+- Align with Clerk Next.js ≥16 documentation (`src/proxy.ts` naming)
+- Prevent cross-runtime import errors that break builds
+- Establish single source of truth for billing plans (Convex canonical)
+- Simplify MVP by removing Clerk Organizations complexity
+- Provide clear migration path for fixing existing violations
+
+**Files Affected:**
+- `src/proxy.ts` - Must be created (Clerk Edge file)
+- `app/layout.tsx` - Must add `<ClerkProvider>` and `<ConvexClientProvider>`
+- `app/(hub)/sign-in/[[...sign-in]]/page.tsx` - Must be created
+- `app/(hub)/sign-up/[[...sign-up]]/page.tsx` - Must be created
+- `app/(hub)/onboarding/page.tsx` - Must be created
+- `src/components/ConvexClientProvider.tsx` - Must be created
+- `convex/platform/entitlements.ts` - Has cross-runtime import violation (must fix)
+- `src/platform/billing/plans.ts` - Duplicate file (must delete)
+- `src/components/hub/PricingPageClient.tsx` - Uses direct import (must fix to use query)
+- `src/platform/tenancy/edge-router.ts` - Must be created (Edge-compatible tenancy module)
 
 ### 2026-01-26 - Architecture Clarifications
 

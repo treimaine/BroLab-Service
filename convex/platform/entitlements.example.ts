@@ -79,7 +79,7 @@ export const connectCustomDomainExample = mutation({
   },
   handler: async (ctx, args) => {
     // STEP 1: Check entitlement (is custom domains feature available?)
-    await assertEntitlement(ctx, args.workspaceId, "max_custom_domains");
+    await assertEntitlement(ctx, args.workspaceId, "maxCustomDomains");
 
     // STEP 2: Check quota (has workspace reached domain limit?)
     await assertQuota(ctx, args.workspaceId, "domains");
@@ -151,7 +151,7 @@ export const createServiceExample = mutation({
   handler: async (ctx, args) => {
     // STEP 1: Check if subscription is active
     // We can use assertEntitlement with any feature key to check subscription status
-    await assertEntitlement(ctx, args.workspaceId, "max_published_tracks");
+    await assertEntitlement(ctx, args.workspaceId, "maxPublishedTracks");
 
     // STEP 2: Create the service
     const serviceId = await ctx.db.insert("services", {

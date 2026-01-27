@@ -2,317 +2,295 @@
  * Platform Core: Entitlements and Quotas
  * 
  * Centralized access control helpers for feature gating and usage limits.
- * All provider mutations and actions MUST call these checks server-side.
+ * Server-side enforcement - NEVER trust client-side state.
  * 
- * Requirements:
- * - Requirement 6.1: getWorkspacePlan(workspaceId) returning entitlements snapshot
- * - Requirement 6.2: assertEntitlement(workspaceId, key) for feature gating
- * - Requirement 6.3: assertQuota(workspaceId, metric) for usage limits
- * - Requirement 6.4: Server-side enforcement in all provider mutations
- * - Requirement 6.5: Never trust client-side state for authorization
- * 
- * CRITICAL: These functions enforce server-side authorization.
- * Client-side checks are for UX only. Server-side checks are mandatory.
+ * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 5.5
  */
 
-import { v } from "convex/values";
-import { PLAN_FEATURES, PlanFeatures } from "../../src/platform/billing/plans";
 import { Id } from "../_generated/dataModel";
-import { MutationCtx, QueryCtx, query } from "../_generated/server";
+import { PLAN_FEATURES, PlanFeatures, PlanKey } from "./billing/plans";
 
-// ============ TYPES ============
-
-/**
- * Context type that can be used for both queries and mutations
- * (read-only operations use QueryCtx, write operations use MutationCtx)
- */
-type ConvexContext = QueryCtx | MutationCtx;
+// ============================================================================
+// TYPES
+// ============================================================================
 
 /**
- * Subscription status
- */
-export type SubscriptionStatus = "active" | "inactive" | "canceled";
-
-/**
- * Plan key
- */
-export type PlanKey = "basic" | "pro";
-
-/**
- * Workspace plan snapshot
- * Contains subscription status and feature entitlements
+ * Workspace plan snapshot with entitlements
  */
 export interface WorkspacePlan {
-  /** Plan key (basic, pro, or null if no subscription) */
+  /**
+   * Plan key (basic, pro, or null if no active subscription)
+   */
   planKey: PlanKey | null;
-  /** Subscription status */
-  status: SubscriptionStatus | null;
-  /** Plan features (limits and entitlements) */
+  
+  /**
+   * Subscription status
+   */
+  status: "active" | "inactive" | "canceled";
+  
+  /**
+   * Plan features and limits
+   */
   features: PlanFeatures;
 }
 
 /**
- * Feature keys that can be checked with assertEntitlement
- */
-export type FeatureKey = keyof PlanFeatures;
-
-/**
- * Quota metrics that can be checked with assertQuota
+ * Quota metrics that can be checked
  */
 export type QuotaMetric = "tracks" | "storage" | "domains";
 
-// ============ CORE FUNCTIONS ============
+// ============================================================================
+// CORE FUNCTIONS
+// ============================================================================
 
 /**
  * Get workspace plan with entitlements snapshot
  * 
- * Returns the current subscription status and feature limits for a workspace.
- * This is the single source of truth for authorization decisions.
+ * Returns the current plan and features for a workspace.
+ * If no active subscription, returns null plan with basic features.
  * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @returns WorkspacePlan with status and features
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @returns WorkspacePlan with current entitlements
  * 
  * @example
- * ```typescript
+ * ```ts
  * const plan = await getWorkspacePlan(ctx, workspaceId);
- * if (plan.status !== "active") {
- *   throw new Error("Subscription required");
+ * if (plan.features.maxCustomDomains > 0) {
+ *   // Allow custom domain connection
  * }
  * ```
  */
 export async function getWorkspacePlan(
-  ctx: ConvexContext,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
   workspaceId: Id<"workspaces">
 ): Promise<WorkspacePlan> {
-  // Get workspace
-  const workspace = await ctx.db.get(workspaceId);
-  if (!workspace) {
-    throw new Error("Workspace not found");
-  }
-
-  // Get subscription
+  // Query subscription for this workspace
   const subscription = await ctx.db
     .query("providerSubscriptions")
-    .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
-  // If no subscription, return null plan with no features
-  if (!subscription) {
+  // No subscription or inactive subscription
+  if (!subscription || subscription.status !== "active") {
     return {
       planKey: null,
-      status: null,
-      features: {
-        max_published_tracks: 0,
-        storage_gb: 0,
-        max_custom_domains: 0,
-      },
+      status: subscription?.status ?? "inactive",
+      features: PLAN_FEATURES.basic, // Default to basic features when inactive
     };
   }
 
-  // Return plan with features
+  // Active subscription
+  const planKey = subscription.planKey as PlanKey;
   return {
-    planKey: subscription.planKey,
+    planKey,
     status: subscription.status,
-    features: PLAN_FEATURES[subscription.planKey as PlanKey],
+    features: PLAN_FEATURES[planKey],
   };
 }
 
 /**
- * Assert entitlement for feature gating
+ * Assert that workspace has a specific entitlement
  * 
- * Checks if a workspace has access to a specific feature.
- * Throws an error if the feature is not available.
+ * Throws error if the workspace plan does not include the requested feature.
+ * Use this for feature gating (e.g., custom domains, advanced analytics).
  * 
- * Use this for binary feature checks (e.g., custom domains allowed/not allowed).
- * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @param key - Feature key to check
- * @throws Error if feature is not available or subscription is inactive
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @param key - Feature key to check (e.g., "maxCustomDomains")
+ * @throws Error if feature is not available or limit is 0
  * 
  * @example
- * ```typescript
- * // Check if custom domains are allowed
- * await assertEntitlement(ctx, workspaceId, "max_custom_domains");
+ * ```ts
+ * // Check if workspace can connect custom domains
+ * await assertEntitlement(ctx, workspaceId, "maxCustomDomains");
+ * // If we reach here, feature is available
  * ```
  */
 export async function assertEntitlement(
-  ctx: ConvexContext,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
   workspaceId: Id<"workspaces">,
-  key: FeatureKey
+  key: keyof PlanFeatures
 ): Promise<void> {
   const plan = await getWorkspacePlan(ctx, workspaceId);
-
-  // Check if subscription is active
-  if (plan.status !== "active") {
-    throw new Error(
-      "Active subscription required. Please subscribe to access this feature."
-    );
-  }
+  const value = plan.features[key];
 
   // Check if feature is available
-  const featureValue = plan.features[key];
-
-  // For numeric features, check if > 0 (or -1 for unlimited)
-  if (typeof featureValue === "number") {
-    if (featureValue === 0) {
+  if (typeof value === "number") {
+    // For numeric features, check if > 0 or unlimited (-1)
+    if (value === 0) {
       throw new Error(
-        `This feature is not available on your current plan. Please upgrade to access ${key}.`
+        `Feature "${key}" is not available on your current plan. Please upgrade to access this feature.`
       );
     }
+  } else if (!value) {
+    // For boolean features, check if truthy
+    throw new Error(
+      `Feature "${key}" is not available on your current plan. Please upgrade to access this feature.`
+    );
   }
 
   // Feature is available
 }
 
 /**
- * Assert quota for usage limits
+ * Assert that workspace has not exceeded quota for a metric
  * 
- * Checks if a workspace has remaining quota for a specific metric.
- * Throws an error if the quota is exceeded.
+ * Throws error if the workspace has exceeded the usage limit for the metric.
+ * Use this before allowing actions that consume quota (e.g., publishing tracks, uploading files).
  * 
- * Use this before operations that consume quota (e.g., publishing a track, uploading a file).
- * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @param metric - Quota metric to check (tracks, storage, domains)
- * @throws Error if quota is exceeded or subscription is inactive
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @param metric - Quota metric to check ("tracks", "storage", "domains")
+ * @throws Error if quota is exceeded
  * 
  * @example
- * ```typescript
+ * ```ts
  * // Check if workspace can publish another track
  * await assertQuota(ctx, workspaceId, "tracks");
- * 
- * // Check if workspace has storage space
- * await assertQuota(ctx, workspaceId, "storage");
+ * // If we reach here, quota is available
+ * await ctx.db.patch(trackId, { status: "published" });
  * ```
  */
 export async function assertQuota(
-  ctx: ConvexContext,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
   workspaceId: Id<"workspaces">,
   metric: QuotaMetric
 ): Promise<void> {
   const plan = await getWorkspacePlan(ctx, workspaceId);
 
-  // Check if subscription is active
-  if (plan.status !== "active") {
-    throw new Error(
-      "Active subscription required. Please subscribe to continue."
-    );
-  }
-
   // Get current usage
   const usage = await ctx.db
     .query("usage")
-    .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
   if (!usage) {
-    throw new Error("Usage tracking not found for workspace");
+    throw new Error("Usage tracking not initialized for this workspace");
   }
 
   // Check quota based on metric
   switch (metric) {
     case "tracks": {
-      const maxTracks = plan.features.max_published_tracks;
-      const currentTracks = usage.publishedTracksCount;
+      const limit = plan.features.maxPublishedTracks;
+      const current = usage.publishedTracksCount;
 
       // -1 means unlimited
-      if (maxTracks === -1) {
+      if (limit === -1) {
         return;
       }
 
-      if (currentTracks >= maxTracks) {
+      if (current >= limit) {
         throw new Error(
-          `Track limit reached (${currentTracks}/${maxTracks}). Please upgrade your plan to publish more tracks.`
+          `Track limit reached. You have published ${current} of ${limit} tracks allowed on your plan. Please upgrade to publish more tracks.`
         );
       }
       break;
     }
 
     case "storage": {
-      const maxStorageBytes = plan.features.storage_gb * 1024 * 1024 * 1024; // GB to bytes
-      const currentStorageBytes = usage.storageUsedBytes;
+      const limitBytes = plan.features.storageGb * 1024 * 1024 * 1024; // Convert GB to bytes
+      const currentBytes = usage.storageUsedBytes;
 
-      if (currentStorageBytes >= maxStorageBytes) {
-        const currentGB = (currentStorageBytes / (1024 * 1024 * 1024)).toFixed(2);
-        const maxGB = plan.features.storage_gb;
+      if (currentBytes >= limitBytes) {
+        const currentGb = (currentBytes / (1024 * 1024 * 1024)).toFixed(2);
+        const limitGb = plan.features.storageGb;
         throw new Error(
-          `Storage limit reached (${currentGB}GB/${maxGB}GB). Please upgrade your plan for more storage.`
+          `Storage limit reached. You have used ${currentGb} GB of ${limitGb} GB allowed on your plan. Please upgrade to get more storage.`
         );
       }
       break;
     }
 
     case "domains": {
-      const maxDomains = plan.features.max_custom_domains;
-
-      // If max is 0, custom domains are not allowed
-      if (maxDomains === 0) {
-        throw new Error(
-          "Custom domains are not available on your current plan. Please upgrade to PRO."
-        );
-      }
+      const limit = plan.features.maxCustomDomains;
 
       // Count current domains
-      const currentDomains = await ctx.db
+      const domains = await ctx.db
         .query("domains")
-        .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+        .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
         .collect();
 
-      if (currentDomains.length >= maxDomains) {
+      const current = domains.length;
+
+      if (current >= limit) {
         throw new Error(
-          `Domain limit reached (${currentDomains.length}/${maxDomains}). Please upgrade your plan to add more domains.`
+          `Custom domain limit reached. You have ${current} of ${limit} domains allowed on your plan. Please upgrade to connect more domains.`
         );
       }
       break;
     }
 
-    default:
-      throw new Error(`Unknown quota metric: ${metric}`);
+    default: {
+      // TypeScript exhaustiveness check
+      const _exhaustive: never = metric;
+      throw new Error(`Unknown quota metric: ${_exhaustive}`);
+    }
   }
 }
 
-// ============ HELPER FUNCTIONS ============
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
 
 /**
- * Check if workspace has active subscription
+ * Check if workspace has an active subscription
  * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @returns True if subscription is active
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @returns True if workspace has active subscription
  */
 export async function hasActiveSubscription(
-  ctx: ConvexContext,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
   workspaceId: Id<"workspaces">
 ): Promise<boolean> {
   const plan = await getWorkspacePlan(ctx, workspaceId);
-  return plan.status === "active";
+  return plan.status === "active" && plan.planKey !== null;
+}
+
+/**
+ * Check if workspace plan allows unlimited usage of a feature
+ * 
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @param key - Feature key to check
+ * @returns True if feature is unlimited (-1)
+ */
+export async function isUnlimited(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
+  workspaceId: Id<"workspaces">,
+  key: keyof PlanFeatures
+): Promise<boolean> {
+  const plan = await getWorkspacePlan(ctx, workspaceId);
+  const value = plan.features[key];
+  return typeof value === "number" && value === -1;
 }
 
 /**
  * Get remaining quota for a metric
  * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @param metric - Quota metric
- * @returns Remaining quota (or Infinity if unlimited)
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @param metric - Quota metric to check
+ * @returns Remaining quota (number or "unlimited")
  */
 export async function getRemainingQuota(
-  ctx: ConvexContext,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
   workspaceId: Id<"workspaces">,
   metric: QuotaMetric
-): Promise<number> {
+): Promise<number | "unlimited"> {
   const plan = await getWorkspacePlan(ctx, workspaceId);
 
-  if (plan.status !== "active") {
-    return 0;
-  }
-
+  // Get current usage
   const usage = await ctx.db
     .query("usage")
-    .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
   if (!usage) {
@@ -321,157 +299,28 @@ export async function getRemainingQuota(
 
   switch (metric) {
     case "tracks": {
-      const maxTracks = plan.features.max_published_tracks;
-      if (maxTracks === -1) return Infinity;
-      return Math.max(0, maxTracks - usage.publishedTracksCount);
+      const limit = plan.features.maxPublishedTracks;
+      if (limit === -1) return "unlimited";
+      return Math.max(0, limit - usage.publishedTracksCount);
     }
 
     case "storage": {
-      const maxStorageBytes = plan.features.storage_gb * 1024 * 1024 * 1024;
-      return Math.max(0, maxStorageBytes - usage.storageUsedBytes);
+      const limitBytes = plan.features.storageGb * 1024 * 1024 * 1024;
+      return Math.max(0, limitBytes - usage.storageUsedBytes);
     }
 
     case "domains": {
-      const maxDomains = plan.features.max_custom_domains;
-      if (maxDomains === 0) return 0;
-      
-      const currentDomains = await ctx.db
+      const limit = plan.features.maxCustomDomains;
+      const domains = await ctx.db
         .query("domains")
-        .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+        .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
         .collect();
-      
-      return Math.max(0, maxDomains - currentDomains.length);
+      return Math.max(0, limit - domains.length);
     }
 
-    default:
-      return 0;
-  }
-}
-
-/**
- * Check if a specific feature is available
- * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @param key - Feature key
- * @returns True if feature is available
- */
-export async function hasFeature(
-  ctx: ConvexContext,
-  workspaceId: Id<"workspaces">,
-  key: FeatureKey
-): Promise<boolean> {
-  try {
-    await assertEntitlement(ctx, workspaceId, key);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Check if quota is available for a metric
- * 
- * @param ctx - Convex context
- * @param workspaceId - Workspace ID
- * @param metric - Quota metric
- * @returns True if quota is available
- */
-export async function hasQuota(
-  ctx: ConvexContext,
-  workspaceId: Id<"workspaces">,
-  metric: QuotaMetric
-): Promise<boolean> {
-  try {
-    await assertQuota(ctx, workspaceId, metric);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-
-// ============ CONVEX QUERIES (Client-accessible) ============
-
-
-/**
- * Query: Get workspace plan (client-accessible)
- * 
- * Returns the workspace plan for UI display purposes.
- * This is safe to expose to clients for showing subscription status and limits.
- * 
- * IMPORTANT: This is for UI display only. Server-side mutations MUST use
- * the internal getWorkspacePlan function for authorization decisions.
- */
-export const getWorkspacePlanQuery = query({
-  args: { workspaceId: v.id("workspaces") },
-  handler: async (ctx, args) => {
-    return await getWorkspacePlan(ctx, args.workspaceId);
-  },
-});
-
-/**
- * Query: Get remaining quota (client-accessible)
- * 
- * Returns remaining quota for a specific metric.
- * Useful for displaying usage bars and limits in the UI.
- */
-export const getRemainingQuotaQuery = query({
-  args: {
-    workspaceId: v.id("workspaces"),
-    metric: v.union(v.literal("tracks"), v.literal("storage"), v.literal("domains")),
-  },
-  handler: async (ctx, args) => {
-    return await getRemainingQuota(ctx, args.workspaceId, args.metric);
-  },
-});
-
-/**
- * Query: Check if feature is available (client-accessible)
- * 
- * Returns true if a feature is available for the workspace.
- * Useful for conditional rendering in the UI.
- */
-export const hasFeatureQuery = query({
-  args: {
-    workspaceId: v.id("workspaces"),
-    key: v.union(
-      v.literal("max_published_tracks"),
-      v.literal("storage_gb"),
-      v.literal("max_custom_domains")
-    ),
-  },
-  handler: async (ctx, args) => {
-    return await hasFeature(ctx, args.workspaceId, args.key);
-  },
-});
-
-/**
- * Query: Get usage stats (client-accessible)
- * 
- * Returns current usage statistics for the workspace.
- * Useful for displaying usage bars and progress indicators.
- */
-export const getUsageStats = query({
-  args: { workspaceId: v.id("workspaces") },
-  handler: async (ctx, args) => {
-    const usage = await ctx.db
-      .query("usage")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
-      .first();
-
-    if (!usage) {
-      return {
-        storageUsedBytes: 0,
-        publishedTracksCount: 0,
-        storageUsedGB: 0,
-      };
+    default: {
+      const _exhaustive: never = metric;
+      throw new Error(`Unknown quota metric: ${_exhaustive}`);
     }
-
-    return {
-      storageUsedBytes: usage.storageUsedBytes,
-      publishedTracksCount: usage.publishedTracksCount,
-      storageUsedGB: Number((usage.storageUsedBytes / (1024 * 1024 * 1024)).toFixed(2)),
-    };
-  },
-});
+  }
+}

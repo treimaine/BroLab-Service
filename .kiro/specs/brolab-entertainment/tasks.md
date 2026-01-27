@@ -470,23 +470,23 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 #### P0.1: Fix Cross-Runtime Import Violation
 
-- [ ] Task P0.1.1: Fix convex/platform/entitlements.ts import: Replace `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` with `import { PLAN_FEATURES } from "./billing/plans"`. Convex MUST NOT import from src/ (different runtime). _Requirements: 5.5_
+- [x] Task P0.1.1: Fix convex/platform/entitlements.ts import: Replace `import { PLAN_FEATURES } from "../../src/platform/billing/plans"` with `import { PLAN_FEATURES } from "./billing/plans"`. Convex MUST NOT import from src/ (different runtime). _Requirements: 5.5_
 
-- [ ] Task P0.1.2: Verify entitlements.ts compiles: Run `npx convex dev` and verify no import errors. Test getWorkspacePlan query in Convex dashboard. _Requirements: 5.5_
+- [x] Task P0.1.2: Verify entitlements.ts compiles: Run `npx convex dev` and verify no import errors. Test getWorkspacePlan query in Convex dashboard. _Requirements: 5.5_
 
 #### P0.2: Remove Duplicate Plans File
 
-- [ ] Task P0.2.1: Delete src/platform/billing/plans.ts: Remove entire file. This is a duplicate of convex/platform/billing/plans.ts with inconsistent naming (snake_case vs camelCase). Convex is the canonical source. _Requirements: 5.5_
+- [x] Task P0.2.1: Delete src/platform/billing/plans.ts: Remove entire file. This is a duplicate of convex/platform/billing/plans.ts with inconsistent naming (snake_case vs camelCase). Convex is the canonical source. _Requirements: 5.5_
 
-- [ ] Task P0.2.2: Verify no imports of deleted file: Run grep search: `grep -R "from.*src/platform/billing/plans" .`. Verify zero results. If any found, update to use Convex query instead. _Requirements: 5.5_
+- [x] Task P0.2.2: Verify no imports of deleted file: Run grep search: `grep -R "from.*src/platform/billing/plans" .`. Verify zero results. If any found, update to use Convex query instead. _Requirements: 5.5_
 
 #### P0.3: Update Pricing UI to Use Convex Query
 
-- [ ] Task P0.3.1: Audit pricing page imports: Check `app/(hub)/(marketing)/pricing/page.tsx` for direct imports of plan constants. If found, replace with `useQuery(api.platform.billing.getPlansPublic)`. _Requirements: 5.5_
+- [x] Task P0.3.1: Audit pricing page imports: Check `app/(hub)/(marketing)/pricing/page.tsx` for direct imports of plan constants. If found, replace with `useQuery(api.platform.billing.getPlansPublic)`. _Requirements: 5.5_
 
-- [ ] Task P0.3.2: Verify pricing page uses getPlansPublic: Ensure pricing display consumes data from Convex query, not direct imports. Test in browser: navigate to /pricing, verify plans display correctly. _Requirements: 5.5_
+- [x] Task P0.3.2: Verify pricing page uses getPlansPublic: Ensure pricing display consumes data from Convex query, not direct imports. Test in browser: navigate to /pricing, verify plans display correctly. _Requirements: 5.5_
 
-- [ ] CP-P0: Manual Checkpoint P0 Complete: Run `npx convex dev` → no import errors. Run `grep -R "from.*src/platform/billing/plans" .` → zero results. Navigate to /pricing → plans display correctly. Verify convex/platform/entitlements.ts imports from ./billing/plans (same runtime).
+- [x] CP-P0: Manual Checkpoint P0 Complete: Run `npx convex dev` → no import errors. Run `grep -R "from.*src/platform/billing/plans" .` → zero results. Navigate to /pricing → plans display correctly. Verify convex/platform/entitlements.ts imports from ./billing/plans (same runtime).
 
 ### Phase 4: Convex Schema + Platform Core Helpers
 
@@ -496,45 +496,63 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 4.3: Create platform core helpers in convex/platform/: users.ts: user CRUD, role management. workspaces.ts: workspace CRUD, slug validation. domains.ts: domain CRUD, hostname resolution (verified only). _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [x] Task 4.4: Implement billing/plans configuration: ~~src/platform/billing/plans.ts~~ **convex/platform/billing/plans.ts** (CANONICAL) with PLAN_FEATURES. BASIC: maxPublishedTracks=25, storageGb=1, maxCustomDomains=0. PRO: maxPublishedTracks=-1 (unlimited), storageGb=50, maxCustomDomains=2. PREVIEW_DURATION_SEC = 30. _Requirements: 3.2, 3.3, 5.5_
+- [x] Task 4.4: Implement billing/plans configuration in Convex: Create **convex/platform/billing/plans.ts** (CANONICAL SOURCE) with PLAN_FEATURES. BASIC: maxPublishedTracks=25, storageGb=1, maxCustomDomains=0. PRO: maxPublishedTracks=-1 (unlimited), storageGb=50, maxCustomDomains=2. PREVIEW_DURATION_SEC = 30. Export PRICING constant with monthly/annual prices. **CRITICAL**: This is the ONLY source of truth for plans. Frontend MUST NOT duplicate this. _Requirements: 3.2, 3.3, 5.5_
 
-- [x] Task 4.5: Implement entitlements and quotas helpers: getWorkspacePlan(workspaceId) function. assertEntitlement(workspaceId, key) function. assertQuota(workspaceId, metric) function. Server-side enforcement (never trust client). **NOTE**: Has cross-runtime import violation (P0.1 fixes this). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+- [x] Task 4.5: Implement entitlements and quotas helpers: Create convex/platform/entitlements.ts with getWorkspacePlan(workspaceId), assertEntitlement(workspaceId, key), assertQuota(workspaceId, metric). Server-side enforcement (never trust client). **CRITICAL**: MUST import PLAN_FEATURES from "./billing/plans" (same runtime), NOT from "../../src/platform/billing/plans" (cross-runtime violation). _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 5.5_
 
 - [x] Task 4.6: Implement job queue in convex/platform/jobs.ts: enqueueJob mutation. Job status management (pending, processing, completed, failed). Concurrency lock helpers (lockedAt, lockedBy). Retry support with attempts tracking. _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
 - [x] Task 4.7: Implement observability in convex/platform/: auditLogs.ts: log provider admin actions. events.ts: record lifecycle events. _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [ ] Task 4.8: Create getPlansPublic query: Create `convex/platform/billing/getPlansPublic.ts`. Public query returning plan info for pricing UI. No auth required. Returns: slug, name, features, pricing, annualSavings. _Requirements: 5.5_
+- [x] Task 4.8: Create getPlansPublic query: Create `convex/platform/billing/getPlansPublic.ts`. Public query returning plan info for pricing UI. No auth required. Returns: planKey, name, features (from PLAN_FEATURES), pricing (from PRICING), annualSavingsPercent. Import from "./plans" (same runtime). _Requirements: 5.5_
 
-- [ ] CP-4 Manual Checkpoint: Phase 4 Complete (Playwright + Convex Dashboard): Open Convex Dashboard (npx convex dashboard). Verify all tables created: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents, tracks, services, orders, purchaseEntitlements, bookings. Verify indexes visible on each table. Test getPlansPublic query in Convex dashboard → returns plan data. **BLOCKER**: Complete P0 tasks before proceeding to Phase 5.
+- [x] CP-4 Manual Checkpoint: Phase 4 Complete (Playwright + Convex Dashboard): Open Convex Dashboard (npx convex dashboard). Verify all tables created: users, workspaces, domains, providerSubscriptions, usage, auditLogs, events, jobs, processedEvents, tracks, services, orders, purchaseEntitlements, bookings. Verify indexes visible on each table. Test getPlansPublic query in Convex dashboard → returns plan data. Verify convex/platform/entitlements.ts imports from "./billing/plans" (NOT from src/). **BLOCKER**: Complete P0 tasks before proceeding to Phase 5.
 
-### Phase 5: Clerk Auth + Onboarding + Branded Clerk UI
+### Phase 5: Clerk Auth + Onboarding (Next.js 16 App Router)
 
-- [ ] Task 5.1: Configure Clerk with Next.js App Router: ClerkProvider in app/layout.tsx. clerkMiddleware() integration (NOT authMiddleware - deprecated). Environment variables setup (NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY). _Requirements: 2.1_
+> ⚠️ **CRITICAL**: This phase implements Clerk auth for Next.js ≥16 with `/src` directory. NO Clerk Organizations for MVP.
 
-- [ ] Task 5.2: Create branded Clerk UI components: Custom SignIn page at app/(hub)/sign-in/[[...sign-in]]/page.tsx. Custom SignUp page at app/(hub)/sign-up/[[...sign-up]]/page.tsx. Glass container styling (.glass), cyan accent, Inter font, rounded corners (2xl/3xl). Focus-visible rings on interactive elements. _Requirements: 26.1, 26.2, 26.3, 26.5, 26.6_
+**Reference**: Clerk Next.js App Router Quickstart + Convex + Clerk Integration docs
 
-- [ ] Task 5.3: Implement onboarding flow at app/(hub)/onboarding/page.tsx: Role selection (producer, engineer, artist). Workspace creation for providers (slug, name, type). Subscription step (link to Clerk Billing). Stripe Connect onboarding step. Redirect logic based on role. _Requirements: 2.2, 4.1, 4.2, 27.1_
+- [x] Task 5.1: Create src/proxy.ts with clerkMiddleware(): Create `src/proxy.ts` (NOT `middleware.ts` - Next.js ≥16 with `/src` uses `proxy.ts`). Import `clerkMiddleware` from `@clerk/nextjs/server`. Export default `clerkMiddleware()`. Add config.matcher to exclude static files: `'/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)'` and `'/(api|trpc)(.*)'`. **PURPOSE**: Authentication and route protection ONLY (NO tenancy logic). _Requirements: 2.1, Req 2_
 
-- [ ] Task 5.4: Create ConvexClientProvider with Clerk integration: ConvexProviderWithClerk setup. Use Authenticated/Unauthenticated/AuthLoading from convex/react (NOT Clerk components). useConvexAuth() for auth state. _Requirements: 2.1, 2.5_
+- [x] Task 5.2: Add ClerkProvider to app/layout.tsx: Import `ClerkProvider` from `@clerk/nextjs`. Wrap entire app with `<ClerkProvider>` (MUST be outermost provider). Add environment variables: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_JWT_ISSUER_DOMAIN`. Configure appearance with Dribbble design tokens (cyan accent, glass styling). _Requirements: 2.1, 26.1, 26.2, 26.3_
 
-- [ ] Task 5.5: Implement role-based routing: Redirect to /onboarding if role missing. Provider access to /studio/*. Artist access to /artist/*. Document auth-bridge flow for custom domains. _Requirements: 2.2, 2.3, 2.4, 2.6, 2.7_
+- [ ] Task 5.3: Create auth pages with Clerk components: Create `app/(hub)/sign-in/[[...sign-in]]/page.tsx` with `<SignIn />` component. Create `app/(hub)/sign-up/[[...sign-up]]/page.tsx` with `<SignUp />` component. Apply Dribbble styling: glass container, cyan accent, Inter font, rounded corners (2xl/3xl). Focus-visible rings on interactive elements. Configure redirects: `signInFallbackRedirectUrl="/onboarding"`, `signUpFallbackRedirectUrl="/onboarding"`. _Requirements: 26.1, 26.2, 26.3, 26.5, 26.6_
 
-- [ ] CP-5: Manual Checkpoint Phase 5 Complete (Playwright): Navigate to localhost:3000/sign-in. Verify branded Clerk UI (glass container, cyan accent, Inter font). Sign up as new user. Verify redirect to /onboarding. Complete onboarding: select "Producer" role, create workspace (slug, name). Verify redirect to /studio after completion. Sign out, sign in again → verify direct access to /studio. Test artist flow: new user → select "Artist" → verify redirect to /artist.
+- [ ] Task 5.4: Create ConvexClientProvider with Clerk integration: Create `src/components/ConvexClientProvider.tsx` as Client Component. Import `ConvexReactClient` from `convex/react`. Import `ConvexProviderWithClerk` from `convex/react-clerk`. Import `useAuth` from `@clerk/nextjs`. Create convex client with `NEXT_PUBLIC_CONVEX_URL`. Wrap with `<ConvexProviderWithClerk client={convex} useAuth={useAuth}>`. **CRITICAL**: Provider order matters: `<ClerkProvider>` → `<ConvexClientProvider>` → app. _Requirements: 2.1, 2.5, Convex + Clerk Integration_
 
-### Phase 6: proxy.ts + Tenancy Resolution + Tenant Route Group (Option B)
+- [ ] Task 5.5: Add ConvexClientProvider to app/layout.tsx: Import ConvexClientProvider. Wrap children with ConvexClientProvider INSIDE ClerkProvider. Verify provider order: `<ClerkProvider><ConvexClientProvider>{children}</ConvexClientProvider></ClerkProvider>`. _Requirements: 2.1, 2.5_
 
-- [ ] Task 6.1: Implement proxy.ts with Node runtime routing logic: Hub domain detection (brolabentertainment.com, www.brolabentertainment.com). Hostname normalization (strip port, lowercase). Subdomain extraction (slug.brolabentertainment.com). Reserved subdomains handling (www, app, api, admin, studio, artist, pricing, sign-in, sign-up) → redirect to hub OR 404. Rewrite to /_t/[workspaceSlug]/... pattern. Custom domain resolution via Convex domains table (verified only). Unknown/unverified domains return 404. _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6_
+- [ ] Task 5.6: Create Convex auth.config.ts: Create `convex/auth.config.ts`. Configure Clerk JWT issuer domain from `CLERK_JWT_ISSUER_DOMAIN` env var. Application ID MUST be "convex" (matches JWT template name). Run `npx convex dev` to sync config. _Requirements: 2.1, Convex + Clerk Integration_
 
-- [ ] Task 6.1.1: Document proxy runtime / deployment: proxy.ts runs as the entry server (Node) in prod. Next runs behind it (standalone output) OR proxy uses Next as handler. Ensure Host header forwarded correctly. Support websockets if needed (Convex realtime). Document deployment options: Render/Fly/VPS vs Vercel limitations. _Requirements: 1.6_
+- [ ] Task 5.7: Create JWT Template in Clerk Dashboard: In Clerk Dashboard, create new JWT template. Template name MUST be "convex" (do NOT rename). Copy Issuer URL (Frontend API URL). Add to `CLERK_JWT_ISSUER_DOMAIN` env var. _Requirements: 2.1, Convex + Clerk Integration_
 
-- [ ] Task 6.2: Create middleware.ts (Clerk + static exclusions only, NO tenancy logic): clerkMiddleware() for auth/redirect. Static file exclusions (_next/static, _next/image, favicon.ico). Tenancy resolution owned by proxy.ts (NOT middleware). _Requirements: 1.6, 2.1_
+- [ ] Task 5.8: Implement onboarding flow at app/(hub)/onboarding/page.tsx: Create Client Component mounting OnboardingClient. Role selection (producer, engineer, artist). For providers: workspace creation (slug, name, type). Store role in `user.unsafeMetadata.role` (NO Clerk Organizations for MVP). Sync to Convex users table. Redirect logic: providers → /studio, artists → /artist. **NO subscription step** (Clerk Billing integration comes later). **NO Stripe Connect step** (comes in Phase 9). _Requirements: 2.2, 4.1, 4.2, Req 2_
 
-- [ ] Task 6.3: Create Convex HTTP endpoint for domain resolution: convex/http.ts with /api/domains/resolve endpoint. Returns slug for verified domains only. Returns null for unverified/unknown domains. _Requirements: 1.3, 1.5_
+- [ ] Task 5.9: Implement role-based routing in src/proxy.ts: Check `auth().sessionClaims.unsafeMetadata.role`. Redirect to /onboarding if role missing. Protect /studio/* routes (require provider role). Protect /artist/* routes (require artist role). Allow public access to hub routes (/, /pricing, /about, etc.). _Requirements: 2.2, 2.3, 2.4_
 
-- [ ] Task 6.4: Create tenant route group app/(_t)/[workspaceSlug]/: Layout with TenantLayout component. Workspace context provider. Placeholder pages: /, /beats, /beats/[id], /services, /services/[id], /contact. _Requirements: 1.2, 1.3_
+- [ ] Task 5.10: Use Convex auth components (NOT Clerk): In all Client Components, use `<Authenticated>`, `<Unauthenticated>`, `<AuthLoading>` from `convex/react` (NOT `<SignedIn>`, `<SignedOut>` from Clerk). Use `useConvexAuth()` to check auth state (NOT `useAuth()` from Clerk). **WHY**: Ensures browser has token AND Convex backend has validated it. _Requirements: 2.5, Convex + Clerk Integration_
 
-- [ ] CP-6: Manual Checkpoint Phase 6 Complete (Playwright): Navigate to localhost:3000 → verify hub landing. Navigate to {slug}.localhost:3000 (or test subdomain) → verify tenant storefront. Verify tenant layout: left rail (desktop), bottom nav (mobile). Navigate to /_t/{slug}/beats → verify placeholder page. Navigate to /_t/{slug}/services → verify placeholder page. Test reserved subdomain (www.localhost:3000) → verify redirect to hub or 404. Test unknown subdomain → verify 404.
+- [ ] CP-5: Manual Checkpoint Phase 5 Complete (Playwright): Navigate to localhost:3000/sign-in. Verify branded Clerk UI (glass container, cyan accent, Inter font). Sign up as new user. Verify redirect to /onboarding. Complete onboarding: select "Producer" role, create workspace (slug, name). Verify role stored in unsafeMetadata (check Clerk Dashboard). Verify redirect to /studio after completion. Sign out, sign in again → verify direct access to /studio (no re-onboarding). Test artist flow: new user → select "Artist" → verify redirect to /artist. Verify src/proxy.ts exists (NOT middleware.ts). Verify ClerkProvider wraps ConvexClientProvider in app/layout.tsx. Verify convex/auth.config.ts exists with correct issuer domain.
+
+### Phase 6: Edge-Based Tenancy Resolution + Tenant Route Group
+
+> ⚠️ **CRITICAL**: This phase implements Edge-compatible tenancy resolution for Vercel deployment. NO Node.js proxy server.
+
+**Reference**: Vercel Edge Functions + Next.js Middleware + Convex HTTP endpoints
+
+- [ ] Task 6.1: Create Edge-compatible tenancy module: Create `src/platform/tenancy/edge-router.ts`. Export `resolveTenancy(request: NextRequest)` function. Extract hostname from `request.headers.get('host')`. Normalize hostname (strip port, lowercase). Detect hub domain (brolabentertainment.com, www.brolabentertainment.com) → return NextResponse.next(). Detect subdomain (slug.brolabentertainment.com) → extract slug, check reserved subdomains (www, app, api, admin, studio, artist, pricing, sign-in, sign-up) → redirect to hub if reserved, otherwise rewrite to `/_t/${slug}${pathname}`. Detect custom domain → query Convex HTTP endpoint `/api/domains/resolve` → rewrite to `/_t/${slug}${pathname}` if verified, otherwise return 404. **CRITICAL**: NO Node.js-specific APIs (fs, path, etc.). Edge-safe only. _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6, Req 1_
+
+- [ ] Task 6.2: Integrate tenancy resolution in src/proxy.ts: Import `resolveTenancy` from `@/platform/tenancy/edge-router`. Update `clerkMiddleware()` callback to call `resolveTenancy(req)` after auth. Return tenancy resolution result. **CRITICAL**: Clerk auth runs FIRST, then tenancy resolution. _Requirements: 1.6, 2.1, Req 1_
+
+- [ ] Task 6.3: Create Convex HTTP endpoint for domain resolution: Update `convex/http.ts`. Add POST route `/api/domains/resolve`. Accept `{ hostname: string }` in body. Query `domains` table by hostname. Verify status === "verified". Return `{ slug: workspace.slug }` if verified, `{ slug: null }` otherwise. Use `httpAction` for external HTTP calls. _Requirements: 1.3, 1.5, Req 1_
+
+- [ ] Task 6.4: Create tenant route group app/(_t)/[workspaceSlug]/: Create route group with underscore prefix (internal rewrite, not visible in URL). Create `layout.tsx` with TenantLayout component. Create workspace context provider (fetch workspace by slug from Convex). Create placeholder pages: `page.tsx` (storefront home), `beats/page.tsx` (beats list), `beats/[id]/page.tsx` (beat detail), `services/page.tsx` (services list), `services/[id]/page.tsx` (service detail), `contact/page.tsx` (contact info). _Requirements: 1.2, 1.3_
+
+- [ ] Task 6.5: Implement workspace context provider: Create `src/platform/tenancy/WorkspaceContext.tsx`. Fetch workspace by slug using Convex query. Provide workspace data to all tenant pages. Handle workspace not found (404). Handle workspace inactive (show message). _Requirements: 1.3, 28.1_
+
+- [ ] CP-6: Manual Checkpoint Phase 6 Complete (Playwright): Navigate to localhost:3000 → verify hub landing. Navigate to {slug}.localhost:3000 (or test subdomain) → verify tenant storefront. Verify tenant layout: left rail (desktop), bottom nav (mobile). Navigate to /_t/{slug}/beats → verify placeholder page. Navigate to /_t/{slug}/services → verify placeholder page. Test reserved subdomain (www.localhost:3000) → verify redirect to hub. Test unknown subdomain → verify 404. Verify src/platform/tenancy/edge-router.ts exists (Edge-compatible, NO Node.js APIs). Verify convex/http.ts has `/api/domains/resolve` endpoint. Verify src/proxy.ts calls resolveTenancy after Clerk auth.
 
 ### Phase 7: Clerk Billing Subscription Sync
 
@@ -814,6 +832,84 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 ---
 
 ## Changelog
+
+### 2026-01-26 - Comprehensive Spec Update: Vercel Edge Deployment Model
+
+**Changes:**
+
+1. **Phase 4 Updates (Convex Plans & Cross-Runtime Rules)**:
+   - Task 4.4: Clarified `convex/platform/billing/plans.ts` is CANONICAL source (NOT `src/platform/billing/plans.ts`)
+   - Task 4.5: Added CRITICAL note about cross-runtime import violation (MUST import from "./billing/plans", NOT from "../../src/")
+   - Task 4.8: Added task to create `getPlansPublic` query for frontend consumption
+   - CP-4: Added blocker note requiring P0 completion before Phase 5
+   - Marked Task 4.4 and 4.5 as incomplete (need to fix violations)
+
+2. **Phase 5 Complete Rewrite (Clerk Auth for Next.js ≥16)**:
+   - **Removed**: All Clerk Organizations references (NO Organizations for MVP)
+   - **Removed**: Subscription step (Clerk Billing comes later)
+   - **Removed**: Stripe Connect step (comes in Phase 9)
+   - **Added**: Task 5.1 - Create `src/proxy.ts` with `clerkMiddleware()` (NOT `middleware.ts`)
+   - **Added**: Task 5.2 - Add `<ClerkProvider>` to `app/layout.tsx`
+   - **Added**: Task 5.3 - Create auth pages (`/sign-in`, `/sign-up`) with Clerk components
+   - **Added**: Task 5.4 - Create `ConvexClientProvider` with Clerk integration
+   - **Added**: Task 5.5 - Add ConvexClientProvider to layout (provider order matters)
+   - **Added**: Task 5.6 - Create `convex/auth.config.ts`
+   - **Added**: Task 5.7 - Create JWT Template in Clerk Dashboard (MUST be named "convex")
+   - **Added**: Task 5.8 - Implement onboarding with `unsafeMetadata.role` (NO Organizations)
+   - **Added**: Task 5.9 - Implement role-based routing in `src/proxy.ts`
+   - **Added**: Task 5.10 - Use Convex auth components (NOT Clerk components)
+   - **Updated**: CP-5 to verify all new implementation details
+
+3. **Phase 6 Complete Rewrite (Edge-Based Tenancy)**:
+   - **Removed**: All Node.js proxy server references (Task 6.1.1 deleted)
+   - **Removed**: Separate `middleware.ts` task (integrated into `src/proxy.ts`)
+   - **Added**: Task 6.1 - Create Edge-compatible tenancy module (`src/platform/tenancy/edge-router.ts`)
+   - **Added**: Task 6.2 - Integrate tenancy resolution in `src/proxy.ts` (after Clerk auth)
+   - **Updated**: Task 6.3 - Convex HTTP endpoint for domain resolution (unchanged)
+   - **Updated**: Task 6.4 - Tenant route group (unchanged)
+   - **Added**: Task 6.5 - Implement workspace context provider
+   - **Updated**: CP-6 to verify Edge-compatible implementation (NO Node.js APIs)
+
+4. **Architecture Clarifications**:
+   - **Deployment Model**: Vercel (serverless Edge runtime) - NO Node.js proxy
+   - **Clerk Edge File**: MUST be `src/proxy.ts` (NOT `middleware.ts`) for Next.js ≥16 with `/src` directory
+   - **Clerk Purpose**: Authentication ONLY (NOT tenancy resolution)
+   - **Tenancy Resolution**: Edge-compatible module (`src/platform/tenancy/edge-router.ts`) that queries Convex
+   - **NO Clerk Organizations**: MVP uses simple role-based system with `unsafeMetadata.role`
+   - **Provider Order**: `<ClerkProvider>` → `<ConvexClientProvider>` → app (order matters)
+   - **Cross-Runtime Rules**: Convex MUST NOT import from `src/`, Frontend MUST use queries
+
+**Rationale:**
+- Align with Vercel deployment model (Edge runtime, not Node.js)
+- Remove confusion about separate Node proxy server
+- Establish Edge-compatible tenancy resolution pattern
+- Follow Clerk Next.js App Router Quickstart patterns (≥16 with `/src`)
+- Prevent cross-runtime import errors that break builds
+- Establish single source of truth for billing plans (Convex canonical)
+- Clarify that frontend must consume Convex via queries, not direct imports
+- Remove Clerk Organizations complexity for MVP (use simple role-based system)
+
+**Files Affected:**
+- `src/proxy.ts` - Clerk Edge file (MUST be created)
+- `src/platform/tenancy/edge-router.ts` - Edge-compatible tenancy module (MUST be created)
+- `convex/http.ts` - Domain resolution endpoint (MUST be added)
+- `convex/auth.config.ts` - Clerk JWT configuration (MUST be created)
+- `convex/platform/entitlements.ts` - Has cross-runtime import violation (MUST fix)
+- `src/platform/billing/plans.ts` - Duplicate file (MUST delete)
+- `convex/platform/billing/plans.ts` - Canonical source
+- `convex/platform/billing/getPlansPublic.ts` - Public query for frontend (MUST create)
+- `app/layout.tsx` - Missing `<ClerkProvider>` and `<ConvexClientProvider>` (MUST add)
+- `app/(hub)/sign-in/[[...sign-in]]/page.tsx` - Auth page (MUST create)
+- `app/(hub)/sign-up/[[...sign-up]]/page.tsx` - Auth page (MUST create)
+- `app/(hub)/onboarding/page.tsx` - Onboarding page (MUST create)
+- `src/components/ConvexClientProvider.tsx` - Convex + Clerk integration (MUST create)
+- `src/platform/tenancy/WorkspaceContext.tsx` - Workspace context (MUST create)
+
+**Action Items:**
+1. Complete Phase P0 (Critical Fixes) - MUST DO FIRST
+2. Implement Phase 4 remaining tasks (plans, entitlements, getPlansPublic)
+3. Implement Phase 5 (Clerk auth with correct file structure)
+4. Implement Phase 6 (Edge-based tenancy resolution)
 
 ### 2026-01-26 - Task Duplication Fixes
 

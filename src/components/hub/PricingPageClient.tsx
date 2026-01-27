@@ -1,6 +1,5 @@
 'use client'
 
-import { PRICING, getAnnualSavingsPercent } from '@/platform/billing/plans'
 import {
   DribbbleCard,
   DribbbleSectionEnter,
@@ -11,6 +10,7 @@ import {
   PillCTA,
   SectionHeader
 } from '@/platform/ui'
+import { useQuery } from 'convex/react'
 import {
   Check,
   ChevronDown,
@@ -23,42 +23,125 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react'
+import { api } from '../../../convex/_generated/api'
+import type { PublicPlanInfo } from '../../../convex/platform/billing/getPlansPublic'
 
 // ============ Pricing Data ============
 
-const PLAN_FEATURES = {
+/**
+ * Plan features UI configuration
+ * Maps Convex plan data to UI display
+ */
+const PLAN_UI_CONFIG = {
   basic: {
     name: 'BASIC',
     description: 'Perfect for getting started',
-    features: [
-      { label: 'Published tracks', value: '25', included: true },
-      { label: 'Storage', value: '1 GB', included: true },
-      { label: 'Custom domains', value: '0', included: false },
-      { label: '30s preview generation', value: true, included: true },
-      { label: 'License PDF generation', value: true, included: true },
-      { label: 'Direct Stripe payments', value: true, included: true },
-      { label: 'Service listings', value: true, included: true },
-      { label: 'Analytics dashboard', value: 'Basic', included: true },
-      { label: 'Priority support', value: false, included: false },
-    ],
+    popular: false,
   },
   pro: {
     name: 'PRO',
     description: 'For serious creators',
     popular: true,
-    features: [
-      { label: 'Published tracks', value: 'Unlimited', included: true },
-      { label: 'Storage', value: '50 GB', included: true },
-      { label: 'Custom domains', value: '2', included: true },
-      { label: '30s preview generation', value: true, included: true },
-      { label: 'License PDF generation', value: true, included: true },
-      { label: 'Direct Stripe payments', value: true, included: true },
-      { label: 'Service listings', value: true, included: true },
-      { label: 'Analytics dashboard', value: 'Advanced', included: true },
-      { label: 'Priority support', value: true, included: true },
-    ],
   },
 } as const
+
+/**
+ * Helper to format feature values for display
+ */
+function formatFeatureValue(value: number): string {
+  if (value === -1) return 'Unlimited'
+  if (value === 0) return '0'
+  return value.toString()
+}
+
+/**
+ * Generate plan features list from Convex data
+ */
+function getPlanFeaturesList(plan: 'basic' | 'pro', planData: PublicPlanInfo) {
+  const features = planData.features
+  const isPro = plan === 'pro'
+  
+  return [
+    { 
+      label: 'Published tracks', 
+      value: formatFeatureValue(features.maxPublishedTracks), 
+      included: features.maxPublishedTracks !== 0 
+    },
+    { 
+      label: 'Storage', 
+      value: `${features.storageGb} GB`, 
+      included: features.storageGb > 0 
+    },
+    { 
+      label: 'Custom domains', 
+      value: formatFeatureValue(features.maxCustomDomains), 
+      included: features.maxCustomDomains > 0 
+    },
+    { label: '30s preview generation', value: true, included: true },
+    { label: 'License PDF generation', value: true, included: true },
+    { label: 'Direct Stripe payments', value: true, included: true },
+    { label: 'Service listings', value: true, included: true },
+    { label: 'Analytics dashboard', value: isPro ? 'Advanced' : 'Basic', included: true },
+    { label: 'Priority support', value: false, included: isPro },
+  ]
+}
+
+/**
+ * Generate feature comparison table from Convex data
+ */
+function getFeatureComparison(basicPlan: PublicPlanInfo, proPlan: PublicPlanInfo) {
+  const basicFeatures = basicPlan.features
+  const proFeatures = proPlan.features
+
+  return [
+    { 
+      category: 'Beats & Storage', 
+      features: [
+        { 
+          name: 'Published tracks', 
+          basic: formatFeatureValue(basicFeatures.maxPublishedTracks), 
+          pro: formatFeatureValue(proFeatures.maxPublishedTracks) 
+        },
+        { 
+          name: 'Storage space', 
+          basic: `${basicFeatures.storageGb} GB`, 
+          pro: `${proFeatures.storageGb} GB` 
+        },
+        { name: '30s preview generation', basic: true, pro: true },
+        { name: 'License PDF generation', basic: true, pro: true },
+      ]
+    },
+    { 
+      category: 'Storefront', 
+      features: [
+        { name: 'Custom subdomain', basic: true, pro: true },
+        { 
+          name: 'Custom domains', 
+          basic: formatFeatureValue(basicFeatures.maxCustomDomains), 
+          pro: formatFeatureValue(proFeatures.maxCustomDomains) 
+        },
+        { name: 'Service listings', basic: true, pro: true },
+        { name: 'Contact page', basic: true, pro: true },
+      ]
+    },
+    { 
+      category: 'Payments', 
+      features: [
+        { name: 'Direct Stripe payments', basic: true, pro: true },
+        { name: 'Platform fee', basic: '0%', pro: '0%' },
+        { name: 'Multiple license tiers', basic: true, pro: true },
+      ]
+    },
+    { 
+      category: 'Support & Analytics', 
+      features: [
+        { name: 'Analytics dashboard', basic: 'Basic', pro: 'Advanced' },
+        { name: 'Email support', basic: true, pro: true },
+        { name: 'Priority support', basic: false, pro: true },
+      ]
+    },
+  ]
+}
 
 const FAQ_ITEMS = [
   {
@@ -103,43 +186,6 @@ const FAQ_ITEMS = [
   },
 ]
 
-const FEATURE_COMPARISON = [
-  { 
-    category: 'Beats & Storage', 
-    features: [
-      { name: 'Published tracks', basic: '25', pro: 'Unlimited' },
-      { name: 'Storage space', basic: '1 GB', pro: '50 GB' },
-      { name: '30s preview generation', basic: true, pro: true },
-      { name: 'License PDF generation', basic: true, pro: true },
-    ]
-  },
-  { 
-    category: 'Storefront', 
-    features: [
-      { name: 'Custom subdomain', basic: true, pro: true },
-      { name: 'Custom domains', basic: '0', pro: '2' },
-      { name: 'Service listings', basic: true, pro: true },
-      { name: 'Contact page', basic: true, pro: true },
-    ]
-  },
-  { 
-    category: 'Payments', 
-    features: [
-      { name: 'Direct Stripe payments', basic: true, pro: true },
-      { name: 'Platform fee', basic: '0%', pro: '0%' },
-      { name: 'Multiple license tiers', basic: true, pro: true },
-    ]
-  },
-  { 
-    category: 'Support & Analytics', 
-    features: [
-      { name: 'Analytics dashboard', basic: 'Basic', pro: 'Advanced' },
-      { name: 'Email support', basic: true, pro: true },
-      { name: 'Priority support', basic: false, pro: true },
-    ]
-  },
-]
-
 // ============ Components ============
 
 function PricingToggle({ 
@@ -166,15 +212,26 @@ function PricingToggle({
 
 function PlanCard({ 
   plan,
-  isAnnual 
+  isAnnual,
+  planData
 }: Readonly<{ 
   plan: 'basic' | 'pro'
-  isAnnual: boolean 
+  isAnnual: boolean
+  planData: PublicPlanInfo | undefined
 }>) {
-  const planData = PLAN_FEATURES[plan]
-  const price = isAnnual ? PRICING[plan].annual : PRICING[plan].monthly
+  if (!planData) {
+    return (
+      <DribbbleCard padding="lg">
+        <div className="text-center py-8 text-muted">Loading plan details...</div>
+      </DribbbleCard>
+    )
+  }
+
+  const uiConfig = PLAN_UI_CONFIG[plan]
+  const price = isAnnual ? planData.pricing.annual : planData.pricing.monthly
   const isPro = plan === 'pro'
-  const savingsPercent = getAnnualSavingsPercent(plan)
+  const savingsPercent = planData.annualSavings
+  const features = getPlanFeaturesList(plan, planData)
 
   return (
     <div className={isPro ? 'pt-4' : ''}>
@@ -193,8 +250,8 @@ function PlanCard({
         className={`relative ${isPro ? 'border border-[rgba(var(--accent),0.3)] ring-1 ring-[rgba(var(--accent),0.2)]' : ''}`}
       >
         <div className={`text-center mb-6 ${isPro ? 'pt-2' : ''}`}>
-          <h3 className="text-2xl font-bold text-text mb-2">{planData.name}</h3>
-          <p className="text-sm text-muted">{planData.description}</p>
+          <h3 className="text-2xl font-bold text-text mb-2">{uiConfig.name}</h3>
+          <p className="text-sm text-muted">{uiConfig.description}</p>
         </div>
 
         <div className="text-center mb-6">
@@ -221,7 +278,7 @@ function PlanCard({
         </Link>
 
         <ul className="space-y-3">
-          {planData.features.map((feature) => (
+          {features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-3">
               {feature.included ? (
                 <Check className="w-5 h-5 text-accent flex-shrink-0" />
@@ -256,7 +313,22 @@ function FeatureValue({ value, isHighlighted = false }: Readonly<{ value: boolea
   )
 }
 
-function FeatureTable() {
+interface FeatureComparisonCategory {
+  category: string
+  features: Array<{
+    name: string
+    basic: boolean | string
+    pro: boolean | string
+  }>
+}
+
+function FeatureTable({ featureComparison }: Readonly<{ featureComparison: FeatureComparisonCategory[] }>) {
+  if (!featureComparison || featureComparison.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted">Loading feature comparison...</div>
+    )
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -268,7 +340,7 @@ function FeatureTable() {
           </tr>
         </thead>
         <tbody>
-          {FEATURE_COMPARISON.map((category) => (
+          {featureComparison.map((category) => (
             <React.Fragment key={category.category}>
               <tr className="bg-[rgba(var(--bg-2),0.3)]">
                 <td colSpan={3} className="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">
@@ -405,6 +477,18 @@ function FinalCTASection() {
 
 export default function PricingPageClient() {
   const [isAnnual, setIsAnnual] = useState(true)
+  
+  // Fetch plan data from Convex
+  const plansData = useQuery(api.platform.billing.getPlansPublic)
+  
+  // Extract basic and pro plans
+  const basicPlan = plansData?.find((p: PublicPlanInfo) => p.slug === 'basic')
+  const proPlan = plansData?.find((p: PublicPlanInfo) => p.slug === 'pro')
+  
+  // Generate feature comparison
+  const featureComparison = basicPlan && proPlan 
+    ? getFeatureComparison(basicPlan, proPlan)
+    : []
 
   return (
     <MarketingPageShell
@@ -420,10 +504,10 @@ export default function PricingPageClient() {
           <DribbbleSectionEnter stagger>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <DribbbleStaggerItem>
-                <PlanCard plan="basic" isAnnual={isAnnual} />
+                <PlanCard plan="basic" isAnnual={isAnnual} planData={basicPlan} />
               </DribbbleStaggerItem>
               <DribbbleStaggerItem>
-                <PlanCard plan="pro" isAnnual={isAnnual} />
+                <PlanCard plan="pro" isAnnual={isAnnual} planData={proPlan} />
               </DribbbleStaggerItem>
             </div>
           </DribbbleSectionEnter>
@@ -442,7 +526,7 @@ export default function PricingPageClient() {
           
           <DribbbleSectionEnter>
             <DribbbleCard padding="none" className="overflow-hidden">
-              <FeatureTable />
+              <FeatureTable featureComparison={featureComparison} />
             </DribbbleCard>
           </DribbbleSectionEnter>
         </div>

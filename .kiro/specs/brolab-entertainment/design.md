@@ -80,6 +80,12 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 
 ## Runtime Architecture & Responsibilities
 
+### Deployment Model: Vercel Edge
+
+**Platform:** Vercel (serverless Edge runtime)
+**Architecture:** Edge Functions + Next.js App Router + Convex Backend
+**No Node.js Proxy:** All routing handled by Vercel Edge + Next.js
+
 ### Clerk Edge File (`src/proxy.ts`)
 
 **Purpose:** Authentication and route protection ONLY
@@ -89,7 +95,7 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 **Responsibilities:**
 - ✅ Authenticate users via `clerkMiddleware()`
 - ✅ Protect routes (redirect unauthenticated users)
-- ✅ Exclude static files from auth checks
+- ✅ Exclude static files from auth checks (`_next/static`, `_next/image`, `favicon.ico`)
 - ❌ NO tenancy resolution logic
 - ❌ NO custom domain routing
 - ❌ NO business logic
@@ -109,31 +115,86 @@ export const config = {
 }
 ```
 
-### Tenancy Resolution (Next.js + Convex)
+### Tenancy Resolution (Edge-Compatible Module)
 
-**Purpose:** Resolve workspace from hostname
+**Purpose:** Resolve workspace from hostname and route to tenant pages
+
+**Location:** `src/platform/tenancy/edge-router.ts` (Edge-safe module)
 
 **Responsibilities:**
-- ✅ Extract hostname from `headers()` in Server Components
+- ✅ Extract hostname from request headers
+- ✅ Normalize hostname (strip port, lowercase)
+- ✅ Detect hub domain vs subdomain vs custom domain
 - ✅ Query Convex to resolve workspace by slug or custom domain
-- ✅ Pass workspace context to page components
-- ❌ NO separate Node proxy server for MVP
+- ✅ Verify custom domain entitlements (maxCustomDomains from subscription)
+- ✅ Rewrite to `/_t/[workspaceSlug]/*` pattern
+- ✅ Handle reserved subdomains (www, app, api, admin, studio, artist, pricing, sign-in, sign-up)
+- ❌ NO Node.js-specific APIs (fs, path, etc.)
+- ❌ NO separate proxy server
 
 **Implementation Pattern:**
 ```typescript
-// app/(_t)/[workspaceSlug]/page.tsx
-import { headers } from 'next/headers'
+// src/platform/tenancy/edge-router.ts (Edge-compatible)
+import { NextRequest, NextResponse } from 'next/server'
 
-export default async function TenantPage({ params }: { params: { workspaceSlug: string } }) {
-  const headersList = headers()
-  const hostname = headersList.get('host') || ''
+export async function resolveTenancy(request: NextRequest) {
+  const hostname = request.headers.get('host') || ''
+  const normalized = hostname.split(':')[0].toLowerCase()
   
-  // Query Convex to resolve workspace
-  const workspace = await convex.query(api.platform.workspaces.getBySlug, {
-    slug: params.workspaceSlug
-  })
+  // Hub domain
+  if (normalized === 'brolabentertainment.com' || normalized === 'www.brolabentertainment.com') {
+    return NextResponse.next()
+  }
   
-  // Render tenant storefront
+  // Subdomain
+  if (normalized.endsWith('.brolabentertainment.com')) {
+    const slug = normalized.replace('.brolabentertainment.com', '')
+    
+    // Reserved subdomains
+    const reserved = ['www', 'app', 'api', 'admin', 'studio', 'artist', 'pricing', 'sign-in', 'sign-up']
+    if (reserved.includes(slug)) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    
+    // Rewrite to tenant route
+    return NextResponse.rewrite(new URL(`/_t/${slug}${request.nextUrl.pathname}`, request.url))
+  }
+  
+  // Custom domain - query Convex to resolve
+  const workspace = await fetch(`${process.env.NEXT_PUBLIC_CONVEX_URL}/api/domains/resolve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ hostname: normalized })
+  }).then(res => res.json())
+  
+  if (workspace?.slug) {
+    return NextResponse.rewrite(new URL(`/_t/${workspace.slug}${request.nextUrl.pathname}`, request.url))
+  }
+  
+  // Unknown domain
+  return new NextResponse('Not Found', { status: 404 })
+}
+```
+
+**Usage in Middleware:**
+```typescript
+// src/proxy.ts
+import { clerkMiddleware } from '@clerk/nextjs/server'
+import { resolveTenancy } from '@/platform/tenancy/edge-router'
+
+export default clerkMiddleware(async (auth, req) => {
+  // Clerk auth first
+  await auth()
+  
+  // Then tenancy resolution
+  return resolveTenancy(req)
+})
+
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
 }
 ```
 
@@ -147,7 +208,43 @@ export default async function TenantPage({ params }: { params: { workspaceSlug: 
 - ✅ File storage
 - ✅ Real-time subscriptions
 - ✅ Plans/entitlements/quotas logic
+- ✅ Domain resolution HTTP endpoint (`/api/domains/resolve`)
 - ❌ NO imports from `src/` (cross-runtime violation)
+
+**Domain Resolution Endpoint:**
+```typescript
+// convex/http.ts
+import { httpRouter } from "convex/server";
+import { httpAction } from "./_generated/server";
+
+const http = httpRouter();
+
+http.route({
+  path: "/api/domains/resolve",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const { hostname } = await request.json();
+    
+    const domain = await ctx.runQuery(internal.platform.domains.getByHostname, { hostname });
+    
+    if (!domain || domain.status !== "verified") {
+      return new Response(JSON.stringify({ slug: null }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    
+    const workspace = await ctx.runQuery(internal.platform.workspaces.get, {
+      workspaceId: domain.workspaceId
+    });
+    
+    return new Response(JSON.stringify({ slug: workspace?.slug || null }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
+
+export default http;
+```
 
 ### Frontend (Next.js App Router)
 
@@ -3151,56 +3248,86 @@ export default function PricingPage() {
 
 ## Changelog
 
-### 2026-01-26 - Architecture Clarifications & Cross-Runtime Rules
+### 2026-01-26 - Vercel Edge Deployment Model & Tenancy Architecture
 
 **Changes:**
 
-1. **Runtime Architecture Section Added**: Documented clear separation of responsibilities:
-   - Clerk Edge file (`src/proxy.ts`): Authentication and route protection ONLY
-   - Tenancy Resolution: Next.js Server Components + Convex queries (NOT separate proxy)
-   - Convex Backend: Single source of truth for data and business logic
-   - Frontend: UI rendering via queries/mutations (NO direct Convex imports)
+1. **Deployment Model Clarified**: Updated from Node.js proxy to Vercel Edge:
+   - **Platform**: Vercel (serverless Edge runtime)
+   - **Architecture**: Edge Functions + Next.js App Router + Convex Backend
+   - **NO Node.js Proxy**: All routing handled by Vercel Edge + Next.js
+   - Removed all references to separate Node proxy server (`proxy.ts` as entry point)
+   - Removed deployment options table (Render/Fly/VPS) - Vercel is the platform
 
-2. **Single Source of Truth: Billing Plans Section Added**: Established canonical architecture:
+2. **Runtime Architecture Section Updated**: Documented clear separation of responsibilities:
+   - **Clerk Edge File (`src/proxy.ts`)**: Authentication and route protection ONLY
+   - **Tenancy Resolution (Edge-Compatible Module)**: `src/platform/tenancy/edge-router.ts`
+     - Edge-safe module (NO Node.js-specific APIs)
+     - Resolves workspace from hostname
+     - Queries Convex HTTP endpoint for domain resolution
+     - Rewrites to `/_t/[workspaceSlug]/*` pattern
+   - **Convex Backend**: Single source of truth + HTTP endpoint for domain resolution
+   - **Frontend**: UI rendering via queries/mutations (NO direct Convex imports)
+
+3. **Convex HTTP Endpoint Added**: Domain resolution endpoint:
+   - Path: `/api/domains/resolve`
+   - Method: POST
+   - Input: `{ hostname: string }`
+   - Output: `{ slug: string | null }`
+   - Verifies domain status and returns workspace slug
+
+4. **Single Source of Truth: Billing Plans Section Added**: Established canonical architecture:
    - `convex/platform/billing/plans.ts` is the ONLY definition
    - Frontend MUST use `getPlansPublic` query for pricing display
    - `src/platform/billing/plans.ts` MUST be deleted (duplicate)
    - Cross-runtime imports explicitly forbidden
 
-3. **Cross-Runtime Import Rules (CRITICAL)**: Added strict rules to prevent build failures:
+5. **Cross-Runtime Import Rules (CRITICAL)**: Added strict rules to prevent build failures:
    - Convex MUST NOT import from `src/` (different runtime)
    - Frontend MUST NOT import Convex files directly (use queries/mutations)
    - Plans/entitlements source of truth: Convex canonical
    - Migration steps documented for fixing violations
 
-4. **Clerk Edge File Clarification**: Corrected naming and location:
+6. **Clerk Edge File Clarification**: Corrected naming and location:
    - File MUST be `src/proxy.ts` (NOT `middleware.ts`) for Next.js ≥16 with `/src` directory
    - Purpose: Authentication and route protection ONLY (NO tenancy logic)
-   - Implementation example provided
+   - Implementation example provided with `clerkMiddleware()`
 
-5. **Tenancy Resolution Pattern**: Documented correct implementation:
-   - Extract hostname from `headers()` in Server Components
-   - Query Convex to resolve workspace by slug or custom domain
-   - Pass workspace context to page components
-   - NO separate Node proxy server for MVP
+7. **Tenancy Resolution Pattern**: Documented Edge-compatible implementation:
+   - Edge-safe module: `src/platform/tenancy/edge-router.ts`
+   - Extracts hostname from request headers
+   - Normalizes hostname (strip port, lowercase)
+   - Detects hub vs subdomain vs custom domain
+   - Queries Convex HTTP endpoint for custom domain resolution
+   - Rewrites to `/_t/[workspaceSlug]/*`
+   - Handles reserved subdomains (www, app, api, admin, studio, artist, pricing, sign-in, sign-up)
 
 **Rationale:**
-- Align with actual Clerk documentation (Next.js ≥16 uses `proxy.ts` in `/src`)
+- Align with Vercel deployment model (Edge runtime, not Node.js)
+- Remove confusion about separate Node proxy server
+- Establish Edge-compatible tenancy resolution pattern
 - Prevent cross-runtime import errors that break builds
 - Establish single source of truth for billing plans (Convex canonical)
 - Clarify that frontend must consume Convex via queries, not direct imports
-- Document correct tenancy resolution pattern (Next.js + Convex, not separate proxy)
+- Document correct Clerk integration for Next.js ≥16 with `/src` directory
 
 **Files Affected:**
+- `src/proxy.ts` - Clerk Edge file (MUST be created)
+- `src/platform/tenancy/edge-router.ts` - Edge-compatible tenancy module (MUST be created)
+- `convex/http.ts` - Domain resolution endpoint (MUST be added)
 - `convex/platform/entitlements.ts` - Has cross-runtime import violation (imports from `src/`)
 - `src/platform/billing/plans.ts` - Duplicate file, must be removed
 - `convex/platform/billing/plans.ts` - Canonical source
 - `convex/platform/billing/getPlansPublic.ts` - Public query for frontend
+- `app/layout.tsx` - Missing `<ClerkProvider>` (MUST be added)
+- `ConvexClientProvider` - Does NOT exist (MUST be created)
 
 **Action Items:**
+- Create `src/proxy.ts` with `clerkMiddleware()` (auth ONLY)
+- Create `src/platform/tenancy/edge-router.ts` (Edge-compatible tenancy resolution)
+- Add domain resolution HTTP endpoint in `convex/http.ts`
 - Remove cross-runtime import in `convex/platform/entitlements.ts`
 - Delete `src/platform/billing/plans.ts` entirely
 - Update pricing UI to consume `getPlansPublic` query
-- Create `src/proxy.ts` with `clerkMiddleware()`
 - Add `<ClerkProvider>` in `app/layout.tsx`
 - Create `ConvexClientProvider` with Clerk integration
