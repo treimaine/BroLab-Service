@@ -1,18 +1,21 @@
+import { resolveTenancy } from '@/platform/tenancy/edge-router'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 /**
- * Role-Based Routing Middleware
+ * Clerk Middleware with Tenancy Resolution
  * 
- * Requirements: 2.2, 2.3, 2.4
+ * Requirements: 1.6, 2.1, 2.2, 2.3, 2.4, Req 1
  * 
  * Flow:
- * 1. Check if user is authenticated
- * 2. Check user role from auth().sessionClaims.unsafeMetadata.role
- * 3. Redirect to /onboarding if role is missing
- * 4. Protect /studio/* routes (require provider role: producer or engineer)
- * 5. Protect /artist/* routes (require artist role)
- * 6. Allow public access to hub routes (/, /pricing, /about, etc.)
+ * 1. Clerk authentication runs FIRST
+ * 2. Check if user is authenticated
+ * 3. Check user role from auth().sessionClaims.unsafeMetadata.role
+ * 4. Redirect to /onboarding if role is missing
+ * 5. Protect /studio/* routes (require provider role: producer or engineer)
+ * 6. Protect /artist/* routes (require artist role)
+ * 7. Allow public access to hub routes (/, /pricing, /about, etc.)
+ * 8. THEN tenancy resolution runs (hostname → workspace slug → rewrite to /_t/[slug])
  */
 
 // Define route matchers
@@ -99,15 +102,27 @@ function handleArtistProtection(
 }
 
 export default clerkMiddleware(async (auth, req) => {
+  // ============ STEP 1: CLERK AUTHENTICATION ============
   const { userId, sessionClaims } = await auth()
 
   // Allow public routes without authentication
   if (isPublicRoute(req)) {
-    return NextResponse.next()
+    return resolveTenancy(req)
   }
 
   // If user is not authenticated, Clerk will handle redirect to sign-in
   if (!userId) {
+    return NextResponse.next()
+  }
+
+  // CRITICAL FIX: Skip middleware logic for Next.js internal routes and static files
+  // This prevents redirecting JS chunks, images, etc. to /onboarding
+  const pathname = req.nextUrl.pathname
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/api/') ||
+    pathname.includes('.')  // Any file with extension (js, css, png, etc.)
+  ) {
     return NextResponse.next()
   }
 
@@ -134,7 +149,8 @@ export default clerkMiddleware(async (auth, req) => {
     if (artistProtection) return artistProtection
   }
 
-  return NextResponse.next()
+  // ============ STEP 2: TENANCY RESOLUTION ============
+  return resolveTenancy(req)
 })
 
 export const config = {

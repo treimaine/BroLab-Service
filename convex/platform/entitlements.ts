@@ -253,6 +253,40 @@ export async function hasActiveSubscription(
 }
 
 /**
+ * Assert that workspace has an active subscription
+ * 
+ * Throws error if the workspace does not have an active subscription.
+ * Use this to gate provider admin actions (upload, publish, service create, etc.).
+ * 
+ * Requirements: 3.4, 3.7
+ * 
+ * @param ctx - Convex query/mutation context
+ * @param workspaceId - Workspace ID to check
+ * @throws Error if subscription is not active
+ * 
+ * @example
+ * ```ts
+ * // Gate a provider mutation
+ * await assertActiveSubscription(ctx, workspaceId);
+ * // If we reach here, subscription is active
+ * await ctx.db.insert("tracks", { ... });
+ * ```
+ */
+export async function assertActiveSubscription(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ctx: any,
+  workspaceId: Id<"workspaces">
+): Promise<void> {
+  const plan = await getWorkspacePlan(ctx, workspaceId);
+  
+  if (plan.status !== "active" || plan.planKey === null) {
+    throw new Error(
+      "Active subscription required. Please subscribe to a plan to access this feature."
+    );
+  }
+}
+
+/**
  * Check if workspace plan allows unlimited usage of a feature
  * 
  * @param ctx - Convex query/mutation context

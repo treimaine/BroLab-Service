@@ -109,7 +109,7 @@ export const getVerifiedDomainsByWorkspace = query({
 /**
  * Resolve hostname to workspace slug
  * Returns null if hostname is not found or not verified
- * This is used by proxy.ts for custom domain routing
+ * This is used by proxy.ts (at project root) for custom domain routing
  */
 export const resolveHostnameToSlug = query({
   args: { hostname: v.string() },

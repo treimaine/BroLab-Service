@@ -12,6 +12,7 @@ import type * as http from "../http.js";
 import type * as platform_auditLogs from "../platform/auditLogs.js";
 import type * as platform_billing from "../platform/billing.js";
 import type * as platform_billing_plans from "../platform/billing/plans.js";
+import type * as platform_billing_webhooks from "../platform/billing/webhooks.js";
 import type * as platform_domains from "../platform/domains.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   "platform/auditLogs": typeof platform_auditLogs;
   "platform/billing": typeof platform_billing;
   "platform/billing/plans": typeof platform_billing_plans;
+  "platform/billing/webhooks": typeof platform_billing_webhooks;
   "platform/domains": typeof platform_domains;
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;

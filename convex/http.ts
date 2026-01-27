@@ -2,6 +2,7 @@
 // Implements HTTP API routes for external integrations
 
 import { httpRouter } from "convex/server";
+import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
 
 const http = httpRouter();
@@ -24,8 +25,9 @@ http.route({
   }),
 });
 
-// Domain resolution endpoint (for proxy.ts)
-// Will be fully implemented in Phase 6 (Task 6.3)
+// Domain resolution endpoint (for proxy.ts at project root)
+// Resolves custom domain hostnames to workspace slugs
+// Requirements: 1.3, 1.5, Req 1
 http.route({
   path: "/api/domains/resolve",
   method: "POST",
@@ -44,10 +46,16 @@ http.route({
         );
       }
 
-      // TODO: Implement domain resolution in Phase 6
-      // For now, return null (no custom domains configured)
+      // Use internal query to resolve hostname to workspace slug
+      const result = await ctx.runQuery(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.domains.resolveHostnameToSlug,
+        { hostname }
+      );
+
+      // Return slug if domain is verified, otherwise null
       return new Response(
-        JSON.stringify({ slug: null }),
+        JSON.stringify({ slug: result?.slug || null }),
         {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -83,5 +91,138 @@ http.route({
     );
   }),
 });
+
+// Clerk Billing webhook endpoint
+// Handles subscription lifecycle events from Clerk Billing
+// Requirements: 3.1, 3.4, 3.7, 3.8
+http.route({
+  path: "/api/clerk/billing/webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.json();
+      
+      // Clerk Billing webhook payload structure:
+      // {
+      //   type: "subscription.created" | "subscription.updated" | "subscription.deleted",
+      //   data: {
+      //     id: string,
+      //     user_id: string,
+      //     plan: string, // "basic" or "pro"
+      //     status: "active" | "canceled" | "incomplete" | etc.
+      //   }
+      // }
+      
+      const { type, data } = body;
+      
+      if (!type || !data) {
+        return new Response(
+          JSON.stringify({ error: "Invalid webhook payload" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      // Only process subscription events
+      if (!type.startsWith("subscription.")) {
+        return new Response(
+          JSON.stringify({ received: true, skipped: "Not a subscription event" }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      const { user_id: clerkUserId, plan, status } = data;
+      
+      if (!clerkUserId || !plan || !status) {
+        return new Response(
+          JSON.stringify({ error: "Missing required fields in webhook data" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      // Validate plan key
+      if (plan !== "basic" && plan !== "pro") {
+        return new Response(
+          JSON.stringify({ error: "Invalid plan key" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      // Get workspace for this user
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const workspaceId = await ctx.runMutation((internal as any).platform.billing.webhooks.getWorkspaceByOwner, {
+        clerkUserId,
+      });
+      
+      if (!workspaceId) {
+        return new Response(
+          JSON.stringify({ error: "Workspace not found for user" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      // Map Clerk status to system status
+      const systemStatus = mapClerkStatusToSystem(status);
+      
+      // Sync subscription to database
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await ctx.runMutation((internal as any).platform.billing.webhooks.syncSubscription, {
+        clerkUserId,
+        workspaceId,
+        planKey: plan,
+        status: systemStatus,
+      });
+      
+      return new Response(
+        JSON.stringify({ received: true, synced: true }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Clerk Billing webhook error:", error);
+      return new Response(
+        JSON.stringify({ error: "Internal server error" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }),
+});
+
+// Helper function to map Clerk subscription status to system status
+function mapClerkStatusToSystem(clerkStatus: string): "active" | "inactive" | "canceled" {
+  switch (clerkStatus) {
+    case "active":
+    case "trialing":
+      return "active";
+    case "canceled":
+      return "canceled";
+    case "incomplete":
+    case "incomplete_expired":
+    case "past_due":
+    case "unpaid":
+      return "inactive";
+    default:
+      return "inactive";
+  }
+}
 
 export default http;

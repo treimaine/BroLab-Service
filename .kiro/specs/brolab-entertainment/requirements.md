@@ -45,7 +45,7 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 #### Implementation Notes
 
 - **Deployment**: Application deployed on Vercel (serverless Edge runtime)
-- **Clerk Edge File**: For Next.js ≥16 with `/src` directory, the Clerk middleware file MUST be `src/proxy.ts` (NOT `middleware.ts`)
+- **Clerk Edge File**: The Clerk middleware file is `proxy.ts` at the project root (NOT `middleware.ts` or `src/proxy.ts`)
 - **Clerk Edge File Purpose**: Handles ONLY authentication and route protection via `clerkMiddleware()` (NOT tenancy resolution)
 - **Clerk Edge File Config**: MUST include `config.matcher` to exclude static files (`_next/static`, `_next/image`, `favicon.ico`, etc.)
 - **Tenancy Resolution**: Implemented via Edge-compatible module (e.g., `src/platform/tenancy/edge-router.ts`) that:

@@ -19,8 +19,10 @@ import { assertEntitlement, assertQuota } from "./entitlements";
 /**
  * Example mutation: Publish a track
  * 
- * This demonstrates how to use assertQuota before an operation
- * that consumes quota (publishing a track).
+ * This demonstrates how to use assertActiveSubscription and assertQuota
+ * before an operation that consumes quota (publishing a track).
+ * 
+ * Requirements: 3.4, 3.7
  */
 export const publishTrackExample = mutation({
   args: {
@@ -28,11 +30,15 @@ export const publishTrackExample = mutation({
     trackId: v.id("tracks"),
   },
   handler: async (ctx, args) => {
-    // STEP 1: Check quota FIRST (before any other logic)
-    // This will throw an error if quota is exceeded or subscription is inactive
+    // STEP 1: Check active subscription FIRST
+    // This will throw an error if subscription is inactive
+    await assertActiveSubscription(ctx, args.workspaceId);
+
+    // STEP 2: Check quota (max published tracks)
+    // This will throw an error if quota is exceeded
     await assertQuota(ctx, args.workspaceId, "tracks");
 
-    // STEP 2: Perform the operation
+    // STEP 3: Perform the operation
     const track = await ctx.db.get(args.trackId);
     if (!track) {
       throw new Error("Track not found");
@@ -47,7 +53,7 @@ export const publishTrackExample = mutation({
       status: "published",
     });
 
-    // STEP 3: Update usage tracking
+    // STEP 4: Update usage tracking
     const usage = await ctx.db
       .query("usage")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
@@ -138,8 +144,10 @@ export const generateUploadUrlExample = mutation({
 /**
  * Example mutation: Create a service
  * 
- * This demonstrates a simple subscription check without quota.
+ * This demonstrates subscription gating for operations without quota limits.
  * Services don't have a quota limit, but require an active subscription.
+ * 
+ * Requirements: 3.4, 3.7
  */
 export const createServiceExample = mutation({
   args: {
@@ -150,8 +158,7 @@ export const createServiceExample = mutation({
   },
   handler: async (ctx, args) => {
     // STEP 1: Check if subscription is active
-    // We can use assertEntitlement with any feature key to check subscription status
-    await assertEntitlement(ctx, args.workspaceId, "maxPublishedTracks");
+    await assertActiveSubscription(ctx, args.workspaceId);
 
     // STEP 2: Create the service
     const serviceId = await ctx.db.insert("services", {
@@ -221,9 +228,12 @@ export const insecurePublishTrackExample2 = mutation({
 /**
  * ✅ CORRECT PATTERN SUMMARY:
  * 
- * 1. Call assertEntitlement or assertQuota at the START of the mutation
- * 2. These functions will throw an error if checks fail
- * 3. Only proceed with the operation if checks pass
- * 4. Update usage tracking after the operation
- * 5. NEVER trust client-side state for authorization
+ * 1. Call assertActiveSubscription at the START of ALL provider mutations
+ * 2. Call assertEntitlement or assertQuota for specific feature/quota checks
+ * 3. These functions will throw an error if checks fail
+ * 4. Only proceed with the operation if checks pass
+ * 5. Update usage tracking after the operation
+ * 6. NEVER trust client-side state for authorization
+ * 
+ * Requirements: 3.4, 3.7, 6.5
  */

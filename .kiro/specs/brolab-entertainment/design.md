@@ -86,11 +86,11 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 **Architecture:** Edge Functions + Next.js App Router + Convex Backend
 **No Node.js Proxy:** All routing handled by Vercel Edge + Next.js
 
-### Clerk Edge File (`src/proxy.ts`)
+### Clerk Edge File (`proxy.ts`)
 
 **Purpose:** Authentication and route protection ONLY
 
-**Location:** `src/proxy.ts` (for Next.js ≥16 with `/src` directory)
+**Location:** `proxy.ts` (at project root)
 
 **Responsibilities:**
 - ✅ Authenticate users via `clerkMiddleware()`
@@ -102,7 +102,7 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 
 **Implementation:**
 ```typescript
-// src/proxy.ts
+// proxy.ts (at project root)
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
 export default clerkMiddleware()
@@ -178,7 +178,7 @@ export async function resolveTenancy(request: NextRequest) {
 
 **Usage in Middleware:**
 ```typescript
-// src/proxy.ts
+// proxy.ts (at project root)
 import { clerkMiddleware } from '@clerk/nextjs/server'
 import { resolveTenancy } from '@/platform/tenancy/edge-router'
 
@@ -670,20 +670,9 @@ export async function handleRequest(req: any, res: any, proxy: any) {
 }
 ```
 
-### middleware.ts (Clerk + static exclusions only)
+### Note on middleware.ts
 
-```typescript
-// middleware.ts - Clerk auth + static exclusions, NO tenancy logic
-import { clerkMiddleware } from '@clerk/nextjs/server'
-
-export default clerkMiddleware()
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
-};
-```
+The project uses `proxy.ts` at the root instead of `middleware.ts`. This file handles both Clerk authentication and tenancy resolution in a single middleware.
 
 ### Proxy Runtime / Deployment
 

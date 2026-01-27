@@ -9,6 +9,13 @@
 export { MobileNav, type MobileNavItem, type MobileNavProps } from './MobileNav';
 export { TenantLayout, type NavItem, type TenantLayoutProps } from './TenantLayout';
 
+// Re-export workspace context from platform (proper architecture location)
+export {
+    WorkspaceErrorBoundary, WorkspaceProvider,
+    useWorkspace, type Workspace,
+    type WorkspaceContextType
+} from '@/platform/tenancy';
+
 // Re-export audio components for convenience
 export { PlayerBar, type PlayerBarProps } from '../audio';
 
