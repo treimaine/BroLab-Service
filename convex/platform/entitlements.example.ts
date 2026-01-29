@@ -12,7 +12,7 @@
 
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { assertEntitlement, assertQuota } from "./entitlements";
+import { assertActiveSubscription, assertEntitlement, assertQuota } from "./entitlements";
 
 // ============ EXAMPLE 1: Publishing a Track ============
 

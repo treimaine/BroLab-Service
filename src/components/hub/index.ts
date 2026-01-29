@@ -8,7 +8,9 @@
  * Requirements: ELECTRI-X Composition
  */
 
+export { BillingManagement } from './BillingManagement'
 export { Footer } from './Footer'
 export { Header } from './Header'
 export { ThemeToggle } from './ThemeToggle'
+
 

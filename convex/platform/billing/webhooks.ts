@@ -14,29 +14,6 @@ import type { Id } from "../../_generated/dataModel";
 import { internalMutation } from "../../_generated/server";
 
 /**
- * Subscription status mapping from Clerk to our system
- */
-type ClerkSubscriptionStatus = "active" | "canceled" | "incomplete" | "incomplete_expired" | "past_due" | "trialing" | "unpaid";
-type SystemSubscriptionStatus = "active" | "inactive" | "canceled";
-
-function mapClerkStatusToSystem(clerkStatus: ClerkSubscriptionStatus): SystemSubscriptionStatus {
-  switch (clerkStatus) {
-    case "active":
-    case "trialing":
-      return "active";
-    case "canceled":
-      return "canceled";
-    case "incomplete":
-    case "incomplete_expired":
-    case "past_due":
-    case "unpaid":
-      return "inactive";
-    default:
-      return "inactive";
-  }
-}
-
-/**
  * Sync subscription from Clerk Billing webhook
  * 
  * This mutation is called from the HTTP webhook handler to update

@@ -9,9 +9,13 @@
  */
 
 import type * as http from "../http.js";
+import type * as modules_beats from "../modules/beats.js";
 import type * as platform_auditLogs from "../platform/auditLogs.js";
 import type * as platform_billing from "../platform/billing.js";
+import type * as platform_billing_clerkBillingSync from "../platform/billing/clerkBillingSync.js";
 import type * as platform_billing_plans from "../platform/billing/plans.js";
+import type * as platform_billing_subscriptionQueries from "../platform/billing/subscriptionQueries.js";
+import type * as platform_billing_testSubscription from "../platform/billing/testSubscription.js";
 import type * as platform_billing_webhooks from "../platform/billing/webhooks.js";
 import type * as platform_domains from "../platform/domains.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
@@ -28,9 +32,13 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   http: typeof http;
+  "modules/beats": typeof modules_beats;
   "platform/auditLogs": typeof platform_auditLogs;
   "platform/billing": typeof platform_billing;
+  "platform/billing/clerkBillingSync": typeof platform_billing_clerkBillingSync;
   "platform/billing/plans": typeof platform_billing_plans;
+  "platform/billing/subscriptionQueries": typeof platform_billing_subscriptionQueries;
+  "platform/billing/testSubscription": typeof platform_billing_testSubscription;
   "platform/billing/webhooks": typeof platform_billing_webhooks;
   "platform/domains": typeof platform_domains;
   "platform/entitlements": typeof platform_entitlements;

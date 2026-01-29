@@ -556,15 +556,15 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 7: Clerk Billing Subscription Sync
 
-- [-] Task 7.1: Implement Clerk Billing subscription sync: Webhook handler for Clerk billing events. providerSubscriptions table updates. Subscription gating in provider mutations (server-side rejection). _Requirements: 3.1, 3.4, 3.7, 3.8_
+- [x] Task 7.1: Implement Clerk Billing subscription sync: Webhook handler for Clerk billing events. providerSubscriptions table updates. Subscription gating in provider mutations (server-side rejection). _Requirements: 3.1, 3.4, 3.7, 3.8_
 
-- [ ] Task 7.2: Create billing management page at app/(hub)/studio/billing/page.tsx: Subscription status display. Clerk Billing component integration (branded). Usage vs quota display. _Requirements: 3.6, 19.1, 19.6_
+- [x] Task 7.2: Create billing management page at app/(hub)/studio/billing/page.tsx: Subscription status display. Clerk Billing component integration (branded). Usage vs quota display. _Requirements: 3.6, 19.1, 19.6_
 
-- [ ] CP-7: Manual Checkpoint Phase 7 Complete (Playwright): Sign in as provider. Navigate to /studio/billing. Verify subscription status displayed (or "No subscription" if none). Click subscribe → verify Clerk Billing checkout opens. Complete test subscription (Stripe test mode). Verify subscription status updates to "active". Verify usage vs quota display (0/25 tracks, 0/1GB storage). Test subscription gating: try provider action without subscription → verify blocked.
+- [x] CP-7: Manual Checkpoint Phase 7 Complete (Playwright): Sign in as provider. Navigate to /studio/billing. Verify subscription status displayed (or "No subscription" if none). Click subscribe → verify Clerk Billing checkout opens. Complete test subscription (Stripe test mode). Verify subscription status updates to "active". Verify usage vs quota display (0/25 tracks, 0/1GB storage). Test subscription gating: try provider action without subscription → verify blocked.
 
 ### Phase 8: Beats Upload + Preview Jobs + Worker + Player Integration
 
-- [ ] Task 8.1: Create track upload mutation in convex/modules/beats.ts: File format validation (wav/mp3). Convex upload URL pattern (generate URL → upload → create record). Track record creation with draft status. Usage tracking update (storageUsedBytes). _Requirements: 10.1, 10.5_
+- [x] Task 8.1: Create track upload mutation in convex/modules/beats.ts: File format validation (wav/mp3). Convex upload URL pattern (generate URL → upload → create record). Track record creation with draft status. Usage tracking update (storageUsedBytes). _Requirements: 10.1, 10.5_
 
 - [ ] Task 8.2: Implement preview generation job handler: Job type "preview_generation". Payload with trackId and fullStorageId. Provider-controlled: "Generate preview now" option (default ON). If OFF: previewPolicy = "manual", no job enqueued. _Requirements: 10.2, 10.3, 10.4, 11.1_
 

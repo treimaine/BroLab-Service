@@ -79,10 +79,10 @@ export function normalizeSlug(input: string): string {
   return input
     .toLowerCase()
     .trim()
-    .replaceAll(/\s+/g, "-") // Replace spaces with hyphens
-    .replaceAll(/[^a-z0-9-]/g, "") // Remove invalid characters
-    .replaceAll(/--+/g, "-") // Replace consecutive hyphens with single hyphen
-    .replaceAll(/(?:^-+|-+$)/g, ""); // Remove leading/trailing hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, "") // Remove invalid characters
+    .replace(/--+/g, "-") // Replace consecutive hyphens with single hyphen
+    .replace(/(?:^-+|-+$)/g, ""); // Remove leading/trailing hyphens
 }
 
 // ============ QUERIES ============
