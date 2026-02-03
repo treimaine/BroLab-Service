@@ -1,19 +1,20 @@
 'use client'
 
 import {
-  ChromeSurface,
-  ConstellationDots,
-  CyanOrb,
-  EditionBadge,
-  MicroInfoModule,
-  OrganicBlob,
-  OutlineStackTitle,
-  PillCTA,
-  WavyLines
+    ChromeSurface,
+    ConstellationDots,
+    CyanOrb,
+    EditionBadge,
+    MicroInfoModule,
+    OrganicBlob,
+    OutlineStackTitle,
+    PillCTA,
+    WavyLines
 } from '@/platform/ui'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { AuthNav } from './AuthNav'
 
 const PLATFORM_INFO: Array<{ text: string }> = [
   { text: 'Powered by Clerk Billing (subscriptions)' },
@@ -156,18 +157,7 @@ export function HeroSection() {
           </Link>
           
           <div className="flex-1 flex justify-end items-center gap-4">
-            <Link
-              href="/sign-in"
-              className="hidden sm:block text-sm font-medium text-muted hover:text-text transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link href="/sign-up">
-              <PillCTA variant="primary" size="sm" className="group">
-                <span>Explore</span>
-                <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
-              </PillCTA>
-            </Link>
+            <AuthNav ctaLabel="Explore" />
           </div>
         </div>
       </ChromeSurface>

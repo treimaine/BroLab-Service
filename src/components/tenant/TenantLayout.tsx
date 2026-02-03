@@ -37,6 +37,16 @@ export interface TenantLayoutProps {
     label: string
     href: string
   }
+  /** Optional navigation items for the top bar */
+  topBarNavItems?: Array<{
+    label: string
+    href: string
+  }>
+  /** Optional secondary action for the top bar */
+  secondaryAction?: {
+    label: string
+    href: string
+  }
 }
 
 /**
@@ -78,6 +88,8 @@ export function TenantLayout({
   showPlayerBar = true,
   playerBarProps,
   topBarCta,
+  topBarNavItems = [],
+  secondaryAction,
 }: Readonly<TenantLayoutProps>) {
   const [mounted, setMounted] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -174,7 +186,7 @@ export function TenantLayout({
       {/* On desktop: no brand (IconRail shows it), on mobile: show brand */}
       <TopMinimalBar
         brand={
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2">
             {brandElement}
             <span className="font-bold text-lg text-[rgb(var(--text))]">
               {workspaceName}
@@ -182,7 +194,9 @@ export function TenantLayout({
           </div>
         }
         brandHref={basePath || '/'}
+        navItems={topBarNavItems}
         cta={topBarCta}
+        secondaryAction={secondaryAction}
         right={
           <button
             onClick={toggleTheme}
@@ -199,7 +213,6 @@ export function TenantLayout({
       {/* Desktop IconRail - Dribbble kit component */}
       <IconRail
         items={iconRailItems}
-        brand={brandElement}
       />
 
       {/* Mobile Bottom Nav - Hidden on desktop */}

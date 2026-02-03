@@ -24,7 +24,7 @@ This document summarizes the completion of Task 5.5 sub-tasks (5.5.1-5.5.4), whi
 
 ### Task 5.5.2: Refactor middleware.ts to use routing constants
 
-**File Modified**: `proxy.ts` (middleware equivalent)
+**File Modified**: `middleware.ts` (middleware equivalent)
 
 **Changes**:
 - Replaced hardcoded route arrays with imports from `@/shared/routing`
@@ -90,7 +90,7 @@ npm run lint
    - `shared/routing.ts` - Runtime-agnostic routing constants
 
 2. **Modified**:
-   - `proxy.ts` - Uses shared routing constants
+   - `middleware.ts` - Uses shared routing constants
    - `convex/platform/workspaces.ts` - Uses shared RESERVED_SLUGS
    - `tsconfig.json` - Added `@/shared/*` path alias
    - `eslint.config.mjs` - Excluded `.agent/` directory

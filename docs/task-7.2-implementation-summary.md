@@ -32,7 +32,7 @@ Next.js page component that renders the BillingManagement component.
 
 **Features:**
 - Server Component wrapper
-- Protected route (requires provider role via proxy.ts)
+- Protected route (requires provider role via middleware.ts)
 - Clean separation of concerns
 
 ### 3. `src/components/hub/BillingManagement.tsx`

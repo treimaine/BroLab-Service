@@ -77,9 +77,13 @@ function handleOnboardingRedirect(
  * Helper: Handle studio route protection
  */
 function handleStudioProtection(
+  userId: string | null,
   role: string | undefined,
   req: Request
 ): NextResponse | null {
+  if (!userId) {
+    return NextResponse.redirect(new URL('/sign-in', req.url))
+  }
   if (!isProviderRole(role)) {
     const redirectPath = getDashboardUrl(role)
     return NextResponse.redirect(new URL(redirectPath, req.url))
@@ -91,9 +95,13 @@ function handleStudioProtection(
  * Helper: Handle artist route protection
  */
 function handleArtistProtection(
+  userId: string | null,
   role: string | undefined,
   req: Request
 ): NextResponse | null {
+  if (!userId) {
+    return NextResponse.redirect(new URL('/sign-in', req.url))
+  }
   if (role !== 'artist') {
     const redirectPath = getDashboardUrl(role)
     return NextResponse.redirect(new URL(redirectPath, req.url))
@@ -102,60 +110,64 @@ function handleArtistProtection(
 }
 
 export default clerkMiddleware(async (auth, req) => {
-  // ============ STEP 1: CLERK AUTHENTICATION ============
   const { userId, sessionClaims } = await auth()
+  const pathname = req.nextUrl.pathname
 
-  // Allow public routes without authentication
-  if (isPublicRoute(req)) {
+  // ============ STEP 1: STATIC FILE EXCLUSION ============
+  const isStaticFile = /\.(html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)$/i.test(pathname)
+  if (pathname.startsWith('/_next/') || pathname.includes('/_next/static/') || isStaticFile) {
+    return NextResponse.next()
+  }
+
+  // Define explicitly which paths are protected
+  const isStudioPath = pathname.startsWith('/studio')
+  const isArtistPath = pathname.startsWith('/artist')
+  const isOnboardingPath = pathname.startsWith('/onboarding')
+  const isPublicPath = isPublicRoute(req)
+
+  // ============ STEP 2: AUTHENTICATION REDIRECTION ============
+  if (!userId) {
+    if (isStudioPath || isArtistPath || isOnboardingPath) {
+      return NextResponse.redirect(new URL('/sign-in', req.url))
+    }
     return resolveTenancy(req)
   }
 
-  // If user is not authenticated, Clerk will handle redirect to sign-in
-  if (!userId) {
-    return NextResponse.next()
+  // ============ STEP 3: PUBLIC ROUTES (Logged in) ============
+  if (isPublicPath) {
+    return resolveTenancy(req)
   }
 
-  // CRITICAL FIX: Skip middleware logic for Next.js internal routes and static files
-  // This prevents redirecting JS chunks, images, etc. to /onboarding
-  const pathname = req.nextUrl.pathname
-  if (
-    pathname.startsWith('/_next/') ||
-    pathname.startsWith('/api/') ||
-    pathname.includes('.')  // Any file with extension (js, css, png, etc.)
-  ) {
-    return NextResponse.next()
-  }
-
-  // Get user role from session claims
+  // ============ STEP 4: ROLE-BASED PROTECTION ============
   const role = (sessionClaims?.unsafeMetadata as { role?: string })?.role
 
   // Handle onboarding redirect logic
   const onboardingRedirect = handleOnboardingRedirect(
     role,
     req,
-    isOnboardingRoute(req)
+    isOnboardingPath
   )
   if (onboardingRedirect) return onboardingRedirect
 
   // Protect /studio/* routes
-  if (isStudioRoute(req)) {
-    const studioProtection = handleStudioProtection(role, req)
+  if (isStudioPath) {
+    const studioProtection = handleStudioProtection(userId, role, req)
     if (studioProtection) return studioProtection
   }
 
   // Protect /artist/* routes
-  if (isArtistRoute(req)) {
-    const artistProtection = handleArtistProtection(role, req)
+  if (isArtistPath) {
+    const artistProtection = handleArtistProtection(userId, role, req)
     if (artistProtection) return artistProtection
   }
 
-  // ============ STEP 2: TENANCY RESOLUTION ============
+  // ============ STEP 5: TENANCY RESOLUTION ============
   return resolveTenancy(req)
 })
 
 export const config = {
   matcher: [
-    String.raw`/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)`,
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     '/(api|trpc)(.*)',
   ],
 }

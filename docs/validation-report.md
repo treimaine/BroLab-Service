@@ -251,7 +251,7 @@
 
 ### Medium-term (Next 2 Weeks)
 1. 📋 Phase 5: Clerk auth + onboarding
-2. 📋 Phase 6: Tenancy routing (proxy.ts)
+2. 📋 Phase 6: Tenancy routing (middleware.ts)
 3. 📋 Phase 7: Clerk Billing sync
 
 ---

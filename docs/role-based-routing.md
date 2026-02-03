@@ -12,7 +12,7 @@ This document describes the role-based routing implementation in BroLab Entertai
 
 ## Implementation
 
-### Middleware (`src/proxy.ts`)
+### Middleware (`src/middleware.ts`)
 
 The middleware implements role-based routing using Clerk's `clerkMiddleware()` and session claims.
 

@@ -23,11 +23,11 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 
 **Then expand to:** services, custom domains, i18n, property tests, etc.
 
-## Technology Stack (EXACT Pinned Versions - Day 0)
+## Technology Stack (EXACT Pinned Versions - February 2026)
 
 - Node.js: 22 (via `.nvmrc` and `engines.node`)
-- Next.js: **16.1.4 pinned exact** (no `^` or `~`)
-- React: pinned exact
+- Next.js: **15.1.0 pinned exact** (no `^` or `~`)
+- React: 19.0.0 pinned exact
 - Package manager: **npm** (`package-lock.json` committed)
 
 **Rule (MUST):** The project SHALL pin exact versions for Next.js and core dependencies. No caret `^` or tilde `~` allowed.
@@ -36,11 +36,11 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 {
   "engines": { "node": "22" },
   "dependencies": {
-    "next": "16.1.4",
+    "next": "15.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "@clerk/nextjs": "6.10.3",
-    "convex": "1.17.4",
+    "@clerk/nextjs": "6.36.5",
+    "convex": "1.31.6",
     "stripe": "17.5.0",
     "zustand": "5.0.3",
     "framer-motion": "11.15.0",
@@ -52,7 +52,8 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
     "typescript": "5.7.2",
     "tailwindcss": "3.4.17",
     "@types/node": "22.10.5",
-    "@types/react": "19.0.2"
+    "@types/react": "19.0.2",
+    "playwright": "1.57.0"
   }
 }
 ```
@@ -88,24 +89,35 @@ BroLab Entertainment is a micro-SaaS multi-tenant platform built with a modular 
 
 ### Clerk Edge File (`proxy.ts`)
 
-**Purpose:** Authentication and route protection ONLY
+**Purpose:** Authentication, route protection, AND tenancy resolution
 
 **Location:** `proxy.ts` (at project root)
 
 **Responsibilities:**
 - ✅ Authenticate users via `clerkMiddleware()`
 - ✅ Protect routes (redirect unauthenticated users)
+- ✅ Resolve Organization-based tenancy via `organizationSyncOptions`
+- ✅ Auto-activate Organization based on URL slug
 - ✅ Exclude static files from auth checks (`_next/static`, `_next/image`, `favicon.ico`)
-- ❌ NO tenancy resolution logic
-- ❌ NO custom domain routing
-- ❌ NO business logic
 
 **Implementation:**
 ```typescript
 // proxy.ts (at project root)
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
-export default clerkMiddleware()
+export default clerkMiddleware(
+  (auth, req) => {
+    // Clerk handles auth + organization activation
+  },
+  {
+    organizationSyncOptions: {
+      organizationPatterns: [
+        '/orgs/:slug',      // Match the slug org
+        '/orgs/:slug/(.*)', // Wildcard for sub-paths
+      ],
+    },
+  },
+)
 
 export const config = {
   matcher: [

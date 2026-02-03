@@ -1,6 +1,7 @@
 'use client'
 
-import { GlassHeader, PillCTA } from '@/platform/ui'
+import { AuthNav } from '@/components/hub/AuthNav'
+import { GlassHeader } from '@/platform/ui'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -113,20 +114,9 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
             BROLAB
           </Link>
           
-          {/* Right: Sign In + CTA */}
+          {/* Right: Auth-aware navigation */}
           <div className="flex-1 flex justify-end items-center gap-4">
-            <Link
-              href="/sign-in"
-              className="hidden sm:block text-sm font-medium text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded px-2 py-1"
-            >
-              Sign In
-            </Link>
-            <Link href="/sign-up" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded-full">
-              <PillCTA variant="primary" size="sm" className="group">
-                <span>Get Started</span>
-                <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
-              </PillCTA>
-            </Link>
+            <AuthNav ctaLabel="Get Started" />
           </div>
         </div>
       </GlassHeader>

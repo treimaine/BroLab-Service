@@ -21,6 +21,11 @@ export default tseslint.config(
       "@next/next": nextPlugin,
     },
     rules: {
+      // Spread Next.js recommended rules
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+      
+      // Override specific Next.js rules
       // React rules
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
@@ -29,7 +34,7 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       
-      // Next.js rules
+      // Override specific Next.js rules
       "@next/next/no-html-link-for-pages": "error",
       "@next/next/no-img-element": "warn",
       
@@ -86,6 +91,7 @@ export default tseslint.config(
       globals: {
         console: "readonly",
         process: "readonly",
+        fetch: "readonly", // Node.js 18+ has native fetch
       },
     },
   },

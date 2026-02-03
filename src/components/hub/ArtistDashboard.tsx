@@ -9,14 +9,26 @@
  */
 
 import { ChromeSurface, OutlineStackTitle } from '@/platform/ui'
+import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { useUser } from '@clerk/nextjs'
 import { AuthLoading, Authenticated, Unauthenticated } from 'convex/react'
 import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export function ArtistDashboard() {
   const { user } = useUser()
+  const router = useRouter()
 
   const role = user?.unsafeMetadata?.role as string | undefined
+
+  useEffect(() => {
+    // Note: Clerk middleware handles most redirection, but this provides a better client-side UX
+    // if a user somehow lands here without auth.
+    if (user === null) {
+      router.push('/sign-in')
+    }
+  }, [user, router])
 
   return (
     <>
@@ -56,11 +68,15 @@ export function ArtistDashboard() {
               <p className="text-lg text-muted max-w-2xl mx-auto">
                 Welcome to your artist dashboard. This is where you'll discover beats, book services, and manage your purchases.
               </p>
-              <div className="mt-8 p-6 rounded-xl bg-[rgba(var(--card),0.5)] border border-border max-w-md mx-auto">
+              <DribbbleCard 
+                padding="md"
+                glow
+                className="max-w-md mx-auto"
+              >
                 <p className="text-sm text-muted">
                   🚧 Artist dashboard coming soon in Phase 6
                 </p>
-              </div>
+              </DribbbleCard>
             </div>
           </main>
         </div>

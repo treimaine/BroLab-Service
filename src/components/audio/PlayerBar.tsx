@@ -1,17 +1,17 @@
 'use client'
 
 import {
-  ChromeSurface,
-  GlassChip,
-  NowPlayingChip,
-  PlayerPillButton,
-  ProgressRail,
-  VolumePill,
-  WaveformPlaceholder,
-  dribbbleHoverLift,
-  dribbbleHoverScale,
-  dribbblePlayerBarEnter,
-  dribbbleReducedMotion
+    ChromeSurface,
+    GlassChip,
+    NowPlayingChip,
+    PlayerPillButton,
+    ProgressRail,
+    VolumePill,
+    WaveformPlaceholder,
+    dribbbleHoverLift,
+    dribbbleHoverScale,
+    dribbblePlayerBarEnter,
+    dribbbleReducedMotion
 } from '@/platform/ui'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Clock, Music } from 'lucide-react'
@@ -143,6 +143,8 @@ export function PlayerBar({
             boxShadow: hasTrack 
               ? '0 -4px 30px rgba(var(--accent), 0.1), 0 0 0 1px rgba(var(--border), 0.05)'
               : '0 -2px 20px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
           }}
           variants={playerBarVariants}
           initial="initial"
@@ -153,7 +155,7 @@ export function PlayerBar({
             as="section"
             blur="xl"
             border="top"
-            opacity={80}
+            opacity={98}
             className="h-full"
             aria-label="Audio player"
           >

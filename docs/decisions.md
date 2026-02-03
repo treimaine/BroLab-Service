@@ -1086,7 +1086,7 @@ _Document any additional deviations or architectural decisions here._
 
 3. Implemented `convex/http.ts` with HTTP endpoints:
    - `GET /health` - Health check endpoint
-   - `POST /api/domains/resolve` - Domain resolution for proxy.ts (Phase 6)
+   - `POST /api/domains/resolve` - Domain resolution for middleware.ts (Phase 6)
    - `POST /api/stripe/webhook` - Stripe webhook handler (Phase 9)
 
 4. Created `convex/README.md` with:
@@ -1542,7 +1542,7 @@ npx convex dashboard
 
 1. **CP-4 Checkpoint:** Manually verify Convex backend in dashboard
 2. **Phase 5:** Implement Clerk authentication and onboarding flow
-3. **Phase 6:** Implement proxy.ts for tenant routing
+3. **Phase 6:** Implement middleware.ts for tenant routing
 
 ---
 

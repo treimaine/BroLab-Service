@@ -61,7 +61,7 @@ export default function RootLayout({
           
           // Input fields - enhanced visibility with proper borders and backgrounds
           formFieldInput: 
-            "bg-[rgba(10,16,32,0.8)] border-[rgba(255,255,255,0.15)] text-[rgb(234,242,255)] placeholder:text-[rgba(155,168,199,0.6)] focus:border-[rgb(34,211,238)] focus:ring-2 focus:ring-[rgba(34,211,238,0.2)] transition-all duration-200 backdrop-blur-sm",
+            "bg-[rgba(10,16,32,0.8)] border-[rgba(255,255,255,0.15)] text-[rgb(234,242,255)] placeholder:text-[rgba(155,168,199,0.6)] focus:border-[rgb(34,211,238)] focus:ring-2 focus:ring-[rgba(34,211,238,0.2)] transition-all duration-200",
           
           formFieldInputShowPasswordButton:
             "text-[rgb(155,168,199)] hover:text-[rgb(234,242,255)]",
@@ -76,7 +76,7 @@ export default function RootLayout({
           
           // Social buttons - enhanced visibility matching app style
           socialButtonsBlockButton: 
-            "bg-[rgba(10,16,32,0.6)] border-[rgba(255,255,255,0.15)] hover:border-[rgb(34,211,238)] hover:bg-[rgba(34,211,238,0.1)] text-[rgb(234,242,255)] transition-all duration-200 backdrop-blur-sm",
+            "bg-[rgba(10,16,32,0.6)] border-[rgba(255,255,255,0.15)] hover:border-[rgb(34,211,238)] hover:bg-[rgba(34,211,238,0.1)] text-[rgb(234,242,255)] transition-all duration-200",
           
           socialButtonsBlockButtonText:
             "text-[rgb(234,242,255)] font-medium",
@@ -106,18 +106,18 @@ export default function RootLayout({
           badge: "bg-[rgba(34,211,238,0.1)] text-[rgb(34,211,238)] border-[rgba(34,211,238,0.2)]",
           
           // Navbar (for UserButton dropdown)
-          navbar: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)] backdrop-blur-xl",
+          navbar: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)]",
           navbarButton: "text-[rgb(234,242,255)] hover:text-[rgb(34,211,238)] transition-colors duration-200",
           
           // User button
-          userButtonPopoverCard: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)] backdrop-blur-xl shadow-[0_0_30px_rgba(34,211,238,0.2)]",
+          userButtonPopoverCard: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)] shadow-[0_0_30px_rgba(34,211,238,0.2)]",
           userButtonPopoverActionButton: "hover:bg-[rgba(34,211,238,0.1)] text-[rgb(234,242,255)] transition-colors duration-200",
           userButtonPopoverActionButtonText: "text-[rgb(234,242,255)]",
           userButtonPopoverActionButtonIcon: "text-[rgb(155,168,199)]",
           userButtonPopoverFooter: "border-t border-[rgba(255,255,255,0.1)]",
           
           // Organization switcher
-          organizationSwitcherPopoverCard: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)] backdrop-blur-xl shadow-[0_0_30px_rgba(34,211,238,0.2)]",
+          organizationSwitcherPopoverCard: "bg-[rgba(10,16,32,0.95)] border-[rgba(255,255,255,0.1)] shadow-[0_0_30px_rgba(34,211,238,0.2)]",
           organizationSwitcherTrigger: "bg-[rgba(10,16,32,0.6)] border-[rgba(255,255,255,0.15)] hover:border-[rgb(34,211,238)] transition-all duration-200",
           
           // Identity preview
@@ -135,7 +135,7 @@ export default function RootLayout({
             rel="stylesheet"
           />
         </head>
-        <body className="font-sans antialiased">
+        <body className="font-sans antialiased" suppressHydrationWarning>
           <ConvexClientProvider>
             <ThemeProvider
               attribute="class"

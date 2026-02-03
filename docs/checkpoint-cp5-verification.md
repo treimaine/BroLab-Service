@@ -11,8 +11,8 @@ All implementation requirements for Phase 5 have been verified through code revi
 ## ✅ Verified Requirements
 
 ### 1. File Structure
-- ✅ **proxy.ts exists** (NOT middleware.ts)
-  - Location: `proxy.ts` (root level)
+- ✅ **middleware.ts exists**
+  - Location: `middleware.ts` (root level)
   - Correct for Next.js ≥16 with `/src` directory
   - Purpose: Authentication and route protection ONLY
 
@@ -60,7 +60,7 @@ All implementation requirements for Phase 5 have been verified through code revi
     - Artists → `/artist`
 
 ### 7. Role-Based Routing
-- ✅ **Middleware protection**: `proxy.ts`
+- ✅ **Middleware protection**: `middleware.ts`
   - Public routes: `/`, `/pricing`, `/about`, `/contact`, `/privacy`, `/terms`, `/sign-in`, `/sign-up`
   - Onboarding redirect: Users without role → `/onboarding`
   - Studio protection: Requires provider role (producer/engineer)
@@ -88,7 +88,7 @@ All implementation requirements for Phase 5 have been verified through code revi
 
 ## 📋 Implementation Checklist
 
-- [x] proxy.ts exists (NOT middleware.ts)
+- [x] middleware.ts exists
 - [x] ClerkProvider wraps ConvexClientProvider in app/layout.tsx
 - [x] convex/auth.config.ts exists with correct issuer domain
 - [x] Branded Clerk UI (glass, cyan accent, Inter font)

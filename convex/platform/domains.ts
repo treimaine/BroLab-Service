@@ -20,11 +20,11 @@ export type DomainStatus = "pending" | "verified" | "failed";
  */
 export function normalizeHostname(hostname: string, stripWww: boolean = false): string {
   let normalized = hostname.split(":")[0].toLowerCase();
-  
+
   if (stripWww && normalized.startsWith("www.")) {
     normalized = normalized.substring(4);
   }
-  
+
   return normalized;
 }
 
@@ -35,7 +35,7 @@ export function normalizeHostname(hostname: string, stripWww: boolean = false): 
 export function validateHostname(hostname: string): { valid: boolean; error?: string } {
   // Normalize first
   const normalized = normalizeHostname(hostname);
-  
+
   // Check length
   if (normalized.length < 3 || normalized.length > 253) {
     return { valid: false, error: "Hostname must be 3-253 characters" };
@@ -65,12 +65,12 @@ export const getDomainByHostname = query({
   args: { hostname: v.string() },
   handler: async (ctx, args) => {
     const normalized = normalizeHostname(args.hostname);
-    
+
     const domain = await ctx.db
       .query("domains")
       .withIndex("by_hostname", (q) => q.eq("hostname", normalized))
       .first();
-    
+
     return domain;
   },
 });
@@ -85,7 +85,7 @@ export const getDomainsByWorkspace = query({
       .query("domains")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
       .collect();
-    
+
     return domains;
   },
 });
@@ -101,7 +101,7 @@ export const getVerifiedDomainsByWorkspace = query({
       .query("domains")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
       .collect();
-    
+
     return domains.filter((d) => d.status === "verified");
   },
 });
@@ -109,19 +109,19 @@ export const getVerifiedDomainsByWorkspace = query({
 /**
  * Resolve hostname to workspace slug
  * Returns null if hostname is not found or not verified
- * This is used by proxy.ts (at project root) for custom domain routing
+ * This is used by middleware.ts (at project root) for custom domain routing
  */
 export const resolveHostnameToSlug = query({
   args: { hostname: v.string() },
   handler: async (ctx, args) => {
     const normalized = normalizeHostname(args.hostname);
-    
+
     // Find domain
     const domain = await ctx.db
       .query("domains")
       .withIndex("by_hostname", (q) => q.eq("hostname", normalized))
       .first();
-    
+
     // Only return if verified
     if (!domain?.status || domain.status !== "verified") {
       return null;
@@ -129,7 +129,7 @@ export const resolveHostnameToSlug = query({
 
     // Get workspace to return slug
     const workspace = await ctx.db.get(domain.workspaceId);
-    
+
     if (!workspace) {
       return null;
     }
@@ -154,7 +154,7 @@ export const addDomain = mutation({
   },
   handler: async (ctx, args) => {
     const normalized = normalizeHostname(args.hostname);
-    
+
     // Validate hostname format
     const validation = validateHostname(normalized);
     if (!validation.valid) {
@@ -166,7 +166,7 @@ export const addDomain = mutation({
       .query("domains")
       .withIndex("by_hostname", (q) => q.eq("hostname", normalized))
       .first();
-    
+
     if (existing) {
       throw new Error("Domain already exists");
     }
@@ -222,7 +222,7 @@ export const verifyDomain = mutation({
   args: { domainId: v.id("domains") },
   handler: async (ctx, args) => {
     const domain = await ctx.db.get(args.domainId);
-    
+
     if (!domain) {
       throw new Error("Domain not found");
     }
@@ -255,7 +255,7 @@ export async function assertDomainOwnership(
   workspaceId: Id<"workspaces">
 ): Promise<void> {
   const domain = await ctx.db.get(domainId);
-  
+
   if (!domain) {
     throw new Error("Domain not found");
   }
@@ -279,7 +279,7 @@ export async function countVerifiedDomains(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .collect();
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return domains.filter((d: any) => d.status === "verified").length;
 }
@@ -295,13 +295,13 @@ export async function getDomainByHostnameHelper(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any | null> {
   const normalized = normalizeHostname(hostname);
-  
+
   const domain = await ctx.db
     .query("domains")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_hostname", (q: any) => q.eq("hostname", normalized))
     .first();
-  
+
   return domain ?? null;
 }
 

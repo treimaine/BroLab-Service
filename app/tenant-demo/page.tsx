@@ -2,17 +2,18 @@
 
 import { TenantLayout, type NavItem } from '@/components/tenant'
 import {
-  ConstellationDots,
-  CyanOrb,
-  DribbbleCard,
-  DribbbleSectionEnter,
-  DribbbleStaggerItem,
-  EditionBadge,
-  MicroInfoModule,
-  OrganicBlob,
-  OutlineStackTitle,
-  PillCTA,
-  WavyLines,
+    ConstellationDots,
+    CyanOrb,
+    DribbbleCard,
+    DribbbleSectionEnter,
+    DribbbleStaggerItem,
+    EditionBadge,
+    GlassFooter,
+    MicroInfoModule,
+    OrganicBlob,
+    OutlineStackTitle,
+    PillCTA,
+    WavyLines,
 } from '@/platform/ui'
 import { Headphones, Mail, Music, Play, Star, Users } from 'lucide-react'
 import { useState } from 'react'
@@ -47,6 +48,7 @@ export default function TenantDemoPage() {
       navItems={navItems} 
       workspaceName="DEMO STUDIO"
       showPlayerBar={true}
+      secondaryAction={{ label: 'Back to Hub', href: '/' }}
       playerBarProps={{
         trackTitle: 'MIDNIGHT DRIVE - Preview',
         isPlaying,
@@ -64,10 +66,10 @@ export default function TenantDemoPage() {
         {/* Background Pattern - BEATS repeated */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute inset-0 flex flex-col justify-center">
-            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]">BEATS BEATS BEATS BEATS</div>
-            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]" style={{ transform: 'translateX(-100px)' }}>BEATS BEATS BEATS BEATS</div>
-            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]">BEATS BEATS BEATS BEATS</div>
-            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]" style={{ transform: 'translateX(-100px)' }}>BEATS BEATS BEATS BEATS</div>
+            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.06] text-white leading-[0.85]">BEATS BEATS BEATS BEATS</div>
+            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.06] text-white leading-[0.85]" style={{ transform: 'translateX(-100px)' }}>BEATS BEATS BEATS BEATS</div>
+            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.06] text-white leading-[0.85]">BEATS BEATS BEATS BEATS</div>
+            <div className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.06] text-white leading-[0.85]" style={{ transform: 'translateX(-100px)' }}>BEATS BEATS BEATS BEATS</div>
           </div>
         </div>
 
@@ -95,10 +97,10 @@ export default function TenantDemoPage() {
                   size="hero"
                   layers={3}
                   offset={2}
-                  className="text-[clamp(36px,10vw,120px)] font-black tracking-[0.05em]"
+                  className="text-[clamp(36px,10vw,128px)] font-black tracking-[0.05em] drop-shadow-[0_0_30px_rgba(0,255,255,0.4)]"
                   style={{
                     fontFamily: '"Press Start 2P", monospace',
-                    textShadow: '0 0 60px rgba(0,255,255,0.3), 0 0 120px rgba(0,255,255,0.15)',
+                    textShadow: '0 0 40px rgba(0,255,255,0.3), 0 0 80px rgba(0,255,255,0.15)',
                   }}
                 >
                   BEATS
@@ -284,6 +286,26 @@ export default function TenantDemoPage() {
           </DribbbleSectionEnter>
         </div>
       </section>
+
+      <GlassFooter className="py-12 px-4 lg:px-8 border-t border-border/20">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+              D
+            </div>
+            <div>
+              <p className="font-bold text-text">DEMO STUDIO</p>
+              <p className="text-xs text-muted">Powered by BroLab Entertainment</p>
+            </div>
+          </div>
+          <div className="flex gap-8 text-sm text-muted">
+            <a href="#" className="hover:text-text transition-colors">Beats</a>
+            <a href="#" className="hover:text-text transition-colors">Services</a>
+            <a href="#" className="hover:text-text transition-colors">Contact</a>
+          </div>
+          <p className="text-xs text-muted">© 2026 Demo Studio. All rights reserved.</p>
+        </div>
+      </GlassFooter>
     </TenantLayout>
   )
 }

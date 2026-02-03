@@ -15,50 +15,58 @@
 
 :root {
   color-scheme: light;
-  
+
   /* Background tokens */
   --bg: 247 250 255;
   --bg-2: 236 245 255;
-  
+  --card: 255 255 255;
+
   /* Border tokens */
   --border: 15 23 42;
   --border-alpha: 0.12;
-  
+
   /* Text tokens */
   --text: 7 16 34;
   --muted: 71 85 105;
-  
+
   /* Accent tokens (cyan theme) */
   --accent: 8 145 178;
   --accent-2: 6 182 212;
-  
+
   /* Glow tokens */
   --glow: 8 145 178;
   --glow-alpha: 0.22;
+
+  /* Card tokens */
+  --card: 236 245 255;
 }
 
 .dark {
   color-scheme: dark;
-  
+
   /* Background tokens */
   --bg: 7 10 15;
   --bg-2: 10 16 32;
-  
+  --card: 15 23 42;
+
   /* Border tokens */
   --border: 255 255 255;
   --border-alpha: 0.10;
-  
+
   /* Text tokens */
   --text: 234 242 255;
   --muted: 155 168 199;
-  
+
   /* Accent tokens (cyan theme) */
   --accent: 34 211 238;
   --accent-2: 6 182 212;
-  
+
   /* Glow tokens */
   --glow: 34 211 238;
   --glow-alpha: 0.35;
+
+  /* Card tokens */
+  --card: 10 16 32;
 }
 
 /* --------------------------------------------
@@ -77,7 +85,8 @@ body {
   color: rgb(var(--text));
   transition: background-color 0.3s ease, color 0.3s ease;
   /* 8px grid: line-height based on 8px multiples */
-  line-height: 1.5; /* 24px at 16px font = 3 * 8px */
+  line-height: 1.5;
+  /* 24px at 16px font = 3 * 8px */
 }
 
 /* --------------------------------------------
@@ -173,17 +182,45 @@ body {
    8px Spacing Grid Utilities
    -------------------------------------------- */
 
-.space-1 { margin: 8px; }
-.space-2 { margin: 16px; }
-.space-3 { margin: 24px; }
-.space-4 { margin: 32px; }
-.space-5 { margin: 40px; }
-.space-6 { margin: 48px; }
+.space-1 {
+  margin: 8px;
+}
 
-.gap-grid-1 { gap: 8px; }
-.gap-grid-2 { gap: 16px; }
-.gap-grid-3 { gap: 24px; }
-.gap-grid-4 { gap: 32px; }
+.space-2 {
+  margin: 16px;
+}
+
+.space-3 {
+  margin: 24px;
+}
+
+.space-4 {
+  margin: 32px;
+}
+
+.space-5 {
+  margin: 40px;
+}
+
+.space-6 {
+  margin: 48px;
+}
+
+.gap-grid-1 {
+  gap: 8px;
+}
+
+.gap-grid-2 {
+  gap: 16px;
+}
+
+.gap-grid-3 {
+  gap: 24px;
+}
+
+.gap-grid-4 {
+  gap: 32px;
+}
 
 /* --------------------------------------------
    Focus States (Accessibility)
@@ -417,10 +454,10 @@ body {
 }
 
 /* First paragraph after heading - no top margin */
-.prose-marketing h1 + p,
-.prose-marketing h2 + p,
-.prose-marketing h3 + p,
-.prose-marketing h4 + p {
+.prose-marketing h1+p,
+.prose-marketing h2+p,
+.prose-marketing h3+p,
+.prose-marketing h4+p {
   margin-top: 0;
 }
 
@@ -459,6 +496,7 @@ body {
    -------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -474,162 +512,104 @@ body {
 /* ============================================
    Clerk Component Enhancements
    Match BroLab app UI/UX standard with proper visibility
+   Follows Requirements: 23.x (Glassmorphism & Contrast)
    ============================================ */
 
-/* Primary button - cyan accent with glow effect */
-.cl-formButtonPrimary,
-.cl-formButtonPrimary * {
-  color: rgb(7 10 15) !important;
-  font-weight: 600 !important;
-}
-
-/* Social buttons - enhanced visibility and glass effect */
-.cl-socialButtonsBlockButton {
-  background: rgba(10 16 32 / 0.6) !important;
-  border-color: rgba(255 255 255 / 0.15) !important;
+/* Main Containers & Popovers */
+.cl-card,
+.cl-userButtonPopoverCard {
+  background: rgba(var(--bg-2), 0.8) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(var(--border), var(--border-alpha)) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--accent), 0.1),
+    0 0 30px rgba(var(--glow), calc(var(--glow-alpha) * 0.5)) !important;
+}
+
+/* UserProfile Modal (Account Management) */
+.cl-userProfile-root {
+  background: rgba(var(--bg), 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Headers & Labels visibility */
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-formFieldLabel,
+.cl-userButtonPopoverActionButtonText,
+.cl-userButtonPopoverCustomItemButtonText {
+  color: rgb(var(--text)) !important;
+  opacity: 1 !important;
+}
+
+.cl-headerSubtitle,
+.cl-userButtonPopoverActionButtonText,
+.cl-footerActionText,
+.cl-formFieldHintText,
+.cl-identityPreviewText,
+.cl-userButtonOuterIdentifier {
+  color: rgb(var(--muted)) !important;
+}
+
+.cl-userButtonPopoverActionButton:hover .cl-userButtonPopoverActionButtonText {
+  color: rgb(var(--text)) !important;
+}
+
+/* Buttons */
+.cl-formButtonPrimary {
+  background-color: rgb(var(--accent)) !important;
+  color: #000000 !important;
+  /* Force black in light mode */
+  font-weight: 700 !important;
+}
+
+.dark .cl-formButtonPrimary {
+  color: #ffffff !important;
+  /* Force white in dark mode */
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: rgb(var(--accent-2)) !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: rgba(var(--bg-2), 0.6) !important;
+  border: 1px solid rgba(var(--border), var(--border-alpha)) !important;
+  color: rgb(var(--text)) !important;
+}
+
+.cl-socialButtonsBlockButtonText {
+  color: rgb(var(--text)) !important;
+  opacity: 1 !important;
 }
 
 .cl-socialButtonsBlockButton:hover {
-  border-color: rgb(34 211 238) !important;
-  background: rgba(34 211 238 / 0.1) !important;
+  border-color: rgb(var(--accent)) !important;
+  background: rgba(var(--accent), 0.1) !important;
 }
 
-.cl-socialButtonsBlockButton,
-.cl-socialButtonsBlockButton * {
-  color: rgb(234 242 255) !important;
-}
-
-/* Input fields - enhanced visibility with proper background */
+/* Input Fields */
 .cl-formFieldInput {
-  background: rgba(10 16 32 / 0.8) !important;
-  border-color: rgba(255 255 255 / 0.15) !important;
-  color: rgb(234 242 255) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-}
-
-.cl-formFieldInput::placeholder {
-  color: rgba(155 168 199 / 0.6) !important;
+  background: rgba(var(--bg-2), 0.5) !important;
+  border-color: rgba(var(--border), var(--border-alpha)) !important;
+  color: rgb(var(--text)) !important;
 }
 
 .cl-formFieldInput:focus {
-  border-color: rgb(34 211 238) !important;
-  box-shadow: 0 0 0 2px rgba(34 211 238 / 0.2) !important;
+  border-color: rgb(var(--accent)) !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent), 0.2) !important;
 }
 
-/* Form field labels - enhanced visibility */
-.cl-formFieldLabel {
-  color: rgb(234 242 255) !important;
-  font-weight: 600 !important;
-}
-
-/* Card - enhanced glass effect */
-.cl-card {
-  background: rgba(10 16 32 / 0.6) !important;
-  border-color: rgba(255 255 255 / 0.1) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  box-shadow: 
-    0 0 0 1px rgba(34 211 238 / 0.2),
-    0 0 30px rgba(34 211 238 / 0.35) !important;
-}
-
-/* Headers */
-.cl-headerTitle {
-  color: rgb(234 242 255) !important;
-}
-
-.cl-headerSubtitle {
-  color: rgb(155 168 199) !important;
-}
-
-/* Footer */
-.cl-footerActionText {
-  color: rgb(155 168 199) !important;
+/* Divider & Footer */
+.cl-dividerLine {
+  background: rgba(var(--border), var(--border-alpha)) !important;
 }
 
 .cl-footerActionLink {
-  color: rgb(34 211 238) !important;
-  font-weight: 500 !important;
+  color: rgb(var(--accent)) !important;
 }
 
 .cl-footerActionLink:hover {
-  color: rgb(6 182 212) !important;
-}
-
-/* Divider */
-.cl-dividerLine {
-  background: rgba(255 255 255 / 0.1) !important;
-}
-
-.cl-dividerText {
-  color: rgb(155 168 199) !important;
-}
-
-/* Show password button */
-.cl-formFieldInputShowPasswordButton {
-  color: rgb(155 168 199) !important;
-}
-
-.cl-formFieldInputShowPasswordButton:hover {
-  color: rgb(234 242 255) !important;
-}
-
-/* Field hints and errors */
-.cl-formFieldHintText {
-  color: rgb(155 168 199) !important;
-}
-
-.cl-formFieldErrorText {
-  color: rgb(239 68 68) !important;
-}
-
-.cl-formFieldSuccessText {
-  color: rgb(34 211 238) !important;
-}
-
-/* Light mode overrides (if needed) */
-.light .cl-formFieldInput {
-  background: rgba(236 245 255 / 0.8) !important;
-  border-color: rgba(15 23 42 / 0.12) !important;
-  color: rgb(7 16 34) !important;
-}
-
-.light .cl-formFieldInput::placeholder {
-  color: rgba(71 85 105 / 0.6) !important;
-}
-
-.light .cl-formFieldLabel {
-  color: rgb(7 16 34) !important;
-}
-
-.light .cl-socialButtonsBlockButton,
-.light .cl-socialButtonsBlockButton * {
-  color: rgb(7 16 34) !important;
-}
-
-.light .cl-card {
-  background: rgba(236 245 255 / 0.8) !important;
-  border-color: rgba(15 23 42 / 0.12) !important;
-  box-shadow: 
-    0 0 0 1px rgba(8 145 178 / 0.2),
-    0 0 30px rgba(8 145 178 / 0.22) !important;
-}
-
-.light .cl-headerTitle {
-  color: rgb(7 16 34) !important;
-}
-
-.light .cl-headerSubtitle {
-  color: rgb(71 85 105) !important;
-}
-
-.light .cl-footerActionText {
-  color: rgb(71 85 105) !important;
-}
-
-.light .cl-dividerText {
-  color: rgb(71 85 105) !important;
+  color: rgb(var(--accent-2)) !important;
 }

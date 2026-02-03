@@ -4,7 +4,7 @@
  * Requirements: 2.4, 20, Task 5.10
  * 
  * Protected route for artists
- * Access controlled by proxy.ts middleware
+ * Access controlled by middleware.ts middleware
  * 
  * Uses Convex auth components via Client Component wrapper
  */
