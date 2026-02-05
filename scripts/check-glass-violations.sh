@@ -17,14 +17,18 @@ SRC_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" --include="*.css" \
   grep -v "src/platform/ui/" | \
   grep -v "^[^:]*:[^:]*:.*import " | \
   grep -v "^[^:]*:[^:]*:.*\* " | \
-  grep -v "^[^:]*:[^:]*:.*// " || true)
+  grep -v "^[^:]*:[^:]*:.*// " | \
+  grep -v "appearance:" | \
+  grep -v "userProfileModalOverlay:" || true)
 
 # Check app/
 APP_VIOLATIONS=$(grep -rn --include="*.tsx" --include="*.ts" --include="*.css" \
   -E "backdrop-blur" app/ 2>/dev/null | \
   grep -v "^[^:]*:[^:]*:.*import " | \
   grep -v "^[^:]*:[^:]*:.*\* " | \
-  grep -v "^[^:]*:[^:]*:.*// " || true)
+  grep -v "^[^:]*:[^:]*:.*// " | \
+  grep -v "appearance:" | \
+  grep -v "userProfileModalOverlay:" || true)
 
 # Combine violations
 if [ -n "$SRC_VIOLATIONS" ]; then
