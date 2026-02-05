@@ -566,9 +566,9 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 8.1: Create track upload mutation in convex/modules/beats.ts: File format validation (wav/mp3). Convex upload URL pattern (generate URL → upload → create record). Track record creation with draft status. Usage tracking update (storageUsedBytes). _Requirements: 10.1, 10.5_
 
-- [ ] Task 8.2: Implement preview generation job handler: Job type "preview_generation". Payload with trackId and fullStorageId. Provider-controlled: "Generate preview now" option (default ON). If OFF: previewPolicy = "manual", no job enqueued. _Requirements: 10.2, 10.3, 10.4, 11.1_
+- [x] Task 8.2: Implement preview generation job handler: Job type "preview_generation". Payload with trackId and fullStorageId. Provider-controlled: "Generate preview now" option (default ON). If OFF: previewPolicy = "manual", no job enqueued. _Requirements: 10.2, 10.3, 10.4, 11.1_
 
-- [ ] Task 8.3: Implement external job worker (Node.js with ffmpeg): worker/index.ts job runner (TypeScript). Add build:worker script: `tsc -p worker/tsconfig.json`. Run with: `node dist/worker/index.js`. Poll Convex jobs table for pending jobs. Lock job (lockedAt, lockedBy) before processing. ffmpeg CLI execution: extract first 30s to mp3 (or full if shorter). Upload preview to Convex Storage. Update track with previewStorageId, processingStatus. Record "preview_generated" event. Handle failures: update processingStatus to "failed", record error. _Requirements: 11.2, 11.3, 11.4, 11.7_
+- [x] Task 8.3: Implement external job worker (Node.js with ffmpeg): worker/index.ts job runner (TypeScript). Add build:worker script: `tsc -p worker/tsconfig.json`. Run with: `node dist/worker/index.js`. Poll Convex jobs table for pending jobs. Lock job (lockedAt, lockedBy) before processing. ffmpeg CLI execution: extract first 30s to mp3 (or full if shorter). Upload preview to Convex Storage. Update track with previewStorageId, processingStatus. Record "preview_generated" event. Handle failures: update processingStatus to "failed", record error. _Requirements: 11.2, 11.3, 11.4, 11.7_
 
 - [ ] Task 8.4: Implement track publish mutation: assertQuota check for max_published_tracks. Status update to published. Usage tracking update (publishedTracksCount). Audit log creation (track_publish). _Requirements: 10.8, 10.9, 9.1_
 

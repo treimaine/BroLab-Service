@@ -21,6 +21,7 @@ import type * as platform_domains from "../platform/domains.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
 import type * as platform_jobs from "../platform/jobs.js";
+import type * as platform_storage from "../platform/storage.js";
 import type * as platform_users from "../platform/users.js";
 import type * as platform_workspaces from "../platform/workspaces.js";
 
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;
   "platform/jobs": typeof platform_jobs;
+  "platform/storage": typeof platform_storage;
   "platform/users": typeof platform_users;
   "platform/workspaces": typeof platform_workspaces;
 }>;

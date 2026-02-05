@@ -121,6 +121,7 @@ export default defineSchema({
     })),
     status: v.union(v.literal("draft"), v.literal("published")),
     fullStorageId: v.id("_storage"),
+    fileSizeBytes: v.number(), // File size in bytes for usage tracking
     stemsStorageId: v.optional(v.id("_storage")), // For Unlimited tier
     previewStorageId: v.optional(v.id("_storage")),
     processingStatus: v.union(

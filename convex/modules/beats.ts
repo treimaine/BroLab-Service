@@ -8,7 +8,7 @@
  */
 
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { mutation, query } from "../_generated/server";
 import { assertActiveSubscription, assertQuota } from "../platform/entitlements";
 
 // ============================================================================
@@ -189,6 +189,7 @@ export const createTrack = mutation({
       priceEurByTier: args.priceEurByTier,
       status: "draft",
       fullStorageId: args.fullStorageId,
+      fileSizeBytes: args.fileSizeBytes, // Store file size for usage tracking
       processingStatus: "idle",
       previewPolicy: args.generatePreview ? "none" : "manual",
       previewDurationSec: 30, // Fixed at 30 seconds for MVP
@@ -360,18 +361,8 @@ export const deleteTrack = mutation({
     // Assert active subscription
     await assertActiveSubscription(ctx, track.workspaceId);
 
-    // Get file metadata to calculate size for usage tracking
-    // Note: We should ideally store fileSizeBytes in the track record during creation
-    // For now, we'll estimate based on the storage metadata if available
-    let fileSizeBytes = 0;
-    try {
-      const fileMetadata = await ctx.storage.getMetadata(track.fullStorageId);
-      fileSizeBytes = fileMetadata?.size ?? 0;
-    } catch (error) {
-      // If we can't get metadata, we'll just not update storage usage
-      // This is a fallback - ideally fileSizeBytes should be stored in track record
-      console.warn("Could not get file metadata for storage tracking:", error);
-    }
+    // Use stored file size for usage tracking
+    const fileSizeBytes = track.fileSizeBytes;
 
     // Update usage tracking (subtract file size)
     const usage = await ctx.db
@@ -409,5 +400,310 @@ export const deleteTrack = mutation({
     });
 
     return { success: true };
+  },
+});
+
+// ============================================================================
+// PREVIEW GENERATION MUTATIONS
+// ============================================================================
+
+/**
+ * Generate preview for a track
+ * 
+ * Enqueues a preview generation job for a track that was uploaded without preview
+ * or for which preview generation failed.
+ * 
+ * Requirements: 10.2, 10.3, 10.4, 11.1
+ * 
+ * @throws Error if subscription is not active
+ * @throws Error if track not found or already has preview
+ * @throws Error if preview generation already in progress
+ */
+export const generatePreview = mutation({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    // Get authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get track
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Verify workspace ownership
+    const workspace = await ctx.db.get(track.workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    if (workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied. You are not the owner of this workspace.");
+    }
+
+    // Assert active subscription (requirement 3.4, 3.7)
+    await assertActiveSubscription(ctx, track.workspaceId);
+
+    // Check if preview already exists
+    if (track.previewStorageId) {
+      throw new Error("Track already has a preview. Delete the track and re-upload to regenerate.");
+    }
+
+    // Check if preview generation is already in progress
+    if (track.processingStatus === "processing") {
+      throw new Error("Preview generation is already in progress for this track.");
+    }
+
+    // Enqueue preview generation job
+    await ctx.db.insert("jobs", {
+      workspaceId: track.workspaceId,
+      type: "preview_generation",
+      status: "pending",
+      payload: {
+        trackId: args.trackId,
+        fullStorageId: track.fullStorageId,
+      },
+      attempts: 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    // Update track processing status
+    await ctx.db.patch(args.trackId, {
+      processingStatus: "processing",
+      processingError: undefined, // Clear any previous error
+      previewPolicy: "none", // Update policy since we're generating now
+    });
+
+    // Create audit log
+    await ctx.db.insert("auditLogs", {
+      workspaceId: track.workspaceId,
+      actorClerkUserId: identity.subject,
+      action: "preview_generate",
+      entityType: "track",
+      entityId: args.trackId,
+      meta: {
+        title: track.title,
+      },
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Retry failed preview generation
+ * 
+ * Retries preview generation for a track that failed processing.
+ * Clears the error and enqueues a new job.
+ * 
+ * Requirements: 10.6, 10.7, 11.5, 11.6
+ * 
+ * @throws Error if subscription is not active
+ * @throws Error if track not found or not in failed state
+ */
+export const retryPreviewGeneration = mutation({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    // Get authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get track
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Verify workspace ownership
+    const workspace = await ctx.db.get(track.workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    if (workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied. You are not the owner of this workspace.");
+    }
+
+    // Assert active subscription
+    await assertActiveSubscription(ctx, track.workspaceId);
+
+    // Check if track is in failed state
+    if (track.processingStatus !== "failed") {
+      throw new Error("Can only retry failed preview generation. Current status: " + track.processingStatus);
+    }
+
+    // Enqueue new preview generation job
+    await ctx.db.insert("jobs", {
+      workspaceId: track.workspaceId,
+      type: "preview_generation",
+      status: "pending",
+      payload: {
+        trackId: args.trackId,
+        fullStorageId: track.fullStorageId,
+      },
+      attempts: 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    // Update track processing status
+    await ctx.db.patch(args.trackId, {
+      processingStatus: "processing",
+      processingError: undefined, // Clear error
+    });
+
+    // Create audit log
+    await ctx.db.insert("auditLogs", {
+      workspaceId: track.workspaceId,
+      actorClerkUserId: identity.subject,
+      action: "preview_retry",
+      entityType: "track",
+      entityId: args.trackId,
+      meta: {
+        title: track.title,
+        previousError: track.processingError,
+      },
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Complete preview generation (called by worker)
+ * 
+ * Updates track with preview storage ID and marks processing as completed.
+ * This mutation is called by the external worker after successfully generating the preview.
+ * 
+ * Requirements: 11.3, 11.4
+ * 
+ * @throws Error if track not found
+ */
+export const completePreviewGeneration = mutation({
+  args: {
+    trackId: v.id("tracks"),
+    previewStorageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    // Get track
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Update track with preview storage ID and mark as completed
+    await ctx.db.patch(args.trackId, {
+      previewStorageId: args.previewStorageId,
+      processingStatus: "completed",
+      processingError: undefined,
+    });
+
+    // Record event
+    await ctx.db.insert("events", {
+      workspaceId: track.workspaceId,
+      type: "preview_generated",
+      meta: {
+        trackId: args.trackId,
+        trackTitle: track.title,
+        previewStorageId: args.previewStorageId,
+      },
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Fail preview generation (called by worker)
+ * 
+ * Updates track processing status to failed and records error message.
+ * This mutation is called by the external worker when preview generation fails.
+ * 
+ * Requirements: 11.7
+ * 
+ * @throws Error if track not found
+ */
+export const failPreviewGeneration = mutation({
+  args: {
+    trackId: v.id("tracks"),
+    error: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get track
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Update track with error
+    await ctx.db.patch(args.trackId, {
+      processingStatus: "failed",
+      processingError: args.error,
+    });
+
+    return { success: true };
+  },
+});
+
+// ============================================================================
+// QUERIES
+// ============================================================================
+
+/**
+ * Get tracks for a workspace
+ * 
+ * Returns all tracks for a workspace with their preview status.
+ * Used by the provider dashboard to display tracks and preview generation status.
+ * 
+ * Requirements: 10.1, 10.6
+ */
+export const getTracksByWorkspace = query({
+  args: {
+    workspaceId: v.id("workspaces"),
+    status: v.optional(v.union(v.literal("draft"), v.literal("published"))),
+  },
+  handler: async (ctx, args) => {
+    const tracksQuery = ctx.db
+      .query("tracks")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId));
+
+    let tracks = await tracksQuery.collect();
+
+    // Filter by status if specified
+    if (args.status) {
+      tracks = tracks.filter((track) => track.status === args.status);
+    }
+
+    // Sort by createdAt descending (newest first)
+    return tracks.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+/**
+ * Get track by ID
+ * 
+ * Returns a single track with all details.
+ * 
+ * Requirements: 10.1
+ */
+export const getTrack = query({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.trackId);
   },
 });
