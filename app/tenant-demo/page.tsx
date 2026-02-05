@@ -2,28 +2,26 @@
 
 import { TenantLayout, type NavItem } from '@/components/tenant'
 import {
-    ConstellationDots,
-    CyanOrb,
-    DribbbleCard,
-    DribbbleSectionEnter,
-    DribbbleStaggerItem,
-    EditionBadge,
-    GlassFooter,
-    MicroInfoModule,
-    OrganicBlob,
-    OutlineStackTitle,
-    PillCTA,
-    WavyLines,
+  ConstellationDots,
+  CyanOrb,
+  DribbbleCard,
+  DribbbleSectionEnter,
+  DribbbleStaggerItem,
+  EditionBadge,
+  GlassFooter,
+  MicroInfoModule,
+  OrganicBlob,
+  OutlineStackTitle,
+  PillCTA,
+  WavyLines,
 } from '@/platform/ui'
+import { useAudioStore } from '@/stores/audio-store'
 import { Headphones, Mail, Music, Play, Star, Users } from 'lucide-react'
-import { useState } from 'react'
 
 export default function TenantDemoPage() {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(35)
-  const [volume, setVolume] = useState(75)
-  const [isMuted, setIsMuted] = useState(false)
-
+  // Get audio store actions for testing
+  const play = useAudioStore((state) => state.play)
+  
   const navItems: NavItem[] = [
     { id: 'beats', icon: <Music className="w-5 h-5" />, label: 'Beats', href: '/tenant-demo', isActive: true },
     { id: 'services', icon: <Headphones className="w-5 h-5" />, label: 'Services', href: '#' },
@@ -38,10 +36,47 @@ export default function TenantDemoPage() {
   ]
 
   const featuredBeats = [
-    { id: 1, title: 'MIDNIGHT DRIVE', bpm: 140, key: 'Am', tags: ['Trap', 'Dark'], price: 29 },
-    { id: 2, title: 'NEON NIGHTS', bpm: 128, key: 'Fm', tags: ['Synthwave', 'Retro'], price: 35 },
-    { id: 3, title: 'URBAN PULSE', bpm: 85, key: 'Gm', tags: ['Hip-Hop', 'Modern'], price: 25 },
+    { 
+      id: 1, 
+      title: 'MIDNIGHT DRIVE', 
+      bpm: 140, 
+      key: 'Am', 
+      tags: ['Trap', 'Dark'], 
+      price: 29,
+      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    },
+    { 
+      id: 2, 
+      title: 'NEON NIGHTS', 
+      bpm: 128, 
+      key: 'Fm', 
+      tags: ['Synthwave', 'Retro'], 
+      price: 35,
+      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+    },
+    { 
+      id: 3, 
+      title: 'URBAN PULSE', 
+      bpm: 85, 
+      key: 'Gm', 
+      tags: ['Hip-Hop', 'Modern'], 
+      price: 25,
+      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+    },
   ]
+  
+  // Function to play any beat
+  const handlePlayBeat = (beat: typeof featuredBeats[0]) => {
+    play({
+      id: `demo-track-${beat.id}`,
+      title: `${beat.title} - Preview`,
+      artistName: 'Demo Studio',
+      previewUrl: beat.previewUrl,
+      bpm: beat.bpm,
+      trackKey: beat.key,
+      duration: 30,
+    })
+  }
 
   return (
     <TenantLayout 
@@ -49,17 +84,6 @@ export default function TenantDemoPage() {
       workspaceName="DEMO STUDIO"
       showPlayerBar={true}
       secondaryAction={{ label: 'Back to Hub', href: '/' }}
-      playerBarProps={{
-        trackTitle: 'MIDNIGHT DRIVE - Preview',
-        isPlaying,
-        onPlayPause: () => setIsPlaying(!isPlaying),
-        progress,
-        onSeek: setProgress,
-        volume,
-        onVolumeChange: setVolume,
-        isMuted,
-        onMuteToggle: () => setIsMuted(!isMuted),
-      }}
     >
       {/* HERO SECTION - ELECTRI-X STYLE */}
       <section className="relative min-h-[80vh] overflow-hidden bg-[rgb(var(--bg))]">
@@ -159,7 +183,11 @@ export default function TenantDemoPage() {
               <DribbbleStaggerItem className="lg:col-span-7">
                 <DribbbleCard glow hoverLift padding="lg" className="h-full">
                   <div className="flex items-start gap-4">
-                    <button className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform">
+                    <button 
+                      onClick={() => handlePlayBeat(featuredBeats[0])}
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform"
+                      aria-label={`Play ${featuredBeats[0].title}`}
+                    >
                       <Play className="w-8 h-8 text-white ml-1" />
                     </button>
                     <div className="flex-1">
@@ -188,7 +216,11 @@ export default function TenantDemoPage() {
                   <DribbbleStaggerItem key={beat.id}>
                     <DribbbleCard hoverLift padding="md">
                       <div className="flex items-center gap-3">
-                        <button className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center hover:bg-[rgba(var(--accent),0.25)] transition-colors">
+                        <button 
+                          onClick={() => handlePlayBeat(beat)}
+                          className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center hover:bg-[rgba(var(--accent),0.25)] transition-colors"
+                          aria-label={`Play ${beat.title}`}
+                        >
                           <Play className="w-4 h-4 text-accent ml-0.5" />
                         </button>
                         <div className="flex-1 min-w-0">

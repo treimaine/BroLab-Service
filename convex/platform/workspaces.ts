@@ -129,6 +129,27 @@ export const getWorkspacesByOwner = query({
 });
 
 /**
+ * Get current user's workspaces
+ * Convenience query that uses auth context
+ */
+export const listUserWorkspaces = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const workspaces = await ctx.db
+      .query("workspaces")
+      .withIndex("by_owner", (q) => q.eq("ownerClerkUserId", identity.subject))
+      .collect();
+    
+    return workspaces;
+  },
+});
+
+/**
  * Check if slug is available
  */
 export const isSlugAvailable = query({

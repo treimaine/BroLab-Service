@@ -1,0 +1,84 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - generic [ref=e133]:
+            - heading "Tracks" [level=1] [ref=e134]
+            - paragraph [ref=e135]: Manage your beats and audio tracks
+          - button "Upload Track" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e138]: Upload Track
+        - generic [ref=e141]:
+          - button "All Tracks 0" [ref=e142] [cursor=pointer]
+          - button "Drafts 0" [ref=e143] [cursor=pointer]
+          - button "Published 0" [ref=e144] [cursor=pointer]
+        - generic [ref=e147]:
+          - img [ref=e149]
+          - heading "No tracks yet" [level=3] [ref=e153]
+          - paragraph [ref=e154]: Upload your first track to get started. You can generate previews automatically or manually later.
+    - contentinfo [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - link "BroLab" [ref=e16] [cursor=pointer]:
+              - /url: /
+            - paragraph [ref=e17]: Your beats. Your brand. Your business.
+          - generic [ref=e18]:
+            - heading "Product" [level=3] [ref=e19]
+            - list [ref=e20]:
+              - listitem [ref=e21]:
+                - link "Pricing" [ref=e22] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e23]:
+                - link "Get Started" [ref=e24] [cursor=pointer]:
+                  - /url: /sign-up
+          - generic [ref=e25]:
+            - heading "Company" [level=3] [ref=e26]
+            - list [ref=e27]:
+              - listitem [ref=e28]:
+                - link "About" [ref=e29] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e30]:
+                - link "Contact" [ref=e31] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e32]:
+            - heading "Legal" [level=3] [ref=e33]
+            - list [ref=e34]:
+              - listitem [ref=e35]:
+                - link "Privacy Policy" [ref=e36] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e37]:
+                - link "Terms of Service" [ref=e38] [cursor=pointer]:
+                  - /url: /terms
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: © 2026 BroLab Entertainment. All rights reserved.
+          - generic [ref=e42]: Made with 🎵 for music creators
+  - generic [ref=e45]:
+    - button "Play" [disabled] [ref=e47]:
+      - img [ref=e49]
+    - generic "No track playing" [ref=e53]:
+      - img [ref=e55]
+      - generic [ref=e59]: No track
+    - generic [ref=e60]:
+      - img [ref=e63]
+      - group "Playback progress" [ref=e114]:
+        - slider "Playback progress" [disabled] [ref=e115]: "0"
+    - group "Volume control" [ref=e119]:
+      - button "Mute" [disabled] [ref=e120]:
+        - img [ref=e121]
+      - slider "Volume" [disabled] [ref=e126]: "100"
+  - generic:
+    - generic [ref=e157] [cursor=pointer]:
+      - img [ref=e158]
+      - generic [ref=e160]: 1 error
+      - button "Hide Errors" [ref=e161]:
+        - img [ref=e162]
+    - status [ref=e165]:
+      - generic [ref=e166]:
+        - img [ref=e168]
+        - generic [ref=e170]:
+          - text: Static route
+          - button "Hide static indicator" [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+  - alert [ref=e175]

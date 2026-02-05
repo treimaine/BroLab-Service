@@ -25,7 +25,9 @@ import { usePathname } from 'next/navigation'
  * Requirements: Theme-Coherent Chrome Surfaces (no color drift)
  */
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  // Use static year to avoid hydration mismatch
+  // Update manually each year or use a build-time constant
+  const currentYear = 2026
   const pathname = usePathname()
 
   // Check if a link is active

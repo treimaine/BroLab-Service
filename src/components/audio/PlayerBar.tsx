@@ -1,57 +1,34 @@
 'use client'
 
 import {
-    ChromeSurface,
-    GlassChip,
-    NowPlayingChip,
-    PlayerPillButton,
-    ProgressRail,
-    VolumePill,
-    WaveformPlaceholder,
-    dribbbleHoverLift,
-    dribbbleHoverScale,
-    dribbblePlayerBarEnter,
-    dribbbleReducedMotion
+  ChromeSurface,
+  GlassChip,
+  NowPlayingChip,
+  PlayerPillButton,
+  ProgressRail,
+  VolumePill,
+  WaveformPlaceholder,
+  dribbbleHoverLift,
+  dribbbleHoverScale,
+  dribbblePlayerBarEnter,
+  dribbbleReducedMotion
 } from '@/platform/ui'
+import { useAudioStore } from '@/stores/audio-store'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Clock, Music } from 'lucide-react'
-import { useState } from 'react'
 
 export interface PlayerBarProps {
   /** Whether the player bar is visible */
   isVisible?: boolean
-  /** Current track title (placeholder for future integration) */
-  trackTitle?: string
-  /** Artist/producer name */
-  artistName?: string
-  /** Whether audio is currently playing */
-  isPlaying?: boolean
-  /** Callback when play/pause is toggled */
-  onPlayPause?: () => void
-  /** Current playback progress (0-100) */
-  progress?: number
-  /** Callback when progress is changed via seek */
-  onSeek?: (progress: number) => void
-  /** Current volume (0-100) */
-  volume?: number
-  /** Callback when volume is changed */
-  onVolumeChange?: (volume: number) => void
-  /** Whether audio is muted */
-  isMuted?: boolean
-  /** Callback when mute is toggled */
-  onMuteToggle?: () => void
-  /** Track duration in seconds (for progress tooltip) */
-  duration?: number
-  /** Cover art URL (optional) */
-  coverUrl?: string
-  /** Track BPM (optional, for MicroModule display) */
-  bpm?: number
-  /** Track key (optional, for MicroModule display) */
-  trackKey?: string
 }
 
 /**
  * PlayerBar - Dribbble-styled sticky audio player for tenant storefronts
+ * 
+ * **ARCHITECTURE:** Connected to global audio store (NOT props-based)
+ * - Uses `useAudioStore()` selectors for state (currentTrack, isPlaying, currentTime, duration, volume, isMuted)
+ * - Calls store actions directly (togglePlayPause, seek, setVolume, toggleMute)
+ * - Headless audio engine (`EnhancedGlobalAudioPlayer`) syncs store with HTML audio element
  * 
  * Features:
  * - 100% Dribbble design language
@@ -71,48 +48,47 @@ export interface PlayerBarProps {
  * - Hover lift on controls
  * - Reduced motion compliant
  * 
- * Requirements: 12.1 (sticky bottom), 22.6 (never overlap content), PlayerBar Dribbble
+ * Requirements: 12.1 (sticky bottom), 12.5 (global store), 12.8 (store selectors), 12.9 (auto-connect), 22.6 (never overlap content)
  */
 export function PlayerBar({
   isVisible = true,
-  trackTitle,
-  artistName,
-  isPlaying = false,
-  onPlayPause,
-  progress = 0,
-  onSeek,
-  volume = 100,
-  onVolumeChange,
-  isMuted = false,
-  onMuteToggle,
-  duration = 0,
-  coverUrl,
-  bpm,
-  trackKey,
 }: Readonly<PlayerBarProps>) {
   const prefersReducedMotion = useReducedMotion()
-  const [localVolume, setLocalVolume] = useState(volume / 100)
-  const [localProgress, setLocalProgress] = useState(progress / 100)
+  
+  // Connect to global audio store using selectors
+  const currentTrack = useAudioStore((state) => state.currentTrack)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
+  const currentTime = useAudioStore((state) => state.currentTime)
+  const duration = useAudioStore((state) => state.duration)
+  const volume = useAudioStore((state) => state.volume)
+  const isMuted = useAudioStore((state) => state.isMuted)
+  
+  // Get store actions
+  const togglePlayPause = useAudioStore((state) => state.togglePlayPause)
+  const seek = useAudioStore((state) => state.seek)
+  const setVolume = useAudioStore((state) => state.setVolume)
+  const toggleMute = useAudioStore((state) => state.toggleMute)
 
   const handlePlayPause = () => {
-    onPlayPause?.()
+    togglePlayPause()
   }
 
   const handleSeek = (value: number) => {
-    setLocalProgress(value)
-    onSeek?.(value * 100)
+    seek(value)
   }
 
   const handleVolumeChange = (value: number) => {
-    setLocalVolume(value)
-    onVolumeChange?.(value * 100)
+    setVolume(value)
   }
 
   const handleMuteToggle = () => {
-    onMuteToggle?.()
+    toggleMute()
   }
 
-  const hasTrack = Boolean(trackTitle)
+  const hasTrack = Boolean(currentTrack)
+  
+  // Calculate progress (0-1 normalized)
+  const progress = duration > 0 ? currentTime / duration : 0
 
   // Motion variants for enter/exit - using Dribbble motion utility
   const playerBarVariants = prefersReducedMotion
@@ -192,39 +168,39 @@ export function PlayerBar({
               {/* NowPlayingChip for track info with hover lift */}
               <motion.div {...controlHoverProps}>
                 <NowPlayingChip
-                  title={trackTitle}
-                  artist={artistName}
+                  title={currentTrack?.title}
+                  artist={currentTrack?.artistName}
                   isPlaying={isPlaying && hasTrack}
-                  coverUrl={coverUrl}
+                  coverUrl={currentTrack?.coverUrl}
                   size="md"
                 />
               </motion.div>
 
               {/* MicroModule-style track metadata (BPM, Key) - Hidden on mobile */}
-              {hasTrack && (bpm || trackKey) && (
+              {hasTrack && (currentTrack?.bpm || currentTrack?.trackKey) && (
                 <div className="hidden lg:flex items-center gap-2">
                   {/* BPM Chip with hover */}
-                  {bpm && (
+                  {currentTrack?.bpm && (
                     <motion.div {...microModuleHover}>
                       <GlassChip
                         icon={Clock}
-                        label={bpm.toString()}
+                        label={currentTrack.bpm.toString()}
                         sublabel="BPM"
                         size="sm"
-                        aria-label={`${bpm} BPM`}
+                        aria-label={`${currentTrack.bpm} BPM`}
                       />
                     </motion.div>
                   )}
 
                   {/* Key Chip with hover */}
-                  {trackKey && (
+                  {currentTrack?.trackKey && (
                     <motion.div {...microModuleHover}>
                       <GlassChip
                         icon={Music}
-                        label={trackKey}
+                        label={currentTrack.trackKey}
                         sublabel="KEY"
                         size="sm"
-                        aria-label={`Key: ${trackKey}`}
+                        aria-label={`Key: ${currentTrack.trackKey}`}
                       />
                     </motion.div>
                   )}
@@ -250,7 +226,7 @@ export function PlayerBar({
                 transition={{ duration: 0.15 }}
               >
                 <ProgressRail
-                  value={hasTrack ? localProgress : 0}
+                  value={hasTrack ? progress : 0}
                   onSeek={handleSeek}
                   disabled={!hasTrack}
                   size="sm"
@@ -267,7 +243,7 @@ export function PlayerBar({
               {...controlHoverProps}
             >
               <VolumePill
-                value={localVolume}
+                value={volume}
                 muted={isMuted}
                 onVolumeChange={handleVolumeChange}
                 onMuteToggle={handleMuteToggle}

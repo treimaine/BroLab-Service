@@ -246,10 +246,29 @@ The platform uses Clerk for authentication and provider subscriptions (platform 
 #### Acceptance Criteria
 
 1. THE Player_Bar SHALL be sticky at the bottom of tenant pages
-2. WHEN an artist clicks play on a track, THE Audio_Player SHALL stream the preview audio via real HTML audio element
-3. THE Audio_Player SHALL display: track title, progress bar, play/pause, volume controls
-4. WHEN navigating between pages, THE Audio_Player SHALL maintain playback state via global audio store
-5. IF no preview exists for a track, THEN THE UI SHALL display "No preview available"
+2. WHEN an artist clicks play on a track, THE Audio_Player SHALL stream the preview audio via real HTML `<audio>` element
+3. THE Audio_Player SHALL use a global Zustand store for state management (playback state, current track, volume, mute)
+4. THE Audio_Player SHALL persist user preferences (volume, mute) in localStorage via Zustand persist middleware
+5. THE Audio_Player SHALL display: track title, artist name, progress bar with seek, play/pause button, volume controls
+6. WHEN navigating between pages, THE Audio_Player SHALL maintain playback state via global audio store
+7. THE Audio_Player SHALL use a headless component pattern (EnhancedGlobalAudioPlayer) mounted at app root to sync store with HTML audio element
+8. THE PlayerBar component SHALL connect to the global store via useAudioStore() selectors (NOT props-based control)
+9. IF no preview exists for a track, THEN THE UI SHALL display "No preview available"
+10. THE Audio_Player SHALL support BPM and Key metadata display in MicroModule pattern
+11. THE Audio_Player SHALL include WaveformPlaceholder visual component
+12. THE Audio_Player SHALL respect prefers-reduced-motion for animations
+
+#### Implementation Notes
+
+- **Architecture Pattern**: Headless audio engine + Global Zustand store + Connected UI components
+- **Store Location**: `src/stores/audio-store.ts`
+- **Headless Component**: `src/components/audio/EnhancedGlobalAudioPlayer.tsx` (mounted in `app/layout.tsx`)
+- **UI Component**: `src/components/audio/PlayerBar.tsx` (uses store selectors, NOT props)
+- **Persist Middleware**: Volume and mute preferences saved to localStorage under key `audio-player-storage`
+- **Dribbble Styling**: PlayerBar uses 100% Dribbble design primitives (PlayerPillButton, ProgressRail, VolumePill, NowPlayingChip, WaveformPlaceholder)
+- **State Flow**: User action → Store action → Headless component updates audio element → Audio events update store → UI re-renders
+- **DO NOT**: Use props-based control for PlayerBar (deprecated pattern)
+- **DO NOT**: Manage audio state locally in page components (use global store)
 
 ### Requirement 13: Artist Purchases via Stripe Connect
 

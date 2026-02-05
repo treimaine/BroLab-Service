@@ -570,19 +570,19 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 8.3: Implement external job worker (Node.js with ffmpeg): worker/index.ts job runner (TypeScript). Add build:worker script: `tsc -p worker/tsconfig.json`. Run with: `node dist/worker/index.js`. Poll Convex jobs table for pending jobs. Lock job (lockedAt, lockedBy) before processing. ffmpeg CLI execution: extract first 30s to mp3 (or full if shorter). Upload preview to Convex Storage. Update track with previewStorageId, processingStatus. Record "preview_generated" event. Handle failures: update processingStatus to "failed", record error. _Requirements: 11.2, 11.3, 11.4, 11.7_
 
-- [ ] Task 8.4: Implement track publish mutation: assertQuota check for max_published_tracks. Status update to published. Usage tracking update (publishedTracksCount). Audit log creation (track_publish). _Requirements: 10.8, 10.9, 9.1_
+- [x] Task 8.4: Implement track publish mutation: assertQuota check for max_published_tracks. Status update to published. Usage tracking update (publishedTracksCount). Audit log creation (track_publish). _Requirements: 10.8, 10.9, 9.1_
 
-- [ ] Task 8.5: Add preview generation UI controls: "Generate Preview" checkbox on upload (default ON). Processing status indicator (processing, completed, failed). Retry button for failed jobs. "Generate preview" action for tracks without preview. _Requirements: 10.6, 10.7, 11.5, 11.6_
+- [x] Task 8.5: Add preview generation UI controls: "Generate Preview" checkbox on upload (default ON). Processing status indicator (processing, completed, failed). Retry button for failed jobs. "Generate preview" action for tracks without preview. _Requirements: 10.6, 10.7, 11.5, 11.6_
 
-- [ ] Task 8.6: Create track management UI in src/modules/beats/components/: TrackUpload component with drag-and-drop. TrackList component with status indicators. TrackCard component with preview play button. _Requirements: 19.2_
+- [x] Task 8.6: Create track management UI in src/modules/beats/components/: TrackUpload component with drag-and-drop. TrackList component with status indicators. TrackCard component with preview play button. _Requirements: 19.2_
 
-- [ ] Task 8.7: Implement studio tracks page at app/(hub)/studio/tracks/page.tsx: Track list with upload button. Draft/published filtering. Processing status indicators. Preview status and generate preview actions. _Requirements: 19.2_
+- [x] Task 8.7: Implement studio tracks page at app/(hub)/studio/tracks/page.tsx: Track list with upload button. Draft/published filtering. Processing status indicators. Preview status and generate preview actions. _Requirements: 19.2_
 
-- [ ] Task 8.8: Create EnhancedGlobalAudioPlayer component: Real HTML audio element with controls. Global audio store (zustand) for state management. Playback state persistence across navigation. _Requirements: 12.2, 12.3, 12.4_
+- [x] Task 8.8: Create global audio store and headless player: Create `src/stores/audio-store.ts` with Zustand store (currentTrack, isPlaying, currentTime, duration, volume, isMuted, isLoading, error). Add persist middleware for volume/mute preferences (localStorage key: `audio-player-storage`). Create `src/components/audio/EnhancedGlobalAudioPlayer.tsx` headless component with real HTML `<audio>` element. Mount headless player in `app/layout.tsx` (inside ConvexClientProvider). Sync store actions → audio element (play, pause, seek, setVolume). Sync audio events → store updates (timeupdate, ended, error, loadstart). Handle loading states and errors. Export useAudioStore hook. _Requirements: 12.2, 12.3, 12.4, 12.7, 12.8_
 
-- [ ] Task 8.9: Implement PlayerBar with full controls: Track title display. Progress bar with seek. Play/pause, volume controls. "No preview available" state. Sticky at bottom of tenant pages. _Requirements: 12.1, 12.2, 12.3, 12.5_
+- [x] Task 8.9: Connect PlayerBar to global audio store: Refactor `src/components/audio/PlayerBar.tsx` to remove ALL props except `isVisible`. Replace props with `useAudioStore()` selectors (currentTrack, isPlaying, currentTime, duration, volume, isMuted). Call store actions directly (play, pause, seek, setVolume, toggleMute). Keep 100% Dribbble styling (DO NOT modify UI components). Update `src/components/tenant/TenantLayout.tsx` to remove `playerBarProps` prop. Update `app/tenant-demo/page.tsx` to remove local state (useState for isPlaying, progress, volume, isMuted). PlayerBar auto-connects to global store. Test with real audio files from Convex storage. _Requirements: 12.1, 12.5, 12.8, 12.9_
 
-- [ ] Task 8.10: Connect track cards to global player: Play button triggers global player. Visual indicator for currently playing track. _Requirements: 12.2_
+- [x] Task 8.10: Connect track cards to global player: Play button triggers global player. Visual indicator for currently playing track. All three beats (MIDNIGHT DRIVE, NEON NIGHTS, URBAN PULSE) now have working play buttons that trigger the global audio player. PlayerBar updates with correct track info (title, BPM, key). Track switching works correctly. _Requirements: 12.2_
 
 - [ ] CP1: Checkpoint Vertical Slice Complete: Provider can sign up, create workspace, upload track. Preview generation works via worker. Tenant storefront displays track with preview playback. Ensure all tests pass, ask the user if questions arise.
 

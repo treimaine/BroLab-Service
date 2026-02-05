@@ -150,6 +150,10 @@ export const WaveformPlaceholder = forwardRef<HTMLDivElement, WaveformPlaceholde
               // Generate stable key from position and height
               const barKey = `waveform-bar-${x.toFixed(0)}-${barHeight.toFixed(2)}`
 
+              // Generate deterministic animation values based on index (no Math.random for SSR)
+              const scaleVariation = 0.6 + ((index * 7) % 10) / 25 // 0.6 to 1.0
+              const durationVariation = 0.4 + ((index * 11) % 10) / 33 // 0.4 to 0.7
+
               return (
                 <motion.rect
                   key={barKey}
@@ -164,9 +168,9 @@ export const WaveformPlaceholder = forwardRef<HTMLDivElement, WaveformPlaceholde
                   animate={
                     isPlaying
                       ? {
-                          scaleY: [1, 0.6 + Math.random() * 0.4, 1],
+                          scaleY: [1, scaleVariation, 1],
                           transition: {
-                            duration: 0.4 + Math.random() * 0.3,
+                            duration: durationVariation,
                             repeat: Infinity,
                             ease: 'easeInOut',
                             delay: index * 0.02,

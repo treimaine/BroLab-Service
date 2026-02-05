@@ -1,0 +1,167 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - navigation
+        - link "DEMO STUDIO DEMO STUDIO" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - generic "DEMO STUDIO" [ref=e8]: D
+            - generic [ref=e9]: DEMO STUDIO
+        - generic [ref=e10]:
+          - button "Switch to dark mode" [ref=e11] [cursor=pointer]: 🌙
+          - link "Back to Hub" [ref=e12] [cursor=pointer]:
+            - /url: /
+    - navigation "Main navigation" [ref=e13]
+    - generic [ref=e17]:
+      - button "Play" [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+      - 'generic "Now playing: MIDNIGHT DRIVE - Preview" [ref=e25]':
+        - img [ref=e27]
+        - generic "MIDNIGHT DRIVE - Preview" [ref=e32]
+      - generic [ref=e38]:
+        - img [ref=e41]
+        - group "Playback progress" [ref=e92]:
+          - slider "Playback progress" [ref=e93]: "35"
+      - group "Volume control" [ref=e98]:
+        - button "Mute" [ref=e99] [cursor=pointer]:
+          - img [ref=e100]
+        - slider "Volume" [ref=e105]: "75"
+    - main [ref=e110]:
+      - generic [ref=e111]:
+        - generic:
+          - generic:
+            - generic: BEATS BEATS BEATS BEATS
+            - generic: BEATS BEATS BEATS BEATS
+            - generic: BEATS BEATS BEATS BEATS
+            - generic: BEATS BEATS BEATS BEATS
+        - generic:
+          - img
+        - generic:
+          - img
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]: PRODUCER
+            - heading "BEATS" [level=1] [ref=e118]:
+              - generic [ref=e119]: BEATS
+              - generic [ref=e120]: BEATS
+              - generic [ref=e121]: BEATS
+              - text: BEATS
+          - paragraph [ref=e122]: Premium beats and professional mixing services. Crafting sounds that define the future of music.
+          - generic [ref=e123]:
+            - button "Browse Beats" [ref=e124] [cursor=pointer]:
+              - img [ref=e125]
+              - generic [ref=e129]: Browse Beats
+            - button "Book Service" [ref=e130] [cursor=pointer]:
+              - img [ref=e131]
+              - generic [ref=e133]: Book Service
+          - generic [ref=e135]:
+            - generic [ref=e136]: DEMO
+            - generic [ref=e137]: Studio
+          - list [ref=e141]:
+            - listitem [ref=e142]:
+              - img [ref=e144]
+              - generic [ref=e147]: 50+ Premium Beats
+            - listitem [ref=e148]:
+              - img [ref=e150]
+              - generic [ref=e155]: 1000+ Sales Worldwide
+            - listitem [ref=e156]:
+              - img [ref=e158]
+              - generic [ref=e161]: Grammy Nominated Producer
+            - listitem [ref=e162]:
+              - img [ref=e164]
+              - generic [ref=e166]: 24h Delivery Guarantee
+          - generic:
+            - img
+      - generic [ref=e168]:
+        - generic [ref=e170]:
+          - generic [ref=e171]: "01"
+          - heading "FEATURED BEATS" [level=2] [ref=e172]
+        - generic [ref=e175]:
+          - generic [ref=e179]:
+            - button [ref=e180] [cursor=pointer]:
+              - img [ref=e181]
+            - generic [ref=e183]:
+              - heading "MIDNIGHT DRIVE" [level=3] [ref=e184]
+              - generic [ref=e185]:
+                - generic [ref=e186]: 140 BPM
+                - generic [ref=e187]: •
+                - generic [ref=e188]: Am
+              - generic [ref=e189]:
+                - generic [ref=e190]: Trap
+                - generic [ref=e191]: Dark
+              - generic [ref=e192]:
+                - generic [ref=e193]: $29
+                - button "License Now" [ref=e194] [cursor=pointer]:
+                  - generic [ref=e195]: License Now
+          - generic [ref=e196]:
+            - generic [ref=e200]:
+              - button [ref=e201] [cursor=pointer]:
+                - img [ref=e202]
+              - generic [ref=e204]:
+                - heading "NEON NIGHTS" [level=4] [ref=e205]
+                - paragraph [ref=e206]: 128 BPM • Fm
+              - generic [ref=e207]: $35
+            - generic [ref=e211]:
+              - button [ref=e212] [cursor=pointer]:
+                - img [ref=e213]
+              - generic [ref=e215]:
+                - heading "URBAN PULSE" [level=4] [ref=e216]
+                - paragraph [ref=e217]: 85 BPM • Gm
+              - generic [ref=e218]: $25
+      - generic [ref=e220]:
+        - generic [ref=e222]:
+          - generic [ref=e223]: "02"
+          - heading "PROFESSIONAL SERVICES" [level=2] [ref=e224]
+        - generic [ref=e227]:
+          - generic [ref=e231]:
+            - img [ref=e233]
+            - generic [ref=e235]:
+              - heading "MIXING & MASTERING" [level=3] [ref=e236]
+              - paragraph [ref=e237]: Professional mixing and mastering services. Radio-ready sound guaranteed.
+              - generic [ref=e238]:
+                - generic [ref=e239]: From $99
+                - button "Learn More" [ref=e240] [cursor=pointer]:
+                  - generic [ref=e241]: Learn More
+          - generic [ref=e245]:
+            - img [ref=e247]
+            - generic [ref=e249]:
+              - heading "CUSTOM PRODUCTION" [level=3] [ref=e250]
+              - paragraph [ref=e251]: Exclusive beats tailored to your vision. Full commercial rights included.
+              - generic [ref=e252]:
+                - generic [ref=e253]: From $299
+                - button "Get Quote" [ref=e254] [cursor=pointer]:
+                  - generic [ref=e255]: Get Quote
+      - generic [ref=e261]:
+        - generic [ref=e262]: GET STARTED
+        - heading "READY TO CREATE?" [level=2] [ref=e263]
+        - paragraph [ref=e264]: Join thousands of artists who trust Demo Studio for their sound.
+        - generic [ref=e265]:
+          - button "Browse All Beats" [ref=e266] [cursor=pointer]:
+            - img [ref=e267]
+            - generic [ref=e271]: Browse All Beats
+          - button "Contact Producer" [ref=e272] [cursor=pointer]:
+            - img [ref=e273]
+            - generic [ref=e278]: Contact Producer
+      - generic [ref=e280]:
+        - generic [ref=e281]:
+          - generic [ref=e282]: D
+          - generic [ref=e283]:
+            - paragraph [ref=e284]: DEMO STUDIO
+            - paragraph [ref=e285]: Powered by BroLab Entertainment
+        - generic [ref=e286]:
+          - link "Beats" [ref=e287] [cursor=pointer]:
+            - /url: "#"
+          - link "Services" [ref=e288] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact" [ref=e289] [cursor=pointer]:
+            - /url: "#"
+        - paragraph [ref=e290]: © 2026 Demo Studio. All rights reserved.
+  - status [ref=e291]:
+    - generic [ref=e292]:
+      - img [ref=e294]
+      - generic [ref=e296]:
+        - text: Static route
+        - button "Hide static indicator" [ref=e297] [cursor=pointer]:
+          - img [ref=e298]
+  - alert [ref=e301]

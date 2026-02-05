@@ -15,7 +15,7 @@ import {
     type IconRailItem
 } from '@/platform/ui'
 
-import { PlayerBar, type PlayerBarProps } from '../audio'
+import { PlayerBar } from '../audio'
 import { MobileNav, type MobileNavItem } from './MobileNav'
 
 export interface TenantLayoutProps {
@@ -30,8 +30,6 @@ export interface TenantLayoutProps {
   basePath?: string
   /** Whether to show the player bar */
   showPlayerBar?: boolean
-  /** Props to pass to the PlayerBar component */
-  playerBarProps?: Omit<PlayerBarProps, 'isVisible'>
   /** Optional CTA for the top bar */
   topBarCta?: {
     label: string
@@ -86,7 +84,6 @@ export function TenantLayout({
   workspaceLogo,
   basePath = '',
   showPlayerBar = true,
-  playerBarProps,
   topBarCta,
   topBarNavItems = [],
   secondaryAction,
@@ -223,7 +220,7 @@ export function TenantLayout({
 
       {/* Player Bar - Sticky at bottom, above content, below nav */}
       {showPlayerBar && (
-        <PlayerBar isVisible={showPlayerBar} {...playerBarProps} />
+        <PlayerBar isVisible={showPlayerBar} />
       )}
 
       {/* Main Content Area with Dribbble motion */}

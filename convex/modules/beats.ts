@@ -324,6 +324,178 @@ export const updateTrack = mutation({
 });
 
 /**
+ * Publish track
+ * 
+ * Publishes a draft track, making it visible on the storefront.
+ * Enforces quota check for max_published_tracks before publishing.
+ * Updates usage tracking and creates audit log.
+ * 
+ * Requirements: 10.8, 10.9, 9.1
+ * 
+ * @throws Error if subscription is not active
+ * @throws Error if track not found or already published
+ * @throws Error if published tracks quota exceeded
+ */
+export const publishTrack = mutation({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    // Get authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get track to verify ownership and status
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Verify workspace ownership
+    const workspace = await ctx.db.get(track.workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    if (workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied. You are not the owner of this workspace.");
+    }
+
+    // Assert active subscription (requirement 3.4, 3.7)
+    await assertActiveSubscription(ctx, track.workspaceId);
+
+    // Check if track is already published
+    if (track.status === "published") {
+      throw new Error("Track is already published");
+    }
+
+    // Assert quota for published tracks (requirement 10.8)
+    // This will throw if the workspace has reached its published tracks limit
+    await assertQuota(ctx, track.workspaceId, "tracks");
+
+    // Update track status to published (requirement 10.9)
+    await ctx.db.patch(args.trackId, {
+      status: "published",
+    });
+
+    // Update usage tracking - increment publishedTracksCount (requirement 10.9)
+    const usage = await ctx.db
+      .query("usage")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", track.workspaceId))
+      .first();
+
+    if (usage) {
+      await ctx.db.patch(usage._id, {
+        publishedTracksCount: usage.publishedTracksCount + 1,
+        updatedAt: Date.now(),
+      });
+    }
+
+    // Create audit log for track publish (requirement 9.1)
+    await ctx.db.insert("auditLogs", {
+      workspaceId: track.workspaceId,
+      actorClerkUserId: identity.subject,
+      action: "track_publish",
+      entityType: "track",
+      entityId: args.trackId,
+      meta: {
+        title: track.title,
+        previousStatus: "draft",
+        newStatus: "published",
+      },
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Unpublish track
+ * 
+ * Unpublishes a published track, removing it from the storefront.
+ * Updates usage tracking and creates audit log.
+ * 
+ * Requirements: 10.8, 10.9, 9.1
+ * 
+ * @throws Error if subscription is not active
+ * @throws Error if track not found or not published
+ */
+export const unpublishTrack = mutation({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    // Get authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get track to verify ownership and status
+    const track = await ctx.db.get(args.trackId);
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Verify workspace ownership
+    const workspace = await ctx.db.get(track.workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    if (workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied. You are not the owner of this workspace.");
+    }
+
+    // Assert active subscription
+    await assertActiveSubscription(ctx, track.workspaceId);
+
+    // Check if track is already draft
+    if (track.status === "draft") {
+      throw new Error("Track is already unpublished");
+    }
+
+    // Update track status to draft
+    await ctx.db.patch(args.trackId, {
+      status: "draft",
+    });
+
+    // Update usage tracking - decrement publishedTracksCount
+    const usage = await ctx.db
+      .query("usage")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", track.workspaceId))
+      .first();
+
+    if (usage) {
+      await ctx.db.patch(usage._id, {
+        publishedTracksCount: Math.max(0, usage.publishedTracksCount - 1),
+        updatedAt: Date.now(),
+      });
+    }
+
+    // Create audit log for track unpublish
+    await ctx.db.insert("auditLogs", {
+      workspaceId: track.workspaceId,
+      actorClerkUserId: identity.subject,
+      action: "track_unpublish",
+      entityType: "track",
+      entityId: args.trackId,
+      meta: {
+        title: track.title,
+        previousStatus: "published",
+        newStatus: "draft",
+      },
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
  * Delete track
  * 
  * Deletes track record and updates usage tracking.
