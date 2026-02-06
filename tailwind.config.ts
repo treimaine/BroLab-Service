@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        pixel: ["var(--font-press-start)", "monospace"],
       },
       /* 8px spacing grid */
       spacing: {

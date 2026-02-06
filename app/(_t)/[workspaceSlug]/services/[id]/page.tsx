@@ -2,11 +2,11 @@
 
 import { useWorkspace } from '@/components/tenant'
 import {
-  DribbbleCard,
-  DribbbleSectionEnter,
-  PillCTA,
+    DribbbleCard,
+    DribbbleSectionEnter,
+    PillCTA,
 } from '@/platform/ui'
-import { ArrowLeft, Check, Clock, Headphones } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Check, Clock, Headphones } from 'lucide-react'
 import Link from 'next/link'
 import { use } from 'react'
 
@@ -18,6 +18,7 @@ import { use } from 'react'
  * Placeholder implementation - will be replaced with real data.
  * 
  * Requirements: 21.5 (service detail with info, features, purchase/book button)
+ * Requirements: 13.8, 27.4 (payments not configured state)
  */
 export default function ServiceDetailPage({
   params,
@@ -37,6 +38,11 @@ export default function ServiceDetailPage({
       </div>
     )
   }
+
+  // Check if payments are configured
+  const isPaymentsConfigured = 
+    workspace?.paymentsStatus === 'active' && 
+    workspace?.stripeAccountId !== undefined
 
   // Placeholder service data
   const service = {
@@ -128,7 +134,7 @@ export default function ServiceDetailPage({
 
               {/* Right Column - Booking Card */}
               <div className="lg:col-span-1">
-                <div className="sticky top-24">
+                <div className="sticky top-24 space-y-6">
                   <DribbbleCard glow padding="lg">
                     <div className="text-center mb-6">
                       <p className="text-sm text-muted mb-2">Starting at</p>
@@ -139,8 +145,13 @@ export default function ServiceDetailPage({
                       </div>
                     </div>
 
-                    <PillCTA variant="primary" size="lg" className="w-full mb-4">
-                      Book Service
+                    <PillCTA 
+                      variant="primary" 
+                      size="lg" 
+                      className="w-full mb-4"
+                      disabled={!isPaymentsConfigured}
+                    >
+                      {isPaymentsConfigured ? 'Book Service' : 'Unavailable'}
                     </PillCTA>
 
                     <div className="space-y-3 pt-4">
@@ -160,7 +171,23 @@ export default function ServiceDetailPage({
                     </div>
                   </DribbbleCard>
 
-                  <div className="mt-6 p-4 bg-[rgba(var(--accent),0.05)] border border-[rgba(var(--accent),0.2)] rounded-xl">
+                  {/* Payments Not Configured Warning */}
+                  {!isPaymentsConfigured && (
+                    <DribbbleCard padding="lg" className="border-2 border-[rgba(var(--accent),0.3)]">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h3 className="text-base font-bold text-text mb-2">Payments Not Configured</h3>
+                          <p className="text-sm text-muted">
+                            This creator hasn't completed their payment setup yet. 
+                            Bookings are currently unavailable.
+                          </p>
+                        </div>
+                      </div>
+                    </DribbbleCard>
+                  )}
+
+                  <div className="p-4 bg-[rgba(var(--accent),0.05)] border border-[rgba(var(--accent),0.2)] rounded-xl">
                     <p className="text-sm text-muted text-center">
                       Have questions? <Link href={`/_t/${workspaceSlug}/contact`} className="text-accent hover:underline">Contact us</Link>
                     </p>

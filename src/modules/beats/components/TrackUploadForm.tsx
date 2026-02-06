@@ -160,7 +160,7 @@ export function TrackUploadForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Simple File Input */}
       <div>
-        <label className="block text-sm font-semibold uppercase tracking-wide mb-2">
+        <label htmlFor="track-file" className="block text-sm font-semibold uppercase tracking-wide mb-2">
           Audio File <span className="text-[rgb(var(--accent))]">*</span>
         </label>
         

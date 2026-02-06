@@ -590,29 +590,29 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 9: Stripe Connect Onboarding + Checkout + Webhook + Entitlements + Downloads
 
-- [ ] Task 9.1: Configure Stripe Connect in environment: Stripe API keys (platform secret key). Connect webhook endpoint secret. _Requirements: 27.1_
+- [x] Task 9.1: Configure Stripe Connect in environment: Stripe API keys (platform secret key). Connect webhook endpoint secret. _Requirements: 27.1_
 
-- [ ] Task 9.2: Implement Stripe Connect onboarding flow: Standard account type. OAuth redirect flow. stripeAccountId storage on workspace. paymentsStatus update (unconfigured → pending → active). Record "payments_connected" event. _Requirements: 27.1, 27.2, 27.3, 27.5_
+- [x] Task 9.2: Implement Stripe Connect onboarding flow: Standard account type. OAuth redirect flow. stripeAccountId storage on workspace. paymentsStatus update (unconfigured → pending → active). Record "payments_connected" event. _Requirements: 27.1, 27.2, 27.3, 27.5_
 
-- [ ] Task 9.3: Create checkout API at app/api/stripe/checkout/route.ts: Direct Charges on connected account (stripeAccount parameter). Metadata: workspaceId, itemType, itemId, buyerClerkUserId. application_fee_amount = 0 (default, platform fee = 0 for MVP). Check paymentsStatus === "active" and stripeAccountId exists. _Requirements: 13.1, 13.2, 13.3, 13.7, 13.8_
+- [x] Task 9.3: Create checkout API at app/api/stripe/checkout/route.ts: Direct Charges on connected account (stripeAccount parameter). Metadata: workspaceId, itemType, itemId, buyerClerkUserId. application_fee_amount = 0 (default, platform fee = 0 for MVP). Check paymentsStatus === "active" and stripeAccountId exists. _Requirements: 13.1, 13.2, 13.3, 13.7, 13.8_
 
-- [ ] Task 9.4: Implement Stripe webhook handler at app/api/stripe/webhook/route.ts: Signature verification. processedEvents idempotency check (provider="stripe_connect", eventId, include connected account id in meta). Skip if event already processed, return 200. checkout.session.completed handling. Order creation. Entitlement creation (for tracks) or Booking creation (for services). Record "checkout_success" event. _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
+- [x] Task 9.4: Implement Stripe webhook handler at app/api/stripe/webhook/route.ts: Signature verification. processedEvents idempotency check (provider="stripe_connect", eventId, include connected account id in meta). Skip if event already processed, return 200. checkout.session.completed handling. Order creation. Entitlement creation (for tracks) or Booking creation (for services). Record "checkout_success" event. _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
 
-- [ ] Task 9.5: Implement purchase entitlement creation: Create purchaseEntitlement on successful checkout (track purchase). Link buyer to track. _Requirements: 13.5, 14.5_
+- [x] Task 9.5: Implement purchase entitlement creation: Create purchaseEntitlement on successful checkout (track purchase). Link buyer to track. _Requirements: 13.5, 14.5_
 
-- [ ] Task 9.6: Create download API with entitlement check: Verify purchaseEntitlement exists for buyer + track. Generate time-limited download URL (signed or equivalent). Deny access if no entitlement. _Requirements: 15.1, 15.2, 15.3_
+- [x] Task 9.6: Create download API with entitlement check: Verify purchaseEntitlement exists for buyer + track. Generate time-limited download URL (signed or equivalent). Deny access if no entitlement. _Requirements: 15.1, 15.2, 15.3_
 
-- [ ] Task 9.7: Implement artist dashboard at app/(hub)/artist/page.tsx: Purchased tracks with download links. Service bookings with status. Order history. _Requirements: 20.1, 20.2, 20.3_
+- [x] Task 9.7: Implement artist dashboard at app/(hub)/artist/page.tsx: Purchased tracks with download links. Service bookings with status. Order history. _Requirements: 20.1, 20.2, 20.3_
 
-- [ ] Task 9.8: Handle "Payments not configured" state: Show message and disable buy button if provider not connected. _Requirements: 13.8, 27.4_
+- [x] Task 9.8: Handle "Payments not configured" state: Show message and disable buy button if provider not connected. _Requirements: 13.8, 27.4_
 
 ### Phase 9.X: Licensing Tiers + License PDF Job
 
-- [ ] Task 9.9: Update tracks pricing model to license tiers (Basic/Premium/Unlimited): Update Convex schema tracks table with priceUsdByTier + optional priceEurByTier. Update studio track form UI to edit prices per tier. Add stemsStorageId field for Unlimited tier. _Requirements: 29.1, 29.9, 29.10_
+- [x] Task 9.9: Update tracks pricing model to license tiers (Basic/Premium/Unlimited): Update Convex schema tracks table with priceUsdByTier + optional priceEurByTier. Update studio track form UI to edit prices per tier. Add stemsStorageId field for Unlimited tier. _Requirements: 29.1, 29.9, 29.10_
 
-- [ ] Task 9.10: Checkout: include licenseTier in metadata + UI selector on beat detail: Add license tier selector on beat detail page (Basic/Premium/Unlimited with prices). Include licenseTier in Stripe checkout metadata. Display tier features/caps comparison. _Requirements: 29.2_
+- [-] Task 9.10: Checkout: include licenseTier in metadata + UI selector on beat detail: Add license tier selector on beat detail page (Basic/Premium/Unlimited with prices). Include licenseTier in Stripe checkout metadata. Display tier features/caps comparison. _Requirements: 29.2_
 
-- [ ] Task 9.11: Webhook: persist licenseTier in orders + create license records: Save licenseTier in orders table. Create purchaseEntitlements with licenseTier, licenseTermsVersion, licenseTermsSnapshot. Create licenses table record with full snapshot. Create licenseDocuments record (status: pending). _Requirements: 29.3, 29.4_
+- [~] Task 9.11: Webhook: persist licenseTier in orders + create license records: Save licenseTier in orders table. Create purchaseEntitlements with licenseTier, licenseTermsVersion, licenseTermsSnapshot. Create licenses table record with full snapshot. Create licenseDocuments record (status: pending). _Requirements: 29.3, 29.4_
 
 - [ ] Task 9.12: Enqueue job license_pdf_generation after entitlement creation: Add job type "license_pdf_generation" to job queue. Enqueue job with payload: licenseId, documentId, workspaceId. _Requirements: 29.5_
 

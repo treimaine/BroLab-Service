@@ -835,6 +835,46 @@ export const failPreviewGeneration = mutation({
 // ============================================================================
 
 /**
+ * Check if buyer has purchase entitlement for a track
+ * 
+ * Internal query used by download API to verify entitlement.
+ * 
+ * Requirements: 15.1
+ */
+export const checkEntitlement = query({
+  args: {
+    trackId: v.id("tracks"),
+    buyerClerkUserId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const entitlement = await ctx.db
+      .query("purchaseEntitlements")
+      .withIndex("by_buyer_track", (q) =>
+        q.eq("buyerClerkUserId", args.buyerClerkUserId).eq("trackId", args.trackId)
+      )
+      .first();
+
+    return entitlement;
+  },
+});
+
+/**
+ * Get track for download (internal query)
+ * 
+ * Returns track with storage IDs for download URL generation.
+ * 
+ * Requirements: 15.2
+ */
+export const getTrackForDownload = query({
+  args: {
+    trackId: v.id("tracks"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.trackId);
+  },
+});
+
+/**
  * Get tracks for a workspace
  * 
  * Returns all tracks for a workspace with their preview status.

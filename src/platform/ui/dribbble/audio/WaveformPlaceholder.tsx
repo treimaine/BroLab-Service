@@ -53,8 +53,18 @@ const sizeStyles = {
 }
 
 /**
+ * Round a number to a fixed number of decimal places
+ * This ensures consistent SSR/client rendering to avoid hydration mismatches
+ */
+function roundToFixed(num: number, decimals: number = 4): number {
+  const factor = Math.pow(10, decimals)
+  return Math.round(num * factor) / factor
+}
+
+/**
  * Generate a pseudo-random waveform pattern
  * Uses a seeded approach for consistent rendering
+ * All values are rounded to avoid SSR hydration mismatches
  */
 function generateWaveformHeights(count: number): number[] {
   const heights: number[] = []
@@ -69,7 +79,8 @@ function generateWaveformHeights(count: number): number[] {
     const noise = Math.sin(i * 12.9898 + 78.233) * 0.1
     
     const height = Math.max(0.15, Math.min(1, base + wave1 + wave2 + wave3 + noise))
-    heights.push(height)
+    // Round to 4 decimal places to ensure SSR/client consistency
+    heights.push(roundToFixed(height))
   }
   return heights
 }
@@ -144,9 +155,10 @@ export const WaveformPlaceholder = forwardRef<HTMLDivElement, WaveformPlaceholde
           {/* Waveform bars */}
           <g filter={isPlaying ? 'url(#waveform-glow)' : undefined}>
             {heights.map((height, index) => {
-              const barHeight = height * config.height
+              // Round computed values to ensure SSR/client consistency
+              const barHeight = roundToFixed(height * config.height)
               const x = index * (config.barWidth + config.gap)
-              const y = (config.height - barHeight) / 2
+              const y = roundToFixed((config.height - barHeight) / 2)
               // Generate stable key from position and height
               const barKey = `waveform-bar-${x.toFixed(0)}-${barHeight.toFixed(2)}`
 

@@ -4,7 +4,15 @@ import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudi
 import { PlayerBar } from "@/components/audio/PlayerBar";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { Press_Start_2P } from "next/font/google";
 import "./globals.css";
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-press-start",
+  display: "swap",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
   ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
@@ -44,7 +52,7 @@ export default function RootLayout({
           spacingUnit: "0.5rem",
           
           // Typography
-          fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+          fontFamily: `Inter, ${pressStart2P.style.fontFamily}, system-ui, -apple-system, sans-serif`,
           fontSize: "1rem",
           fontWeight: {
             normal: 400,
@@ -131,14 +139,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          {/* Pixel font for ELECTRI-X style */}
-          <link 
-            href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" 
-            rel="stylesheet"
-          />
-        </head>
+      <html lang="en" suppressHydrationWarning className={pressStart2P.variable}>
         <body className="font-sans antialiased" suppressHydrationWarning>
           <ConvexClientProvider>
             <ThemeProvider

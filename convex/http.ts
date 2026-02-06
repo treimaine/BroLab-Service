@@ -1,6 +1,7 @@
 // Convex HTTP endpoints for BroLab Entertainment
 // Implements HTTP API routes for external integrations
 
+import type { GenericActionCtx } from "convex/server";
 import { httpRouter } from "convex/server";
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
@@ -75,118 +76,539 @@ http.route({
 });
 
 // Stripe webhook endpoint
-// Will be fully implemented in Phase 9 (Task 9.4)
+// Handles checkout.session.completed events for artist purchases
+// Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6
 http.route({
   path: "/api/stripe/webhook",
   method: "POST",
-  handler: httpAction(async () => {
-    // TODO: Implement Stripe webhook handler in Phase 9
-    // ctx and request will be used when implementing webhook signature verification
-    return new Response(
-      JSON.stringify({ received: true }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.text();
+      const signature = request.headers.get("stripe-signature");
+
+      if (!signature) {
+        console.error("Missing stripe-signature header");
+        return jsonResponse({ error: "Missing signature" }, 400);
       }
-    );
+
+      // Requirement 14.1: Verify Stripe webhook signature
+      const event = await verifyStripeWebhook(body, signature);
+      if (!event) {
+        return jsonResponse({ error: "Webhook signature verification failed" }, 400);
+      }
+
+      console.log("Stripe webhook received:", event.type, "ID:", event.id);
+
+      // Requirement 14.2 & 14.3: Check idempotency
+      const isProcessed = await checkEventProcessed(ctx, event.id);
+      if (isProcessed) {
+        console.log("Event already processed, skipping:", event.id);
+        return jsonResponse({ received: true, skipped: true }, 200);
+      }
+
+      // Handle checkout.session.completed events
+      if (event.type === "checkout.session.completed") {
+        return await handleCheckoutCompleted(ctx, event);
+      }
+
+      // For other event types, just mark as processed
+      await markEventProcessed(ctx, event.id);
+      return jsonResponse({
+        received: true,
+        eventType: event.type,
+        message: "Event received but not processed (not checkout.session.completed)",
+      }, 200);
+
+    } catch (error) {
+      console.error("Stripe webhook error:", error);
+      return jsonResponse({
+        error: "Webhook processing failed",
+        message: error instanceof Error ? error.message : String(error),
+      }, 500);
+    }
+  }),
+});
+
+// Track download endpoint with entitlement check
+// Verifies purchase entitlement and generates time-limited download URL
+// Requirements: 15.1, 15.2, 15.3
+http.route({
+  path: "/api/tracks/download",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.json();
+      const { trackId, buyerClerkUserId } = body;
+
+      if (!trackId || !buyerClerkUserId) {
+        return new Response(
+          JSON.stringify({ error: "Missing trackId or buyerClerkUserId" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // Requirement 15.1: Verify purchase entitlement exists for buyer + track
+      const entitlement = await ctx.runQuery(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.beats.checkEntitlement,
+        {
+          trackId,
+          buyerClerkUserId,
+        }
+      );
+
+      // Requirement 15.3: Deny access if no entitlement
+      if (!entitlement) {
+        return new Response(
+          JSON.stringify({ 
+            error: "Access denied. You must purchase this track to download it.",
+            hasEntitlement: false,
+          }),
+          {
+            status: 403,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // Get track to retrieve storage ID
+      const track = await ctx.runQuery(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.beats.getTrackForDownload,
+        { trackId }
+      );
+
+      if (!track) {
+        return new Response(
+          JSON.stringify({ error: "Track not found" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // Check if license tier includes stems
+      const includesStems = entitlement.licenseTier === "unlimited";
+      
+      // Requirement 15.2: Generate time-limited download URL (signed or equivalent)
+      // Convex storage URLs are automatically time-limited and signed
+      const fullAudioUrl = await ctx.storage.getUrl(track.fullStorageId);
+      
+      // Get stems URL if entitled
+      let stemsUrl = null;
+      if (includesStems && track.stemsStorageId) {
+        stemsUrl = await ctx.storage.getUrl(track.stemsStorageId);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          hasEntitlement: true,
+          licenseTier: entitlement.licenseTier,
+          includesStems,
+          downloads: {
+            fullAudio: fullAudioUrl,
+            stems: stemsUrl,
+          },
+          track: {
+            id: track._id,
+            title: track.title,
+            bpm: track.bpm,
+            key: track.key,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Track download error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to generate download URL",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   }),
 });
 
 // Unified Clerk webhook handler (handles both standard and Billing events)
 const clerkWebhookHandler = httpAction(async (ctx, request) => {
   try {
-    // Log raw request for debugging
     const rawBody = await request.text();
     console.log("Clerk webhook received - raw body:", rawBody);
 
-    let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch (parseError) {
-      console.error("Failed to parse webhook body:", parseError);
-      return new Response(
-        JSON.stringify({ error: "Invalid JSON payload" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    const body = await parseWebhookBody(rawBody);
+    if (!body) {
+      return jsonResponse({ error: "Invalid JSON payload" }, 400);
     }
 
     console.log("Clerk webhook parsed body:", JSON.stringify(body, null, 2));
 
-    // Clerk webhook payload structure:
-    // Standard events (user.*, session.*, organization.*):
-    // {
-    //   type: "user.created" | "session.created" | etc.,
-    //   object: "event",
-    //   data: { id, ... }
-    // }
-    //
-    // Billing events (subscription.*):
-    // {
-    //   type: "subscription.created" | "subscription.updated" | "subscription.deleted",
-    //   data: {
-    //     id: string,
-    //     user_id: string,
-    //     plan: string,
-    //     status: string
-    //   }
-    // }
-
     const { type, data, object: eventObject } = body;
 
-    if (!type) {
-      console.error("Missing 'type' field in webhook payload");
-      return new Response(
-        JSON.stringify({ error: "Invalid webhook payload: missing 'type'" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    if (!data) {
-      console.error("Missing 'data' field in webhook payload");
-      return new Response(
-        JSON.stringify({ error: "Invalid webhook payload: missing 'data'" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    if (!type || !data) {
+      console.error("Missing required fields in webhook payload");
+      return jsonResponse({ error: "Invalid webhook payload: missing 'type' or 'data'" }, 400);
     }
 
     // Route to appropriate handler based on event type
     if (type.startsWith("subscription.")) {
-      // Handle Billing events
       return await handleBillingEvent(ctx, type, data);
-    } else {
-      // Handle standard Clerk events
-      return await handleStandardEvent(ctx, type, data, eventObject);
     }
+    
+    return await handleStandardEvent(ctx, type, data, eventObject);
+
   } catch (error) {
     console.error("Clerk webhook error:", error);
-    return new Response(
-      JSON.stringify({
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : String(error)
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : String(error)
+    }, 500);
   }
 });
 
+// Clerk webhook endpoint (unified handler for standard and Billing events)
+// Handles both:
+// - Standard Clerk events: user.*, session.*, organization.*
+// - Clerk Billing events: subscription.*
+// Requirements: 3.1, 3.4, 3.7, 3.8
+http.route({
+  path: "/api/clerk/billing/webhook",
+  method: "POST",
+  handler: clerkWebhookHandler,
+});
+
+// Clerk webhook endpoint (alias for compatibility)
+http.route({
+  path: "/api/clerk/webhook",
+  method: "POST",
+  handler: clerkWebhookHandler,
+});
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// JSON response helper
+function jsonResponse(data: unknown, status: number): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+// Parse webhook body
+async function parseWebhookBody(rawBody: string): Promise<any | null> {
+  try {
+    return JSON.parse(rawBody);
+  } catch (parseError) {
+    console.error("Failed to parse webhook body:", parseError);
+    return null;
+  }
+}
+
+// Verify Stripe webhook signature
+async function verifyStripeWebhook(body: string, signature: string) {
+  const stripe = new (await import("stripe")).default(
+    process.env.STRIPE_SECRET_KEY!,
+    { apiVersion: "2024-12-18.acacia" }
+  );
+
+  try {
+    return stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_CONNECT_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err);
+    return null;
+  }
+}
+
+// Check if event already processed
+async function checkEventProcessed(ctx: GenericActionCtx<any>, eventId: string): Promise<boolean> {
+  return await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.orders.isEventProcessed,
+    { provider: "stripe_connect", eventId }
+  );
+}
+
+// Mark event as processed
+async function markEventProcessed(ctx: GenericActionCtx<any>, eventId: string): Promise<void> {
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.orders.markEventProcessed,
+    { provider: "stripe_connect", eventId }
+  );
+}
+
+// Handle checkout.session.completed event
+async function handleCheckoutCompleted(ctx: GenericActionCtx<any>, event: any): Promise<Response> {
+  const session = event.data.object;
+  console.log("Processing checkout.session.completed:", session.id);
+
+  // Validate session metadata
+  const validationError = validateSessionMetadata(session);
+  if (validationError) {
+    return validationError;
+  }
+
+  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = session.metadata;
+  const amountTotal = session.amount_total || 0;
+  const currency = session.currency || "usd";
+  const buyerEmail = session.customer_email || undefined;
+  const connectedAccountId = event.account || null;
+
+  // Create order
+  console.log("Creating order...");
+  const orderId = await createOrder(ctx, {
+    workspaceId,
+    buyerClerkUserId,
+    buyerEmail,
+    stripeSessionId: session.id,
+    itemType,
+    itemId,
+    currency,
+    amountCents: amountTotal,
+    licenseTier: itemType === "track" ? licenseTier : undefined,
+  });
+  console.log("Order created:", orderId);
+
+  // Create entitlement or booking
+  if (itemType === "track") {
+    await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier);
+  } else {
+    await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
+  }
+
+  // Record event
+  await recordCheckoutSuccessEvent(ctx, {
+    workspaceId,
+    orderId,
+    itemType,
+    itemId,
+    buyerClerkUserId,
+    amountCents: amountTotal,
+    currency,
+    stripeSessionId: session.id,
+    connectedAccountId,
+  });
+
+  // Mark as processed
+  await markEventProcessed(ctx, event.id);
+  console.log("Webhook processing complete");
+
+  return jsonResponse({ received: true, processed: true, orderId }, 200);
+}
+
+// Validate session metadata
+function validateSessionMetadata(session: any): Response | null {
+  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = session.metadata || {};
+
+  if (!workspaceId || !itemType || !itemId || !buyerClerkUserId) {
+    console.error("Missing required metadata in checkout session:", session.metadata);
+    return jsonResponse({ error: "Missing required metadata" }, 400);
+  }
+
+  if (itemType !== "track" && itemType !== "service") {
+    console.error("Invalid itemType:", itemType);
+    return jsonResponse({ error: "Invalid itemType" }, 400);
+  }
+
+  if (itemType === "track" && !licenseTier) {
+    console.error("Missing licenseTier for track purchase");
+    return jsonResponse({ error: "Missing licenseTier" }, 400);
+  }
+
+  if (itemType === "track" && !["basic", "premium", "unlimited"].includes(licenseTier)) {
+    console.error("Invalid licenseTier:", licenseTier);
+    return jsonResponse({ error: "Invalid licenseTier" }, 400);
+  }
+
+  return null;
+}
+
+// Create order
+async function createOrder(ctx: GenericActionCtx<any>, params: {
+  workspaceId: string;
+  buyerClerkUserId: string;
+  buyerEmail?: string;
+  stripeSessionId: string;
+  itemType: string;
+  itemId: string;
+  currency: string;
+  amountCents: number;
+  licenseTier?: string;
+}): Promise<string> {
+  return await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.orders.createOrder,
+    params
+  );
+}
+
+// Create track entitlement
+async function createTrackEntitlement(
+  ctx: GenericActionCtx<any>,
+  workspaceId: string,
+  buyerClerkUserId: string,
+  trackId: string,
+  licenseTier: string
+): Promise<void> {
+  console.log("Creating purchase entitlement...");
+  
+  const LICENSE_TERMS_VERSION = "v1.1-2026-01";
+  const licenseTermsSnapshot = getLicenseTerms(licenseTier);
+
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.orders.createPurchaseEntitlement,
+    {
+      workspaceId,
+      buyerClerkUserId,
+      trackId,
+      licenseTier,
+      licenseTermsVersion: LICENSE_TERMS_VERSION,
+      licenseTermsSnapshot,
+    }
+  );
+
+  console.log("Purchase entitlement created");
+}
+
+// Create service booking
+async function createServiceBooking(
+  ctx: GenericActionCtx<any>,
+  workspaceId: string,
+  buyerClerkUserId: string,
+  serviceId: string
+): Promise<void> {
+  console.log("Creating booking...");
+  
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.orders.createBooking,
+    { workspaceId, buyerClerkUserId, serviceId }
+  );
+
+  console.log("Booking created");
+}
+
+// Record checkout success event
+async function recordCheckoutSuccessEvent(ctx: GenericActionCtx<any>, params: {
+  workspaceId: string;
+  orderId: string;
+  itemType: string;
+  itemId: string;
+  buyerClerkUserId: string;
+  amountCents: number;
+  currency: string;
+  stripeSessionId: string;
+  connectedAccountId: string | null;
+}): Promise<void> {
+  console.log("Recording checkout_success event...");
+  
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.events.recordEvent,
+    {
+      workspaceId: params.workspaceId,
+      type: "checkout_success",
+      meta: {
+        orderId: params.orderId,
+        itemType: params.itemType,
+        itemId: params.itemId,
+        buyerClerkUserId: params.buyerClerkUserId,
+        amountCents: params.amountCents,
+        currency: params.currency,
+        stripeSessionId: params.stripeSessionId,
+        connectedAccountId: params.connectedAccountId,
+      },
+    }
+  );
+
+  console.log("Event recorded");
+}
+
+// Get license terms by tier
+function getLicenseTerms(licenseTier: string) {
+  const LICENSE_TERMS_BY_TIER = {
+    basic: {
+      title: "Basic License",
+      includesStems: false,
+      rights: {
+        commercialUse: true,
+        audioStreamingCap: 100000,
+        musicVideosCap: 1,
+        livePerformanceCap: 10,
+        radioBroadcastCap: 0,
+        syncAllowed: false,
+      },
+      publishingSplit: {
+        licensorWriterSharePercent: 50,
+        licenseeWriterSharePercent: 50,
+        licensorPublisherSharePercent: 50,
+        licenseePublisherSharePercent: 50,
+      },
+    },
+    premium: {
+      title: "Premium License",
+      includesStems: false,
+      rights: {
+        commercialUse: true,
+        audioStreamingCap: 500000,
+        musicVideosCap: 2,
+        livePerformanceCap: 25,
+        radioBroadcastCap: 10,
+        syncAllowed: false,
+      },
+      publishingSplit: {
+        licensorWriterSharePercent: 50,
+        licenseeWriterSharePercent: 50,
+        licensorPublisherSharePercent: 50,
+        licenseePublisherSharePercent: 50,
+      },
+    },
+    unlimited: {
+      title: "Unlimited License",
+      includesStems: true,
+      rights: {
+        commercialUse: true,
+        audioStreamingCap: -1,
+        musicVideosCap: -1,
+        livePerformanceCap: -1,
+        radioBroadcastCap: -1,
+        syncAllowed: true,
+      },
+      publishingSplit: {
+        licensorWriterSharePercent: 50,
+        licenseeWriterSharePercent: 50,
+        licensorPublisherSharePercent: 50,
+        licenseePublisherSharePercent: 50,
+      },
+    },
+  };
+
+  return LICENSE_TERMS_BY_TIER[licenseTier as keyof typeof LICENSE_TERMS_BY_TIER];
+}
+
 // Handle Clerk Billing events (subscription.*)
-async function handleBillingEvent(ctx: any, type: string, data: any) {
+async function handleBillingEvent(ctx: GenericActionCtx<any>, type: string, data: any): Promise<Response> {
   console.log("Handling Billing event:", type);
 
-  // Extract user_id, plan, and status from data
-  // Handle both camelCase and snake_case
   const clerkUserId = data.user_id || data.userId;
   const plan = data.plan;
   const status = data.status;
@@ -195,82 +617,59 @@ async function handleBillingEvent(ctx: any, type: string, data: any) {
 
   if (!clerkUserId || !plan || !status) {
     console.error("Missing required fields:", { clerkUserId, plan, status });
-    return new Response(
-      JSON.stringify({
-        error: "Missing required fields in billing webhook data",
-        received: { clerkUserId, plan, status }
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({
+      error: "Missing required fields in billing webhook data",
+      received: { clerkUserId, plan, status }
+    }, 400);
   }
 
-  // Validate plan key
   if (plan !== "basic" && plan !== "pro") {
     console.error("Invalid plan key:", plan);
-    return new Response(
-      JSON.stringify({ error: "Invalid plan key", received: plan }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ error: "Invalid plan key", received: plan }, 400);
   }
 
   // Get workspace for this user
   console.log("Looking up workspace for user:", clerkUserId);
-  const workspaceId = await ctx.runMutation((internal as any).platform.billing.webhooks.getWorkspaceByOwner, {
-    clerkUserId,
-  });
+  const workspaceId = await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.billing.webhooks.getWorkspaceByOwner,
+    { clerkUserId }
+  );
 
   if (!workspaceId) {
     console.error("Workspace not found for user:", clerkUserId);
-    return new Response(
-      JSON.stringify({ error: "Workspace not found for user", userId: clerkUserId }),
-      {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ error: "Workspace not found for user", userId: clerkUserId }, 404);
   }
 
   console.log("Found workspace:", workspaceId);
 
-  // Map Clerk status to system status
   const systemStatus = mapClerkStatusToSystem(status);
   console.log("Mapped status:", status, "->", systemStatus);
 
   // Sync subscription to database
-  await ctx.runMutation((internal as any).platform.billing.webhooks.syncSubscription, {
-    clerkUserId,
-    workspaceId,
-    planKey: plan,
-    status: systemStatus,
-  });
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.billing.webhooks.syncSubscription,
+    { clerkUserId, workspaceId, planKey: plan, status: systemStatus }
+  );
 
   console.log("Subscription synced successfully");
 
-  return new Response(
-    JSON.stringify({ received: true, synced: true, eventType: "billing" }),
-    {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    }
-  );
+  return jsonResponse({ received: true, synced: true, eventType: "billing" }, 200);
 }
 
 // Handle standard Clerk events (user.*, session.*, organization.*)
-async function handleStandardEvent(ctx: any, type: string, data: any, eventObject: string | undefined) {
+async function handleStandardEvent(
+  ctx: GenericActionCtx<any>,
+  type: string,
+  data: any,
+  eventObject: string | undefined
+): Promise<Response> {
   console.log("Handling standard Clerk event:", type);
   console.log("Event object:", eventObject);
   console.log("Event data:", JSON.stringify(data, null, 2));
 
   // Log the event for audit purposes
-  // You can extend this to store events in a database table if needed
-
-  // Handle specific event types
   switch (type) {
     case "user.created":
       console.log("User created:", data.id);
@@ -311,38 +710,13 @@ async function handleStandardEvent(ctx: any, type: string, data: any, eventObjec
       console.log("Unhandled event type:", type);
   }
 
-  return new Response(
-    JSON.stringify({
-      received: true,
-      eventType: "standard",
-      type,
-      message: "Event logged successfully"
-    }),
-    {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    }
-  );
+  return jsonResponse({
+    received: true,
+    eventType: "standard",
+    type,
+    message: "Event logged successfully"
+  }, 200);
 }
-
-// Clerk webhook endpoint (unified handler for standard and Billing events)
-// Handles both:
-// - Standard Clerk events: user.*, session.*, organization.*
-// - Clerk Billing events: subscription.*
-// Requirements: 3.1, 3.4, 3.7, 3.8
-http.route({
-  path: "/api/clerk/billing/webhook",
-  method: "POST",
-  handler: clerkWebhookHandler,
-});
-
-// Clerk webhook endpoint (alias for compatibility)
-// Some Clerk configurations use /api/clerk/webhook instead of /api/clerk/billing/webhook
-http.route({
-  path: "/api/clerk/webhook",
-  method: "POST",
-  handler: clerkWebhookHandler,
-});
 
 // Helper function to map Clerk subscription status to system status
 function mapClerkStatusToSystem(clerkStatus: string): "active" | "inactive" | "canceled" {

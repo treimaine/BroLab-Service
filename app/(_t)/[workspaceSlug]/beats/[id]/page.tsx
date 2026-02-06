@@ -2,11 +2,11 @@
 
 import { useWorkspace } from '@/components/tenant'
 import {
-  DribbbleCard,
-  DribbbleSectionEnter,
-  PillCTA,
+    DribbbleCard,
+    DribbbleSectionEnter,
+    PillCTA,
 } from '@/platform/ui'
-import { ArrowLeft, Download, Music, Play, Share2 } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Download, Music, Play, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { use } from 'react'
 
@@ -18,6 +18,7 @@ import { use } from 'react'
  * Placeholder implementation - will be replaced with real data.
  * 
  * Requirements: 21.3 (beat detail with track info, preview player, purchase button)
+ * Requirements: 13.8, 27.4 (payments not configured state)
  */
 export default function BeatDetailPage({
   params,
@@ -37,6 +38,11 @@ export default function BeatDetailPage({
       </div>
     )
   }
+
+  // Check if payments are configured
+  const isPaymentsConfigured = 
+    workspace?.paymentsStatus === 'active' && 
+    workspace?.stripeAccountId !== undefined
 
   // Placeholder beat data
   const beat = {
@@ -145,6 +151,23 @@ export default function BeatDetailPage({
               {/* Right Column - Licenses */}
               <div>
                 <h2 className="text-2xl font-bold text-text mb-6">Choose Your License</h2>
+                
+                {/* Payments Not Configured Warning */}
+                {!isPaymentsConfigured && (
+                  <DribbbleCard padding="lg" className="mb-6 border-2 border-[rgba(var(--accent),0.3)]">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="text-lg font-bold text-text mb-2">Payments Not Configured</h3>
+                        <p className="text-sm text-muted">
+                          This creator hasn't completed their payment setup yet. 
+                          Purchases are currently unavailable. Please check back later.
+                        </p>
+                      </div>
+                    </div>
+                  </DribbbleCard>
+                )}
+
                 <div className="space-y-4">
                   {beat.licenses.map((license) => (
                     <DribbbleCard 
@@ -176,8 +199,9 @@ export default function BeatDetailPage({
                         variant={license.tier === 'Premium' ? 'primary' : 'secondary'} 
                         size="lg" 
                         className="w-full"
+                        disabled={!isPaymentsConfigured}
                       >
-                        Purchase {license.tier}
+                        {isPaymentsConfigured ? `Purchase ${license.tier}` : 'Unavailable'}
                       </PillCTA>
                     </DribbbleCard>
                   ))}

@@ -17,6 +17,7 @@ import {
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { Headphones, Mail, Music, Play, Star, Users } from 'lucide-react'
+import Link from 'next/link'
 
 export default function TenantDemoPage() {
   // Get audio store actions for testing
@@ -24,8 +25,8 @@ export default function TenantDemoPage() {
   
   const navItems: NavItem[] = [
     { id: 'beats', icon: <Music className="w-5 h-5" />, label: 'Beats', href: '/tenant-demo', isActive: true },
-    { id: 'services', icon: <Headphones className="w-5 h-5" />, label: 'Services', href: '#' },
-    { id: 'contact', icon: <Mail className="w-5 h-5" />, label: 'Contact', href: '#' },
+    { id: 'services', icon: <Headphones className="w-5 h-5" />, label: 'Services', href: '#services' },
+    { id: 'contact', icon: <Mail className="w-5 h-5" />, label: 'Contact', href: '#contact' },
   ]
 
   const producerStats = [
@@ -239,6 +240,7 @@ export default function TenantDemoPage() {
       </section>
 
       {/* SERVICES */}
+      <section id="services" />
       <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
         <div className="container mx-auto">
           <DribbbleSectionEnter>
@@ -291,7 +293,8 @@ export default function TenantDemoPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CONTACT */}
+      <section id="contact" />
       <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
         <div className="container mx-auto max-w-4xl">
           <DribbbleSectionEnter>
@@ -330,11 +333,11 @@ export default function TenantDemoPage() {
               <p className="text-xs text-muted">Powered by BroLab Entertainment</p>
             </div>
           </div>
-          <div className="flex gap-8 text-sm text-muted">
-            <a href="#" className="hover:text-text transition-colors">Beats</a>
-            <a href="#" className="hover:text-text transition-colors">Services</a>
-            <a href="#" className="hover:text-text transition-colors">Contact</a>
-          </div>
+          <nav className="flex gap-8 text-sm text-muted" aria-label="Footer navigation">
+            <Link href="/tenant-demo" className="hover:text-text transition-colors">Beats</Link>
+            <a href="#services" className="hover:text-text transition-colors">Services</a>
+            <a href="#contact" className="hover:text-text transition-colors">Contact</a>
+          </nav>
           <p className="text-xs text-muted">© 2026 Demo Studio. All rights reserved.</p>
         </div>
       </GlassFooter>

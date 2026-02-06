@@ -23,7 +23,7 @@ import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { Music, Plus, Upload, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
 
@@ -32,6 +32,7 @@ type FilterStatus = 'all' | 'draft' | 'published'
 export function StudioTracksClient() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
@@ -69,6 +70,18 @@ export function StudioTracksClient() {
     // Clear error message after 5 seconds
     setTimeout(() => setUploadError(null), 5000)
   }
+
+  // Manage dialog open/close with native dialog API
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    
+    if (showUploadModal) {
+      dialog.showModal()
+    } else {
+      dialog.close()
+    }
+  }, [showUploadModal])
 
   if (!workspace) {
     return (
@@ -197,26 +210,15 @@ export function StudioTracksClient() {
           />
         </DribbbleCard>
 
-        {/* Upload Modal */}
-        {showUploadModal && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-            onClick={(e) => {
-              // Close modal only if clicking the backdrop (not the modal content)
-              if (e.target === e.currentTarget) {
-                setShowUploadModal(false)
-              }
-            }}
-            onKeyDown={(e) => e.key === 'Escape' && setShowUploadModal(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="upload-modal-title"
-          >
-            {/* Modal Content */}
-            <div 
-              className="relative bg-[rgb(var(--bg))] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-[rgb(var(--border-alpha))]"
-              onClick={(e) => e.stopPropagation()}
-            >
+        {/* Upload Modal - using native dialog for accessibility */}
+        <dialog 
+          ref={dialogRef}
+          className="fixed inset-0 z-50 p-4 bg-transparent backdrop:bg-black/70 max-w-2xl w-full"
+          aria-labelledby="upload-modal-title"
+          onClose={() => setShowUploadModal(false)}
+        >
+          {/* Modal Content */}
+          <div className="relative bg-[rgb(var(--bg))] rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-[rgb(var(--border-alpha))]">
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--border-alpha))] bg-card/40">
                 <div className="flex items-center gap-3">
@@ -259,8 +261,7 @@ export function StudioTracksClient() {
                 </PillCTA>
               </div>
             </div>
-          </div>
-        )}
+        </dialog>
       </div>
     </motion.div>
   )
