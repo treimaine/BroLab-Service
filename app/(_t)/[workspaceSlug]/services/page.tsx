@@ -7,18 +7,31 @@ import {
     DribbbleStaggerItem,
     PillCTA,
 } from '@/platform/ui'
-import { Clock, Headphones, Music, Star } from 'lucide-react'
+import { useQuery } from 'convex/react'
+import { Clock, Headphones } from 'lucide-react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { api } from '../../../../convex/_generated/api'
+import { Id } from '../../../../convex/_generated/dataModel'
 
 /**
  * Services List Page
- * 
+ *
  * Displays all active services for this workspace.
- * Placeholder implementation - will be replaced with real data.
- * 
+ *
  * Requirements: 21.4 (services list page)
  */
 export default function ServicesListPage() {
-  const { workspace, isLoading } = useWorkspace()
+  const { workspace, isLoading: workspaceLoading } = useWorkspace()
+  const params = useParams()
+  const workspaceSlug = params.workspaceSlug as string
+
+  const services = useQuery(
+    api.modules.services.getActiveServices,
+    workspace ? { workspaceId: workspace._id as Id<'workspaces'> } : 'skip'
+  )
+
+  const isLoading = workspaceLoading || services === undefined
 
   if (isLoading) {
     return (
@@ -30,37 +43,6 @@ export default function ServicesListPage() {
       </div>
     )
   }
-
-  // Placeholder services data
-  const placeholderServices = [
-    {
-      id: 1,
-      title: 'MIXING & MASTERING',
-      description: 'Professional mixing and mastering services. Radio-ready sound guaranteed with unlimited revisions.',
-      price: 99,
-      turnaround: '3-5 days',
-      features: ['Unlimited Revisions', 'Radio Ready', 'Stem Mastering', 'Reference Track'],
-      icon: Headphones,
-    },
-    {
-      id: 2,
-      title: 'CUSTOM PRODUCTION',
-      description: 'Exclusive beats tailored to your vision. Full commercial rights and stems included.',
-      price: 299,
-      turnaround: '7-10 days',
-      features: ['Exclusive Rights', 'Stems Included', 'Unlimited Revisions', 'Custom Sound'],
-      icon: Music,
-    },
-    {
-      id: 3,
-      title: 'VOCAL TUNING',
-      description: 'Professional vocal tuning and editing. Natural sound with pitch-perfect results.',
-      price: 49,
-      turnaround: '1-2 days',
-      features: ['Pitch Correction', 'Timing Adjustment', 'Breath Control', 'Natural Sound'],
-      icon: Star,
-    },
-  ]
 
   return (
     <div className="min-h-screen bg-[rgb(var(--bg))]">
@@ -77,73 +59,67 @@ export default function ServicesListPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="px-4 lg:px-8 py-12">
+      <section className="px-4 lg:px-8 pb-20">
         <div className="container mx-auto">
-          <DribbbleSectionEnter stagger>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {placeholderServices.map((service, index) => {
-                const Icon = service.icon
-                return (
-                  <DribbbleStaggerItem key={service.id}>
-                    <DribbbleCard 
-                      glow={index === 0} 
-                      hoverLift 
-                      padding="lg" 
-                      className="h-full"
-                    >
-                      <div className="flex items-start gap-4 mb-6">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                          index === 0 
-                            ? 'bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]' 
-                            : 'bg-[rgba(var(--accent),0.15)]'
-                        }`}>
-                          <Icon className={`w-7 h-7 ${index === 0 ? 'text-white' : 'text-accent'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-text mb-2">{service.title}</h3>
-                          <div className="flex items-center gap-2 text-sm text-muted mb-3">
-                            <Clock className="w-4 h-4" />
-                            <span>{service.turnaround}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-muted">From</p>
-                          <p className="text-2xl font-bold text-text">${service.price}</p>
-                        </div>
-                      </div>
-
-                      <p className="text-muted mb-6">{service.description}</p>
-
-                      <div className="space-y-2 mb-6">
-                        {service.features.map((feature) => (
-                          <div key={feature} className="flex items-center gap-2 text-sm text-muted">
-                            <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <PillCTA 
-                        variant={index === 0 ? 'primary' : 'secondary'} 
-                        size="lg" 
-                        className="w-full"
-                      >
-                        Book Service
-                      </PillCTA>
-                    </DribbbleCard>
-                  </DribbbleStaggerItem>
-                )
-              })}
-            </div>
-          </DribbbleSectionEnter>
-
-          {/* Empty State (when no services) */}
-          {placeholderServices.length === 0 && (
+          {services.length === 0 ? (
             <div className="text-center py-20">
               <Headphones className="w-16 h-16 text-muted mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-text mb-2">No Services Yet</h2>
               <p className="text-muted mb-8">Check back soon for available services</p>
             </div>
+          ) : (
+            <DribbbleSectionEnter stagger>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {services.map((service, index) => (
+                  <DribbbleStaggerItem key={service._id}>
+                    <DribbbleCard
+                      glow={index === 0}
+                      hoverLift
+                      padding="lg"
+                      className="h-full"
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-bold text-text mb-2 truncate">{service.title}</h3>
+                          <div className="flex items-center gap-2 text-sm text-muted">
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            <span>{service.turnaround}</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-sm text-muted">From</p>
+                          <p className="text-2xl font-bold text-text">${service.priceUSD}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-muted mb-6 line-clamp-3">{service.description}</p>
+
+                      <div className="space-y-2 mb-6">
+                        {service.features.slice(0, 4).map((feature) => (
+                          <div key={feature} className="flex items-center gap-2 text-sm text-muted">
+                            <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                        {service.features.length > 4 && (
+                          <p className="text-xs text-muted pl-3.5">+{service.features.length - 4} more</p>
+                        )}
+                      </div>
+
+                      <Link href={`/${workspaceSlug}/services/${service._id}`}>
+                        <PillCTA
+                          variant={index === 0 ? 'primary' : 'secondary'}
+                          size="lg"
+                          className="w-full"
+                        >
+                          View Service
+                        </PillCTA>
+                      </Link>
+                    </DribbbleCard>
+                  </DribbbleStaggerItem>
+                ))}
+              </div>
+            </DribbbleSectionEnter>
           )}
         </div>
       </section>

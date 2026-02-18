@@ -311,7 +311,13 @@ export const getService = query({
   handler: async (ctx, args) => ctx.db.get(args.serviceId),
 });
 
-/** Get all active services for a workspace. Requirements: 16.2 */
+/** 
+ * Get all active services for a workspace (storefront public query).
+ * - Scoped by workspaceId: never returns services from other workspaces (Req 28.5)
+ * - Filtered by isActive=true: inactive services are never exposed to public (Req 28.1)
+ * Uses the by_workspace_active compound index for efficient filtering.
+ * Requirements: 16.2, 28.1, 28.5
+ */
 export const getActiveServices = query({
   args: { workspaceId: v.id("workspaces") },
   handler: async (ctx, args) =>
@@ -406,5 +412,32 @@ export const getBookingsByWorkspace = query({
     );
 
     return bookingsWithDetails.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+/**
+ * Get a single service by ID (storefront public query)
+ *
+ * Returns service data for the detail page.
+ * - Only returns active services — inactive services are never exposed (Req 28.1)
+ * - Scoped by workspaceId to prevent cross-tenant data leaks (Req 28.5)
+ *
+ * Requirements: 21.5, 28.1, 28.5
+ */
+export const getActiveService = query({
+  args: {
+    serviceId: v.id("services"),
+    workspaceId: v.id("workspaces"),
+  },
+  handler: async (ctx, args) => {
+    const service = await ctx.db.get(args.serviceId);
+
+    // Enforce: only active services visible to public users (Req 28.1)
+    if (!service || !service.isActive) return null;
+
+    // Enforce: scope by workspaceId — never mix tenants (Req 28.5)
+    if (service.workspaceId !== args.workspaceId) return null;
+
+    return service;
   },
 });

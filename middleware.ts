@@ -110,7 +110,9 @@ export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname
 
   // ============ STEP 1: STATIC FILE EXCLUSION ============
-  const isStaticFile = /\.(html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)$/i.test(pathname)
+  const isStaticExt = /\.(css|js|png|gif|svg|ico|csv|zip|webp|webmanifest)$/i.test(pathname)
+  const isStaticExtAlt = /\.(html?|jpe?g|ttf|woff2?|docx?|xlsx?)$/i.test(pathname)
+  const isStaticFile = isStaticExt || isStaticExtAlt
   if (pathname.startsWith('/_next/') || pathname.includes('/_next/static/') || isStaticFile) {
     return NextResponse.next()
   }
@@ -163,7 +165,8 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // NOSONAR - Next.js requires static string literals in config.matcher, String.raw cannot be used here
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)', // NOSONAR
     '/(api|trpc)(.*)',
   ],
 }

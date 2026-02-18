@@ -6,27 +6,36 @@ import {
     DribbbleSectionEnter,
     PillCTA,
 } from '@/platform/ui'
-import { AlertCircle, ArrowLeft, Check, Clock, Headphones } from 'lucide-react'
+import { useQuery } from 'convex/react'
+import { AlertCircle, ArrowLeft, Check, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { use } from 'react'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import { api } from '../../../../../convex/_generated/api'
+import { Id } from '../../../../../convex/_generated/dataModel'
 
 /**
  * Service Detail Page
- * 
- * Displays detailed information about a specific service.
- * Includes features, pricing, and booking button.
- * Placeholder implementation - will be replaced with real data.
- * 
+ *
+ * Displays service info, features, and booking/purchase button.
+ *
  * Requirements: 21.5 (service detail with info, features, purchase/book button)
  * Requirements: 13.8, 27.4 (payments not configured state)
  */
-export default function ServiceDetailPage({
-  params,
-}: {
-  readonly params: Promise<{ workspaceSlug: string; id: string }>
-}) {
-  const { workspaceSlug, id } = use(params)
-  const { workspace, isLoading } = useWorkspace()
+export default function ServiceDetailPage() {
+  const params = useParams()
+  const workspaceSlug = params.workspaceSlug as string
+  const serviceId = params.id as string
+
+  const { workspace, isLoading: workspaceLoading } = useWorkspace()
+  const [isPurchasing, setIsPurchasing] = useState(false)
+
+  const service = useQuery(
+    api.modules.services.getActiveService,
+    serviceId && workspace ? { serviceId: serviceId as Id<'services'>, workspaceId: workspace._id as Id<'workspaces'> } : 'skip'
+  )
+
+  const isLoading = workspaceLoading || service === undefined
 
   if (isLoading) {
     return (
@@ -39,35 +48,51 @@ export default function ServiceDetailPage({
     )
   }
 
-  // Check if payments are configured
-  const isPaymentsConfigured = 
-    workspace?.paymentsStatus === 'active' && 
-    workspace?.stripeAccountId !== undefined
+  if (!service) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-text mb-2">Service Not Found</h2>
+          <p className="text-muted mb-6">This service may have been removed or is no longer available.</p>
+          <Link href={`/${workspaceSlug}/services`}>
+            <PillCTA variant="secondary">Back to Services</PillCTA>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
-  // Placeholder service data
-  const service = {
-    id,
-    title: 'MIXING & MASTERING',
-    description: 'Professional mixing and mastering services to make your tracks radio-ready. With years of experience and state-of-the-art equipment, we deliver industry-standard results.',
-    price: 99,
-    turnaround: '3-5 business days',
-    features: [
-      'Unlimited Revisions',
-      'Radio Ready Sound',
-      'Stem Mastering',
-      'Reference Track Matching',
-      'Loudness Optimization',
-      'Format Delivery (WAV, MP3)',
-      'Professional Feedback',
-      'Fast Turnaround',
-    ],
-    process: [
-      'Upload your stems or mixed track',
-      'Provide reference tracks and notes',
-      'Receive first draft within 3 days',
-      'Request revisions if needed',
-      'Download final mastered files',
-    ],
+  const isPaymentsConfigured =
+    workspace?.paymentsStatus === 'active' && workspace?.stripeAccountId !== undefined
+
+  const bookLabel = (() => {
+    if (isPurchasing) return 'Redirecting...'
+    if (isPaymentsConfigured) return 'Book Service'
+    return 'Unavailable'
+  })()
+
+  const handleBook = async () => {
+    if (!isPaymentsConfigured || !workspace) return
+    setIsPurchasing(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemType: 'service',
+          itemId: service._id,
+          workspaceId: workspace._id,
+        }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        globalThis.location.href = data.url
+      }
+    } catch {
+      // silently fail — user stays on page
+    } finally {
+      setIsPurchasing(false)
+    }
   }
 
   return (
@@ -75,9 +100,9 @@ export default function ServiceDetailPage({
       {/* Back Button */}
       <section className="px-4 lg:px-8 py-6">
         <div className="container mx-auto">
-          <Link 
-            href={`/_t/${workspaceSlug}/services`}
-            className="inline-flex items-center gap-2 text-muted hover:text-text transition-colors"
+          <Link
+            href={`/${workspaceSlug}/services`}
+            className="inline-flex items-center gap-2 text-muted hover:text-text transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Services</span>
@@ -86,46 +111,29 @@ export default function ServiceDetailPage({
       </section>
 
       {/* Service Details */}
-      <section className="px-4 lg:px-8 py-12">
+      <section className="px-4 lg:px-8 py-8">
         <div className="container mx-auto max-w-6xl">
           <DribbbleSectionEnter>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
               {/* Left Column - Main Info */}
               <div className="lg:col-span-2 space-y-8">
                 <div>
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0">
-                      <Headphones className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h1 className="text-4xl font-bold text-text mb-2">{service.title}</h1>
-                      <p className="text-muted">by {workspace?.name}</p>
-                    </div>
+                  <h1 className="text-4xl font-bold text-text mb-3">{service.title}</h1>
+                  <p className="text-muted mb-4">by {workspace?.name}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted mb-6">
+                    <Clock className="w-4 h-4" />
+                    <span>{service.turnaround}</span>
                   </div>
                   <p className="text-lg text-muted leading-relaxed">{service.description}</p>
                 </div>
 
                 <DribbbleCard padding="lg">
-                  <h2 className="text-xl font-bold text-text mb-4">What's Included</h2>
+                  <h2 className="text-xl font-bold text-text mb-4">What&apos;s Included</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {service.features.map((feature) => (
                       <div key={feature} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                         <span className="text-muted">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </DribbbleCard>
-
-                <DribbbleCard padding="lg">
-                  <h2 className="text-xl font-bold text-text mb-4">How It Works</h2>
-                  <div className="space-y-4">
-                    {service.process.map((step, index) => (
-                      <div key={step} className="flex items-start gap-4">
-                        <div className="w-8 h-8 rounded-full bg-[rgba(var(--accent),0.15)] flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold text-accent">{index + 1}</span>
-                        </div>
-                        <p className="text-muted pt-1">{step}</p>
                       </div>
                     ))}
                   </div>
@@ -138,20 +146,21 @@ export default function ServiceDetailPage({
                   <DribbbleCard glow padding="lg">
                     <div className="text-center mb-6">
                       <p className="text-sm text-muted mb-2">Starting at</p>
-                      <p className="text-5xl font-bold text-text mb-4">${service.price}</p>
+                      <p className="text-5xl font-bold text-text mb-4">${service.priceUSD}</p>
                       <div className="flex items-center justify-center gap-2 text-sm text-muted">
                         <Clock className="w-4 h-4" />
                         <span>{service.turnaround}</span>
                       </div>
                     </div>
 
-                    <PillCTA 
-                      variant="primary" 
-                      size="lg" 
+                    <PillCTA
+                      variant="primary"
+                      size="lg"
                       className="w-full mb-4"
-                      disabled={!isPaymentsConfigured}
+                      disabled={!isPaymentsConfigured || isPurchasing}
+                      onClick={handleBook}
                     >
-                      {isPaymentsConfigured ? 'Book Service' : 'Unavailable'}
+                      {bookLabel}
                     </PillCTA>
 
                     <div className="space-y-3 pt-4">
@@ -160,14 +169,12 @@ export default function ServiceDetailPage({
                         <span className="text-muted">Delivery Time</span>
                         <span className="text-text font-medium">{service.turnaround}</span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted">Revisions</span>
-                        <span className="text-text font-medium">Unlimited</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted">Format</span>
-                        <span className="text-text font-medium">WAV + MP3</span>
-                      </div>
+                      {service.priceEUR && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted">Price (EUR)</span>
+                          <span className="text-text font-medium">€{service.priceEUR}</span>
+                        </div>
+                      )}
                     </div>
                   </DribbbleCard>
 
@@ -179,7 +186,7 @@ export default function ServiceDetailPage({
                         <div>
                           <h3 className="text-base font-bold text-text mb-2">Payments Not Configured</h3>
                           <p className="text-sm text-muted">
-                            This creator hasn't completed their payment setup yet. 
+                            This creator hasn&apos;t completed their payment setup yet.
                             Bookings are currently unavailable.
                           </p>
                         </div>
@@ -189,7 +196,10 @@ export default function ServiceDetailPage({
 
                   <div className="p-4 bg-[rgba(var(--accent),0.05)] border border-[rgba(var(--accent),0.2)] rounded-xl">
                     <p className="text-sm text-muted text-center">
-                      Have questions? <Link href={`/_t/${workspaceSlug}/contact`} className="text-accent hover:underline">Contact us</Link>
+                      Have questions?{' '}
+                      <Link href={`/${workspaceSlug}/contact`} className="text-accent hover:underline">
+                        Contact us
+                      </Link>
                     </p>
                   </div>
                 </div>

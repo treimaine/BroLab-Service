@@ -919,3 +919,71 @@ export const getTrack = query({
     return await ctx.db.get(args.trackId);
   },
 });
+
+/**
+ * Get published tracks for a workspace (storefront public query)
+ *
+ * Returns ONLY published tracks for a specific workspace.
+ * - Scoped by workspaceId: never returns tracks from other workspaces (Req 28.5)
+ * - Filtered by status="published": draft tracks are never exposed (Req 28.1)
+ * Uses the by_workspace_status compound index for efficient filtering.
+ *
+ * Requirements: 21.1, 21.2, 28.1, 28.5
+ */
+export const getPublishedTracks = query({
+  args: {
+    workspaceId: v.id("workspaces"),
+  },
+  handler: async (ctx, args) => {
+    const tracks = await ctx.db
+      .query("tracks")
+      .withIndex("by_workspace_status", (q) =>
+        q.eq("workspaceId", args.workspaceId).eq("status", "published")
+      )
+      .collect();
+
+    // Resolve preview URLs for tracks that have previews
+    const tracksWithUrls = await Promise.all(
+      tracks.map(async (track) => {
+        let previewUrl: string | null = null;
+        if (track.previewStorageId) {
+          previewUrl = await ctx.storage.getUrl(track.previewStorageId);
+        }
+        return { ...track, previewUrl };
+      })
+    );
+
+    return tracksWithUrls.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+/**
+ * Get a single published track with preview URL (storefront public query)
+ *
+ * Returns track data with resolved preview URL.
+ * Scoped by workspaceId to prevent cross-tenant data leaks.
+ * Only returns published tracks — draft tracks are never exposed to public users.
+ *
+ * Requirements: 21.3, 28.1, 28.5
+ */
+export const getPublishedTrack = query({
+  args: {
+    trackId: v.id("tracks"),
+    workspaceId: v.id("workspaces"),
+  },
+  handler: async (ctx, args) => {
+    const track = await ctx.db.get(args.trackId);
+
+    // Enforce: only published tracks visible to public users (Req 28.1)
+    if (!track || track?.status !== "published") return null;
+
+    // Enforce: scope by workspaceId — never mix tenants (Req 28.5)
+    if (track?.workspaceId !== args.workspaceId) return null;
+
+    const previewUrl = track.previewStorageId
+      ? await ctx.storage.getUrl(track.previewStorageId)
+      : null;
+
+    return { ...track, previewUrl };
+  },
+});
