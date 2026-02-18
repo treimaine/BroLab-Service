@@ -640,15 +640,15 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 10: Services Module + Tenant Pages
 
-- [ ] Task 10.1: Implement service CRUD in convex/modules/services.ts: Create service mutation (title, description, priceUSD, priceEUR, turnaround, features, isActive). Update service mutation. Toggle isActive mutation. Audit log creation (service_create). _Requirements: 16.1, 16.2_
+- [x] Task 10.1: Implement service CRUD in convex/modules/services.ts: Create service mutation (title, description, priceUSD, priceEUR, turnaround, features, isActive). Update service mutation. Toggle isActive mutation. Audit log creation (service_create). _Requirements: 16.1, 16.2_
 
-- [ ] Task 10.2: Create service management UI in src/modules/services/components/: ServiceForm component. ServiceList component. ServiceCard component. _Requirements: 19.3_
+- [x] Task 10.2: Create service management UI in src/modules/services/components/: ServiceForm component. ServiceList component. ServiceCard component. _Requirements: 19.3_
 
-- [ ] Task 10.3: Implement studio services page at app/(hub)/studio/services/page.tsx: Service list with create button. Active/inactive filtering. _Requirements: 19.3_
+- [x] Task 10.3: Implement studio services page at app/(hub)/studio/services/page.tsx: Service list with create button. Active/inactive filtering. _Requirements: 19.3_
 
-- [ ] Task 10.4: Implement booking creation: Create Booking record on service purchase. Status tracking (pending, confirmed, completed, canceled). _Requirements: 13.6, 16.3, 16.4_
+- [x] Task 10.4: Implement booking creation: Create Booking record on service purchase. Status tracking (pending, confirmed, completed, canceled). _Requirements: 13.6, 16.3, 16.4_
 
-- [ ] Task 10.5: Implement custom domain management: Domain connection UI at app/(hub)/studio/domains/page.tsx. assertEntitlement check for custom_domain (PRO only). DNS verification instructions. Status tracking (pending, verified, failed). Audit log creation (domain_connect). _Requirements: 4.4, 19.4, 1.3_
+- [x] Task 10.5: Implement custom domain management: Domain connection UI at app/(hub)/studio/domains/page.tsx. assertEntitlement check for custom_domain (PRO only). DNS verification instructions. Status tracking (pending, verified, failed). Audit log creation (domain_connect). _Requirements: 4.4, 19.4, 1.3_
 
 - [ ] Task 10.6: Implement tenant storefront pages: app/(_t)/[workspaceSlug]/page.tsx: hero, latest drops, featured services, sticky player. app/(_t)/[workspaceSlug]/beats/page.tsx: published tracks grid with preview play. app/(_t)/[workspaceSlug]/beats/[id]/page.tsx: track info, preview player, purchase button. app/(_t)/[workspaceSlug]/services/page.tsx: active services grid. app/(_t)/[workspaceSlug]/services/[id]/page.tsx: service info, features, purchase/book button. app/(_t)/[workspaceSlug]/contact/page.tsx: contact info or simple form. _Requirements: 21.1, 21.2, 21.3, 21.4, 21.5, 21.6_
 

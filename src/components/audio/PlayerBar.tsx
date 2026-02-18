@@ -1,17 +1,17 @@
 'use client'
 
 import {
-  ChromeSurface,
-  GlassChip,
-  NowPlayingChip,
-  PlayerPillButton,
-  ProgressRail,
-  VolumePill,
-  WaveformPlaceholder,
-  dribbbleHoverLift,
-  dribbbleHoverScale,
-  dribbblePlayerBarEnter,
-  dribbbleReducedMotion
+    ChromeSurface,
+    GlassChip,
+    NowPlayingChip,
+    PlayerPillButton,
+    ProgressRail,
+    VolumePill,
+    WaveformPlaceholder,
+    dribbbleHoverLift,
+    dribbbleHoverScale,
+    dribbblePlayerBarEnter,
+    dribbbleReducedMotion
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -57,6 +57,9 @@ export function PlayerBar({
   
   // Connect to global audio store using selectors
   const currentTrack = useAudioStore((state) => state.currentTrack)
+  
+  // Only show player when there's an active track
+  const shouldShow = isVisible && Boolean(currentTrack)
   const isPlaying = useAudioStore((state) => state.isPlaying)
   const currentTime = useAudioStore((state) => state.currentTime)
   const duration = useAudioStore((state) => state.duration)
@@ -107,7 +110,7 @@ export function PlayerBar({
 
   return (
     <AnimatePresence mode="wait">
-      {isVisible && (
+      {shouldShow && (
         <motion.div
           key="player-bar"
           className="

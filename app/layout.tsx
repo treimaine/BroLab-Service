@@ -1,7 +1,6 @@
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudioPlayer";
-import { PlayerBar } from "@/components/audio/PlayerBar";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Press_Start_2P } from "next/font/google";
@@ -39,7 +38,8 @@ export const metadata: Metadata = {
  * 2. ConvexClientProvider (requires Clerk auth)
  * 3. ThemeProvider (UI theming)
  * 4. EnhancedGlobalAudioPlayer (headless audio engine - mounted once)
- * 5. PlayerBar (visible audio player UI - sticky at bottom)
+ * 
+ * Note: PlayerBar UI is mounted in TenantLayout for tenant pages only
  * 
  * Requirements: 2.1, 12.1, 12.2, 26.1, 26.2, 26.3
  */
@@ -156,8 +156,6 @@ export default function RootLayout({
               {/* Headless audio player - mounted once at app root */}
               <EnhancedGlobalAudioPlayer />
               {children}
-              {/* PlayerBar - visible audio player UI, sticky at bottom */}
-              <PlayerBar />
             </ThemeProvider>
           </ConvexClientProvider>
         </body>

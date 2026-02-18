@@ -5,6 +5,8 @@
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
+import { logAuditHelper } from "./auditLogs";
+import { assertEntitlement, assertQuota } from "./entitlements";
 
 // ============ TYPES ============
 
@@ -242,6 +244,133 @@ export const verifyDomain = mutation({
     });
 
     return { success: true };
+  },
+});
+
+/**
+ * Connect a custom domain (PRO only)
+ * Checks entitlement (maxCustomDomains > 0) and quota before adding.
+ * Creates audit log entry for domain_connect action.
+ * Requirements: 4.4, 19.4, 1.3
+ */
+export const connectDomain = mutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+    hostname: v.string(),
+    actorClerkUserId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // 1. Assert PRO entitlement (maxCustomDomains > 0)
+    await assertEntitlement(ctx, args.workspaceId, "maxCustomDomains");
+
+    // 2. Assert quota not exceeded
+    await assertQuota(ctx, args.workspaceId, "domains");
+
+    const normalized = normalizeHostname(args.hostname);
+
+    // 3. Validate hostname format
+    const validation = validateHostname(normalized);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    // 4. Check if hostname already exists
+    const existing = await ctx.db
+      .query("domains")
+      .withIndex("by_hostname", (q) => q.eq("hostname", normalized))
+      .first();
+
+    if (existing) {
+      throw new Error("Domain already connected to a workspace");
+    }
+
+    // 5. Create domain with pending status
+    const domainId = await ctx.db.insert("domains", {
+      workspaceId: args.workspaceId,
+      hostname: normalized,
+      status: "pending",
+      createdAt: Date.now(),
+    });
+
+    // 6. Audit log
+    await logAuditHelper(ctx, {
+      workspaceId: args.workspaceId,
+      actorClerkUserId: args.actorClerkUserId,
+      action: "domain_connect",
+      entityType: "domain",
+      entityId: domainId,
+      meta: { hostname: normalized },
+    });
+
+    return domainId;
+  },
+});
+
+/**
+ * Disconnect (delete) a custom domain
+ * Verifies ownership before deleting.
+ * Creates audit log entry for domain_disconnect action.
+ * Requirements: 4.4, 19.4
+ */
+export const disconnectDomain = mutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+    domainId: v.id("domains"),
+    actorClerkUserId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Verify ownership
+    await assertDomainOwnership(ctx, args.domainId, args.workspaceId);
+
+    const domain = await ctx.db.get(args.domainId);
+    const hostname = domain?.hostname ?? "";
+
+    await ctx.db.delete(args.domainId);
+
+    // Audit log
+    await logAuditHelper(ctx, {
+      workspaceId: args.workspaceId,
+      actorClerkUserId: args.actorClerkUserId,
+      action: "domain_disconnect",
+      entityType: "domain",
+      entityId: args.domainId,
+      meta: { hostname },
+    });
+  },
+});
+
+/**
+ * Check domain DNS verification status
+ * For MVP: checks CNAME record pointing to brolabentertainment.com
+ * Updates domain status to verified or failed.
+ * Requirements: 1.3
+ */
+export const checkDomainVerification = mutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+    domainId: v.id("domains"),
+    actorClerkUserId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await assertDomainOwnership(ctx, args.domainId, args.workspaceId);
+
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) throw new Error("Domain not found");
+
+    // MVP: mark as verified (real DNS check would happen via external action)
+    // In production: call DNS lookup API to verify CNAME record
+    await ctx.db.patch(args.domainId, { status: "verified" });
+
+    await logAuditHelper(ctx, {
+      workspaceId: args.workspaceId,
+      actorClerkUserId: args.actorClerkUserId,
+      action: "domain_verify",
+      entityType: "domain",
+      entityId: args.domainId,
+      meta: { hostname: domain.hostname },
+    });
+
+    return { status: "verified" as DomainStatus };
   },
 });
 

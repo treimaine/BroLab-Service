@@ -1,0 +1,395 @@
+'use client'
+
+/**
+ * Studio Domains Client Component
+ *
+ * Custom domain management for PRO providers.
+ * - assertEntitlement check (maxCustomDomains > 0) enforced server-side via connectDomain mutation
+ * - DNS verification instructions (CNAME record)
+ * - Status tracking: pending, verified, failed
+ * - Audit log created on domain_connect
+ *
+ * Requirements: 4.4, 19.4, 1.3
+ */
+
+import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
+import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
+import { useUser } from '@clerk/nextjs'
+import { useMutation, useQuery } from 'convex/react'
+import { motion } from 'framer-motion'
+import { AlertCircle, CheckCircle2, Clock, Globe, Plus, RefreshCw, Trash2, X } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { api } from '../../../../convex/_generated/api'
+import type { Id } from '../../../../convex/_generated/dataModel'
+
+type DomainStatus = 'pending' | 'verified' | 'failed'
+
+const STATUS_CONFIG: Record<DomainStatus, { label: string; icon: React.ReactNode; className: string }> = {
+  pending: {
+    label: 'Pending',
+    icon: <Clock className="w-4 h-4" />,
+    className: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+  },
+  verified: {
+    label: 'Verified',
+    icon: <CheckCircle2 className="w-4 h-4" />,
+    className: 'text-green-500 bg-green-500/10 border-green-500/20',
+  },
+  failed: {
+    label: 'Failed',
+    icon: <AlertCircle className="w-4 h-4" />,
+    className: 'text-red-500 bg-red-500/10 border-red-500/20',
+  },
+}
+
+export function StudioDomainsClient() {
+  const { user } = useUser()
+  const [hostname, setHostname] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
+  const [loadingDomainId, setLoadingDomainId] = useState<string | null>(null)
+
+  const workspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
+  const workspace = workspaces?.[0]
+
+  const subscriptionData = useQuery(
+    api.platform.billing.subscriptionQueries.getWorkspaceSubscriptionAndUsage,
+    workspace ? { workspaceId: workspace._id } : 'skip'
+  )
+  const subscription = subscriptionData?.subscription
+
+  const domains = useQuery(
+    api.platform.domains.getDomainsByWorkspace,
+    workspace ? { workspaceId: workspace._id } : 'skip'
+  )
+
+  const connectDomain = useMutation(api.platform.domains.connectDomain)
+  const disconnectDomain = useMutation(api.platform.domains.disconnectDomain)
+  const checkVerification = useMutation(api.platform.domains.checkDomainVerification)
+
+  const isPro = subscription?.planKey === 'pro' && subscription?.status === 'active'
+  const maxDomains = isPro ? 2 : 0
+  const usedDomains = domains?.length ?? 0
+  const canAddMore = isPro && usedDomains < maxDomains
+
+  async function handleConnect(e: React.FormEvent) {
+    e.preventDefault()
+    if (!workspace || !user) return
+    setError(null)
+
+    try {
+      await connectDomain({
+        workspaceId: workspace._id,
+        hostname: hostname.trim(),
+        actorClerkUserId: user.id,
+      })
+      setHostname('')
+      setIsAdding(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to connect domain')
+    }
+  }
+
+  async function handleDisconnect(domainId: Id<'domains'>) {
+    if (!workspace || !user) return
+    setLoadingDomainId(domainId)
+    try {
+      await disconnectDomain({
+        workspaceId: workspace._id,
+        domainId,
+        actorClerkUserId: user.id,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disconnect domain')
+    } finally {
+      setLoadingDomainId(null)
+    }
+  }
+
+  async function handleCheckVerification(domainId: Id<'domains'>) {
+    if (!workspace || !user) return
+    setLoadingDomainId(domainId)
+    try {
+      await checkVerification({
+        workspaceId: workspace._id,
+        domainId,
+        actorClerkUserId: user.id,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification check failed')
+    } finally {
+      setLoadingDomainId(null)
+    }
+  }
+
+  if (!workspace) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Globe className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <h2 className="text-xl font-semibold mb-2">No workspace found</h2>
+          <p className="text-[rgb(var(--muted))]">Please complete onboarding to create a workspace.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <motion.div
+      className="min-h-screen bg-[rgb(var(--bg))] p-6"
+      variants={dribbblePageEnter}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold uppercase tracking-wide mb-2">Custom Domains</h1>
+            <p className="text-[rgb(var(--muted))]">Connect your own domain to your storefront</p>
+          </div>
+          {isPro && (
+            <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[rgb(var(--accent))]/10 text-[rgb(var(--accent))] border border-[rgb(var(--accent))]/20">
+              PRO
+            </span>
+          )}
+        </div>
+
+        {/* PRO gate */}
+        {!isPro && (
+          <DribbbleCard padding="lg" className="border border-[rgb(var(--accent))]/20">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-[rgb(var(--accent))]/10">
+                <Globe className="w-6 h-6 text-[rgb(var(--accent))]" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold mb-1">PRO Feature</h2>
+                <p className="text-[rgb(var(--muted))] text-sm mb-4">
+                  Custom domains are available on the PRO plan. Upgrade to connect up to 2 custom domains to your storefront.
+                </p>
+                <Link
+                  href="/studio/billing"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgb(var(--accent))] text-white text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  Upgrade to PRO
+                </Link>
+              </div>
+            </div>
+          </DribbbleCard>
+        )}
+
+        {/* Quota bar */}
+        {isPro && (
+          <DribbbleCard padding="md">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold uppercase tracking-wide text-[rgb(var(--muted))]">
+                Domains Used
+              </span>
+              <span className="text-sm font-bold">
+                {usedDomains} / {maxDomains}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-[rgb(var(--card))]">
+              <div
+                className="h-2 rounded-full bg-[rgb(var(--accent))] transition-all"
+                style={{ width: `${(usedDomains / maxDomains) * 100}%` }}
+              />
+            </div>
+          </DribbbleCard>
+        )}
+
+        {/* Error banner */}
+        {error && (
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <p className="text-sm flex-1">{error}</p>
+            <button onClick={() => setError(null)} className="cursor-pointer hover:opacity-70 transition-opacity">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Add domain form */}
+        {isPro && canAddMore && (
+          <DribbbleCard padding="lg">
+            {isAdding ? (
+              <form onSubmit={handleConnect} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="domain-hostname"
+                    className="block text-sm font-semibold uppercase tracking-wide text-[rgb(var(--muted))] mb-2"
+                  >
+                    Domain Hostname
+                  </label>
+                  <input
+                    id="domain-hostname"
+                    type="text"
+                    value={hostname}
+                    onChange={(e) => setHostname(e.target.value)}
+                    placeholder="beats.yourdomain.com"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--card))] border border-[rgb(var(--border))] text-[rgb(var(--text))] placeholder:text-[rgb(var(--muted))] focus:outline-none focus:border-[rgb(var(--accent))] transition-colors"
+                  />
+                  <p className="mt-1 text-xs text-[rgb(var(--muted))]">
+                    Enter the full hostname (e.g. beats.yourdomain.com)
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-full bg-[rgb(var(--accent))] text-white text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    Connect Domain
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsAdding(false); setHostname(''); setError(null) }}
+                    className="px-5 py-2 rounded-full bg-[rgb(var(--card))] text-[rgb(var(--muted))] text-sm font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setIsAdding(true)}
+                className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--accent))] hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                Connect a domain
+              </button>
+            )}
+          </DribbbleCard>
+        )}
+
+        {/* Domain list */}
+        {isPro && (
+          <div className="space-y-4">
+            {domains?.length === 0 && (
+              <DribbbleCard padding="lg">
+                <div className="text-center py-8">
+                  <Globe className="w-12 h-12 mx-auto mb-3 text-[rgb(var(--muted))]" />
+                  <p className="text-[rgb(var(--muted))] text-sm">No custom domains connected yet.</p>
+                </div>
+              </DribbbleCard>
+            )}
+
+            {domains?.map((domain) => {
+              const status = domain.status as DomainStatus
+              const cfg = STATUS_CONFIG[status]
+              const isLoading = loadingDomainId === domain._id
+
+              return (
+                <DribbbleCard key={domain._id} padding="lg">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-[rgb(var(--card))]">
+                      <Globe className="w-5 h-5 text-[rgb(var(--accent))]" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1 flex-wrap">
+                        <span className="font-mono font-semibold text-[rgb(var(--text))] truncate">
+                          {domain.hostname}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cfg.className}`}>
+                          {cfg.icon}
+                          {cfg.label}
+                        </span>
+                      </div>
+
+                      {/* DNS instructions for pending domains */}
+                      {status === 'pending' && (
+                        <div className="mt-3 p-4 rounded-xl bg-[rgb(var(--bg))] border border-[rgb(var(--border))] space-y-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--muted))]">
+                            DNS Configuration Required
+                          </p>
+                          <p className="text-sm text-[rgb(var(--muted))]">
+                            Add the following CNAME record to your DNS provider:
+                          </p>
+                          <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm font-mono">
+                            <span className="text-[rgb(var(--muted))] font-sans font-semibold uppercase text-xs">Type</span>
+                            <span className="text-[rgb(var(--text))]">CNAME</span>
+                            <span className="text-[rgb(var(--muted))] font-sans font-semibold uppercase text-xs">Name</span>
+                            <span className="text-[rgb(var(--text))]">{domain.hostname}</span>
+                            <span className="text-[rgb(var(--muted))] font-sans font-semibold uppercase text-xs">Value</span>
+                            <span className="text-[rgb(var(--accent))]">brolabentertainment.com</span>
+                          </div>
+                          <p className="text-xs text-[rgb(var(--muted))]">
+                            DNS changes can take up to 48 hours to propagate. Click &quot;Check Verification&quot; once your DNS is configured.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Failed state instructions */}
+                      {status === 'failed' && (
+                        <p className="mt-2 text-sm text-red-400">
+                          Verification failed. Ensure your CNAME record points to{' '}
+                          <span className="font-mono">brolabentertainment.com</span> and try again.
+                        </p>
+                      )}
+
+                      {/* Verified state */}
+                      {status === 'verified' && (
+                        <p className="mt-2 text-sm text-green-400">
+                          Domain is active. Your storefront is accessible at{' '}
+                          <a
+                            href={`https://${domain.hostname}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:opacity-80 transition-opacity"
+                          >
+                            https://{domain.hostname}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {(status === 'pending' || status === 'failed') && (
+                        <button
+                          onClick={() => handleCheckVerification(domain._id)}
+                          disabled={isLoading}
+                          title="Check verification"
+                          className="p-2 rounded-lg bg-[rgb(var(--card))] text-[rgb(var(--muted))] hover:text-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/10 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDisconnect(domain._id)}
+                        disabled={isLoading}
+                        title="Disconnect domain"
+                        className="p-2 rounded-lg bg-[rgb(var(--card))] text-[rgb(var(--muted))] hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </DribbbleCard>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Subdomain info */}
+        <DribbbleCard padding="lg" className="opacity-80">
+          <div className="flex items-start gap-3">
+            <Globe className="w-5 h-5 text-[rgb(var(--muted))] mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold mb-1">Your free subdomain</p>
+              <p className="font-mono text-sm text-[rgb(var(--accent))]">
+                {workspace.slug}.brolabentertainment.com
+              </p>
+              <p className="text-xs text-[rgb(var(--muted))] mt-1">
+                Always available on all plans. Custom domains are a PRO feature.
+              </p>
+            </div>
+          </div>
+        </DribbbleCard>
+      </div>
+    </motion.div>
+  )
+}
