@@ -2,9 +2,6 @@
   "name": "brolab-entertainment",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -44,7 +41,7 @@
     "eslint-config-next": "16.1.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "glob": "11.1.0",
+    "glob": "^13.0.5",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.2",
     "typescript-eslint": "^8.52.0"
