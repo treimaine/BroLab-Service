@@ -31,10 +31,6 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks(.*)', // Webhooks should be public
 ])
 
-const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
-const isStudioRoute = createRouteMatcher(['/studio(.*)'])
-const isArtistRoute = createRouteMatcher(['/artist(.*)'])
-
 /**
  * Helper: Get redirect URL based on user role
  */
