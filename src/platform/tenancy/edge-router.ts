@@ -12,6 +12,14 @@ import { NextRequest, NextResponse } from 'next/server'
 const HUB_DOMAIN = 'brolabentertainment.com'
 
 /**
+ * Vercel preview/production domains (treated as hub)
+ */
+const VERCEL_DOMAINS = [
+  'brolab-service.vercel.app',
+  'brolab-service-git-main-treimaines-projects.vercel.app',
+]
+
+/**
  * Reserved subdomains that should redirect to hub or return 404
  * These are NOT tenant slugs
  */
@@ -46,7 +54,12 @@ export function normalizeHostname(hostname: string): string {
  * Check if hostname is the hub domain
  */
 function isHubDomain(hostname: string): boolean {
-  return hostname === HUB_DOMAIN || hostname === `www.${HUB_DOMAIN}`
+  return (
+    hostname === HUB_DOMAIN ||
+    hostname === `www.${HUB_DOMAIN}` ||
+    VERCEL_DOMAINS.includes(hostname) ||
+    hostname.endsWith('.vercel.app') // Allow all Vercel preview deployments
+  )
 }
 
 /**
