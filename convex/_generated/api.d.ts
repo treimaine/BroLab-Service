@@ -11,6 +11,7 @@
 import type * as http from "../http.js";
 import type * as modules_artist from "../modules/artist.js";
 import type * as modules_beats from "../modules/beats.js";
+import type * as modules_licenses from "../modules/licenses.js";
 import type * as modules_orders from "../modules/orders.js";
 import type * as modules_services from "../modules/services.js";
 import type * as platform_auditLogs from "../platform/auditLogs.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "modules/artist": typeof modules_artist;
   "modules/beats": typeof modules_beats;
+  "modules/licenses": typeof modules_licenses;
   "modules/orders": typeof modules_orders;
   "modules/services": typeof modules_services;
   "platform/auditLogs": typeof platform_auditLogs;

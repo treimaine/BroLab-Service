@@ -163,9 +163,12 @@ function ArtistDashboardContent() {
               <DribbbleCard key={track.entitlementId} padding="md" glow>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-1">{track.title}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold">{track.title}</h3>
+                      <LicenseTierBadge tier={track.licenseTier} />
+                    </div>
                     <p className="text-sm text-muted mb-2">
-                      by {track.providerName} • {track.licenseTier.toUpperCase()} License
+                      by {track.providerName}
                     </p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted">
                       {track.bpm && <span>BPM: {track.bpm}</span>}
@@ -181,7 +184,17 @@ function ArtistDashboardContent() {
                         className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full hover:opacity-90 transition-opacity"
                       >
                         <Download className="w-4 h-4" />
-                        Download Track
+                        Download Audio
+                      </a>
+                    )}
+                    {track.licensePdfUrl && (
+                      <a
+                        href={track.licensePdfUrl}
+                        download
+                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgba(var(--accent),0.1)] transition-colors"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Download License PDF
                       </a>
                     )}
                     {track.stemsUrl && (
@@ -192,16 +205,6 @@ function ArtistDashboardContent() {
                       >
                         <Download className="w-4 h-4" />
                         Download Stems
-                      </a>
-                    )}
-                    {track.licensePdfUrl && (
-                      <a
-                        href={track.licensePdfUrl}
-                        download
-                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgba(var(--accent),0.1)] transition-colors"
-                      >
-                        <FileText className="w-4 h-4" />
-                        License PDF
                       </a>
                     )}
                   </div>
@@ -347,6 +350,31 @@ function StatusBadge({ status }: Readonly<{ status: string }>) {
     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${config.className}`}>
       <Icon className="w-3 h-3" />
       {config.label}
+    </span>
+  )
+}
+
+function LicenseTierBadge({ tier }: Readonly<{ tier: string }>) {
+  const tierConfig = {
+    basic: {
+      label: 'BASIC',
+      className: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+    },
+    premium: {
+      label: 'PREMIUM',
+      className: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+    },
+    unlimited: {
+      label: 'UNLIMITED',
+      className: 'bg-accent/10 text-accent border-accent/20',
+    },
+  }
+
+  const config = tierConfig[tier as keyof typeof tierConfig] || tierConfig.basic
+
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${config.className}`}>
+      {config.label} LICENSE
     </span>
   )
 }

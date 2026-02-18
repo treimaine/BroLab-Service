@@ -83,7 +83,8 @@ export const getDomainsByWorkspace = query({
   handler: async (ctx, args) => {
     const domains = await ctx.db
       .query("domains")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", args.workspaceId))
       .collect();
 
     return domains;
@@ -99,10 +100,12 @@ export const getVerifiedDomainsByWorkspace = query({
   handler: async (ctx, args) => {
     const domains = await ctx.db
       .query("domains")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", args.workspaceId))
       .collect();
 
-    return domains.filter((d) => d.status === "verified");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return domains.filter((d: any) => d.status === "verified");
   },
 });
 
@@ -276,11 +279,11 @@ export async function countVerifiedDomains(
 ): Promise<number> {
   const domains = await ctx.db
     .query("domains")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .collect();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return domains.filter((d: any) => d.status === "verified").length;
 }
 
@@ -292,8 +295,7 @@ export async function getDomainByHostnameHelper(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ctx: any,
   hostname: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any | null> {
+) {
   const normalized = normalizeHostname(hostname);
 
   const domain = await ctx.db

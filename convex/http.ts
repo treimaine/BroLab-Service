@@ -4,7 +4,26 @@
 import type { GenericActionCtx } from "convex/server";
 import { httpRouter } from "convex/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
+
+// Stripe event types
+interface StripeCheckoutSession {
+  id: string;
+  amount_total?: number;
+  currency?: string;
+  customer_email?: string;
+  metadata?: Record<string, string>;
+}
+
+interface StripeEvent {
+  id: string;
+  type: string;
+  data: {
+    object: StripeCheckoutSession;
+  };
+  account?: string;
+}
 
 const http = httpRouter();
 
@@ -196,12 +215,14 @@ http.route({
       
       // Requirement 15.2: Generate time-limited download URL (signed or equivalent)
       // Convex storage URLs are automatically time-limited and signed
-      const fullAudioUrl = await ctx.storage.getUrl(track.fullStorageId);
+      const fullAudioUrl = track.fullStorageId 
+        ? await ctx.storage.getUrl(track.fullStorageId as Id<"_storage">)
+        : null;
       
       // Get stems URL if entitled
       let stemsUrl = null;
       if (includesStems && track.stemsStorageId) {
-        stemsUrl = await ctx.storage.getUrl(track.stemsStorageId);
+        stemsUrl = await ctx.storage.getUrl(track.stemsStorageId as Id<"_storage">);
       }
 
       return new Response(
@@ -248,14 +269,18 @@ const clerkWebhookHandler = httpAction(async (ctx, request) => {
     const rawBody = await request.text();
     console.log("Clerk webhook received - raw body:", rawBody);
 
-    const body = await parseWebhookBody(rawBody);
+    const body = parseWebhookBody(rawBody);
     if (!body) {
       return jsonResponse({ error: "Invalid JSON payload" }, 400);
     }
 
     console.log("Clerk webhook parsed body:", JSON.stringify(body, null, 2));
 
-    const { type, data, object: eventObject } = body;
+    const { type, data, object: eventObject } = body as {
+      type?: string;
+      data?: Record<string, unknown>;
+      object?: string;
+    };
 
     if (!type || !data) {
       console.error("Missing required fields in webhook payload");
@@ -309,9 +334,9 @@ function jsonResponse(data: unknown, status: number): Response {
 }
 
 // Parse webhook body
-async function parseWebhookBody(rawBody: string): Promise<any | null> {
+function parseWebhookBody(rawBody: string): Record<string, unknown> | null {
   try {
-    return JSON.parse(rawBody);
+    return JSON.parse(rawBody) as Record<string, unknown>;
   } catch (parseError) {
     console.error("Failed to parse webhook body:", parseError);
     return null;
@@ -319,7 +344,7 @@ async function parseWebhookBody(rawBody: string): Promise<any | null> {
 }
 
 // Verify Stripe webhook signature
-async function verifyStripeWebhook(body: string, signature: string) {
+async function verifyStripeWebhook(body: string, signature: string): Promise<StripeEvent | null> {
   const stripe = new (await import("stripe")).default(
     process.env.STRIPE_SECRET_KEY!,
     { apiVersion: "2024-12-18.acacia" }
@@ -330,7 +355,7 @@ async function verifyStripeWebhook(body: string, signature: string) {
       body,
       signature,
       process.env.STRIPE_CONNECT_WEBHOOK_SECRET!
-    );
+    ) as StripeEvent;
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
     return null;
@@ -338,7 +363,7 @@ async function verifyStripeWebhook(body: string, signature: string) {
 }
 
 // Check if event already processed
-async function checkEventProcessed(ctx: GenericActionCtx<any>, eventId: string): Promise<boolean> {
+async function checkEventProcessed(ctx: GenericActionCtx<Record<string, never>>, eventId: string): Promise<boolean> {
   return await ctx.runMutation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (internal as any).modules.orders.isEventProcessed,
@@ -347,7 +372,7 @@ async function checkEventProcessed(ctx: GenericActionCtx<any>, eventId: string):
 }
 
 // Mark event as processed
-async function markEventProcessed(ctx: GenericActionCtx<any>, eventId: string): Promise<void> {
+async function markEventProcessed(ctx: GenericActionCtx<Record<string, never>>, eventId: string): Promise<void> {
   await ctx.runMutation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (internal as any).modules.orders.markEventProcessed,
@@ -356,7 +381,7 @@ async function markEventProcessed(ctx: GenericActionCtx<any>, eventId: string): 
 }
 
 // Handle checkout.session.completed event
-async function handleCheckoutCompleted(ctx: GenericActionCtx<any>, event: any): Promise<Response> {
+async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, never>>, event: StripeEvent): Promise<Response> {
   const session = event.data.object;
   console.log("Processing checkout.session.completed:", session.id);
 
@@ -366,7 +391,8 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<any>, event: any): 
     return validationError;
   }
 
-  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = session.metadata;
+  const metadata = session.metadata!;
+  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = metadata;
   const amountTotal = session.amount_total || 0;
   const currency = session.currency || "usd";
   const buyerEmail = session.customer_email || undefined;
@@ -389,7 +415,7 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<any>, event: any): 
 
   // Create entitlement or booking
   if (itemType === "track") {
-    await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier);
+    await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
   } else {
     await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
   }
@@ -415,11 +441,12 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<any>, event: any): 
 }
 
 // Validate session metadata
-function validateSessionMetadata(session: any): Response | null {
-  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = session.metadata || {};
+function validateSessionMetadata(session: StripeCheckoutSession): Response | null {
+  const metadata = session.metadata;
+  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = metadata || {};
 
   if (!workspaceId || !itemType || !itemId || !buyerClerkUserId) {
-    console.error("Missing required metadata in checkout session:", session.metadata);
+    console.error("Missing required metadata in checkout session:", metadata);
     return jsonResponse({ error: "Missing required metadata" }, 400);
   }
 
@@ -442,7 +469,7 @@ function validateSessionMetadata(session: any): Response | null {
 }
 
 // Create order
-async function createOrder(ctx: GenericActionCtx<any>, params: {
+async function createOrder(ctx: GenericActionCtx<Record<string, never>>, params: {
   workspaceId: string;
   buyerClerkUserId: string;
   buyerEmail?: string;
@@ -462,11 +489,13 @@ async function createOrder(ctx: GenericActionCtx<any>, params: {
 
 // Create track entitlement
 async function createTrackEntitlement(
-  ctx: GenericActionCtx<any>,
+  ctx: GenericActionCtx<Record<string, never>>,
   workspaceId: string,
   buyerClerkUserId: string,
   trackId: string,
-  licenseTier: string
+  licenseTier: string,
+  buyerEmail: string | undefined,
+  orderId: string
 ): Promise<void> {
   console.log("Creating purchase entitlement...");
   
@@ -479,7 +508,9 @@ async function createTrackEntitlement(
     {
       workspaceId,
       buyerClerkUserId,
+      buyerEmail,
       trackId,
+      orderId,
       licenseTier,
       licenseTermsVersion: LICENSE_TERMS_VERSION,
       licenseTermsSnapshot,
@@ -491,7 +522,7 @@ async function createTrackEntitlement(
 
 // Create service booking
 async function createServiceBooking(
-  ctx: GenericActionCtx<any>,
+  ctx: GenericActionCtx<Record<string, never>>,
   workspaceId: string,
   buyerClerkUserId: string,
   serviceId: string
@@ -508,7 +539,7 @@ async function createServiceBooking(
 }
 
 // Record checkout success event
-async function recordCheckoutSuccessEvent(ctx: GenericActionCtx<any>, params: {
+async function recordCheckoutSuccessEvent(ctx: GenericActionCtx<Record<string, never>>, params: {
   workspaceId: string;
   orderId: string;
   itemType: string;
@@ -606,12 +637,12 @@ function getLicenseTerms(licenseTier: string) {
 }
 
 // Handle Clerk Billing events (subscription.*)
-async function handleBillingEvent(ctx: GenericActionCtx<any>, type: string, data: any): Promise<Response> {
+async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, type: string, data: Record<string, unknown>): Promise<Response> {
   console.log("Handling Billing event:", type);
 
-  const clerkUserId = data.user_id || data.userId;
-  const plan = data.plan;
-  const status = data.status;
+  const clerkUserId = (data.user_id || data.userId) as string | undefined;
+  const plan = data.plan as string | undefined;
+  const status = data.status as string | undefined;
 
   console.log("Extracted billing data:", { clerkUserId, plan, status });
 
@@ -660,9 +691,9 @@ async function handleBillingEvent(ctx: GenericActionCtx<any>, type: string, data
 
 // Handle standard Clerk events (user.*, session.*, organization.*)
 async function handleStandardEvent(
-  ctx: GenericActionCtx<any>,
+  ctx: GenericActionCtx<Record<string, never>>,
   type: string,
-  data: any,
+  data: Record<string, unknown>,
   eventObject: string | undefined
 ): Promise<Response> {
   console.log("Handling standard Clerk event:", type);
@@ -670,39 +701,41 @@ async function handleStandardEvent(
   console.log("Event data:", JSON.stringify(data, null, 2));
 
   // Log the event for audit purposes
+  const dataId = data.id as string | undefined;
+  
   switch (type) {
     case "user.created":
-      console.log("User created:", data.id);
+      console.log("User created:", dataId);
       // TODO: Add user creation logic if needed
       break;
 
     case "user.updated":
-      console.log("User updated:", data.id);
+      console.log("User updated:", dataId);
       // TODO: Add user update logic if needed
       break;
 
     case "user.deleted":
-      console.log("User deleted:", data.id);
+      console.log("User deleted:", dataId);
       // TODO: Add user deletion logic if needed
       break;
 
     case "session.created":
-      console.log("Session created:", data.id);
+      console.log("Session created:", dataId);
       // TODO: Add session tracking logic if needed
       break;
 
     case "organization.created":
-      console.log("Organization created:", data.id);
+      console.log("Organization created:", dataId);
       // TODO: Add organization creation logic if needed
       break;
 
     case "organization.updated":
-      console.log("Organization updated:", data.id);
+      console.log("Organization updated:", dataId);
       // TODO: Add organization update logic if needed
       break;
 
     case "organization.deleted":
-      console.log("Organization deleted:", data.id);
+      console.log("Organization deleted:", dataId);
       // TODO: Add organization deletion logic if needed
       break;
 

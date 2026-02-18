@@ -54,13 +54,15 @@ export const createOrder = internalMutation({
 /**
  * Create a purchase entitlement for a track
  * Called after order creation for track purchases
- * Requirements: 13.5, 14.5
+ * Requirements: 13.5, 14.5, 29.3, 29.4, 29.5
  */
 export const createPurchaseEntitlement = internalMutation({
   args: {
     workspaceId: v.id("workspaces"),
     buyerClerkUserId: v.string(),
+    buyerEmail: v.optional(v.string()),
     trackId: v.id("tracks"),
+    orderId: v.id("orders"),
     licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
     licenseTermsVersion: v.string(),
     licenseTermsSnapshot: v.any(),
@@ -87,6 +89,77 @@ export const createPurchaseEntitlement = internalMutation({
       licenseTermsVersion: args.licenseTermsVersion,
       licenseTermsSnapshot: args.licenseTermsSnapshot,
       createdAt: Date.now(),
+    });
+
+    // Requirement 29.4: Create licenses table record with full snapshot
+    const licenseTerms = args.licenseTermsSnapshot as {
+      title: string;
+      includesStems: boolean;
+      rights: {
+        commercialUse: boolean;
+        audioStreamingCap: number;
+        musicVideosCap: number;
+        livePerformanceCap: number;
+        radioBroadcastCap: number;
+        syncAllowed: boolean;
+      };
+      publishingSplit: {
+        licensorWriterSharePercent: number;
+        licenseeWriterSharePercent: number;
+        licensorPublisherSharePercent: number;
+        licenseePublisherSharePercent: number;
+      };
+    };
+
+    const licenseId = await ctx.db.insert("licenses", {
+      workspaceId: args.workspaceId,
+      orderId: args.orderId,
+      buyerClerkUserId: args.buyerClerkUserId,
+      buyerEmail: args.buyerEmail,
+      trackId: args.trackId,
+      entitlementId,
+      termsVersion: args.licenseTermsVersion,
+      tierKey: args.licenseTier,
+      includesStems: licenseTerms.includesStems,
+      rightsSnapshot: licenseTerms.rights,
+      prohibitedUsesSnapshot: [
+        "No resale or redistribution of the beat",
+        "No use in AI training datasets",
+        "No sublicensing to third parties",
+      ],
+      creditLineSnapshot: "Produced by [Producer Name]",
+      publishingEnabled: true,
+      licensorWriterSharePercent: licenseTerms.publishingSplit.licensorWriterSharePercent,
+      licenseeWriterSharePercent: licenseTerms.publishingSplit.licenseeWriterSharePercent,
+      licensorPublisherSharePercent: licenseTerms.publishingSplit.licensorPublisherSharePercent,
+      licenseePublisherSharePercent: licenseTerms.publishingSplit.licenseePublisherSharePercent,
+      status: "pending",
+      createdAt: Date.now(),
+    });
+
+    // Requirement 29.4: Create licenseDocuments record (status: pending)
+    const documentId = await ctx.db.insert("licenseDocuments", {
+      workspaceId: args.workspaceId,
+      licenseId,
+      kind: "license_pdf",
+      status: "pending",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    // Requirement 29.5: Enqueue license_pdf_generation job
+    await ctx.db.insert("jobs", {
+      workspaceId: args.workspaceId,
+      type: "license_pdf_generation",
+      status: "pending",
+      payload: {
+        licenseId,
+        documentId,
+        workspaceId: args.workspaceId,
+      },
+      attempts: 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
 
     return entitlementId;

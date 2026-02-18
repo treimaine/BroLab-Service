@@ -307,8 +307,7 @@ export async function getWorkspaceBySlugHelper(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ctx: any,
   slug: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any | null> {
+) {
   const workspace = await ctx.db
     .query("workspaces")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -610,15 +610,15 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 - [x] Task 9.9: Update tracks pricing model to license tiers (Basic/Premium/Unlimited): Update Convex schema tracks table with priceUsdByTier + optional priceEurByTier. Update studio track form UI to edit prices per tier. Add stemsStorageId field for Unlimited tier. _Requirements: 29.1, 29.9, 29.10_
 
-- [-] Task 9.10: Checkout: include licenseTier in metadata + UI selector on beat detail: Add license tier selector on beat detail page (Basic/Premium/Unlimited with prices). Include licenseTier in Stripe checkout metadata. Display tier features/caps comparison. _Requirements: 29.2_
+- [x] Task 9.10: Checkout: include licenseTier in metadata + UI selector on beat detail: Add license tier selector on beat detail page (Basic/Premium/Unlimited with prices). Include licenseTier in Stripe checkout metadata. Display tier features/caps comparison. _Requirements: 29.2_
 
-- [~] Task 9.11: Webhook: persist licenseTier in orders + create license records: Save licenseTier in orders table. Create purchaseEntitlements with licenseTier, licenseTermsVersion, licenseTermsSnapshot. Create licenses table record with full snapshot. Create licenseDocuments record (status: pending). _Requirements: 29.3, 29.4_
+- [x] Task 9.11: Webhook: persist licenseTier in orders + create license records: Save licenseTier in orders table. Create purchaseEntitlements with licenseTier, licenseTermsVersion, licenseTermsSnapshot. Create licenses table record with full snapshot. Create licenseDocuments record (status: pending). _Requirements: 29.3, 29.4_
 
-- [ ] Task 9.12: Enqueue job license_pdf_generation after entitlement creation: Add job type "license_pdf_generation" to job queue. Enqueue job with payload: licenseId, documentId, workspaceId. _Requirements: 29.5_
+- [x] Task 9.12: Enqueue job license_pdf_generation after entitlement creation: Add job type "license_pdf_generation" to job queue. Enqueue job with payload: licenseId, documentId, workspaceId. _Requirements: 29.5_
 
-- [ ] Task 9.13: Worker: implement license_pdf_generation handler (pdf-lib): Fetch license + track + workspace data via Convex. Generate PDF using pdf-lib (A4 format). Include sections: Title, Parties, Track Info, License Tier, Rights & Caps, Stems, Publishing, Credit, Prohibited Uses. Upload PDF via Convex upload URL pattern. Update licenseDocuments with storageId + status "generated". Update purchaseEntitlements.licensePdfStorageId. _Requirements: 29.6_
+- [x] Task 9.13: Worker: implement license_pdf_generation handler (pdf-lib): Fetch license + track + workspace data via Convex. Generate PDF using pdf-lib (A4 format). Include sections: Title, Parties, Track Info, License Tier, Rights & Caps, Stems, Publishing, Credit, Prohibited Uses. Upload PDF via Convex upload URL pattern. Update licenseDocuments with storageId + status "generated". Update purchaseEntitlements.licensePdfStorageId. _Requirements: 29.6_
 
-- [ ] Task 9.14: Artist dashboard: show "Download license PDF" if available: Display license tier badge on purchased tracks. Add "Download License PDF" button (if licensePdfStorageId exists). Add "Download Audio" button (time-limited URL). For Unlimited tier: add "Download Stems" button. _Requirements: 29.7, 29.8_
+- [x] Task 9.14: Artist dashboard: show "Download license PDF" if available: Display license tier badge on purchased tracks. Add "Download License PDF" button (if licensePdfStorageId exists). Add "Download Audio" button (time-limited URL). For Unlimited tier: add "Download Stems" button. _Requirements: 29.7, 29.8_
 
 ### Phase 9.Y: Resend Transactional Emails (Idempotent)
 

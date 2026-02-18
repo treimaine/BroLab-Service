@@ -69,11 +69,12 @@ export async function getWorkspacePlan(
   // Query subscription for this workspace
   const subscription = await ctx.db
     .query("providerSubscriptions")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
   // No subscription or inactive subscription
-  if (!subscription || subscription.status !== "active") {
+  if (!subscription?.status || subscription.status !== "active") {
     return {
       planKey: null,
       status: subscription?.status ?? "inactive",
@@ -165,6 +166,7 @@ export async function assertQuota(
   // Get current usage
   const usage = await ctx.db
     .query("usage")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
@@ -211,7 +213,8 @@ export async function assertQuota(
       // Count current domains
       const domains = await ctx.db
         .query("domains")
-        .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
         .collect();
 
       const current = domains.length;
@@ -324,6 +327,7 @@ export async function getRemainingQuota(
   // Get current usage
   const usage = await ctx.db
     .query("usage")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
     .first();
 
@@ -347,7 +351,8 @@ export async function getRemainingQuota(
       const limit = plan.features.maxCustomDomains;
       const domains = await ctx.db
         .query("domains")
-        .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
         .collect();
       return Math.max(0, limit - domains.length);
     }

@@ -4,8 +4,14 @@ import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudi
 import { PlayerBar } from "@/components/audio/PlayerBar";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Press_Start_2P } from "next/font/google";
+import { Inter, Press_Start_2P } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -52,7 +58,7 @@ export default function RootLayout({
           spacingUnit: "0.5rem",
           
           // Typography
-          fontFamily: `Inter, ${pressStart2P.style.fontFamily}, system-ui, -apple-system, sans-serif`,
+          fontFamily: `${inter.style.fontFamily}, system-ui, -apple-system, sans-serif`,
           fontSize: "1rem",
           fontWeight: {
             normal: 400,
@@ -64,8 +70,8 @@ export default function RootLayout({
           // Card/Modal styling - enhanced glass morphism matching app standard
           card: "glass glow border-[rgba(255,255,255,0.1)]",
           
-          // Root box - ensure proper background
-          rootBox: "bg-transparent",
+          // Root box - ensure proper background with font smoothing
+          rootBox: "bg-transparent antialiased",
           
           // Form elements - Primary button matching app cyan accent
           formButtonPrimary: 
@@ -139,7 +145,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" suppressHydrationWarning className={pressStart2P.variable}>
+      <html lang="en" suppressHydrationWarning className={`${inter.variable} ${pressStart2P.variable}`}>
         <body className="font-sans antialiased" suppressHydrationWarning>
           <ConvexClientProvider>
             <ThemeProvider
