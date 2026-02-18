@@ -59,3 +59,6 @@ convex/**/*.d.ts.map
 .agent/
 # Worker build output
 worker/dist/
+
+# Design reference files
+*.mov
