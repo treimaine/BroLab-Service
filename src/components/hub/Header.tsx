@@ -1,6 +1,7 @@
 'use client'
 
 import { GlassHeader, ThemeToggle, TopMinimalBar } from '@/platform/ui'
+import { useEffect, useState } from 'react'
 
 /**
  * Hub Header Component (ELECTRI-X Style)

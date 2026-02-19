@@ -12,7 +12,7 @@ interface AuthNavProps {
    * Label for the primary CTA button when unauthenticated
    * @default "Explore"
    */
-  ctaLabel?: string
+  readonly ctaLabel?: string
 }
 
 /**
@@ -57,7 +57,6 @@ export function AuthNav({ ctaLabel = 'Explore' }: AuthNavProps) {
           Dashboard
         </Link>
         <UserButton 
-          afterSignOutUrl="/"
           appearance={{
             baseTheme: resolvedTheme === 'dark' ? dark : undefined,
             elements: {
