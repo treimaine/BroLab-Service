@@ -63,11 +63,11 @@ export default tseslint.config(
           message: "Direct 'backdrop-blur' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
         },
         {
-          selector: "JSXAttribute[name.name='className'] Literal[value=/border-\\[rgba\\(var\\(--border\\)/]",
+          selector: String.raw`JSXAttribute[name.name='className'] Literal[value=/border-\[rgba\(var\(--border\)/]`,
           message: "Direct 'border-[rgba(var(--border)' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
         },
         {
-          selector: "JSXAttribute[name.name='className'] TemplateLiteral[quasis=/border-\\[rgba\\(var\\(--border\\)/]",
+          selector: String.raw`JSXAttribute[name.name='className'] TemplateLiteral[quasis=/border-\[rgba\(var\(--border\)/]`,
           message: "Direct 'border-[rgba(var(--border)' is forbidden outside src/platform/ui/. Use GlassSurface or DribbbleCard components instead.",
         },
       ],
@@ -103,6 +103,7 @@ export default tseslint.config(
       "convex/_generated/**",
       ".brv/**",
       ".agent/**",
+      "next-env.d.ts",
     ],
   }
 );

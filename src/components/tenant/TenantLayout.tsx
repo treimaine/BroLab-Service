@@ -122,9 +122,14 @@ export function TenantLayout({
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }, [theme, setTheme])
 
-  // Helper to check if icon is a LucideIcon component
+  // Helper to check if icon is a raw LucideIcon component (not yet rendered as JSX)
+  // Rendered React elements have $$typeof but NO render property — exclude them
+  // Raw Lucide forwardRef components have $$typeof AND a render function
   const isLucideIcon = (icon: ReactNode | LucideIcon): icon is LucideIcon => {
-    return typeof icon === 'function'
+    if (icon === null || icon === undefined) return false
+    if (typeof icon === 'function') return true
+    if (typeof icon === 'object' && '$$typeof' in (icon as object) && 'render' in (icon as object)) return true
+    return false
   }
 
   // Convert nav items to IconRail format (requires LucideIcon)
@@ -137,15 +142,16 @@ export function TenantLayout({
       exact: item.exact,
     }))
 
-  // Convert nav items to MobileNav format (supports ReactNode)
-  const mobileNavItems: MobileNavItem[] = navItems.map((item) => ({
-    id: item.id,
-    icon: isLucideIcon(item.icon) 
-      ? <item.icon className="w-6 h-6" /> 
-      : item.icon,
-    label: item.label,
-    href: item.href,
-  }))
+  // Convert nav items to MobileNav format - always pre-render icon as ReactNode
+  const mobileNavItems: MobileNavItem[] = navItems.map((item) => {
+    const IconComp = isLucideIcon(item.icon) ? (item.icon as LucideIcon) : null
+    return {
+      id: item.id,
+      icon: IconComp ? <IconComp className="w-5 h-5" /> : (item.icon as ReactNode),
+      label: item.label,
+      href: item.href,
+    }
+  })
 
   // Brand element for IconRail and TopMinimalBar
   const brandElement = workspaceLogo ? (

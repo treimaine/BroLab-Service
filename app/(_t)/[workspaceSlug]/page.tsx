@@ -8,15 +8,16 @@ import {
   DribbbleSectionEnter,
   DribbbleStaggerItem,
   EditionBadge,
+  GlassFooter,
   MicroInfoModule,
   OrganicBlob,
   OutlineStackTitle,
   PillCTA,
-  WavyLines,
+  WavyLines
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { useQuery } from 'convex/react'
-import { Headphones, Music, Play } from 'lucide-react'
+import { Headphones, Music, Play, Users } from 'lucide-react'
 import Link from 'next/link'
 import { api } from '../../../convex/_generated/api'
 import { Id } from '../../../convex/_generated/dataModel'
@@ -107,11 +108,11 @@ export default function TenantHomePage() {
       <section className="relative min-h-[80vh] overflow-hidden bg-[rgb(var(--bg))]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute inset-0 flex flex-col justify-center">
-            {Array.from({ length: 3 }, (_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <div
                 key={`bg-row-${i}`}
-                className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]"
-                style={i === 1 ? { transform: 'translateX(-100px)' } : undefined}
+                className="whitespace-nowrap text-[clamp(80px,15vw,180px)] font-black tracking-[0.15em] opacity-[0.06] text-white leading-[0.85]"
+                style={i % 2 === 1 ? { transform: 'translateX(-100px)' } : undefined}
               >
                 BEATS BEATS BEATS BEATS
               </div>
@@ -138,13 +139,14 @@ export default function TenantHomePage() {
         <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-[80vh] flex items-center">
           <div className="w-full">
             <div className="relative min-h-[60vh] flex flex-col justify-center">
+              {/* Content */}
               <div className="relative z-20 mb-6">
                 <span className="text-xs font-bold text-accent uppercase tracking-widest mb-4 block">{workspaceType}</span>
                 <OutlineStackTitle
                   size="hero"
                   layers={3}
                   offset={2}
-                  className="text-[clamp(36px,10vw,120px)] font-black tracking-[0.05em]"
+                  className="text-[clamp(36px,10vw,120px)] font-black tracking-[0.05em] drop-shadow-[0_0_30px_rgba(0,255,255,0.4)]"
                   style={{
                     fontFamily: '"Press Start 2P", monospace',
                     textShadow: '0 0 60px rgba(0,255,255,0.3), 0 0 120px rgba(0,255,255,0.15)',
@@ -158,7 +160,7 @@ export default function TenantHomePage() {
                 Premium beats and professional services. Crafting sounds that define the future of music.
               </p>
 
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+              <div className="flex flex-wrap gap-4 justify-center mb-20">
                 <Link href={`/${workspace.slug}/beats`}>
                   <PillCTA variant="primary" size="lg" icon={Music}>Browse Beats</PillCTA>
                 </Link>
@@ -167,11 +169,13 @@ export default function TenantHomePage() {
                 </Link>
               </div>
 
+              {/* Edition Badge + Orb — absolute like tenant-demo */}
               <div className="absolute bottom-8 left-0 z-30 flex items-end gap-4">
                 <EditionBadge title={workspaceName} subtitle="Studio" />
                 <CyanOrb size={60} className="hidden sm:block" />
               </div>
 
+              {/* Decorative absolute elements — outside constrained width */}
               <div className="absolute top-1/2 -translate-y-1/2 right-0 lg:right-[5%] hidden lg:block z-30">
                 <MicroInfoModule items={stats} />
               </div>
@@ -320,6 +324,62 @@ export default function TenantHomePage() {
           )}
         </div>
       </section>
+
+      {/* GET STARTED CTA */}
+      <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
+        <div className="container mx-auto max-w-4xl">
+          <DribbbleSectionEnter>
+            <DribbbleCard glow padding="lg" className="text-center relative overflow-hidden">
+              <div
+                className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+                aria-hidden="true"
+              />
+              <div
+                className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+                aria-hidden="true"
+              />
+              <div className="relative z-10">
+                <span className="text-xs font-bold text-accent uppercase tracking-widest mb-4 block">GET STARTED</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">READY TO CREATE?</h2>
+                <p className="text-muted text-sm mb-8 max-w-md mx-auto">
+                  Browse beats, book services, and bring your vision to life with {workspaceName}.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <Link href={`/${workspace.slug}/beats`}>
+                    <PillCTA variant="primary" size="lg" icon={Music}>Browse All Beats</PillCTA>
+                  </Link>
+                  <Link href={`/${workspace.slug}/contact`}>
+                    <PillCTA variant="secondary" size="lg" icon={Users}>Contact Producer</PillCTA>
+                  </Link>
+                </div>
+              </div>
+            </DribbbleCard>
+          </DribbbleSectionEnter>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <GlassFooter className="py-12 px-4 lg:px-8">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+              {workspaceName.charAt(0)}
+            </div>
+            <div>
+              <p className="font-bold text-text">{workspaceName}</p>
+              <p className="text-xs text-muted">Powered by BroLab Entertainment</p>
+            </div>
+          </div>
+          <nav className="flex gap-8 text-sm text-muted" aria-label="Footer navigation">
+            <Link href={`/${workspace.slug}`} className="hover:text-text transition-colors cursor-pointer">Beats</Link>
+            <Link href={`/${workspace.slug}/services`} className="hover:text-text transition-colors cursor-pointer">Services</Link>
+            <Link href={`/${workspace.slug}/contact`} className="hover:text-text transition-colors cursor-pointer">Contact</Link>
+          </nav>
+          <p className="text-xs text-muted">© {new Date().getFullYear()} {workspaceName}. All rights reserved.</p>
+        </div>
+      </GlassFooter>
     </>
   )
 }

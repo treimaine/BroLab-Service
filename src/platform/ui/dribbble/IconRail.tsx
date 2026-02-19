@@ -56,8 +56,8 @@ export function IconRail({ items, brand, className = '' }: Readonly<IconRailProp
         </div>
       )}
 
-      {/* Navigation items */}
-      <div className="flex-1 flex flex-col items-center gap-2">
+      {/* Navigation items — pt-16 to clear the fixed TopMinimalBar (z-50, h-16) */}
+      <div className="flex-1 flex flex-col items-center gap-2 pt-16">
         {items.map((item, index) => {
           const active = isActive(item)
           const Icon = item.icon
