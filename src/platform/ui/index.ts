@@ -27,6 +27,7 @@ export { TopMinimalBar } from './dribbble/TopMinimalBar'
 
 // Buttons
 export { PillCTA } from './dribbble/PillCTA'
+export { ThemeToggle } from './dribbble/ThemeToggle'
 
 // Cards & Modules
 export { DribbbleCard } from './dribbble/DribbbleCard'

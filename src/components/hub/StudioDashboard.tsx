@@ -19,9 +19,9 @@ import { useUser } from '@clerk/nextjs'
 import { AuthLoading, Authenticated, Unauthenticated } from 'convex/react'
 import { motion } from 'framer-motion'
 import { CreditCard, Globe, Loader2, Music, Wrench } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { StudioHeader } from './StudioHeader'
 
 const NAV_ITEMS = [
   {
@@ -29,28 +29,24 @@ const NAV_ITEMS = [
     icon: Music,
     label: 'Tracks',
     description: 'Upload and manage your beats',
-    accent: 'text-[rgb(var(--accent))]',
   },
   {
     href: '/studio/services',
     icon: Wrench,
     label: 'Services',
     description: 'Manage mixing, mastering & more',
-    accent: 'text-emerald-400',
   },
   {
     href: '/studio/billing',
     icon: CreditCard,
     label: 'Billing',
     description: 'Subscription & plan details',
-    accent: 'text-violet-400',
   },
   {
     href: '/studio/domains',
     icon: Globe,
     label: 'Domains',
     description: 'Connect a custom domain (PRO)',
-    accent: 'text-sky-400',
   },
 ]
 
@@ -80,30 +76,23 @@ export function StudioDashboard() {
       </Unauthenticated>
 
       <Authenticated>
+        <StudioHeader />
         <motion.div
-          className="min-h-screen bg-[rgb(var(--bg))] p-6"
+          className="min-h-screen bg-[rgb(var(--bg))] pt-24 p-6"
           variants={dribbblePageEnter}
           initial="initial"
           animate="animate"
           exit="exit"
         >
           <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
-                  {role ?? 'Studio'}
-                </p>
-                <h1 className="text-4xl font-bold uppercase tracking-wide">
-                  Dashboard
-                </h1>
-              </div>
-              <Link
-                href="/"
-                className="text-sm font-semibold uppercase tracking-wide text-muted hover:text-[rgb(var(--accent))] transition-colors"
-              >
-                ← Back to Hub
-              </Link>
+            {/* Page title */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
+                {role ?? 'Studio'}
+              </p>
+              <h1 className="text-4xl font-bold uppercase tracking-wide">
+                Dashboard
+              </h1>
             </div>
 
             {/* Welcome */}
@@ -121,26 +110,26 @@ export function StudioDashboard() {
 
             {/* Nav Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {NAV_ITEMS.map(({ href, icon: Icon, label, description, accent }) => (
-                <Link key={href} href={href} className="group cursor-pointer">
+              {NAV_ITEMS.map(({ href, icon: Icon, label, description }) => (
+                <a key={href} href={href} className="group cursor-pointer">
                   <DribbbleCard
                     padding="lg"
                     className="h-full transition-all duration-200 group-hover:border-[rgb(var(--accent))]/50 group-hover:shadow-lg group-hover:shadow-[rgb(var(--accent))]/10"
                   >
                     <div className="space-y-3">
-                      <div className={`w-10 h-10 rounded-xl bg-card flex items-center justify-center ${accent}`}>
+                      <div className="w-10 h-10 rounded-xl bg-[rgb(var(--card))] flex items-center justify-center text-[rgb(var(--accent))]">
                         <Icon className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="font-bold uppercase tracking-wide text-sm">{label}</p>
                         <p className="text-xs text-muted mt-0.5">{description}</p>
                       </div>
-                      <p className={`text-xs font-semibold uppercase tracking-wide ${accent} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--accent))] opacity-0 group-hover:opacity-100 transition-opacity">
                         Open →
                       </p>
                     </div>
                   </DribbbleCard>
-                </Link>
+                </a>
               ))}
             </div>
           </div>

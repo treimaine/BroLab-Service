@@ -30,6 +30,7 @@ export { TopMinimalBar } from './TopMinimalBar'
 
 // Buttons
 export { PillCTA } from './PillCTA'
+export { ThemeToggle } from './ThemeToggle'
 
 // Cards & Modules
 export { ChromeSurface, type ChromeSurfaceProps } from './ChromeSurface'

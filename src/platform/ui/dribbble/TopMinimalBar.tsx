@@ -32,6 +32,8 @@ interface TopMinimalBarProps {
     label: string
     href: string
   }>
+  /** Custom left slot (overrides navItems on desktop) */
+  left?: ReactNode
   /** Primary CTA */
   cta?: {
     label: string
@@ -54,6 +56,7 @@ export function TopMinimalBar({
   brand,
   brandHref = '/',
   navItems = [],
+  left,
   cta,
   secondaryAction,
   right,
@@ -65,8 +68,9 @@ export function TopMinimalBar({
   return (
     <ChromeSurface
       as="header"
-      mode={isScrolled ? 'elevated' : 'transparent'}
-      blur={isScrolled ? 'sm' : 'none'}
+      mode={isScrolled ? 'base' : 'transparent'}
+      opacity={isScrolled ? 75 : 95}
+      blur={isScrolled ? 'md' : 'none'}
       className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,backdrop-filter] duration-300 ${className}`}
     >
       <div className="container mx-auto px-4">
@@ -82,18 +86,22 @@ export function TopMinimalBar({
             </button>
           </div>
 
-          {/* Left: Nav items (desktop only) */}
-          <nav className="hidden lg:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-muted hover:text-text transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Left: Custom slot or nav items (desktop only) */}
+          <div className="hidden lg:flex items-center gap-6">
+            {left ?? (
+              <nav className="flex items-center gap-6">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-sm font-medium text-muted hover:text-text transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </div>
 
           {/* Center: Brand */}
           <Link href={brandHref} className="absolute left-1/2 -translate-x-1/2">

@@ -1,17 +1,17 @@
 'use client'
 
 import {
-    ChromeSurface,
-    ConstellationDots,
-    CyanOrb,
-    EditionBadge,
-    MicroInfoModule,
-    OrganicBlob,
-    OutlineStackTitle,
-    PillCTA,
-    WavyLines
+  ConstellationDots,
+  CyanOrb,
+  EditionBadge,
+  MicroInfoModule,
+  OrganicBlob,
+  OutlineStackTitle,
+  PillCTA,
+  ThemeToggle,
+  TopMinimalBar,
+  WavyLines
 } from '@/platform/ui'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { AuthNav } from './AuthNav'
@@ -91,7 +91,6 @@ const HeroCopy = () => (
 )
 
 export function HeroSection() {
-  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -99,10 +98,6 @@ export function HeroSection() {
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
@@ -133,34 +128,21 @@ export function HeroSection() {
 
       <ConstellationDots className="top-[10%] right-[20%] w-[150px] h-[150px] hidden lg:block" />
 
-      <ChromeSurface
-        as="header"
-        blur="sm"
-        mode={isScrolled ? 'elevated' : 'transparent'}
-        className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 py-6 transition-[background-color,backdrop-filter] duration-300"
-      >
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex-1 flex items-center">
-            {mounted && (
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-muted hover:text-text transition-colors"
-                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-            )}
-          </div>
-          
-          <Link href="/" className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors">
+      <TopMinimalBar
+        brand={
+          <span className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors">
             BROLAB
-          </Link>
-          
-          <div className="flex-1 flex justify-end items-center gap-4">
+          </span>
+        }
+        brandHref="/"
+        right={
+          <div className="flex items-center gap-4">
+            {mounted && <ThemeToggle />}
             <AuthNav ctaLabel="Explore" />
           </div>
-        </div>
-      </ChromeSurface>
+        }
+        isScrolled={isScrolled}
+      />
 
       <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-screen flex items-center">
         <div className="w-full">

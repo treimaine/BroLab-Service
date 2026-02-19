@@ -78,20 +78,25 @@ export function ChromeSurface({
     none: '',
   }[border]
 
-  // Mode-based background
-  let bgClass: string
+  // Mode-based background opacity (0-1)
+  let bgOpacity: number
   if (mode === 'transparent') {
-    bgClass = 'bg-transparent'
+    bgOpacity = 0
   } else if (mode === 'elevated') {
-    bgClass = 'bg-[rgb(var(--bg))]/98'
+    bgOpacity = 0.98
   } else {
-    bgClass = `bg-[rgb(var(--bg))]/${opacity}`
+    bgOpacity = opacity / 100
   }
+
+  // Use inline style for background to avoid Tailwind dynamic class purging issues
+  const bgStyle = bgOpacity === 0
+    ? { backgroundColor: 'transparent' }
+    : { backgroundColor: `rgb(var(--bg) / ${bgOpacity})` }
 
   return (
     <Component
+      style={bgStyle}
       className={`
-        ${bgClass}
         ${blurClass}
         ${borderClass}
         ${className}

@@ -1,6 +1,7 @@
 'use client'
 
 import { ChromeSurface } from '@/platform/ui'
+import { Music2 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -143,8 +144,8 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-4">
             {/* Social links placeholder */}
-            <span className="text-muted text-sm">
-              Made with 🎵 for music creators
+            <span className="text-muted text-sm flex items-center gap-1.5">
+              Made with <Music2 className="w-4 h-4 text-accent" aria-hidden="true" /> for music creators
             </span>
           </div>
         </div>

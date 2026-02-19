@@ -185,17 +185,19 @@ Layer 1 (front): opacity 1.0,  solid fill
 
 ```
 ┌──────┐
-│  🏠  │ ← Active (glow + accent bg)
+│ [H]  │ ← Active (glow + accent bg)
 ├──────┤
-│  🎵  │
+│ [M]  │
 ├──────┤
-│  🎤  │
+│ [S]  │
 ├──────┤
-│  📧  │
+│ [E]  │
 └──────┘
    │
    └── Active indicator (vertical bar or glow)
 ```
+
+> **Icons:** Always use Lucide React SVG icons (e.g. `Home`, `Music2`, `Mic`, `Mail`). Never use emojis as UI icons.
 
 - Width: 80px
 - Icons: 24px, centered
@@ -226,11 +228,13 @@ Petites cards compactes pour stats, listes, progress.
 
 ```
 ┌─────────────────────┐
-│ 📊 Revenue          │
+│ [icon] Revenue      │
 │ $12,450             │
 │ ↑ 12% vs last month │
 └─────────────────────┘
 ```
+
+> **Icons:** Use Lucide icons (e.g. `TrendingUp`, `DollarSign`, `BarChart2`) passed as `LucideIcon` props. Never use emojis.
 
 - Padding: 16px
 - Border-radius: 12px
@@ -589,6 +593,7 @@ Avant de valider une page, vérifier :
 ### Interactive
 - `PillCTA` - Pill-shaped CTA button with glow
 - `EditionBadge` - Badge component
+- `ThemeToggle` - Dark/light mode toggle (Sun/Moon Lucide icons, hydration-safe)
 
 ### Animation
 - `DribbbleSectionEnter` - Section enter animation wrapper
@@ -613,5 +618,6 @@ import {
   PillCTA,
   IconRail,
   TopMinimalBar,
+  ThemeToggle,
 } from '@/platform/ui'
 ```

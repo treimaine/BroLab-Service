@@ -1,8 +1,7 @@
 'use client'
 
 import { AuthNav } from '@/components/hub/AuthNav'
-import { GlassHeader } from '@/platform/ui'
-import { useTheme } from 'next-themes'
+import { ThemeToggle, TopMinimalBar } from '@/platform/ui'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -25,18 +24,7 @@ interface MarketingLayoutProps {
 
 export default function MarketingLayout({ children }: MarketingLayoutProps) {
   const pathname = usePathname()
-  const { setTheme, resolvedTheme } = useTheme()
   const [isScrolled, setIsScrolled] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,71 +43,46 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
 
   return (
     <>
-      {/* Header - TopMinimalBar pattern */}
-      <GlassHeader isScrolled={isScrolled} className="px-4 lg:px-8 py-6">
-        <div className="container mx-auto flex items-center justify-between">
-          {/* Left: Theme toggle */}
-          <div className="flex-1 flex items-center gap-6">
-            {(() => {
-              const isDark = mounted && resolvedTheme === 'dark'
-              let ariaLabel = 'Toggle theme'
-              if (mounted) {
-                ariaLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode'
-              }
-              const icon = isDark ? '☀️' : '🌙'
-              
-              return (
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded-lg"
-                  aria-label={ariaLabel}
-                >
-                  {icon}
-                </button>
-              )
-            })()}
-            
-            {/* Nav links - desktop */}
-            <nav className="hidden md:flex items-center gap-6">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`relative text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded ${
-                      isActive 
-                        ? 'text-accent' 
-                        : 'text-muted hover:text-text'
-                    }`}
-                    style={isActive ? {
-                      textShadow: '0 0 12px rgba(var(--accent), 0.4)'
-                    } : undefined}
-                  >
-                    {link.label}
-                    {isActive && (
-                      <span className="block h-0.5 mt-1 bg-accent rounded-full shadow-[0_0_8px_rgba(var(--accent),0.6)]" />
-                    )}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-          
-          {/* Center: Brand */}
-          <Link 
-            href="/" 
-            className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded px-2 py-1"
+      <TopMinimalBar
+        brand={
+          <Link
+            href="/"
+            className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors"
           >
             BROLAB
           </Link>
-          
-          {/* Right: Auth-aware navigation */}
-          <div className="flex-1 flex justify-end items-center gap-4">
+        }
+        brandHref="/"
+        left={
+          <nav className="flex items-center gap-6">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded ${
+                    isActive ? 'text-accent' : 'text-muted hover:text-text'
+                  }`}
+                  style={isActive ? { textShadow: '0 0 12px rgba(var(--accent), 0.4)' } : undefined}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span className="block h-0.5 mt-1 bg-accent rounded-full shadow-[0_0_8px_rgba(var(--accent),0.6)]" />
+                  )}
+                </Link>
+              )
+            })}
+          </nav>
+        }
+        right={
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
             <AuthNav ctaLabel="Get Started" />
           </div>
-        </div>
-      </GlassHeader>
+        }
+        isScrolled={isScrolled}
+      />
 
       {/* Main content with top padding for fixed header */}
       <div className="pt-24">

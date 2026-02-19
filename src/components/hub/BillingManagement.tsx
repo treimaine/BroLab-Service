@@ -11,13 +11,14 @@
  * - Usage vs quota display
  */
 
-import { ChromeSurface, DribbbleCard, OutlineStackTitle } from '@/platform/ui'
+import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { PricingTable, useUser } from '@clerk/nextjs'
 import { SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AlertCircle, Check, CreditCard, Database, Loader2, Music, X } from 'lucide-react'
 import Link from 'next/link'
 import { api } from '../../../convex/_generated/api'
+import { StudioHeader } from './StudioHeader'
 
 // Helper function to get status badge styles
 function getStatusBadgeStyles(status: 'active' | 'inactive' | 'canceled') {
@@ -40,8 +41,6 @@ export function BillingManagement() {
     clerkUserId ? { clerkUserId } : 'skip'
   )
 
-  const role = user?.unsafeMetadata?.role as string | undefined
-
   return (
     <>
       <AuthLoading>
@@ -62,28 +61,13 @@ export function BillingManagement() {
       </Unauthenticated>
 
       <Authenticated>
-        <div className="min-h-screen bg-app">
-          {/* Header */}
-          <ChromeSurface as="header" blur="md" className="sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <Link href="/studio" className="text-xl font-bold hover:text-accent transition-colors">
-                  BROLAB STUDIO
-                </Link>
-                <div className="text-sm text-muted capitalize">{role}</div>
-              </div>
-            </div>
-          </ChromeSurface>
-
-          <main className="max-w-7xl mx-auto px-4 py-12">
-            {/* Page Title */}
-            <div className="text-center space-y-4 mb-12">
-              <OutlineStackTitle className="text-5xl md:text-7xl">
-                BILLING
-              </OutlineStackTitle>
-              <p className="text-lg text-muted max-w-2xl mx-auto">
-                Manage your subscription and view usage
-              </p>
+        <StudioHeader />
+        <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
+          <main className="max-w-7xl mx-auto px-6 py-8">
+            {/* Page title — same pattern as Tracks/Services */}
+            <div className="mb-8">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+              <h1 className="text-4xl font-bold uppercase tracking-wide">Billing</h1>
             </div>
 
             {/* Loading State */}
@@ -102,11 +86,10 @@ export function BillingManagement() {
                 <p className="text-muted mb-6">
                   You need to create a workspace before managing billing.
                 </p>
-                <Link 
-                  href="/onboarding"
-                  className="inline-block px-6 py-3 bg-accent text-white rounded-full font-medium hover:bg-accent/90 transition-colors"
-                >
-                  Create Workspace
+                <Link href="/studio/workspace/new">
+                  <PillCTA variant="primary" size="md">
+                    Create Workspace
+                  </PillCTA>
                 </Link>
               </DribbbleCard>
             )}

@@ -1,7 +1,6 @@
 'use client'
 
-import { GlassHeader, PillCTA } from '@/platform/ui'
-import { useTheme } from 'next-themes'
+import { GlassHeader, PillCTA, ThemeToggle } from '@/platform/ui'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -17,18 +16,7 @@ import { useEffect, useState } from 'react'
 
 export function MarketingHeader() {
   const pathname = usePathname()
-  const { setTheme, resolvedTheme } = useTheme()
   const [isScrolled, setIsScrolled] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,24 +38,7 @@ export function MarketingHeader() {
       <div className="container mx-auto flex items-center justify-between">
         {/* Left: Theme toggle */}
         <div className="flex-1 flex items-center gap-6">
-          {(() => {
-            const isDark = mounted && resolvedTheme === 'dark'
-            let ariaLabel = 'Toggle theme'
-            if (mounted) {
-              ariaLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode'
-            }
-            const icon = isDark ? '☀️' : '🌙'
-            
-            return (
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded-lg"
-                aria-label={ariaLabel}
-              >
-                {icon}
-              </button>
-            )
-          })()}
+          <ThemeToggle />
           
           {/* Nav links - desktop */}
           <nav className="hidden md:flex items-center gap-6">

@@ -48,20 +48,13 @@ export function GlassHeader({ isScrolled, children, className }: GlassHeaderProp
       padding="none"
       bordered={false}
       blur={isScrolled ? 'md' : 'none'}
+      style={{
+        backgroundColor: isScrolled ? 'rgb(var(--bg-2) / 0.8)' : 'transparent',
+      }}
       className={cn(
-        // Fixed positioning
         'fixed top-0 left-0 right-0',
-        
-        // Z-index for layering (above content, below modals)
         'z-40',
-        
-        // Smooth transitions
         'transition-all duration-300 ease-out',
-        
-        // Conditional glass background (uses bg-2 for theme coherence)
-        isScrolled ? 'bg-[rgba(var(--bg-2),0.8)]' : 'bg-transparent',
-        
-        // Custom classes
         className
       )}
     >

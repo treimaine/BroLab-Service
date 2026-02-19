@@ -12,7 +12,8 @@
  * Requirements: 4.4, 19.4, 1.3
  */
 
-import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
+import { StudioHeader } from '@/components/hub/StudioHeader'
+import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useUser } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react'
@@ -125,30 +126,45 @@ export function StudioDomainsClient() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Globe className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold mb-2">No workspace found</h2>
-          <p className="text-[rgb(var(--muted))]">Please complete onboarding to create a workspace.</p>
-        </div>
+      <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
+        <StudioHeader />
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+            <h1 className="text-4xl font-bold uppercase tracking-wide">Domains</h1>
+          </div>
+          <DribbbleCard className="max-w-2xl mx-auto p-8 text-center">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+            <h3 className="text-xl font-bold mb-2">No Workspace Found</h3>
+            <p className="text-muted mb-6">
+              You need to create a workspace before managing your domains.
+            </p>
+            <Link href="/studio/workspace/new">
+              <PillCTA variant="primary" size="md">
+                Create Workspace
+              </PillCTA>
+            </Link>
+          </DribbbleCard>
+        </main>
       </div>
     )
   }
 
   return (
     <motion.div
-      className="min-h-screen bg-[rgb(var(--bg))] p-6"
+      className="min-h-screen bg-[rgb(var(--bg))] pt-24 p-6"
       variants={dribbblePageEnter}
       initial="initial"
       animate="animate"
       exit="exit"
     >
+      <StudioHeader />
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
+        {/* Page title */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold uppercase tracking-wide mb-2">Custom Domains</h1>
-            <p className="text-[rgb(var(--muted))]">Connect your own domain to your storefront</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+            <h1 className="text-4xl font-bold uppercase tracking-wide">Domains</h1>
           </div>
           {isPro && (
             <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[rgb(var(--accent))]/10 text-[rgb(var(--accent))] border border-[rgb(var(--accent))]/20">
@@ -169,11 +185,10 @@ export function StudioDomainsClient() {
                 <p className="text-[rgb(var(--muted))] text-sm mb-4">
                   Custom domains are available on the PRO plan. Upgrade to connect up to 2 custom domains to your storefront.
                 </p>
-                <Link
-                  href="/studio/billing"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgb(var(--accent))] text-white text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  Upgrade to PRO
+                <Link href="/studio/billing">
+                  <PillCTA variant="primary" size="sm">
+                    Upgrade to PRO
+                  </PillCTA>
                 </Link>
               </div>
             </div>
@@ -237,19 +252,17 @@ export function StudioDomainsClient() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-full bg-[rgb(var(--accent))] text-white text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
-                  >
+                  <PillCTA type="submit" variant="primary" size="sm">
                     Connect Domain
-                  </button>
-                  <button
+                  </PillCTA>
+                  <PillCTA
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => { setIsAdding(false); setHostname(''); setError(null) }}
-                    className="px-5 py-2 rounded-full bg-[rgb(var(--card))] text-[rgb(var(--muted))] text-sm font-semibold hover:opacity-80 transition-opacity cursor-pointer"
                   >
                     Cancel
-                  </button>
+                  </PillCTA>
                 </div>
               </form>
             ) : (

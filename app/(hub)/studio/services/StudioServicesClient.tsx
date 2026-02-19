@@ -11,12 +11,15 @@
 
 'use client'
 
+import { StudioHeader } from '@/components/hub/StudioHeader'
 import { ServiceList } from '@/modules/services/components/ServiceList'
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
+import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { Wrench } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 import { api } from '../../../../convex/_generated/api'
 
@@ -35,14 +38,26 @@ export function StudioServicesClient() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Wrench className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold mb-2">No workspace found</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please complete onboarding to create a workspace.
-          </p>
-        </div>
+      <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
+        <StudioHeader />
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+            <h1 className="text-4xl font-bold uppercase tracking-wide">Services</h1>
+          </div>
+          <DribbbleCard className="max-w-2xl mx-auto p-8 text-center">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+            <h3 className="text-xl font-bold mb-2">No Workspace Found</h3>
+            <p className="text-muted mb-6">
+              You need to create a workspace before managing your services.
+            </p>
+            <Link href="/studio/workspace/new">
+              <PillCTA variant="primary" size="md">
+                Create Workspace
+              </PillCTA>
+            </Link>
+          </DribbbleCard>
+        </main>
       </div>
     )
   }
@@ -53,19 +68,18 @@ export function StudioServicesClient() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[rgb(var(--bg))] p-6"
+      className="min-h-screen bg-[rgb(var(--bg))] pt-24 p-6"
       variants={dribbblePageEnter}
       initial="initial"
       animate="animate"
       exit="exit"
     >
+      <StudioHeader />
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold uppercase tracking-wide mb-2">Services</h1>
-            <p className="text-muted">Manage your service listings</p>
-          </div>
+        {/* Page title */}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+          <h1 className="text-4xl font-bold uppercase tracking-wide">Services</h1>
         </div>
 
         {/* Filter Tabs */}

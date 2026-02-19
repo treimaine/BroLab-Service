@@ -2,17 +2,17 @@
 
 import { motion } from 'framer-motion'
 import { type LucideIcon } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import Image from 'next/image'
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 // Import all UI from @/platform/ui (Dribbble kit)
 import {
-    IconRail,
-    TopMinimalBar,
-    dribbblePageEnter,
-    dribbbleReducedMotion,
-    type IconRailItem
+  IconRail,
+  ThemeToggle,
+  TopMinimalBar,
+  dribbblePageEnter,
+  dribbbleReducedMotion,
+  type IconRailItem
 } from '@/platform/ui'
 
 import { PlayerBar } from '../audio'
@@ -91,7 +91,6 @@ export function TenantLayout({
   const [mounted, setMounted] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { theme, setTheme } = useTheme()
 
   // Initialize theme from localStorage or system preference
   useEffect(() => {
@@ -118,10 +117,6 @@ export function TenantLayout({
     }
   }, [])
 
-  const toggleTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }, [theme, setTheme])
-
   // Helper to check if icon is a raw LucideIcon component (not yet rendered as JSX)
   // Rendered React elements have $$typeof but NO render property — exclude them
   // Raw Lucide forwardRef components have $$typeof AND a render function
@@ -143,15 +138,20 @@ export function TenantLayout({
     }))
 
   // Convert nav items to MobileNav format - always pre-render icon as ReactNode
-  const mobileNavItems: MobileNavItem[] = navItems.map((item) => {
-    const IconComp = isLucideIcon(item.icon) ? (item.icon as LucideIcon) : null
-    return {
-      id: item.id,
-      icon: IconComp ? <IconComp className="w-5 h-5" /> : (item.icon as ReactNode),
-      label: item.label,
-      href: item.href,
+  const renderNavIcon = (icon: ReactNode | LucideIcon): ReactNode => {
+    if (isLucideIcon(icon)) {
+      const IconComp = icon
+      return <IconComp className="w-5 h-5" />
     }
-  })
+    return icon
+  }
+
+  const mobileNavItems: MobileNavItem[] = navItems.map((item) => ({
+    id: item.id,
+    icon: renderNavIcon(item.icon),
+    label: item.label,
+    href: item.href,
+  }))
 
   // Brand element for IconRail and TopMinimalBar
   const brandElement = workspaceLogo ? (
@@ -200,15 +200,7 @@ export function TenantLayout({
         navItems={topBarNavItems}
         cta={topBarCta}
         secondaryAction={secondaryAction}
-        right={
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-muted hover:text-text transition-colors"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-        }
+        right={<ThemeToggle />}
         isScrolled={isScrolled}
         className="lg:pl-20" // Offset for IconRail on desktop
       />

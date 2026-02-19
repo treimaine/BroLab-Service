@@ -86,9 +86,8 @@ const GlassSurfaceComponent = forwardRef(
     return (
       <Component
         ref={ref}
+        style={{ backgroundColor: 'rgb(var(--bg-2) / 0.8)' }}
         className={cn(
-          // Base glass styling with bg-2 tokens for theme coherence
-          'bg-[rgba(var(--bg-2),0.8)]',
           blurStyles[blur],
           
           // Border

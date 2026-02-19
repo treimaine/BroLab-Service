@@ -16,13 +16,15 @@
 
 'use client'
 
+import { StudioHeader } from '@/components/hub/StudioHeader'
 import { TrackList, TrackUploadForm } from '@/modules/beats/components'
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { Music, Plus, Upload, X } from 'lucide-react'
+import { AlertCircle, Plus, Upload, X } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
@@ -85,14 +87,26 @@ export function StudioTracksClient() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Music className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold mb-2">No workspace found</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please complete onboarding to create a workspace.
-          </p>
-        </div>
+      <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
+        <StudioHeader />
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+            <h1 className="text-4xl font-bold uppercase tracking-wide">Tracks</h1>
+          </div>
+          <DribbbleCard className="max-w-2xl mx-auto p-8 text-center">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+            <h3 className="text-xl font-bold mb-2">No Workspace Found</h3>
+            <p className="text-muted mb-6">
+              You need to create a workspace before managing your tracks.
+            </p>
+            <Link href="/studio/workspace/new">
+              <PillCTA variant="primary" size="md">
+                Create Workspace
+              </PillCTA>
+            </Link>
+          </DribbbleCard>
+        </main>
       </div>
     )
   }
@@ -103,22 +117,20 @@ export function StudioTracksClient() {
 
   return (
     <motion.div 
-      className="min-h-screen bg-[rgb(var(--bg))] p-6"
+      className="min-h-screen bg-[rgb(var(--bg))] pt-24 p-6"
       variants={dribbblePageEnter}
       initial="initial"
       animate="animate"
       exit="exit"
     >
+      <StudioHeader />
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
+        {/* Page title */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold uppercase tracking-wide mb-2">Tracks</h1>
-            <p className="text-muted">
-              Manage your beats and audio tracks
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">Studio</p>
+            <h1 className="text-4xl font-bold uppercase tracking-wide">Tracks</h1>
           </div>
-          
           <PillCTA
             onClick={() => setShowUploadModal(true)}
             variant="primary"
@@ -209,60 +221,60 @@ export function StudioTracksClient() {
             status={filterStatus === 'all' ? undefined : filterStatus}
           />
         </DribbbleCard>
+      </div>
 
-        {/* Upload Modal - using native dialog for accessibility */}
-        <dialog 
-          ref={dialogRef}
-          className="fixed inset-0 z-50 p-4 bg-transparent backdrop:bg-black/70 max-w-2xl w-full"
-          aria-labelledby="upload-modal-title"
-          onClose={() => setShowUploadModal(false)}
-        >
-          {/* Modal Content */}
-          <div className="relative bg-[rgb(var(--bg))] rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-[rgb(var(--border-alpha))]">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--border-alpha))] bg-card/40">
-                <div className="flex items-center gap-3">
-                  <DribbbleCard padding="sm" glow className="w-10 h-10 flex items-center justify-center">
-                    <Upload className="w-5 h-5 text-[rgb(var(--accent))]" />
-                  </DribbbleCard>
-                  <div>
-                    <h2 className="text-xl font-bold uppercase tracking-wide">Upload Track</h2>
-                    <p className="text-sm text-muted">
-                      Upload your beat or audio track
-                    </p>
-                  </div>
-                </div>
-                
-                <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="text-muted hover:text-[rgb(var(--accent))] transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Modal Body - Scrollable */}
-              <div className="p-6 overflow-y-auto flex-1 bg-[rgb(var(--bg))]">
-                <TrackUploadForm
-                  workspaceId={workspace._id}
-                  onSuccess={handleUploadSuccess}
-                  onError={handleUploadError}
-                />
-              </div>
-
-              {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-[rgb(var(--border-alpha))] bg-card/40">
-                <PillCTA
-                  onClick={() => setShowUploadModal(false)}
-                  variant="secondary"
-                  size="md"
-                >
-                  Cancel
-                </PillCTA>
+      {/* Upload Modal - using native dialog for accessibility */}
+      <dialog 
+        ref={dialogRef}
+        className="fixed inset-0 z-50 p-4 bg-transparent backdrop:bg-black/70 max-w-2xl w-full"
+        aria-labelledby="upload-modal-title"
+        onClose={() => setShowUploadModal(false)}
+      >
+        {/* Modal Content */}
+        <div className="relative bg-[rgb(var(--bg))] rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-[rgb(var(--border-alpha))]">
+          {/* Modal Header */}
+          <div className="flex items-center justify-between p-6 border-b border-[rgb(var(--border-alpha))] bg-card/40">
+            <div className="flex items-center gap-3">
+              <DribbbleCard padding="sm" glow className="w-10 h-10 flex items-center justify-center">
+                <Upload className="w-5 h-5 text-[rgb(var(--accent))]" />
+              </DribbbleCard>
+              <div>
+                <h2 className="text-xl font-bold uppercase tracking-wide">Upload Track</h2>
+                <p className="text-sm text-muted">
+                  Upload your beat or audio track
+                </p>
               </div>
             </div>
-        </dialog>
-      </div>
+            
+            <button
+              onClick={() => setShowUploadModal(false)}
+              className="text-muted hover:text-[rgb(var(--accent))] transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Modal Body - Scrollable */}
+          <div className="p-6 overflow-y-auto flex-1 bg-[rgb(var(--bg))]">
+            <TrackUploadForm
+              workspaceId={workspace._id}
+              onSuccess={handleUploadSuccess}
+              onError={handleUploadError}
+            />
+          </div>
+
+          {/* Modal Footer */}
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-[rgb(var(--border-alpha))] bg-card/40">
+            <PillCTA
+              onClick={() => setShowUploadModal(false)}
+              variant="secondary"
+              size="md"
+            >
+              Cancel
+            </PillCTA>
+          </div>
+        </div>
+      </dialog>
     </motion.div>
   )
 }
