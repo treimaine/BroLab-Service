@@ -22,7 +22,8 @@
       ],
       "env": {
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
-      }
+      },
+      "disabled": true
     },
     "playwright": {
       "command": "npx",
