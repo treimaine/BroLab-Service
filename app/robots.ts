@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/studio/', '/artist/', '/_t/'],
+        // Block authenticated/private areas from indexing
+        disallow: ['/studio/', '/artist/', '/onboarding/', '/sign-in/', '/sign-up/', '/api/'],
       },
     ],
     sitemap: 'https://brolabentertainment.com/sitemap.xml',

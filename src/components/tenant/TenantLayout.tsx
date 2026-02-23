@@ -7,12 +7,12 @@ import { useEffect, useState, type ReactNode } from 'react'
 
 // Import all UI from @/platform/ui (Dribbble kit)
 import {
-  IconRail,
-  ThemeToggle,
-  TopMinimalBar,
-  dribbblePageEnter,
-  dribbbleReducedMotion,
-  type IconRailItem
+    IconRail,
+    ThemeToggle,
+    TopMinimalBar,
+    dribbblePageEnter,
+    dribbbleReducedMotion,
+    type IconRailItem
 } from '@/platform/ui'
 
 import { PlayerBar } from '../audio'
@@ -227,7 +227,7 @@ export function TenantLayout({
       {/* Player bar height: 64px (grid-8), Mobile nav height: 64px (grid-8), TopBar height: 64px */}
       <motion.main 
         className={`
-          lg:pl-20 pt-16 min-h-screen
+          lg:pl-20 pt-16 min-h-screen overflow-x-hidden
           ${showPlayerBar 
             ? 'pb-[calc(128px+env(safe-area-inset-bottom,0px))] lg:pb-16' 
             : 'pb-[calc(64px+env(safe-area-inset-bottom,0px))] lg:pb-0'

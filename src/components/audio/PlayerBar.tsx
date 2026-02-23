@@ -167,7 +167,7 @@ export function PlayerBar({
             </motion.div>
 
             {/* Track Info Section - MicroModule pattern for compact layout */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0 min-w-0 max-w-[40%] sm:max-w-none">
               {/* NowPlayingChip for track info with hover lift */}
               <motion.div {...controlHoverProps}>
                 <NowPlayingChip

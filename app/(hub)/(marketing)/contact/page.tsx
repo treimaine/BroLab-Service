@@ -1,6 +1,20 @@
 import ContactPageClient from '@/components/hub/ContactPageClient'
 import type { Metadata } from 'next'
 
+const contactPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact BroLab Entertainment',
+  url: 'https://brolabentertainment.com/contact',
+  description: 'Get in touch with BroLab Entertainment. Questions about our platform, pricing, or partnerships.',
+  mainEntity: {
+    '@type': 'Organization',
+    name: 'BroLab Entertainment',
+    email: 'support@brolabentertainment.com',
+    url: 'https://brolabentertainment.com',
+  },
+}
+
 /**
  * Contact Page - ELECTRI-X Design Language
  * 
@@ -18,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Contact Us - BroLab Entertainment',
     description: 'Get in touch with BroLab Entertainment. Questions, feedback, or partnership inquiries? We respond within 24-48 hours.',
-    url: 'https://brolabentertainment.com/contact',
+    url: '/contact',
     siteName: 'BroLab Entertainment',
     type: 'website',
     images: [
@@ -37,10 +51,18 @@ export const metadata: Metadata = {
     images: ['/og-contact.png'],
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com/contact',
+    canonical: '/contact',
   },
 }
 
 export default function ContactPage() {
-  return <ContactPageClient />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
+      />
+      <ContactPageClient />
+    </>
+  )
 }

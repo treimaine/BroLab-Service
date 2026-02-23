@@ -127,9 +127,12 @@ export const getSubscriptionByClerkUserId = query({
           },
       planFeatures,
       workspace: {
+        _id: workspace._id,
         name: workspace.name,
         slug: workspace.slug,
         type: workspace.type,
+        paymentsStatus: workspace.paymentsStatus,
+        stripeAccountId: workspace.stripeAccountId,
       },
     };
   },

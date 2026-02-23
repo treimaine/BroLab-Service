@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Terms of Service - BroLab Entertainment',
     description: 'Read our terms and conditions for using the BroLab Entertainment platform.',
-    url: 'https://brolabentertainment.com/terms',
+    url: '/terms',
     siteName: 'BroLab Entertainment',
     type: 'website',
   },
@@ -31,11 +31,31 @@ export const metadata: Metadata = {
     description: 'Read our terms and conditions for using the platform.',
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com/terms',
+    canonical: '/terms',
   },
   robots: {
     index: true,
     follow: true,
+  },
+}
+
+const termsPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Terms of Service - BroLab Entertainment',
+  url: 'https://brolabentertainment.com/terms',
+  description: 'BroLab Entertainment Terms of Service. Read our terms and conditions for using the platform.',
+  dateModified: '2026-01-10',
+  inLanguage: 'en-US',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'BroLab Entertainment',
+    url: 'https://brolabentertainment.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'BroLab Entertainment',
+    url: 'https://brolabentertainment.com',
   },
 }
 
@@ -64,7 +84,12 @@ const TOC_ITEMS = [
 
 export default function TermsPage() {
   return (
-    <MarketingPageShell
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(termsPageSchema) }}
+      />
+      <MarketingPageShell
       heroWord="TERMS"
       seoTitle="Terms of Service - BroLab Entertainment"
       subtitle="The rules and guidelines for using our platform"
@@ -472,5 +497,6 @@ export default function TermsPage() {
         </p>
       </section>
     </MarketingPageShell>
+    </>
   )
 }

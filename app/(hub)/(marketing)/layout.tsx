@@ -45,12 +45,9 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
     <>
       <TopMinimalBar
         brand={
-          <Link
-            href="/"
-            className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors"
-          >
+          <span className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors">
             BROLAB
-          </Link>
+          </span>
         }
         brandHref="/"
         left={

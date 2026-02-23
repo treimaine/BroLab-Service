@@ -25,9 +25,29 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: "BroLab Entertainment",
-  description: "Multi-tenant platform for music Providers to sell beats and services",
+  title: {
+    default: "BroLab Entertainment",
+    template: "%s | BroLab Entertainment",
+  },
+  description: "Launch your music storefront in minutes. Sell beats and services directly to artists with zero platform fees.",
+  keywords: ["music producer platform", "sell beats online", "beat store", "producer storefront", "music licensing", "audio engineer services"],
+  authors: [{ name: "BroLab Entertainment" }],
+  creator: "BroLab Entertainment",
+  openGraph: {
+    type: "website",
+    siteName: "BroLab Entertainment",
+    title: "BroLab Entertainment",
+    description: "Launch your music storefront in minutes. Sell beats and services with zero platform fees.",
+    images: [{ url: "/og-home.png", width: 1200, height: 630, alt: "BroLab Entertainment" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@brolabent",
+    creator: "@brolabent",
+    images: ["/og-home.png"],
+  },
   alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
 };
 
 /**

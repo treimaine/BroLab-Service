@@ -22,6 +22,8 @@ import type * as platform_billing_subscriptionQueries from "../platform/billing/
 import type * as platform_billing_testSubscription from "../platform/billing/testSubscription.js";
 import type * as platform_billing_webhooks from "../platform/billing/webhooks.js";
 import type * as platform_domains from "../platform/domains.js";
+import type * as platform_emailEvents from "../platform/emailEvents.js";
+import type * as platform_email_actions from "../platform/email/actions.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
 import type * as platform_jobs from "../platform/jobs.js";
@@ -50,6 +52,8 @@ declare const fullApi: ApiFromModules<{
   "platform/billing/testSubscription": typeof platform_billing_testSubscription;
   "platform/billing/webhooks": typeof platform_billing_webhooks;
   "platform/domains": typeof platform_domains;
+  "platform/emailEvents": typeof platform_emailEvents;
+  "platform/email/actions": typeof platform_email_actions;
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;
   "platform/jobs": typeof platform_jobs;

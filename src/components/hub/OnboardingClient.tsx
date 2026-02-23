@@ -8,30 +8,29 @@
  * Flow:
  * 1. Role selection (producer, engineer, artist)
  * 2. For providers: workspace creation (slug, name, type)
- * 3. Store role in user.unsafeMetadata.role
- * 4. Sync to Convex users table
- * 5. Redirect: providers → /studio, artists → /artist
- * 
- * NO subscription step (Clerk Billing comes later)
- * NO Stripe Connect step (comes in Phase 9)
+ * 3. For providers: Stripe Connect onboarding
+ * 4. Store role in user.unsafeMetadata.role
+ * 5. Sync to Convex users table
+ * 6. Redirect: providers → /studio, artists → /artist
  */
 
 import { ChromeSurface, DribbbleCard, OutlineStackTitle, PillCTA } from '@/platform/ui'
 import { useUser } from '@clerk/nextjs'
 import { useConvexAuth, useMutation, useQuery } from 'convex/react'
-import { ArrowRight, Check, Loader2, Music, Settings, ShoppingBag } from 'lucide-react'
+import { ArrowRight, Check, ExternalLink, Loader2, Music, Settings, ShoppingBag, Zap } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../../../convex/_generated/api'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
-type OnboardingStep = 'role' | 'workspace' | 'complete'
+type OnboardingStep = 'role' | 'workspace' | 'stripe' | 'complete'
 
 function getStepNumber(step: OnboardingStep): string {
   const stepMap: Record<OnboardingStep, string> = {
     role: '1',
     workspace: '2',
-    complete: '3',
+    stripe: '3',
+    complete: '4',
   }
   return stepMap[step]
 }
@@ -83,6 +82,203 @@ function SlugAvailabilityStatus({
   return null
 }
 
+function StepContent({
+  currentStep,
+  selectedRole,
+  workspaceName,
+  workspaceSlug,
+  slugError,
+  isCreating,
+  checkSlugAvailability,
+  createdWorkspaceId,
+  onRoleSelect,
+  onWorkspaceCreate,
+  onSkipStripe,
+  setWorkspaceName,
+  setWorkspaceSlug,
+}: Readonly<{
+  currentStep: OnboardingStep
+  selectedRole: UserRole | null
+  workspaceName: string
+  workspaceSlug: string
+  slugError: string | null
+  isCreating: boolean
+  checkSlugAvailability: { available: boolean; error?: string } | undefined
+  createdWorkspaceId: string | null
+  onRoleSelect: (role: UserRole) => void
+  onWorkspaceCreate: () => void
+  onSkipStripe: () => void
+  setWorkspaceName: (v: string) => void
+  setWorkspaceSlug: (v: string) => void
+}>) {
+  if (currentStep === 'role') {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <OutlineStackTitle className="text-5xl md:text-6xl">WELCOME</OutlineStackTitle>
+          <p className="text-lg text-muted max-w-md mx-auto">
+            Choose your role to get started with BroLab Entertainment
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {([
+            { role: 'producer' as UserRole, label: 'Producer', desc: 'Sell beats and tracks to artists', Icon: Music },
+            { role: 'engineer' as UserRole, label: 'Engineer', desc: 'Offer mixing, mastering, and audio services', Icon: Settings },
+            { role: 'artist' as UserRole, label: 'Artist', desc: 'Buy beats and book services', Icon: ShoppingBag },
+          ] as const).map(({ role, label, desc, Icon }) => (
+            <DribbbleCard
+              key={role}
+              onClick={() => !isCreating && onRoleSelect(role)}
+              className="cursor-pointer hover:scale-105 transition-transform p-6 text-center space-y-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+                {isCreating && selectedRole === role ? (
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                ) : (
+                  <Icon className="w-6 h-6 text-white" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-2">{label}</h3>
+                <p className="text-sm text-muted">{desc}</p>
+              </div>
+            </DribbbleCard>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (currentStep === 'workspace') {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <OutlineStackTitle className="text-5xl md:text-6xl">WORKSPACE</OutlineStackTitle>
+          <p className="text-lg text-muted max-w-md mx-auto">Create your storefront to start selling</p>
+        </div>
+        <DribbbleCard className="p-8 space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="workspace-name" className="block text-sm font-medium">Workspace Name</label>
+            <input
+              id="workspace-name"
+              type="text"
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              placeholder="My Studio"
+              className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+            />
+            <p className="text-xs text-muted">This is the name of your storefront</p>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="workspace-slug" className="block text-sm font-medium">Workspace Slug</label>
+            <div className="flex items-center gap-2">
+              <input
+                id="workspace-slug"
+                type="text"
+                value={workspaceSlug}
+                onChange={(e) => setWorkspaceSlug(e.target.value.toLowerCase())}
+                placeholder="my-studio"
+                className="flex-1 px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+              />
+              <span className="text-sm text-muted">.brolabentertainment.com</span>
+            </div>
+            {workspaceSlug && workspaceSlug.length >= 3 && (
+              <SlugAvailabilityStatus slugError={slugError} isAvailable={checkSlugAvailability?.available ?? false} />
+            )}
+            <p className="text-xs text-muted">
+              Your storefront URL: {workspaceSlug || 'your-slug'}.brolabentertainment.com
+            </p>
+          </div>
+          <PillCTA
+            onClick={onWorkspaceCreate}
+            disabled={!workspaceName || !workspaceSlug || !!slugError || isCreating}
+            fullWidth
+            iconAfter={isCreating ? undefined : ArrowRight}
+          >
+            {isCreating ? (
+              <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating...</>
+            ) : 'Continue'}
+          </PillCTA>
+        </DribbbleCard>
+      </div>
+    )
+  }
+
+  if (currentStep === 'stripe') {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <OutlineStackTitle className="text-5xl md:text-6xl">PAYMENTS</OutlineStackTitle>
+          <p className="text-lg text-muted max-w-md mx-auto">
+            Connect your Stripe account to receive payments directly from your customers
+          </p>
+        </div>
+        <DribbbleCard className="p-8 space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center shrink-0">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold">Stripe Connect — Direct Payments</p>
+              <p className="text-sm text-muted">
+                0% commission. Your customers pay you directly via Stripe. BroLab never touches your money.
+              </p>
+            </div>
+          </div>
+          <ul className="space-y-2 text-sm text-muted pl-2">
+            {[
+              'Instant payouts to your bank account',
+              'Accept cards, Apple Pay, Google Pay',
+              'Automatic license delivery on purchase',
+              'Only standard Stripe fees apply (2.9% + $0.30)',
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-accent shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div className="space-y-3 pt-2">
+            <a
+              href={createdWorkspaceId ? `/api/stripe/connect?workspaceId=${createdWorkspaceId}` : '#'}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200"
+            >
+              Connect Stripe Account
+              <ExternalLink className="w-5 h-5" />
+            </a>
+            <button
+              onClick={onSkipStripe}
+              className="w-full text-sm text-muted hover:text-text transition-colors py-2 cursor-pointer"
+            >
+              Skip for now — I&apos;ll set this up later
+            </button>
+          </div>
+        </DribbbleCard>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+          <Check className="w-8 h-8 text-white" />
+        </div>
+        <OutlineStackTitle className="text-5xl md:text-6xl">COMPLETE</OutlineStackTitle>
+        <p className="text-lg text-muted max-w-md mx-auto">
+          {selectedRole === 'artist'
+            ? 'Welcome to BroLab! Redirecting to your dashboard...'
+            : 'Your workspace is ready! Redirecting to your studio...'}
+        </p>
+        <div className="flex items-center justify-center gap-2 text-sm text-muted">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Redirecting...</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function OnboardingClient() {
   const { isAuthenticated, isLoading } = useConvexAuth()
   const { user } = useUser()
@@ -94,6 +290,8 @@ export function OnboardingClient() {
   const [workspaceSlug, setWorkspaceSlug] = useState('')
   const [slugError, setSlugError] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(null)
+  const isOnboardingActiveRef = useRef(false)
 
   // Convex mutations and queries
   const createUser = useMutation(api.platform.users.createUser)
@@ -107,9 +305,11 @@ export function OnboardingClient() {
     user ? { clerkUserId: user.id } : 'skip'
   )
 
-  // Redirect if user already has a role
+  // Redirect if user already has a role (only on initial load, not during active onboarding)
   useEffect(() => {
     if (isLoading || !isAuthenticated || !user) return
+    // Don't redirect if the user is actively going through onboarding steps
+    if (isOnboardingActiveRef.current) return
 
     const clerkRole = user.unsafeMetadata?.role as string | undefined
     
@@ -118,7 +318,7 @@ export function OnboardingClient() {
       const redirectPath = getRedirectPath(clerkRole!)
       router.push(redirectPath)
     }
-  }, [existingUser, user, router, isLoading, isAuthenticated])
+  }, [existingUser, user, router, isLoading, isAuthenticated, currentStep])
 
   // Auto-generate slug from workspace name
   useEffect(() => {
@@ -148,6 +348,7 @@ export function OnboardingClient() {
 
     setSelectedRole(role)
     setIsCreating(true)
+    isOnboardingActiveRef.current = true // Block auto-redirect for the rest of onboarding
 
     try {
       await updateUserRole(role)
@@ -227,21 +428,19 @@ export function OnboardingClient() {
     // Only providers (producer/engineer) can create workspaces
     if (selectedRole === 'artist') return
 
-    await createWorkspace({
+    const workspaceId = await createWorkspace({
       slug: workspaceSlug,
       name: workspaceName,
       type: selectedRole, // Now guaranteed to be 'producer' | 'engineer'
       ownerClerkUserId: user.id,
     })
 
+    setCreatedWorkspaceId(workspaceId)
     console.log('✅ Workspace created:', { slug: workspaceSlug, name: workspaceName })
   }
 
   const completeOnboarding = () => {
-    setCurrentStep('complete')
-    setTimeout(() => {
-      router.push('/studio')
-    }, 1500)
+    setCurrentStep('stripe')
   }
 
   if (isLoading) {
@@ -257,14 +456,14 @@ export function OnboardingClient() {
     return null
   }
 
+  const handleSkipStripe = () => {
+    setCurrentStep('complete')
+    setTimeout(() => router.push('/studio'), 1500)
+  }
+
   return (
     <div className="min-h-screen bg-app flex flex-col">
-      {/* Header */}
-      <ChromeSurface
-        as="header"
-        blur="md"
-        className="sticky top-0 z-50"
-      >
+      <ChromeSurface as="header" blur="md" className="sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="text-xl font-bold">BROLAB</div>
@@ -275,184 +474,23 @@ export function OnboardingClient() {
         </div>
       </ChromeSurface>
 
-      {/* Content */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
-          {/* Step 1: Role Selection */}
-          {currentStep === 'role' && (
-            <div className="space-y-8">
-              <div className="text-center space-y-4">
-                <OutlineStackTitle className="text-5xl md:text-6xl">
-                  WELCOME
-                </OutlineStackTitle>
-                <p className="text-lg text-muted max-w-md mx-auto">
-                  Choose your role to get started with BroLab Entertainment
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                {/* Producer */}
-                <DribbbleCard
-                  onClick={() => !isCreating && handleRoleSelect('producer')}
-                  className="cursor-pointer hover:scale-105 transition-transform p-6 text-center space-y-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
-                    {isCreating && selectedRole === 'producer' ? (
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                    ) : (
-                      <Music className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-2">Producer</h3>
-                    <p className="text-sm text-muted">
-                      Sell beats and tracks to artists
-                    </p>
-                  </div>
-                </DribbbleCard>
-
-                {/* Engineer */}
-                <DribbbleCard
-                  onClick={() => !isCreating && handleRoleSelect('engineer')}
-                  className="cursor-pointer hover:scale-105 transition-transform p-6 text-center space-y-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
-                    {isCreating && selectedRole === 'engineer' ? (
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                    ) : (
-                      <Settings className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-2">Engineer</h3>
-                    <p className="text-sm text-muted">
-                      Offer mixing, mastering, and audio services
-                    </p>
-                  </div>
-                </DribbbleCard>
-
-                {/* Artist */}
-                <DribbbleCard
-                  onClick={() => !isCreating && handleRoleSelect('artist')}
-                  className="cursor-pointer hover:scale-105 transition-transform p-6 text-center space-y-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
-                    {isCreating && selectedRole === 'artist' ? (
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                    ) : (
-                      <ShoppingBag className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-2">Artist</h3>
-                    <p className="text-sm text-muted">
-                      Buy beats and book services
-                    </p>
-                  </div>
-                </DribbbleCard>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Workspace Creation (Providers only) */}
-          {currentStep === 'workspace' && (
-            <div className="space-y-8">
-              <div className="text-center space-y-4">
-                <OutlineStackTitle className="text-5xl md:text-6xl">
-                  WORKSPACE
-                </OutlineStackTitle>
-                <p className="text-lg text-muted max-w-md mx-auto">
-                  Create your storefront to start selling
-                </p>
-              </div>
-
-              <DribbbleCard className="p-8 space-y-6">
-                {/* Workspace Name */}
-                <div className="space-y-2">
-                  <label htmlFor="workspace-name" className="block text-sm font-medium">
-                    Workspace Name
-                  </label>
-                  <input
-                    id="workspace-name"
-                    type="text"
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    placeholder="My Studio"
-                    className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
-                  />
-                  <p className="text-xs text-muted">
-                    This is the name of your storefront
-                  </p>
-                </div>
-
-                {/* Workspace Slug */}
-                <div className="space-y-2">
-                  <label htmlFor="workspace-slug" className="block text-sm font-medium">
-                    Workspace Slug
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      id="workspace-slug"
-                      type="text"
-                      value={workspaceSlug}
-                      onChange={(e) => setWorkspaceSlug(e.target.value.toLowerCase())}
-                      placeholder="my-studio"
-                      className="flex-1 px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
-                    />
-                    <span className="text-sm text-muted">.brolabentertainment.com</span>
-                  </div>
-                  {workspaceSlug && workspaceSlug.length >= 3 && (
-                    <SlugAvailabilityStatus
-                      slugError={slugError}
-                      isAvailable={checkSlugAvailability?.available ?? false}
-                    />
-                  )}
-                  <p className="text-xs text-muted">
-                    Your storefront URL: {workspaceSlug || 'your-slug'}.brolabentertainment.com
-                  </p>
-                </div>
-
-                <PillCTA
-                  onClick={handleWorkspaceCreate}
-                  disabled={!workspaceName || !workspaceSlug || !!slugError || isCreating}
-                  fullWidth
-                  iconAfter={isCreating ? undefined : ArrowRight}
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Creating...
-                    </>
-                  ) : (
-                    'Continue'
-                  )}
-                </PillCTA>
-              </DribbbleCard>
-            </div>
-          )}
-
-          {/* Step 3: Complete */}
-          {currentStep === 'complete' && (
-            <div className="space-y-8">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
-                  <Check className="w-8 h-8 text-white" />
-                </div>
-                <OutlineStackTitle className="text-5xl md:text-6xl">
-                  COMPLETE
-                </OutlineStackTitle>
-                <p className="text-lg text-muted max-w-md mx-auto">
-                  {selectedRole === 'artist'
-                    ? 'Welcome to BroLab! Redirecting to your dashboard...'
-                    : 'Your workspace is ready! Redirecting to your studio...'}
-                </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-muted">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Redirecting...</span>
-                </div>
-              </div>
-            </div>
-          )}
+          <StepContent
+            currentStep={currentStep}
+            selectedRole={selectedRole}
+            workspaceName={workspaceName}
+            workspaceSlug={workspaceSlug}
+            slugError={slugError}
+            isCreating={isCreating}
+            checkSlugAvailability={checkSlugAvailability as { available: boolean; error?: string } | undefined}
+            createdWorkspaceId={createdWorkspaceId}
+            onRoleSelect={handleRoleSelect}
+            onWorkspaceCreate={handleWorkspaceCreate}
+            onSkipStripe={handleSkipStripe}
+            setWorkspaceName={setWorkspaceName}
+            setWorkspaceSlug={setWorkspaceSlug}
+          />
         </div>
       </main>
     </div>

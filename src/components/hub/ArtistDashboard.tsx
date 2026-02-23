@@ -13,7 +13,6 @@
  * Uses Convex auth components for proper auth state handling
  */
 
-import { ChromeSurface, OutlineStackTitle } from '@/platform/ui'
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { useUser } from '@clerk/nextjs'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
@@ -21,13 +20,11 @@ import { AlertCircle, CheckCircle, Clock, Download, FileText, Loader2, Music, Pa
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { api } from '../../../convex/_generated/api'
+import { ArtistHeader } from './ArtistHeader'
 
 export function ArtistDashboard() {
   const { user } = useUser()
   const router = useRouter()
-
-  const role = user?.unsafeMetadata?.role as string | undefined
-
   useEffect(() => {
     // Note: Clerk middleware handles most redirection, but this provides a better client-side UX
     // if a user somehow lands here without auth.
@@ -57,23 +54,30 @@ export function ArtistDashboard() {
 
       <Authenticated>
         <div className="min-h-screen bg-app">
-          <ChromeSurface as="header" blur="md" className="sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="text-xl font-bold">BROLAB</div>
-                <div className="text-sm text-muted capitalize">{role}</div>
-              </div>
-            </div>
-          </ChromeSurface>
+          <ArtistHeader />
 
-          <main className="max-w-7xl mx-auto px-4 py-12">
-            <div className="text-center space-y-6 mb-12">
-              <OutlineStackTitle className="text-5xl md:text-7xl">
-                ARTIST
-              </OutlineStackTitle>
-              <p className="text-lg text-muted max-w-2xl mx-auto">
-                Welcome to your artist dashboard. Manage your purchases, bookings, and order history.
-              </p>
+          <main className="max-w-7xl mx-auto px-4 pt-24 py-12">
+            <div className="space-y-8 mb-12">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
+                  Artist
+                </p>
+                <h1 className="text-4xl font-bold uppercase tracking-wide">
+                  Dashboard
+                </h1>
+              </div>
+
+              <DribbbleCard padding="lg" glow>
+                <p className="text-lg font-medium">
+                  Welcome back,{' '}
+                  <span className="text-[rgb(var(--accent))]">
+                    {user?.firstName ?? user?.username ?? 'Artist'}
+                  </span>
+                </p>
+                <p className="text-sm text-muted mt-1">
+                  Purchases, Bookings, Downloads
+                </p>
+              </DribbbleCard>
             </div>
 
             <ArtistDashboardContent />
@@ -88,14 +92,13 @@ function ArtistDashboardContent() {
   const purchasedTracks = useQuery(api.modules.artist.getPurchasedTracks)
   const serviceBookings = useQuery(api.modules.artist.getServiceBookings)
   const orderHistory = useQuery(api.modules.artist.getOrderHistory)
-
   const isLoading = purchasedTracks === undefined || serviceBookings === undefined || orderHistory === undefined
 
   if (isLoading) {
     return (
       <div className="text-center py-12">
         <Loader2 className="w-8 h-8 animate-spin mx-auto text-accent mb-4" />
-        <p className="text-muted">Loading your content...</p>
+        <p className="text-muted">Loading...</p>
       </div>
     )
   }
@@ -111,7 +114,7 @@ function ArtistDashboardContent() {
             </div>
             <div>
               <p className="text-2xl font-bold">{purchasedTracks?.length || 0}</p>
-              <p className="text-sm text-muted">Purchased Tracks</p>
+              <p className="text-sm text-muted">Purchases</p>
             </div>
           </div>
         </DribbbleCard>
@@ -123,7 +126,7 @@ function ArtistDashboardContent() {
             </div>
             <div>
               <p className="text-2xl font-bold">{serviceBookings?.length || 0}</p>
-              <p className="text-sm text-muted">Service Bookings</p>
+              <p className="text-sm text-muted">Bookings</p>
             </div>
           </div>
         </DribbbleCard>
@@ -135,7 +138,7 @@ function ArtistDashboardContent() {
             </div>
             <div>
               <p className="text-2xl font-bold">{orderHistory?.length || 0}</p>
-              <p className="text-sm text-muted">Total Orders</p>
+              <p className="text-sm text-muted">Downloads</p>
             </div>
           </div>
         </DribbbleCard>
@@ -143,7 +146,7 @@ function ArtistDashboardContent() {
 
       {/* Purchased Tracks Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">Purchased Tracks</h2>
+        <h2 className="text-2xl font-bold mb-4">Purchases</h2>
         {purchasedTracks && purchasedTracks.length > 0 ? (
           <div className="space-y-4">
             {purchasedTracks.map((track: {
@@ -184,7 +187,7 @@ function ArtistDashboardContent() {
                         className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full hover:opacity-90 transition-opacity"
                       >
                         <Download className="w-4 h-4" />
-                        Download Audio
+                        Download Track
                       </a>
                     )}
                     {track.licensePdfUrl && (
@@ -215,15 +218,14 @@ function ArtistDashboardContent() {
         ) : (
           <DribbbleCard padding="lg" className="text-center">
             <Music className="w-12 h-12 text-muted mx-auto mb-4" />
-            <p className="text-muted">No purchased tracks yet</p>
-            <p className="text-sm text-muted mt-2">Browse storefronts to find beats</p>
+            <p className="text-muted">No results found.</p>
           </DribbbleCard>
         )}
       </section>
 
       {/* Service Bookings Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">Service Bookings</h2>
+        <h2 className="text-2xl font-bold mb-4">Bookings</h2>
         {serviceBookings && serviceBookings.length > 0 ? (
           <div className="space-y-4">
             {serviceBookings.map((booking: {
@@ -258,8 +260,7 @@ function ArtistDashboardContent() {
         ) : (
           <DribbbleCard padding="lg" className="text-center">
             <Package className="w-12 h-12 text-muted mx-auto mb-4" />
-            <p className="text-muted">No service bookings yet</p>
-            <p className="text-sm text-muted mt-2">Book services like mixing or mastering</p>
+            <p className="text-muted">No results found.</p>
           </DribbbleCard>
         )}
       </section>

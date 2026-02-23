@@ -60,13 +60,43 @@ export const createUser = mutation({
       .first();
     
     if (existing) {
-      throw new Error("User already exists");
+      // User already exists (e.g. created by webhook before onboarding) — just update the role
+      await ctx.db.patch(existing._id, { role: args.role });
+      return existing._id;
     }
 
     // Create user
     const userId = await ctx.db.insert("users", {
       clerkUserId: args.clerkUserId,
       role: args.role,
+      createdAt: Date.now(),
+    });
+
+    return userId;
+  },
+});
+
+/**
+ * Upsert user from Clerk webhook user.created event.
+ * Creates with default role "artist" if not already present.
+ * The role will be updated during onboarding via updateUserRole.
+ */
+export const upsertUserFromClerk = mutation({
+  args: { clerkUserId: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+      .first();
+
+    if (existing) {
+      // Already exists (e.g. created during onboarding before webhook fired)
+      return existing._id;
+    }
+
+    const userId = await ctx.db.insert("users", {
+      clerkUserId: args.clerkUserId,
+      role: "artist", // Default — updated during onboarding
       createdAt: Date.now(),
     });
 
@@ -106,14 +136,54 @@ export const updateUserRole = mutation({
 });
 
 /**
- * Delete user
- * Soft delete - keeps record but marks as deleted
- * Note: For MVP, we do hard delete. In production, consider soft delete.
+ * Delete user by internal ID
  */
 export const deleteUser = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.userId);
+  },
+});
+
+/**
+ * Delete user by Clerk user ID
+ * Called from Clerk webhook user.deleted event
+ * Also cascades to delete all workspaces owned by the user
+ */
+export const deleteUserByClerkId = mutation({
+  args: { clerkUserId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+      .first();
+
+    if (!user) {
+      // Already deleted or never existed — not an error
+      return null;
+    }
+
+    // Cascade: delete all workspaces owned by this user
+    const workspaces = await ctx.db
+      .query("workspaces")
+      .withIndex("by_owner", (q) => q.eq("ownerClerkUserId", args.clerkUserId))
+      .collect();
+
+    for (const workspace of workspaces) {
+      // Delete usage tracking for this workspace
+      const usage = await ctx.db
+        .query("usage")
+        .withIndex("by_workspace", (q) => q.eq("workspaceId", workspace._id))
+        .first();
+      if (usage) {
+        await ctx.db.delete(usage._id);
+      }
+
+      await ctx.db.delete(workspace._id);
+    }
+
+    await ctx.db.delete(user._id);
+    return user._id;
   },
 });
 

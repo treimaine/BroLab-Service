@@ -15,7 +15,7 @@ import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { PricingTable, useUser } from '@clerk/nextjs'
 import { SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
-import { AlertCircle, Check, CreditCard, Database, Loader2, Music, X } from 'lucide-react'
+import { AlertCircle, Check, CreditCard, Database, ExternalLink, Loader2, Music, X, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { api } from '../../../convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
@@ -173,9 +173,88 @@ export function BillingManagement() {
                   )}
                 </DribbbleCard>
 
+                {/* Stripe Connect Card */}
+                <DribbbleCard className="p-6">
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">Payment Account</h2>
+                      <p className="text-muted">Receive payments directly from your customers</p>
+                    </div>
+                    <Zap className="w-8 h-8 text-accent" />
+                  </div>
+
+                  {data.workspace.paymentsStatus === 'active' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-green-500/10 text-green-500">
+                          <Check className="w-4 h-4" />
+                          CONNECTED
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted">
+                        Your Stripe account is connected and ready to accept payments.
+                      </p>
+                      {data.workspace.stripeAccountId && (
+                        <p className="text-xs text-muted font-mono">
+                          Account: {data.workspace.stripeAccountId}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {data.workspace.paymentsStatus === 'pending' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/10 text-blue-400">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          PENDING VERIFICATION
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted">
+                        Your Stripe account is connected but needs to complete verification before you can accept payments. Check your Stripe dashboard for required actions.
+                      </p>
+                      <a
+                        href={`/api/stripe/connect/login-link?workspaceId=${data.workspaceId}`}
+                        className="inline-flex items-center gap-2 text-sm text-accent hover:underline"
+                      >
+                        Open Stripe Dashboard
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+
+                  {data.workspace.paymentsStatus === 'unconfigured' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/10 text-yellow-500">
+                          <AlertCircle className="w-4 h-4" />
+                          NOT CONFIGURED
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted">
+                        Connect your Stripe account to start receiving payments. BroLab takes 0% commission — you keep everything minus standard Stripe fees.
+                      </p>
+                      <ul className="space-y-1.5 text-sm text-muted">
+                        {['Direct payouts to your bank', 'Accept cards, Apple Pay, Google Pay', 'Automatic license delivery on purchase'].map((item) => (
+                          <li key={item} className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <a
+                        href={`/api/stripe/connect?workspaceId=${data.workspaceId}`}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200"
+                      >
+                        Connect Stripe Account
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  )}
+                </DribbbleCard>
+
                 {/* Usage vs Quota Card - Always show if we have subscription data */}
-                {data.subscription && data.planFeatures && (
-                  <DribbbleCard className="p-6">
+                {data.subscription && data.planFeatures && (                  <DribbbleCard className="p-6">
                     <div className="flex items-start justify-between mb-6">
                       <div>
                         <h2 className="text-2xl font-bold mb-2">Usage & Quotas</h2>

@@ -62,7 +62,7 @@ export function MobileNav({
             <Link
               key={item.id}
               href={item.href}
-              className="relative group flex-1 flex items-center justify-center cursor-pointer"
+              className="relative group flex-1 flex items-center justify-center cursor-pointer min-h-[44px]"
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
             >

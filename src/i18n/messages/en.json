@@ -7,18 +7,167 @@
     "delete": "Delete",
     "edit": "Edit",
     "create": "Create",
-    "submit": "Submit"
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "noResults": "No results found",
+    "learnMore": "Learn more",
+    "getStarted": "Get started",
+    "viewAll": "View all",
+    "tryAgain": "Try again"
   },
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "continueWith": "Continue with",
+    "orContinueWith": "Or continue with",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "forgotPassword": "Forgot password?"
+  },
+  "nav": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "studio": "Studio",
+    "artist": "Artist",
+    "beats": "Beats",
+    "services": "Services"
   },
   "landing": {
     "title": "BroLab Entertainment",
     "subtitle": "Your beats. Your brand. Your business.",
+    "eyebrow": "For Producers & Audio Engineers",
+    "valueProp": "Sell beats. Book sessions. Get paid directly.",
     "ctaProducer": "Start as Producer",
     "ctaEngineer": "Start as Engineer",
-    "ctaArtist": "I'm an Artist"
+    "ctaArtist": "I'm an Artist",
+    "ctaPrimary": "Get Started Free",
+    "ctaSecondary": "View Demo",
+    "trustMicrocopy": "No credit card • Cancel anytime",
+    "howItWorks": "How It Works",
+    "features": "Features",
+    "faq": "FAQ"
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your needs",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "savePercent": "Save {percent}%",
+    "mostPopular": "Most Popular",
+    "getStarted": "Get Started",
+    "currentPlan": "Current Plan",
+    "upgrade": "Upgrade",
+    "features": {
+      "tracks": "{count} published tracks",
+      "tracksUnlimited": "Unlimited tracks",
+      "storage": "{size}GB storage",
+      "customDomains": "{count} custom domain",
+      "customDomainsPlural": "{count} custom domains",
+      "noCustomDomains": "No custom domains",
+      "subdomain": "Free subdomain",
+      "stripeDirect": "Direct Stripe payouts",
+      "autoLicenses": "Automatic license PDFs",
+      "prioritySupport": "Priority support",
+      "analytics": "Advanced analytics"
+    }
+  },
+  "studio": {
+    "title": "Studio",
+    "tracks": "Tracks",
+    "services": "Services",
+    "billing": "Billing",
+    "domains": "Domains",
+    "analytics": "Analytics",
+    "uploadTrack": "Upload Track",
+    "createService": "Create Service",
+    "publishTrack": "Publish",
+    "unpublishTrack": "Unpublish",
+    "generatePreview": "Generate Preview",
+    "retryPreview": "Retry Preview",
+    "processingPreview": "Generating preview...",
+    "previewFailed": "Preview generation failed",
+    "noPreview": "No preview available",
+    "trackStatus": {
+      "draft": "Draft",
+      "published": "Published",
+      "processing": "Processing",
+      "failed": "Failed"
+    },
+    "subscription": {
+      "inactive": "Your subscription is inactive",
+      "upgradePrompt": "Upgrade to unlock all features",
+      "manage": "Manage Subscription"
+    },
+    "quota": {
+      "tracks": "{used} / {limit} tracks",
+      "storage": "{used}GB / {limit}GB storage",
+      "domains": "{used} / {limit} custom domains"
+    }
+  },
+  "artist": {
+    "title": "My Library",
+    "purchases": "Purchases",
+    "bookings": "Bookings",
+    "downloads": "Downloads",
+    "downloadTrack": "Download",
+    "noLicenseAvailable": "License not available",
+    "bookingStatus": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled"
+    }
+  },
+  "beats": {
+    "title": "Beats",
+    "bpm": "BPM",
+    "key": "Key",
+    "buy": "Buy",
+    "preview": "Preview",
+    "noPreviewAvailable": "No preview available",
+    "paymentsNotConfigured": "Payments not configured",
+    "selectLicense": "Select License",
+    "addToCart": "Add to Cart",
+    "checkout": "Checkout"
+  },
+  "services": {
+    "title": "Services",
+    "book": "Book",
+    "turnaround": "Turnaround",
+    "features": "What's included",
+    "bookService": "Book this service"
+  },
+  "player": {
+    "nowPlaying": "Now Playing",
+    "play": "Play",
+    "pause": "Pause",
+    "volume": "Volume",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "seek": "Seek"
+  },
+  "currency": {
+    "usd": "USD",
+    "eur": "EUR"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access denied",
+    "serverError": "Server error",
+    "quotaExceeded": "Quota exceeded",
+    "subscriptionRequired": "Subscription required"
   }
 }

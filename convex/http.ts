@@ -288,8 +288,9 @@ const clerkWebhookHandler = httpAction(async (ctx, request) => {
     }
 
     // Route to appropriate handler based on event type
-    if (type.startsWith("subscription.")) {
-      return await handleBillingEvent(ctx, type, data);
+    if (type.startsWith("subscription.") || type.startsWith("subscriptionItem.")) {
+      const eventId = (body as { id?: string }).id ?? "";
+      return await handleBillingEvent(ctx, type, data, eventId);
     }
     
     return await handleStandardEvent(ctx, type, data, eventObject);
@@ -416,8 +417,27 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
   // Create entitlement or booking
   if (itemType === "track") {
     await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
+
+    // Requirement 30.2: Send artist purchase confirmation email
+    if (buyerEmail) {
+      await sendArtistPurchaseEmailNotification(ctx, {
+        stripeEventId: event.id,
+        buyerEmail,
+        trackId: itemId,
+        licenseTier,
+      });
+    }
   } else {
     await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
+
+    // Requirement 30.3: Send booking confirmation email
+    if (buyerEmail) {
+      await sendBookingConfirmationEmailNotification(ctx, {
+        stripeEventId: event.id,
+        buyerEmail,
+        serviceId: itemId,
+      });
+    }
   }
 
   // Record event
@@ -636,31 +656,62 @@ function getLicenseTerms(licenseTier: string) {
   return LICENSE_TERMS_BY_TIER[licenseTier as keyof typeof LICENSE_TERMS_BY_TIER];
 }
 
-// Handle Clerk Billing events (subscription.*)
-async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, type: string, data: Record<string, unknown>): Promise<Response> {
-  console.log("Handling Billing event:", type);
+// Handle Clerk Billing events (subscription.* and subscriptionItem.*)
+//
+// Clerk Billing event structure (Beta):
+// - subscription.created/updated/active/pastDue → top-level container, no plan info
+//   data: { id, subscriber_id, subscriber_type ("user"|"org"), status, ... }
+// - subscriptionItem.active/canceled/ended/... → actual plan change events
+//   data: { id, subscription_id, plan_id, plan_slug, status, subscriber_id, subscriber_type, ... }
+//
+// We only sync to DB on subscriptionItem events (where plan info is available).
+// subscription.created is fired for every new user (free tier) — we acknowledge but skip.
+async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, type: string, data: Record<string, unknown>, eventId: string): Promise<Response> {
+  console.log("Handling Billing event:", type, JSON.stringify(data, null, 2));
 
-  const clerkUserId = (data.user_id || data.userId) as string | undefined;
-  const plan = data.plan as string | undefined;
-  const status = data.status as string | undefined;
-
-  console.log("Extracted billing data:", { clerkUserId, plan, status });
-
-  if (!clerkUserId || !plan || !status) {
-    console.error("Missing required fields:", { clerkUserId, plan, status });
-    return jsonResponse({
-      error: "Missing required fields in billing webhook data",
-      received: { clerkUserId, plan, status }
-    }, 400);
+  // subscription.* events: top-level container, no plan info — just acknowledge
+  if (type.startsWith("subscription.")) {
+    console.log("subscription.* event acknowledged (no plan sync needed):", type);
+    return jsonResponse({ received: true, synced: false, reason: "subscription_container_event" }, 200);
   }
 
-  if (plan !== "basic" && plan !== "pro") {
-    console.error("Invalid plan key:", plan);
-    return jsonResponse({ error: "Invalid plan key", received: plan }, 400);
+  // subscriptionItem.* events: these carry actual plan + status info
+  // Extract subscriber identity — Clerk uses subscriber_id + subscriber_type
+  const subscriberId = (data.subscriber_id || data.subscriberId) as string | undefined;
+  const subscriberType = (data.subscriber_type || data.subscriberType) as string | undefined;
+
+  // Plan info lives in plan_slug (e.g. "basic", "pro") or plan_id
+  const planSlug = (data.plan_slug || data.planSlug) as string | undefined;
+  const planId = (data.plan_id || data.planId) as string | undefined;
+  const itemStatus = (data.status) as string | undefined;
+
+  console.log("Extracted subscriptionItem data:", { subscriberId, subscriberType, planSlug, planId, itemStatus });
+
+  // Only handle user subscriptions (not org-level)
+  if (!subscriberId) {
+    console.error("Missing subscriber_id in subscriptionItem event");
+    return jsonResponse({ received: true, synced: false, reason: "missing_subscriber_id" }, 200);
   }
+
+  // Resolve clerkUserId — for user subscriptions subscriber_id IS the clerk user id
+  const clerkUserId = subscriberType === "user" ? subscriberId : null;
+  if (!clerkUserId) {
+    console.log("Skipping org-level subscription item:", subscriberType);
+    return jsonResponse({ received: true, synced: false, reason: "org_subscription_skipped" }, 200);
+  }
+
+  // Resolve plan key from slug or id
+  const resolvedPlan = resolvePlanKey(planSlug, planId);
+  if (!resolvedPlan) {
+    // Could be the free/default plan — acknowledge without error
+    console.log("Could not resolve plan key, skipping sync. planSlug:", planSlug, "planId:", planId);
+    return jsonResponse({ received: true, synced: false, reason: "unresolvable_plan" }, 200);
+  }
+
+  // Map event type to system status
+  const systemStatus = mapSubscriptionItemEventToStatus(type, itemStatus);
 
   // Get workspace for this user
-  console.log("Looking up workspace for user:", clerkUserId);
   const workspaceId = await ctx.runMutation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (internal as any).platform.billing.webhooks.getWorkspaceByOwner,
@@ -668,25 +719,67 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
   );
 
   if (!workspaceId) {
-    console.error("Workspace not found for user:", clerkUserId);
-    return jsonResponse({ error: "Workspace not found for user", userId: clerkUserId }, 404);
+    // Workspace may not exist yet (user created but onboarding not done) — not a fatal error
+    console.warn("Workspace not found for user:", clerkUserId, "— will retry on next event");
+    return jsonResponse({ received: true, synced: false, reason: "workspace_not_found" }, 200);
   }
-
-  console.log("Found workspace:", workspaceId);
-
-  const systemStatus = mapClerkStatusToSystem(status);
-  console.log("Mapped status:", status, "->", systemStatus);
 
   // Sync subscription to database
   await ctx.runMutation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (internal as any).platform.billing.webhooks.syncSubscription,
-    { clerkUserId, workspaceId, planKey: plan, status: systemStatus }
+    { clerkUserId, workspaceId, planKey: resolvedPlan, status: systemStatus }
   );
 
-  console.log("Subscription synced successfully");
+  console.log("Subscription synced:", { clerkUserId, planKey: resolvedPlan, status: systemStatus });
 
-  return jsonResponse({ received: true, synced: true, eventType: "billing" }, 200);
+  // Requirement 30.4: Send subscription status email for active/canceled events (fire-and-forget)
+  if (eventId && (systemStatus === "active" || systemStatus === "canceled")) {
+    ctx.runAction(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).platform.email.actions.sendProviderSubscriptionEmail,
+      {
+        clerkEventId: eventId,
+        clerkUserId,
+        planKey: resolvedPlan,
+        status: systemStatus,
+      }
+    ).catch((err: unknown) => {
+      // Email failure must NOT fail the webhook — log and continue
+      console.error("Failed to send provider subscription email:", err);
+    });
+  }
+
+  return jsonResponse({ received: true, synced: true, eventType: "billing", planKey: resolvedPlan, status: systemStatus }, 200);
+}
+
+// Resolve plan key from Clerk plan slug or plan id
+// Plan slugs are configured in Clerk Dashboard → Billing → Plans
+function resolvePlanKey(planSlug?: string, planId?: string): "basic" | "pro" | null {
+  const slug = (planSlug || "").toLowerCase();
+  const id = (planId || "").toLowerCase();
+
+  if (slug.includes("pro") || id.includes("pro")) return "pro";
+  if (slug.includes("basic") || id.includes("basic")) return "basic";
+
+  return null;
+}
+
+// Map subscriptionItem event type + status to our system status
+function mapSubscriptionItemEventToStatus(eventType: string, itemStatus?: string): "active" | "inactive" | "canceled" {
+  switch (eventType) {
+    case "subscriptionItem.active":
+      return "active";
+    case "subscriptionItem.canceled":
+    case "subscriptionItem.ended":
+    case "subscriptionItem.abandoned":
+      return "canceled";
+    case "subscriptionItem.pastDue":
+    case "subscriptionItem.incomplete":
+      return "inactive";
+    default:
+      return mapClerkStatusToSystem(itemStatus || "");
+  }
 }
 
 // Handle standard Clerk events (user.*, session.*, organization.*)
@@ -706,37 +799,61 @@ async function handleStandardEvent(
   switch (type) {
     case "user.created":
       console.log("User created:", dataId);
-      // TODO: Add user creation logic if needed
+      if (dataId) {
+        await ctx.runMutation(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (internal as any).platform.users.upsertUserFromClerk,
+          { clerkUserId: dataId }
+        );
+        console.log("User upserted in Convex:", dataId);
+      }
       break;
 
     case "user.updated":
       console.log("User updated:", dataId);
-      // TODO: Add user update logic if needed
+      // Our Convex users table only stores clerkUserId, role, and createdAt.
+      // Role is managed by onboarding (updateUserRole), not by Clerk.
+      // We upsert as a safety net in case user.created webhook was missed.
+      if (dataId) {
+        await ctx.runMutation(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (internal as any).platform.users.upsertUserFromClerk,
+          { clerkUserId: dataId }
+        );
+      }
       break;
 
     case "user.deleted":
       console.log("User deleted:", dataId);
-      // TODO: Add user deletion logic if needed
+      if (dataId) {
+        await ctx.runMutation(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (internal as any).platform.users.deleteUserByClerkId,
+          { clerkUserId: dataId }
+        );
+        console.log("User deleted from Convex:", dataId);
+      }
       break;
 
     case "session.created":
       console.log("Session created:", dataId);
-      // TODO: Add session tracking logic if needed
+      // Sessions are managed entirely by Clerk — no Convex sync needed.
       break;
 
     case "organization.created":
       console.log("Organization created:", dataId);
-      // TODO: Add organization creation logic if needed
+      // Workspaces are owned by individual users (ownerClerkUserId), not by Clerk
+      // Organizations — no Convex sync needed at this stage.
       break;
 
     case "organization.updated":
       console.log("Organization updated:", dataId);
-      // TODO: Add organization update logic if needed
+      // No organization data mirrored in Convex schema — no sync needed.
       break;
 
     case "organization.deleted":
       console.log("Organization deleted:", dataId);
-      // TODO: Add organization deletion logic if needed
+      // No organization data mirrored in Convex schema — no sync needed.
       break;
 
     default:
@@ -766,6 +883,78 @@ function mapClerkStatusToSystem(clerkStatus: string): "active" | "inactive" | "c
       return "inactive";
     default:
       return "inactive";
+  }
+}
+
+// Send artist purchase email notification
+async function sendArtistPurchaseEmailNotification(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    stripeEventId: string;
+    buyerEmail: string;
+    trackId: string;
+    licenseTier: string;
+  }
+): Promise<void> {
+  try {
+    // Fetch track title for the email
+    const track = await ctx.runQuery(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).modules.beats.getTrack,
+      { trackId: params.trackId }
+    );
+
+    const trackTitle = track?.title ?? "Your Track";
+
+    await ctx.runAction(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).platform.email.actions.sendArtistPurchaseEmail,
+      {
+        stripeEventId: params.stripeEventId,
+        buyerEmail: params.buyerEmail,
+        trackTitle,
+        licenseTier: params.licenseTier,
+      }
+    );
+  } catch (err) {
+    // Email failure must NOT fail the webhook — log and continue
+    console.error("Failed to send artist purchase email:", err);
+  }
+}
+
+// Send booking confirmation email notification
+async function sendBookingConfirmationEmailNotification(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    stripeEventId: string;
+    buyerEmail: string;
+    serviceId: string;
+  }
+): Promise<void> {
+  try {
+    const service = await ctx.runQuery(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).modules.services.getServiceById,
+      { serviceId: params.serviceId }
+    );
+
+    const serviceTitle = service?.title ?? "Your Service";
+
+    ctx.runAction(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).platform.email.actions.sendBookingConfirmationEmail,
+      {
+        stripeEventId: params.stripeEventId,
+        buyerEmail: params.buyerEmail,
+        serviceTitle,
+        bookingStatus: "pending",
+      }
+    ).catch((err: unknown) => {
+      // Email failure must NOT fail the webhook — log and continue
+      console.error("Failed to send booking confirmation email:", err);
+    });
+  } catch (err) {
+    console.error("Failed to send booking confirmation email notification:", err);
   }
 }
 

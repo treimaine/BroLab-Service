@@ -77,6 +77,8 @@
 html {
   /* 8px spacing grid base */
   font-size: 16px;
+  /* Prevent horizontal scroll from decorative elements */
+  overflow-x: hidden;
 }
 
 body {
@@ -87,6 +89,8 @@ body {
   /* 8px grid: line-height based on 8px multiples */
   line-height: 1.5;
   /* 24px at 16px font = 3 * 8px */
+  /* Prevent horizontal scroll from decorative elements */
+  overflow-x: hidden;
 }
 
 /* --------------------------------------------

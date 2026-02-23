@@ -16,11 +16,12 @@
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useUser } from '@clerk/nextjs'
-import { AuthLoading, Authenticated, Unauthenticated } from 'convex/react'
+import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { CreditCard, Globe, Loader2, Music, Wrench } from 'lucide-react'
+import { AlertTriangle, CreditCard, ExternalLink, Globe, Loader2, Music, Wrench } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { api } from '../../../convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 const NAV_ITEMS = [
@@ -54,6 +55,10 @@ export function StudioDashboard() {
   const { user } = useUser()
   const router = useRouter()
   const role = user?.unsafeMetadata?.role as string | undefined
+
+  const workspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
+  const workspace = workspaces?.[0]
+  const paymentsStatus = workspace?.paymentsStatus
 
   useEffect(() => {
     if (user === null) {
@@ -107,6 +112,38 @@ export function StudioDashboard() {
                 Manage your beats, services, billing, and domains from here.
               </p>
             </DribbbleCard>
+
+            {/* Stripe Connect Banner */}
+            {paymentsStatus === 'unconfigured' && (
+              <div className="flex items-start gap-4 p-4 rounded-2xl border border-yellow-500/30 bg-yellow-500/5">
+                <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-yellow-500 text-sm">Payments not configured</p>
+                  <p className="text-sm text-muted mt-0.5">
+                    Connect your Stripe account to start receiving payments from your customers.
+                  </p>
+                </div>
+                <a
+                  href={workspace?._id ? `/api/stripe/connect?workspaceId=${workspace._id}` : '/studio/billing'}
+                  className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Connect Stripe
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
+
+            {paymentsStatus === 'pending' && (
+              <div className="flex items-start gap-4 p-4 rounded-2xl border border-blue-500/30 bg-blue-500/5">
+                <AlertTriangle className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-blue-400 text-sm">Stripe account pending verification</p>
+                  <p className="text-sm text-muted mt-0.5">
+                    Your Stripe account is connected but needs to complete verification before you can accept payments.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Nav Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -622,15 +622,15 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 9.Y: Resend Transactional Emails (Idempotent)
 
-- [ ] Task 9.15: Add Resend integration (env vars + client): Install resend package. Configure RESEND_API_KEY env var. Create src/platform/email/resend.ts client wrapper. _Requirements: 30.1_
+- [x] Task 9.15: Add Resend integration (env vars + client): Install resend package. Configure RESEND_API_KEY env var. Create src/platform/email/resend.ts client wrapper. _Requirements: 30.1_
 
-- [ ] Task 9.16: Add email idempotency (emailEvents table): Create emailEvents table in Convex schema. Implement checkEmailEvent and recordEmailEvent helpers. Ensure same event never sends duplicate emails. _Requirements: 30.5_
+- [x] Task 9.16: Add email idempotency (emailEvents table): Create emailEvents table in Convex schema. Implement checkEmailEvent and recordEmailEvent helpers. Ensure same event never sends duplicate emails. _Requirements: 30.5_
 
-- [ ] Task 9.17: Send artist purchase email on successful checkout: Trigger from Stripe webhook after order/entitlement creation. Include: track title, licenseTier, link to /artist dashboard. Use dedupeKey: "stripe:{eventId}:artist_purchase". Never include direct signed URLs (link to dashboard instead). _Requirements: 30.2, 30.6, 30.7_
+- [x] Task 9.17: Send artist purchase email on successful checkout: Trigger from Stripe webhook after order/entitlement creation. Include: track title, licenseTier, link to /artist dashboard. Use dedupeKey: "stripe:{eventId}:artist_purchase". Never include direct signed URLs (link to dashboard instead). _Requirements: 30.2, 30.6, 30.7_
 
-- [ ] Task 9.18: Send provider subscription status email on Clerk billing webhook events: Trigger on subscription active/canceled events. Include: status change confirmation, link to /studio/billing. Use dedupeKey: "clerk:{eventId}:subscription_status". _Requirements: 30.4_
+- [x] Task 9.18: Send provider subscription status email on Clerk billing webhook events: Trigger on subscription active/canceled events. Include: status change confirmation, link to /studio/billing. Use dedupeKey: "clerk:{eventId}:subscription_status". _Requirements: 30.4_
 
-- [ ] Task 9.19: Send booking confirmation email for service purchases: Trigger from Stripe webhook after booking creation. Include: service title, booking status, link to /artist dashboard. Use dedupeKey: "stripe:{eventId}:booking_confirm". _Requirements: 30.3_
+- [x] Task 9.19: Send booking confirmation email for service purchases: Trigger from Stripe webhook after booking creation. Include: service title, booking status, link to /artist dashboard. Use dedupeKey: "stripe:{eventId}:booking_confirm". _Requirements: 30.3_
 
 - [ ] CP-9X: Manual Checkpoint Phase 9.X+Y Complete (Licensing + Emails): Sign in as provider, create track with tier pricing (Basic $29, Premium $49, Unlimited $149). Sign in as artist, navigate to beat detail. Verify tier selector with prices and features. Purchase Premium tier → verify checkout includes licenseTier. Verify order created with licenseTier. Verify license + licenseDocuments records created. Start worker → verify license PDF generated. Navigate to /artist → verify "Download License PDF" button. Click download → verify PDF downloads with correct content. Verify purchase confirmation email received (check Resend dashboard). Test Unlimited tier → verify stems download available. Test subscription email: change provider subscription → verify email sent.
 
@@ -710,13 +710,13 @@ This implementation plan follows a phased approach to build the BroLab Entertain
 
 ### Phase 11: i18n + Final Responsive Polish
 
-- [ ] Task 11.1: Set up i18n infrastructure: /src/i18n/messages/en.json and fr.json. Locale detection from Accept-Language header + navigator fallback. Locale context provider. Default to EN. _Requirements: 25.1, 25.2, 25.3_
+- [x] Task 11.1: Set up i18n infrastructure: /src/i18n/messages/en.json and fr.json. Locale detection from Accept-Language header + navigator fallback. Locale context provider. Default to EN. _Requirements: 25.1, 25.2, 25.3_
 
-- [ ] Task 11.2: Implement currency display logic: formatPrice function with locale awareness. USD base currency. EUR only if priceEUR exists AND locale is FR. No automatic conversion. _Requirements: 25.4, 25.5, 25.6_
+- [x] Task 11.2: Implement currency display logic: formatPrice function with locale awareness. USD base currency. EUR only if priceEUR exists AND locale is FR. No automatic conversion. _Requirements: 25.4, 25.5, 25.6_
 
-- [ ] Task 11.3: Translate all UI strings: Hub pages (landing, pricing, auth). Tenant pages (storefront, beats, services). Dashboard pages (studio, artist). _Requirements: 25.3_
+- [x] Task 11.3: Translate all UI strings: Hub pages (landing, pricing, auth). Tenant pages (storefront, beats, services). Dashboard pages (studio, artist). _Requirements: 25.3_
 
-- [ ] Task 11.4: Final responsive audit: Test all breakpoints: 320, 360, 390, 414, 768, 820, 1024, 1280, 1440px. Fix any horizontal scroll issues. Verify touch targets ≥ 44px. _Requirements: 22.1, 22.2, 22.3_
+- [x] Task 11.4: Final responsive audit: Test all breakpoints: 320, 360, 390, 414, 768, 820, 1024, 1280, 1440px. Fix any horizontal scroll issues. Verify touch targets ≥ 44px. _Requirements: 22.1, 22.2, 22.3_
 
 - [ ] Task 11.5: Accessibility audit: Focus-visible rings on all interactive elements. Proper ARIA labels. Keyboard navigation. _Requirements: 26.5_
 

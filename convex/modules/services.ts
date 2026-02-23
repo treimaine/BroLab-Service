@@ -7,7 +7,7 @@
  */
 
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { internalQuery, mutation, query } from "../_generated/server";
 import { logAuditHelper } from "../platform/auditLogs";
 import { assertActiveSubscription } from "../platform/entitlements";
 
@@ -307,6 +307,12 @@ export const deleteService = mutation({
 
 /** Get service by ID. Requirements: 16.2 */
 export const getService = query({
+  args: { serviceId: v.id("services") },
+  handler: async (ctx, args) => ctx.db.get(args.serviceId),
+});
+
+/** Internal query to get a service by ID for use in HTTP actions. Requirements: 30.3 */
+export const getServiceById = internalQuery({
   args: { serviceId: v.id("services") },
   handler: async (ctx, args) => ctx.db.get(args.serviceId),
 });

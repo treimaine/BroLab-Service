@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Pricing Plans - BroLab Entertainment',
     description: 'Choose the perfect plan for your music business. BASIC at $9.99/month or PRO at $29.99/month. No platform fees on your sales.',
-    url: 'https://brolabentertainment.com/pricing',
+    url: '/pricing',
     siteName: 'BroLab Entertainment',
     type: 'website',
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     images: ['/og-pricing.png'],
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com/pricing',
+    canonical: '/pricing',
   },
 }
 

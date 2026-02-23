@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'BroLab Entertainment - Your Music, Your Brand, Your Revenue',
     description: 'Launch your music storefront in minutes. Sell beats and services with zero platform fees.',
-    url: 'https://brolabentertainment.com',
+    url: '/',
     siteName: 'BroLab Entertainment',
     type: 'website',
     images: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     creator: '@brolabent',
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com',
+    canonical: '/',
   },
   robots: {
     index: true,
@@ -41,100 +41,150 @@ export const metadata: Metadata = {
   },
 }
 
+const BASE_URL = 'https://brolabentertainment.com'
+
+const FAQ_ITEMS = [
+  {
+    question: 'Do I need a Stripe account?',
+    answer: "Yes, you'll connect your own Stripe account during onboarding. This allows artists to pay you directly—no middleman. BroLab uses Stripe Connect to route payments straight to your bank.",
+  },
+  {
+    question: 'How are licenses delivered?',
+    answer: 'Licenses are generated automatically as PDFs when an artist completes a purchase. They receive an email with a link to their dashboard where they can download both the audio files and the license document.',
+  },
+  {
+    question: 'Can I sell both beats and services?',
+    answer: 'Absolutely! Your storefront supports both beat sales (with tiered licensing: Basic, Premium, Unlimited) and service bookings (mixing, mastering, vocal tuning, etc.) all in one place.',
+  },
+  {
+    question: 'What commission does BroLab take?',
+    answer: 'For MVP, BroLab takes 0% commission on sales. You only pay the standard Stripe processing fees (around 2.9% + $0.30 per transaction). Your subscription covers platform access.',
+  },
+  {
+    question: 'Can I use a custom domain?',
+    answer: 'PRO subscribers can connect up to 2 custom domains to their storefront. BASIC plan users get a subdomain (yourname.brolabentertainment.com) which works great for most creators.',
+  },
+  {
+    question: 'Is there a free plan?',
+    answer: 'We offer a free trial to explore the platform. After that, BASIC starts at $9.99/month (or $59.99/year—50% off). PRO is $29.99/month (or $107.99/year—70% off) with unlimited tracks and custom domains.',
+  },
+]
+
 export default function HubLandingPage() {
-  // SoftwareApplication JSON-LD Schema for SEO
-  const softwareApplicationSchema = {
+  const graphSchema = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'BroLab Entertainment',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    description: 'Launch your music storefront in minutes. Sell beats and services directly to artists with zero platform fees. Custom domains, automatic licensing, and direct Stripe payments.',
-    url: 'https://brolabentertainment.com',
-    offers: [
+    '@graph': [
       {
-        '@type': 'Offer',
-        name: 'BASIC Plan',
-        description: 'Perfect for getting started - 25 published tracks, 1GB storage, subdomain storefront',
-        price: '9.99',
-        priceCurrency: 'USD',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: '9.99',
-          priceCurrency: 'USD',
-          referenceQuantity: {
-            '@type': 'QuantitativeValue',
-            value: '1',
-            unitCode: 'MON',
-          },
+        '@type': 'Organization',
+        '@id': `${BASE_URL}/#organization`,
+        name: 'BroLab Entertainment',
+        url: BASE_URL,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${BASE_URL}/logo.png`,
+        },
+        sameAs: ['https://twitter.com/brolabent'],
+        contactPoint: {
+          '@type': 'ContactPoint',
+          email: 'support@brolabentertainment.com',
+          contactType: 'customer support',
         },
       },
       {
-        '@type': 'Offer',
-        name: 'BASIC Plan (Annual)',
-        description: 'Perfect for getting started - 25 published tracks, 1GB storage, subdomain storefront. Save 50% with annual billing.',
-        price: '59.99',
-        priceCurrency: 'USD',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: '59.99',
-          priceCurrency: 'USD',
-          referenceQuantity: {
-            '@type': 'QuantitativeValue',
-            value: '1',
-            unitCode: 'ANN',
-          },
-        },
+        '@type': 'WebSite',
+        '@id': `${BASE_URL}/#website`,
+        name: 'BroLab Entertainment',
+        url: BASE_URL,
+        description: 'Launch your music storefront in minutes. Sell beats and services directly to artists with zero platform fees.',
+        publisher: { '@id': `${BASE_URL}/#organization` },
       },
       {
-        '@type': 'Offer',
-        name: 'PRO Plan',
-        description: 'For serious creators - Unlimited tracks, 50GB storage, 2 custom domains, priority support',
-        price: '29.99',
-        priceCurrency: 'USD',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: '29.99',
-          priceCurrency: 'USD',
-          referenceQuantity: {
-            '@type': 'QuantitativeValue',
-            value: '1',
-            unitCode: 'MON',
+        '@type': 'SoftwareApplication',
+        '@id': `${BASE_URL}/#software`,
+        name: 'BroLab Entertainment',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        description: 'Launch your music storefront in minutes. Sell beats and services directly to artists with zero platform fees. Custom domains, automatic licensing, and direct Stripe payments.',
+        url: BASE_URL,
+        offers: [
+          {
+            '@type': 'Offer',
+            name: 'BASIC Plan',
+            description: 'Perfect for getting started - 25 published tracks, 1GB storage, subdomain storefront',
+            price: '9.99',
+            priceCurrency: 'USD',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: '9.99',
+              priceCurrency: 'USD',
+              referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'MON' },
+            },
           },
+          {
+            '@type': 'Offer',
+            name: 'BASIC Plan (Annual)',
+            description: 'Perfect for getting started - 25 published tracks, 1GB storage, subdomain storefront. Save 50% with annual billing.',
+            price: '59.99',
+            priceCurrency: 'USD',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: '59.99',
+              priceCurrency: 'USD',
+              referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'ANN' },
+            },
+          },
+          {
+            '@type': 'Offer',
+            name: 'PRO Plan',
+            description: 'For serious creators - Unlimited tracks, 50GB storage, 2 custom domains, priority support',
+            price: '29.99',
+            priceCurrency: 'USD',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: '29.99',
+              priceCurrency: 'USD',
+              referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'MON' },
+            },
+          },
+          {
+            '@type': 'Offer',
+            name: 'PRO Plan (Annual)',
+            description: 'For serious creators - Unlimited tracks, 50GB storage, 2 custom domains, priority support. Save 70% with annual billing.',
+            price: '107.99',
+            priceCurrency: 'USD',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: '107.99',
+              priceCurrency: 'USD',
+              referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'ANN' },
+            },
+          },
+        ],
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.8',
+          ratingCount: '127',
         },
+        featureList: [
+          'Direct Stripe payments with 0% platform fee',
+          'Automatic 30-second preview generation',
+          'Professional license PDF generation',
+          'Custom subdomain storefront',
+          'Service listings for mixing, mastering, and more',
+          'Multi-tier licensing (Basic, Premium, Unlimited)',
+          'Real-time analytics dashboard',
+          'Custom domain support (PRO)',
+        ],
       },
       {
-        '@type': 'Offer',
-        name: 'PRO Plan (Annual)',
-        description: 'For serious creators - Unlimited tracks, 50GB storage, 2 custom domains, priority support. Save 70% with annual billing.',
-        price: '107.99',
-        priceCurrency: 'USD',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: '107.99',
-          priceCurrency: 'USD',
-          referenceQuantity: {
-            '@type': 'QuantitativeValue',
-            value: '1',
-            unitCode: 'ANN',
-          },
-        },
+        '@type': 'FAQPage',
+        '@id': `${BASE_URL}/#faq`,
+        mainEntity: FAQ_ITEMS.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
       },
-    ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '127',
-    },
-    featureList: [
-      'Direct Stripe payments with 0% platform fee',
-      'Automatic 30-second preview generation',
-      'Professional license PDF generation',
-      'Custom subdomain storefront',
-      'Service listings for mixing, mastering, and more',
-      'Multi-tier licensing (Basic, Premium, Unlimited)',
-      'Real-time analytics dashboard',
-      'Custom domain support (PRO)',
     ],
   }
 
@@ -142,7 +192,7 @@ export default function HubLandingPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(graphSchema) }}
       />
       <HubLandingPageClient />
     </>

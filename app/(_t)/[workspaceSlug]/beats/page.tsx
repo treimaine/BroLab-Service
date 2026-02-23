@@ -1,6 +1,7 @@
 'use client'
 
 import { useWorkspace } from '@/components/tenant'
+import { useTranslation } from '@/i18n/useTranslation'
 import {
     DribbbleCard,
     DribbbleSectionEnter,
@@ -29,6 +30,7 @@ export default function BeatsListPage() {
   const { workspace, isLoading: workspaceLoading } = useWorkspace()
   const params = useParams()
   const workspaceSlug = params.workspaceSlug as string
+  const { t } = useTranslation()
 
   const play = useAudioStore((s) => s.play)
   const pause = useAudioStore((s) => s.pause)
@@ -47,7 +49,7 @@ export default function BeatsListPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted">Loading beats...</p>
+          <p className="text-muted">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -111,10 +113,10 @@ export default function BeatsListPage() {
               <DribbbleSectionEnter>
                 <DribbbleCard padding="lg" className="text-center py-16 max-w-md mx-auto">
                   <Music className="w-16 h-16 text-muted mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-text mb-2">No Beats Yet</h2>
-                  <p className="text-muted mb-8">Check back soon for new releases</p>
+                  <h2 className="text-2xl font-bold text-text mb-2">{t('beats.title')}</h2>
+                  <p className="text-muted mb-8">{t('common.noResults')}</p>
                   <Link href={`/${workspaceSlug}`}>
-                    <PillCTA variant="primary" size="md">Back to Home</PillCTA>
+                    <PillCTA variant="primary" size="md">{t('common.back')}</PillCTA>
                   </Link>
                 </DribbbleCard>
               </DribbbleSectionEnter>

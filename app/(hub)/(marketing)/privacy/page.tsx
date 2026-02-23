@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Privacy Policy - BroLab Entertainment',
     description: 'Learn how we collect, use, and protect your personal information. GDPR and CCPA compliant.',
-    url: 'https://brolabentertainment.com/privacy',
+    url: '/privacy',
     siteName: 'BroLab Entertainment',
     type: 'website',
   },
@@ -31,11 +31,31 @@ export const metadata: Metadata = {
     description: 'Learn how we collect, use, and protect your personal information.',
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com/privacy',
+    canonical: '/privacy',
   },
   robots: {
     index: true,
     follow: true,
+  },
+}
+
+const privacyPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Privacy Policy - BroLab Entertainment',
+  url: 'https://brolabentertainment.com/privacy',
+  description: 'BroLab Entertainment Privacy Policy. Learn how we collect, use, and protect your personal information.',
+  dateModified: '2026-01-10',
+  inLanguage: 'en-US',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'BroLab Entertainment',
+    url: 'https://brolabentertainment.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'BroLab Entertainment',
+    url: 'https://brolabentertainment.com',
   },
 }
 
@@ -61,7 +81,12 @@ const TOC_ITEMS = [
 
 export default function PrivacyPage() {
   return (
-    <MarketingPageShell
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(privacyPageSchema) }}
+      />
+      <MarketingPageShell
       heroWord="PRIVACY"
       seoTitle="Privacy Policy - BroLab Entertainment"
       subtitle="How we collect, use, and protect your information"
@@ -391,5 +416,6 @@ export default function PrivacyPage() {
         </p>
       </section>
     </MarketingPageShell>
+    </>
   )
 }

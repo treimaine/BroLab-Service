@@ -1,6 +1,24 @@
 import type { Metadata } from 'next'
 import AboutPageClient from './AboutPageClient'
 
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'BroLab Entertainment',
+  url: 'https://brolabentertainment.com',
+  logo: 'https://brolabentertainment.com/logo.png',
+  description: 'BroLab Entertainment empowers music producers and audio engineers to build their brand and sell directly to artists with zero platform fees.',
+  sameAs: [
+    'https://twitter.com/brolabent',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'support@brolabentertainment.com',
+    contactType: 'customer support',
+    availableLanguage: 'English',
+  },
+}
+
 /**
  * About Page - ELECTRI-X Design Language
  * 
@@ -17,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About Us - BroLab Entertainment',
     description: 'Empowering music creators to build their brand and sell directly to artists. Zero platform fees on your sales.',
-    url: 'https://brolabentertainment.com/about',
+    url: '/about',
     siteName: 'BroLab Entertainment',
     type: 'website',
     images: [
@@ -36,10 +54,18 @@ export const metadata: Metadata = {
     images: ['/og-about.png'],
   },
   alternates: {
-    canonical: 'https://brolabentertainment.com/about',
+    canonical: '/about',
   },
 }
 
 export default function AboutPage() {
-  return <AboutPageClient />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <AboutPageClient />
+    </>
+  )
 }

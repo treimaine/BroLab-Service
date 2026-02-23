@@ -1,16 +1,16 @@
 'use client'
 
 import {
-  ConstellationDots,
-  CyanOrb,
-  EditionBadge,
-  MicroInfoModule,
-  OrganicBlob,
-  OutlineStackTitle,
-  PillCTA,
-  ThemeToggle,
-  TopMinimalBar,
-  WavyLines
+    ConstellationDots,
+    CyanOrb,
+    EditionBadge,
+    MicroInfoModule,
+    OrganicBlob,
+    OutlineStackTitle,
+    PillCTA,
+    ThemeToggle,
+    TopMinimalBar,
+    WavyLines
 } from '@/platform/ui'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
