@@ -10,6 +10,7 @@ import {
     PricingSection,
     ProductPreviewSection,
     StatsSection,
+    TestimonialSection,
     TrustRow
 } from '@/components/hub/LandingSections'
 
@@ -26,6 +27,7 @@ export default function HubLandingPageClient() {
       <ProductPreviewSection />
       <PricingSection />
       <ComparisonSection />
+      <TestimonialSection />
       <FAQSection />
       <FinalCTASection />
     </main>

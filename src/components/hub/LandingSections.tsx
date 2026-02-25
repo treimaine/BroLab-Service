@@ -16,6 +16,7 @@ import {
   DollarSign,
   Headphones,
   Music,
+  Quote,
   Shield,
   Sparkles,
   Users,
@@ -551,6 +552,63 @@ export function ComparisonSection() {
               </div>
             ))}
           </DribbbleCard>
+        </DribbbleSectionEnter>
+      </div>
+    </section>
+  )
+}
+
+export function TestimonialSection() {
+  const testimonials = [
+    {
+      quote: "BroLab changed everything for me. I launched my store in 10 minutes and sold my first exclusive beat the next day with 0% commission.",
+      author: "Alex Rivers",
+      role: "Multi-Platinum Producer",
+      avatar: "AR"
+    },
+    {
+      quote: "The automated licensing and Stripe integration are seamless. I can focus on mixing while the platform handles the business.",
+      author: "Sarah Chen",
+      role: "Mixing Engineer",
+      avatar: "SC"
+    },
+    {
+      quote: "As an artist, I love the clean interface and the high-quality previews. Finding the right beat has never been this professional.",
+      author: "Marcus J",
+      role: "Independent Artist",
+      avatar: "MJ"
+    }
+  ]
+
+  return (
+    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+      <div className="container mx-auto max-w-6xl">
+        <DribbbleSectionEnter>
+          <SectionHeader number="06" title="HEAR FROM CREATORS" />
+        </DribbbleSectionEnter>
+
+        <DribbbleSectionEnter stagger>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t) => (
+              <DribbbleStaggerItem key={t.author}>
+                <DribbbleCard hoverLift padding="lg" className="h-full flex flex-col justify-between">
+                  <div>
+                    <Quote className="w-8 h-8 text-accent opacity-20 mb-4" />
+                    <p className="text-sm text-text leading-relaxed italic mb-6">"{t.quote}"</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-accent-2/20 flex items-center justify-center text-xs font-bold text-accent">
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-text uppercase">{t.author}</p>
+                      <p className="text-[10px] text-muted">{t.role}</p>
+                    </div>
+                  </div>
+                </DribbbleCard>
+              </DribbbleStaggerItem>
+            ))}
+          </div>
         </DribbbleSectionEnter>
       </div>
     </section>

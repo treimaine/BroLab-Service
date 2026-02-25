@@ -100,7 +100,7 @@ export function FAQSection() {
     <section className="px-4 py-24 bg-[rgb(var(--bg))]">
       <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter>
-          <SectionHeader number="06" title="FAQ" />
+          <SectionHeader number="07" title="FAQ" />
         </DribbbleSectionEnter>
 
         <DribbbleSectionEnter stagger>

@@ -51,7 +51,7 @@ const HeroTitle = ({ className }: { className?: string }) => (
         textShadow: '0 0 60px rgba(0,255,255,0.3), 0 0 120px rgba(0,255,255,0.15)',
       }}
     >
-      EXPLORE
+      LAUNCH
     </OutlineStackTitle>
     
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -68,13 +68,13 @@ const HeroCopy = () => (
     </div>
     
     <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text leading-tight">
-      Sell beats. Book sessions. Get paid directly.
+      Launch your store. Sell your music. Get paid directly.
     </h1>
     
     <div className="flex flex-col sm:flex-row gap-3 justify-center">
       <Link href="/sign-up">
         <PillCTA variant="primary" size="lg">
-          Get Started Free
+          Start My Storefront
         </PillCTA>
       </Link>
       <Link href="/tenant-demo">
