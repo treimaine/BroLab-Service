@@ -49,7 +49,7 @@ export function Header() {
           href: '/sign-in',
         }}
         cta={{
-          label: 'Explore →',
+          label: 'Start Free →',
           href: '/sign-up',
         }}
         right={<ThemeToggle />}

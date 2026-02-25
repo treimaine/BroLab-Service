@@ -17,10 +17,10 @@ import { useEffect, useState } from 'react'
 import { AuthNav } from './AuthNav'
 
 const PLATFORM_INFO: Array<{ text: string }> = [
-  { text: 'Powered by Clerk Billing (subscriptions)' },
-  { text: 'One-time payments via Stripe' },
-  { text: 'Licenses generated automatically' },
-  { text: 'Sell beats + services in one storefront' },
+  { text: 'Keep 100% of your revenue' },
+  { text: 'Instant payouts to your bank' },
+  { text: 'Licenses sent automatically' },
+  { text: 'Your storefront, your brand' },
 ]
 
 const BackgroundPattern = () => (
@@ -138,7 +138,7 @@ export function HeroSection() {
         right={
           <div className="flex items-center gap-4">
             {mounted && <ThemeToggle />}
-            <AuthNav ctaLabel="Explore" />
+            <AuthNav ctaLabel="Start Free" />
           </div>
         }
         isScrolled={isScrolled}
@@ -150,14 +150,14 @@ export function HeroSection() {
             
             <div className="hidden lg:block">
               <div className="space-y-12 text-center">
-                <HeroTitle className="text-[clamp(80px,14vw,180px)] font-black tracking-[0.05em]" />
+                <HeroTitle className="text-[clamp(56px,9vw,120px)] font-black tracking-[0.05em]" />
                 <HeroCopy />
               </div>
             </div>
             
             <div className="lg:hidden space-y-12">
               <div className="text-center">
-                <HeroTitle className="text-[clamp(48px,12vw,160px)] font-black tracking-[0.05em]" />
+                <HeroTitle className="text-[clamp(40px,10vw,100px)] font-black tracking-[0.05em]" />
               </div>
               <div className="text-center">
                 <HeroCopy />
