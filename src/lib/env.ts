@@ -1,112 +1,268 @@
 /**
  * Environment Variables Configuration
- * 
- * Centralized environment variable access with type safety and validation.
+ *
+ * Centralized environment variable access with explicit runtime validation.
  * All environment variables should be accessed through this module.
  */
 
-// Clerk Configuration
-export const CLERK_CONFIG = {
-  publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!,
-  secretKey: process.env.CLERK_SECRET_KEY!,
-  jwtIssuerDomain: process.env.CLERK_JWT_ISSUER_DOMAIN!,
-  webhookSecret: process.env.CLERK_WEBHOOK_SECRET!,
-  signInUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in',
-  signUpUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || '/sign-up',
-  signInFallbackRedirectUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL || '/',
-  signUpFallbackRedirectUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL || '/onboarding',
-  billingEnabled: process.env.CLERK_BILLING_ENABLED === 'true',
-} as const
+type NodeEnv = 'development' | 'production' | 'test'
 
-// Convex Configuration
-export const CONVEX_CONFIG = {
-  url: process.env.NEXT_PUBLIC_CONVEX_URL!,
-  deployment: process.env.CONVEX_DEPLOYMENT!,
-} as const
+interface RuntimeEnv {
+  nodeEnv: NodeEnv
+  clerkPublishableKey: string
+  clerkSecretKey: string
+  clerkJwtIssuerDomain: string
+  clerkWebhookSecret: string
+  clerkSignInUrl: string
+  clerkSignUpUrl: string
+  clerkSignInFallbackRedirectUrl: string
+  clerkSignUpFallbackRedirectUrl: string
+  clerkBillingEnabled: boolean
+  convexUrl: string
+  convexDeployment: string
+  stripeSecretKey: string
+  stripePublishableKey: string
+  stripeConnectClientId: string
+  stripeWebhookSecret: string
+  stripeConnectWebhookSecret: string
+  resendApiKey: string
+  siteUrl: string
+  brandName: string
+  brandEmail: string
+  brandAddress: string
+  brandPhone: string
+  brandWebsite: string
+}
 
-// Stripe Configuration
-export const STRIPE_CONFIG = {
-  // Platform account (for Clerk Billing - provider subscriptions)
-  secretKey: process.env.STRIPE_SECRET_KEY!,
-  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-  
-  // Stripe Connect (for artist purchases → provider accounts)
-  connectClientId: process.env.STRIPE_CONNECT_CLIENT_ID!,
-  
-  // Webhook secrets
-  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  connectWebhookSecret: process.env.STRIPE_CONNECT_WEBHOOK_SECRET!,
-} as const
+function getNodeEnv(): NodeEnv {
+  if (process.env.NODE_ENV === 'production') return 'production'
+  if (process.env.NODE_ENV === 'test') return 'test'
+  return 'development'
+}
 
-// Resend Configuration
-export const RESEND_CONFIG = {
-  apiKey: process.env.RESEND_API_KEY!,
-} as const
+function readEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim()
+  return value && value !== 'undefined' ? value : undefined
+}
 
-// Site Configuration
-export const SITE_CONFIG = {
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-  brand: {
-    name: process.env.BRAND_NAME || 'BroLab Entertainment',
-    email: process.env.BRAND_EMAIL || 'contact@brolabentertainment.com',
-    address: process.env.BRAND_ADDRESS || '',
-    phone: process.env.BRAND_PHONE || '',
-    website: process.env.BRAND_WEBSITE || 'https://brolabentertainment.com',
-  },
-} as const
+function isPlaceholderValue(value: string): boolean {
+  return (
+    value.includes('...') ||
+    value.includes('%USERNAME%') ||
+    value.startsWith('your-') ||
+    value.includes('your-domain') ||
+    value.includes('example.com')
+  )
+}
 
-// Environment Detection
-export const ENV = {
-  isDevelopment: process.env.NODE_ENV === 'development',
-  isProduction: process.env.NODE_ENV === 'production',
-  isTest: process.env.NODE_ENV === 'test',
-} as const
+function validateUrl(
+  name: string,
+  value: string,
+  errors: string[],
+  options?: { requireHttpsInProduction?: boolean }
+) {
+  try {
+    const url = new URL(value)
 
-/**
- * Validate required environment variables
- * Call this at app startup to fail fast if config is missing
- */
-export function validateEnv() {
-  const required = {
-    // Clerk
-    'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY': CLERK_CONFIG.publishableKey,
-    'CLERK_SECRET_KEY': CLERK_CONFIG.secretKey,
-    'CLERK_JWT_ISSUER_DOMAIN': CLERK_CONFIG.jwtIssuerDomain,
-    
-    // Convex
-    'NEXT_PUBLIC_CONVEX_URL': CONVEX_CONFIG.url,
-    
-    // Stripe
-    'STRIPE_SECRET_KEY': STRIPE_CONFIG.secretKey,
-    'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY': STRIPE_CONFIG.publishableKey,
-    'STRIPE_CONNECT_CLIENT_ID': STRIPE_CONFIG.connectClientId,
-    'STRIPE_WEBHOOK_SECRET': STRIPE_CONFIG.webhookSecret,
-    'STRIPE_CONNECT_WEBHOOK_SECRET': STRIPE_CONFIG.connectWebhookSecret,
-    
-    // Resend
-    'RESEND_API_KEY': RESEND_CONFIG.apiKey,
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      errors.push(`${name} must be an http(s) URL.`)
+      return
+    }
+
+    if (
+      options?.requireHttpsInProduction &&
+      getNodeEnv() === 'production' &&
+      url.protocol !== 'https:'
+    ) {
+      errors.push(`${name} must use https in production.`)
+    }
+
+    if (
+      getNodeEnv() === 'production' &&
+      ['localhost', '127.0.0.1'].includes(url.hostname)
+    ) {
+      errors.push(`${name} cannot point to localhost in production.`)
+    }
+  } catch {
+    errors.push(`${name} must be a valid URL.`)
+  }
+}
+
+function validateRequiredPrefixedValue(
+  name: string,
+  prefix: string,
+  errors: string[]
+): string | undefined {
+  const value = readEnv(name)
+  if (!value) {
+    errors.push(`${name} is required.`)
+    return undefined
   }
 
-  const missing: string[] = []
+  if (isPlaceholderValue(value)) {
+    errors.push(`${name} still contains a placeholder value.`)
+    return undefined
+  }
 
-  for (const [key, value] of Object.entries(required)) {
-    if (!value || value === 'undefined') {
-      missing.push(key)
+  if (!value.startsWith(prefix)) {
+    errors.push(`${name} must start with ${prefix}.`)
+    return undefined
+  }
+
+  return value
+}
+
+function resolveRuntimeEnv(): RuntimeEnv {
+  const errors: string[] = []
+  const nodeEnv = getNodeEnv()
+
+  const clerkPublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', 'pk_', errors)
+  const clerkSecretKey = validateRequiredPrefixedValue('CLERK_SECRET_KEY', 'sk_', errors)
+  const clerkWebhookSecret = validateRequiredPrefixedValue('CLERK_WEBHOOK_SECRET', 'whsec_', errors)
+  const clerkJwtIssuerDomain = readEnv('CLERK_JWT_ISSUER_DOMAIN')
+  if (!clerkJwtIssuerDomain) {
+    errors.push('CLERK_JWT_ISSUER_DOMAIN is required.')
+  } else {
+    validateUrl('CLERK_JWT_ISSUER_DOMAIN', clerkJwtIssuerDomain, errors, { requireHttpsInProduction: true })
+  }
+
+  const convexUrl = readEnv('NEXT_PUBLIC_CONVEX_URL')
+  if (!convexUrl) {
+    errors.push('NEXT_PUBLIC_CONVEX_URL is required.')
+  } else {
+    validateUrl('NEXT_PUBLIC_CONVEX_URL', convexUrl, errors, { requireHttpsInProduction: true })
+  }
+
+  const convexDeployment = readEnv('CONVEX_DEPLOYMENT')
+  if (!convexDeployment) {
+    errors.push('CONVEX_DEPLOYMENT is required.')
+  } else if (isPlaceholderValue(convexDeployment)) {
+    errors.push('CONVEX_DEPLOYMENT still contains a placeholder value.')
+  }
+
+  const stripeSecretKey = validateRequiredPrefixedValue('STRIPE_SECRET_KEY', 'sk_', errors)
+  const stripePublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', 'pk_', errors)
+  const stripeConnectClientId = validateRequiredPrefixedValue('STRIPE_CONNECT_CLIENT_ID', 'ca_', errors)
+  const stripeWebhookSecret = validateRequiredPrefixedValue('STRIPE_WEBHOOK_SECRET', 'whsec_', errors)
+  const stripeConnectWebhookSecret = validateRequiredPrefixedValue('STRIPE_CONNECT_WEBHOOK_SECRET', 'whsec_', errors)
+  const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
+
+  const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
+  validateUrl('NEXT_PUBLIC_SITE_URL', siteUrl, errors, { requireHttpsInProduction: true })
+
+  if (
+    stripeWebhookSecret &&
+    stripeConnectWebhookSecret &&
+    stripeWebhookSecret === stripeConnectWebhookSecret
+  ) {
+    errors.push('STRIPE_WEBHOOK_SECRET and STRIPE_CONNECT_WEBHOOK_SECRET must be different secrets.')
+  }
+
+  if (nodeEnv === 'production') {
+    const productionOnlyChecks: Array<[string, string | undefined]> = [
+      ['NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', clerkPublishableKey],
+      ['CLERK_SECRET_KEY', clerkSecretKey],
+      ['STRIPE_SECRET_KEY', stripeSecretKey],
+      ['NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', stripePublishableKey],
+    ]
+
+    for (const [name, value] of productionOnlyChecks) {
+      if (value?.includes('_test_')) {
+        errors.push(`${name} cannot use test credentials in production.`)
+      }
     }
   }
 
-  if (missing.length > 0) {
-    const missingList = missing.map(k => `  - ${k}`).join('\n')
-    const errorMessage = [
-      'Missing required environment variables:',
-      missingList,
-      '',
-      'Please check your .env.local file and ensure all required variables are set.',
-      'See docs/environment-setup.md for setup instructions.'
-    ].join('\n')
-    
-    throw new Error(errorMessage)
+  if (errors.length > 0) {
+    const details = errors.map((error) => `  - ${error}`).join('\n')
+    throw new Error(
+      [
+        'Invalid environment configuration:',
+        details,
+        '',
+        'Review docs/environment-setup.md and docs/security-secret-rotation.md before restarting the app.',
+      ].join('\n')
+    )
   }
+
+  return {
+    nodeEnv,
+    clerkPublishableKey: clerkPublishableKey!,
+    clerkSecretKey: clerkSecretKey!,
+    clerkJwtIssuerDomain: clerkJwtIssuerDomain!,
+    clerkWebhookSecret: clerkWebhookSecret!,
+    clerkSignInUrl: readEnv('NEXT_PUBLIC_CLERK_SIGN_IN_URL') ?? '/sign-in',
+    clerkSignUpUrl: readEnv('NEXT_PUBLIC_CLERK_SIGN_UP_URL') ?? '/sign-up',
+    clerkSignInFallbackRedirectUrl: readEnv('NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL') ?? '/',
+    clerkSignUpFallbackRedirectUrl: readEnv('NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL') ?? '/onboarding',
+    clerkBillingEnabled: readEnv('CLERK_BILLING_ENABLED') === 'true',
+    convexUrl: convexUrl!,
+    convexDeployment: convexDeployment!,
+    stripeSecretKey: stripeSecretKey!,
+    stripePublishableKey: stripePublishableKey!,
+    stripeConnectClientId: stripeConnectClientId!,
+    stripeWebhookSecret: stripeWebhookSecret!,
+    stripeConnectWebhookSecret: stripeConnectWebhookSecret!,
+    resendApiKey: resendApiKey!,
+    siteUrl,
+    brandName: readEnv('BRAND_NAME') ?? 'BroLab Entertainment',
+    brandEmail: readEnv('BRAND_EMAIL') ?? 'contact@brolabentertainment.com',
+    brandAddress: readEnv('BRAND_ADDRESS') ?? '',
+    brandPhone: readEnv('BRAND_PHONE') ?? '',
+    brandWebsite: readEnv('BRAND_WEBSITE') ?? 'https://brolabentertainment.com',
+  }
+}
+
+const runtimeEnv = resolveRuntimeEnv()
+
+export const CLERK_CONFIG = {
+  publishableKey: runtimeEnv.clerkPublishableKey,
+  secretKey: runtimeEnv.clerkSecretKey,
+  jwtIssuerDomain: runtimeEnv.clerkJwtIssuerDomain,
+  webhookSecret: runtimeEnv.clerkWebhookSecret,
+  signInUrl: runtimeEnv.clerkSignInUrl,
+  signUpUrl: runtimeEnv.clerkSignUpUrl,
+  signInFallbackRedirectUrl: runtimeEnv.clerkSignInFallbackRedirectUrl,
+  signUpFallbackRedirectUrl: runtimeEnv.clerkSignUpFallbackRedirectUrl,
+  billingEnabled: runtimeEnv.clerkBillingEnabled,
+} as const
+
+export const CONVEX_CONFIG = {
+  url: runtimeEnv.convexUrl,
+  deployment: runtimeEnv.convexDeployment,
+} as const
+
+export const STRIPE_CONFIG = {
+  secretKey: runtimeEnv.stripeSecretKey,
+  publishableKey: runtimeEnv.stripePublishableKey,
+  connectClientId: runtimeEnv.stripeConnectClientId,
+  webhookSecret: runtimeEnv.stripeWebhookSecret,
+  connectWebhookSecret: runtimeEnv.stripeConnectWebhookSecret,
+} as const
+
+export const RESEND_CONFIG = {
+  apiKey: runtimeEnv.resendApiKey,
+} as const
+
+export const SITE_CONFIG = {
+  url: runtimeEnv.siteUrl,
+  brand: {
+    name: runtimeEnv.brandName,
+    email: runtimeEnv.brandEmail,
+    address: runtimeEnv.brandAddress,
+    phone: runtimeEnv.brandPhone,
+    website: runtimeEnv.brandWebsite,
+  },
+} as const
+
+export const ENV = {
+  isDevelopment: runtimeEnv.nodeEnv === 'development',
+  isProduction: runtimeEnv.nodeEnv === 'production',
+  isTest: runtimeEnv.nodeEnv === 'test',
+} as const
+
+export function validateEnv() {
+  return runtimeEnv
 }
 
 /**

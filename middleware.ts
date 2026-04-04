@@ -31,6 +31,37 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks(.*)', // Webhooks should be public
 ])
 
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self' https://checkout.stripe.com https://connect.stripe.com",
+  "frame-ancestors 'none'",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https:",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "style-src 'self' 'unsafe-inline' https:",
+  "connect-src 'self' https: ws: wss:",
+].join('; ')
+
+function applySecurityHeaders(response: NextResponse, req: Request): NextResponse {
+  response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY)
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(self)')
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+
+  const forwardedProto = req.headers.get('x-forwarded-proto')
+  const isHttps = forwardedProto === 'https' || new URL(req.url).protocol === 'https:'
+  if (isHttps) {
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  }
+
+  return response
+}
+
 /**
  * Helper: Get redirect URL based on user role
  */
@@ -114,7 +145,7 @@ export default clerkMiddleware(async (auth, req) => {
   const isStaticExtAlt = /\.(html?|jpe?g|ttf|woff2?|docx?|xlsx?)$/i.test(pathname)
   const isStaticFile = isStaticExt || isStaticExtAlt
   if (pathname.startsWith('/_next/') || pathname.includes('/_next/static/') || isStaticFile) {
-    return NextResponse.next()
+    return applySecurityHeaders(NextResponse.next(), req)
   }
 
   // Define explicitly which paths are protected
@@ -126,14 +157,14 @@ export default clerkMiddleware(async (auth, req) => {
   // ============ STEP 2: AUTHENTICATION REDIRECTION ============
   if (!userId) {
     if (isStudioPath || isArtistPath || isOnboardingPath) {
-      return NextResponse.redirect(new URL('/sign-in', req.url))
+      return applySecurityHeaders(NextResponse.redirect(new URL('/sign-in', req.url)), req)
     }
-    return resolveTenancy(req)
+    return applySecurityHeaders(await resolveTenancy(req), req)
   }
 
   // ============ STEP 3: PUBLIC ROUTES (Logged in) ============
   if (isPublicPath) {
-    return resolveTenancy(req)
+    return applySecurityHeaders(await resolveTenancy(req), req)
   }
 
   // ============ STEP 4: ROLE-BASED PROTECTION ============
@@ -145,22 +176,22 @@ export default clerkMiddleware(async (auth, req) => {
     req,
     isOnboardingPath
   )
-  if (onboardingRedirect) return onboardingRedirect
+  if (onboardingRedirect) return applySecurityHeaders(onboardingRedirect, req)
 
   // Protect /studio/* routes
   if (isStudioPath) {
     const studioProtection = handleStudioProtection(userId, role, req)
-    if (studioProtection) return studioProtection
+    if (studioProtection) return applySecurityHeaders(studioProtection, req)
   }
 
   // Protect /artist/* routes
   if (isArtistPath) {
     const artistProtection = handleArtistProtection(userId, role, req)
-    if (artistProtection) return artistProtection
+    if (artistProtection) return applySecurityHeaders(artistProtection, req)
   }
 
   // ============ STEP 5: TENANCY RESOLUTION ============
-  return resolveTenancy(req)
+  return applySecurityHeaders(await resolveTenancy(req), req)
 })
 
 export const config = {

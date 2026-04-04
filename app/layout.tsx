@@ -1,6 +1,7 @@
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudioPlayer";
+import { SITE_CONFIG, validateEnv } from "@/lib/env";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Press_Start_2P } from "next/font/google";
@@ -19,26 +20,26 @@ const pressStart2P = Press_Start_2P({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-  : new URL("http://localhost:3000");
+validateEnv();
+
+const siteUrl = new URL(SITE_CONFIG.url);
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: {
-    default: "BroLab Entertainment",
-    template: "%s | BroLab Entertainment",
+    default: SITE_CONFIG.brand.name,
+    template: `%s | ${SITE_CONFIG.brand.name}`,
   },
   description: "Launch your music storefront in minutes. Sell beats and services directly to artists with zero platform fees.",
   keywords: ["music producer platform", "sell beats online", "beat store", "producer storefront", "music licensing", "audio engineer services"],
-  authors: [{ name: "BroLab Entertainment" }],
-  creator: "BroLab Entertainment",
+  authors: [{ name: SITE_CONFIG.brand.name }],
+  creator: SITE_CONFIG.brand.name,
   openGraph: {
     type: "website",
-    siteName: "BroLab Entertainment",
-    title: "BroLab Entertainment",
+    siteName: SITE_CONFIG.brand.name,
+    title: SITE_CONFIG.brand.name,
     description: "Launch your music storefront in minutes. Sell beats and services with zero platform fees.",
-    images: [{ url: "/og-home.png", width: 1200, height: 630, alt: "BroLab Entertainment" }],
+    images: [{ url: "/og-home.png", width: 1200, height: 630, alt: SITE_CONFIG.brand.name }],
   },
   twitter: {
     card: "summary_large_image",
