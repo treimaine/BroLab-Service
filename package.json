@@ -11,7 +11,9 @@
     "lint:surfaces": "node scripts/lint-surfaces.mjs",
     "typecheck": "tsc --noEmit",
     "build:worker": "tsc -p worker/tsconfig.json",
-    "worker": "node dist/worker/index.js"
+    "worker": "node dist/worker/index.js",
+    "security:jwt": "bash scripts/verify-jwt-security.sh",
+    "test:security": "playwright test tests/security/"
   },
   "dependencies": {
     "@clerk/nextjs": "6.36.5",
