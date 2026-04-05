@@ -83,7 +83,7 @@ function EqualizerBars({
       transition: {
         duration: 0.8 + i * 0.1,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: 'easeInOut' as const,
       },
     }),
     paused: {

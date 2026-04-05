@@ -40,6 +40,7 @@
     "worker",
     "dist",
     ".kiro",
-    ".env.local"
+    ".env.local",
+    "paperclip"
   ]
 }
