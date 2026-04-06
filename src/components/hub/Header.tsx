@@ -40,6 +40,7 @@ export function Header() {
         brandHref="/"
         navItems={[
           { label: 'Home', href: '/' },
+          { label: 'Marketplace', href: '/marketplace' },
           { label: 'Pricing', href: '/pricing' },
           { label: 'About', href: '/about' },
           { label: 'Contact', href: '/contact' },
