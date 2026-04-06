@@ -75,7 +75,7 @@ Created `src/lib/env.ts` with:
 - Revenue flow: Artist → Provider's Stripe → Provider
 - Account type: Standard (full dashboard access)
 - Charge model: Direct Charges (0% platform fee for MVP)
-- Webhook: `/api/stripe/connect-webhook`
+- Webhook: `/api/stripe/webhook`
 
 ### Why Standard Accounts?
 
@@ -153,3 +153,4 @@ validateEnv()
 - **0% platform fee** for MVP (can add `application_fee_amount` later)
 - Test mode keys for development (`sk_test_...`, `pk_test_...`)
 - Production keys will be added during deployment
+- Connect webhook routing was later verified against the implemented Next.js route: `/api/stripe/webhook`

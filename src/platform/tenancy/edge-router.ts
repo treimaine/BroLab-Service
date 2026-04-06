@@ -160,6 +160,13 @@ export async function resolveTenancy(request: NextRequest): Promise<NextResponse
   const rawHost = request.headers.get('host') || ''
   const hostname = normalizeHostname(rawHost)
   const { pathname, search } = request.nextUrl
+  const isApiLikePath = pathname === '/api' || pathname.startsWith('/api/') || pathname === '/trpc' || pathname.startsWith('/trpc/')
+
+  // API routes should stay at their real app paths. Rewriting them to `/{slug}/api/*`
+  // breaks server handlers such as Stripe checkout/webhook endpoints on tenant domains.
+  if (isApiLikePath) {
+    return NextResponse.next()
+  }
 
   // Case 1: Hub domain (exact match)
   if (isHubDomain(hostname)) {

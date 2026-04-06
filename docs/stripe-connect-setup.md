@@ -81,7 +81,7 @@ STRIPE_CONNECT_WEBHOOK_SECRET=whsec_...         # Connect webhooks (artist purch
 1. Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/test/webhooks)
 2. Click **Add endpoint**
 3. Configure:
-   - **Endpoint URL**: `https://your-domain.com/api/stripe/connect-webhook`
+   - **Endpoint URL**: `https://your-domain.com/api/stripe/webhook`
    - **Events to send**:
      - `checkout.session.completed`
      - `payment_intent.succeeded`
@@ -272,7 +272,7 @@ Use Stripe CLI to forward webhooks to localhost:
 stripe login
 
 # Forward webhooks
-stripe listen --forward-to localhost:3000/api/stripe/connect-webhook
+stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 # Trigger test events
 stripe trigger checkout.session.completed
@@ -310,6 +310,10 @@ stripe trigger checkout.session.completed
 - Check webhook signing secret matches
 - Ensure endpoint is publicly accessible (not localhost)
 - Use Stripe CLI for local testing
+
+## Verification Runbook
+
+Use `docs/stripe-checkout-webhook-verification.md` for the exact local and staging proof sequence before calling the checkout flow production-ready.
 
 ### OAuth redirect fails
 - Verify `STRIPE_CONNECT_CLIENT_ID` is correct

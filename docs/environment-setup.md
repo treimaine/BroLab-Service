@@ -89,7 +89,7 @@ STRIPE_CONNECT_WEBHOOK_SECRET=whsec_...
 3. Enable Connect in **Settings → Connect**
 4. Create webhook endpoints:
    - Platform: `/api/stripe/webhook`
-   - Connect: `/api/stripe/connect-webhook`
+   - Connect: `/api/stripe/webhook`
 
 **Documentation:** See `docs/stripe-connect-setup.md`
 
@@ -190,7 +190,7 @@ After setting up environment variables, verify:
 
 **Solution:**
 1. Verify `STRIPE_WEBHOOK_SECRET` matches Stripe Dashboard
-2. Use Stripe CLI for local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+2. For Stripe Connect checkout events, use Stripe CLI for local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
 3. Check webhook endpoint URL is correct
 
 ### "CLERK_JWT_ISSUER_DOMAIN is not set"
@@ -234,6 +234,11 @@ Next.js loads env vars in this order (highest to lowest priority):
 3. `.env` (all environments, committed to git)
 
 **Rule:** Use `.env.local` for secrets, `.env` for defaults.
+
+## Operator Runbooks
+
+- Use `docs/security-secret-rotation.md` before any production deploy, incident-driven credential reset, or scheduled 90-day rotation.
+- Keep Stripe platform and Stripe Connect webhook secrets distinct. The runtime validator now rejects duplicate values.
 
 ## Troubleshooting
 

@@ -3,6 +3,7 @@
 // Requirements: 4.1, 4.2, 4.3, 4.4
 
 import { v } from "convex/values";
+import { recordEventHelper } from "./events";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
 
@@ -221,6 +222,18 @@ export const createWorkspace = mutation({
       storageUsedBytes: 0,
       publishedTracksCount: 0,
       updatedAt: Date.now(),
+    });
+
+    await recordEventHelper(ctx, {
+      workspaceId,
+      type: "workspace_created",
+      meta: {
+        ownerClerkUserId: args.ownerClerkUserId,
+        slug: args.slug,
+        name: args.name,
+        workspaceType: args.type,
+        source: "onboarding",
+      },
     });
 
     return workspaceId;
