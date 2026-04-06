@@ -1,0 +1,211 @@
+'use client'
+
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X, ShoppingCart, ArrowRight, Loader2, Lock } from 'lucide-react'
+import {
+  DribbbleCard,
+  PillCTA,
+} from '@/platform/ui'
+import { LicenseSelector, DEFAULT_LICENSE_TIERS, type LicenseTier } from './LicenseSelector'
+
+interface CheckoutModalProps {
+  isOpen: boolean
+  onClose: () => void
+  beat: {
+    id: string
+    title: string
+    producer: string
+    coverUrl?: string
+    bpm?: number
+    genre?: string
+  }
+  licenseTiers?: LicenseTier[]
+}
+
+export function CheckoutModal({
+  isOpen,
+  onClose,
+  beat,
+  licenseTiers = DEFAULT_LICENSE_TIERS,
+}: CheckoutModalProps) {
+  const [selectedLicenseId, setSelectedLicenseId] = useState<string | null>(
+    licenseTiers.find((t) => t.popular)?.id || licenseTiers[0]?.id || null
+  )
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const selectedLicense = licenseTiers.find((t) => t.id === selectedLicenseId)
+
+  const handleCheckout = async () => {
+    if (!selectedLicense) return
+
+    setIsProcessing(true)
+
+    try {
+      // TODO: Create Stripe checkout session
+      // const response = await fetch('/api/stripe/checkout', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     beatId: beat.id,
+      //     licenseId: selectedLicense.id,
+      //   }),
+      // })
+      // const { url } = await response.json()
+      // window.location.href = url
+
+      // Mock redirect for now
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      console.log('Checkout:', { beat, license: selectedLicense })
+      // In production: redirect to Stripe Checkout
+    } catch (error) {
+      console.error('Checkout error:', error)
+      alert('Failed to start checkout. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+
+          {/* Modal */}
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <motion.div
+                className="w-full max-w-2xl"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', duration: 0.4 }}
+              >
+                <DribbbleCard className="relative p-6 md:p-8">
+                  {/* Close Button */}
+                  <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card hover:bg-border flex items-center justify-center transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  {/* Header */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+                        <ShoppingCart className="w-4 h-4 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold">Purchase Beat</h2>
+                    </div>
+                    <p className="text-sm text-muted">
+                      Select your license and complete checkout securely with Stripe.
+                    </p>
+                  </div>
+
+                  {/* Beat Info */}
+                  <div className="mb-6 p-4 rounded-xl bg-card/60 backdrop-blur-glass border border-border">
+                    <div className="flex items-center gap-4">
+                      {/* Cover Art */}
+                      <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
+                        <span className="text-2xl">🎵</span>
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg truncate">{beat.title}</h3>
+                        <p className="text-sm text-muted">by {beat.producer}</p>
+                        {(beat.bpm || beat.genre) && (
+                          <div className="flex items-center gap-2 mt-1">
+                            {beat.genre && (
+                              <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-xs font-medium">
+                                {beat.genre}
+                              </span>
+                            )}
+                            {beat.bpm && (
+                              <span className="px-2 py-0.5 rounded-full bg-card text-muted text-xs font-medium">
+                                {beat.bpm} BPM
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* License Selection */}
+                  <div className="mb-6">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted mb-3">
+                      Choose License
+                    </h3>
+                    <LicenseSelector
+                      tiers={licenseTiers}
+                      selectedTierId={selectedLicenseId}
+                      onSelect={setSelectedLicenseId}
+                    />
+                  </div>
+
+                  {/* Total */}
+                  {selectedLicense && (
+                    <div className="mb-6 p-4 rounded-xl bg-accent/5 border border-accent/20">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm text-muted mb-1">Total</div>
+                          <div className="font-semibold">
+                            {selectedLicense.name}
+                          </div>
+                        </div>
+                        <div className="text-3xl font-bold text-accent">
+                          ${selectedLicense.price}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="space-y-3">
+                    <PillCTA
+                      onClick={handleCheckout}
+                      disabled={!selectedLicense || isProcessing}
+                      fullWidth
+                      iconBefore={isProcessing ? Loader2 : Lock}
+                      iconAfter={!isProcessing ? ArrowRight : undefined}
+                      className={isProcessing ? 'animate-pulse' : ''}
+                    >
+                      {isProcessing ? 'Processing...' : 'Proceed to Secure Checkout'}
+                    </PillCTA>
+
+                    <button
+                      onClick={onClose}
+                      className="w-full py-2 text-sm text-muted hover:text-text transition-colors"
+                      disabled={isProcessing}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+
+                  {/* Security Notice */}
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <p className="text-xs text-muted text-center flex items-center justify-center gap-2">
+                      <Lock className="w-3 h-3" />
+                      Secured by Stripe. Your payment information is never stored.
+                    </p>
+                  </div>
+                </DribbbleCard>
+              </motion.div>
+            </div>
+          </div>
+        </>
+      )}
+    </AnimatePresence>
+  )
+}

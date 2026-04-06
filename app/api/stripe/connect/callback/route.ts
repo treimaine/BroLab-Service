@@ -106,6 +106,19 @@ export async function GET(request: Request) {
       },
     })
 
+    // Record "onboarding_completed" event if provider is fully activated
+    if (paymentsStatus === 'active') {
+      await convex.mutation(api.platform.events.recordEvent, {
+        workspaceId: workspaceId as Id<'workspaces'>,
+        type: 'onboarding_completed',
+        meta: {
+          stripeAccountId,
+          accountType: account.type,
+          completedAt: new Date().toISOString(),
+        },
+      })
+    }
+
     // Redirect to studio with success message
     return NextResponse.redirect(
       `${SITE_CONFIG.url}/studio?success=stripe_connected&status=${paymentsStatus}`

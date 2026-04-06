@@ -45,7 +45,41 @@ const CONTENT_SECURITY_POLICY = [
   "connect-src 'self' https: ws: wss:",
 ].join('; ')
 
-function applySecurityHeaders(response: NextResponse, req: Request): NextResponse {
+function applyCorsHeaders(response: NextResponse, req: Request, pathname: string): NextResponse {
+  const origin = req.headers.get('origin')
+  const isApiRoute = pathname.startsWith('/api/')
+
+  // For API routes, apply CORS headers
+  if (isApiRoute && origin) {
+    const url = new URL(req.url)
+    const requestHost = url.hostname
+
+    // Allow same-origin and tenant subdomains
+    const isAllowedOrigin =
+      origin.includes(requestHost) ||
+      origin.endsWith('.brolabentertainment.com') ||
+      origin === 'http://localhost:3000' ||
+      origin === 'http://localhost:3001'
+
+    if (isAllowedOrigin) {
+      response.headers.set('Access-Control-Allow-Origin', origin)
+      response.headers.set('Access-Control-Allow-Credentials', 'true')
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, stripe-signature, X-Requested-With')
+      response.headers.set('Access-Control-Max-Age', '86400')
+    }
+  }
+
+  return response
+}
+
+function applySecurityHeaders(response: NextResponse, req: Request, pathname?: string): NextResponse {
+  // Apply CORS headers first for API routes
+  if (pathname) {
+    applyCorsHeaders(response, req, pathname)
+  }
+
+  // Apply security headers
   response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY)
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-Content-Type-Options', 'nosniff')
@@ -145,7 +179,7 @@ export default clerkMiddleware(async (auth, req) => {
   const isStaticExtAlt = /\.(html?|jpe?g|ttf|woff2?|docx?|xlsx?)$/i.test(pathname)
   const isStaticFile = isStaticExt || isStaticExtAlt
   if (pathname.startsWith('/_next/') || pathname.includes('/_next/static/') || isStaticFile) {
-    return applySecurityHeaders(NextResponse.next(), req)
+    return applySecurityHeaders(NextResponse.next(), req, pathname)
   }
 
   // Define explicitly which paths are protected
@@ -157,14 +191,14 @@ export default clerkMiddleware(async (auth, req) => {
   // ============ STEP 2: AUTHENTICATION REDIRECTION ============
   if (!userId) {
     if (isStudioPath || isArtistPath || isOnboardingPath) {
-      return applySecurityHeaders(NextResponse.redirect(new URL('/sign-in', req.url)), req)
+      return applySecurityHeaders(NextResponse.redirect(new URL('/sign-in', req.url)), req, pathname)
     }
-    return applySecurityHeaders(await resolveTenancy(req), req)
+    return applySecurityHeaders(await resolveTenancy(req), req, pathname)
   }
 
   // ============ STEP 3: PUBLIC ROUTES (Logged in) ============
   if (isPublicPath) {
-    return applySecurityHeaders(await resolveTenancy(req), req)
+    return applySecurityHeaders(await resolveTenancy(req), req, pathname)
   }
 
   // ============ STEP 4: ROLE-BASED PROTECTION ============
@@ -176,22 +210,22 @@ export default clerkMiddleware(async (auth, req) => {
     req,
     isOnboardingPath
   )
-  if (onboardingRedirect) return applySecurityHeaders(onboardingRedirect, req)
+  if (onboardingRedirect) return applySecurityHeaders(onboardingRedirect, req, pathname)
 
   // Protect /studio/* routes
   if (isStudioPath) {
     const studioProtection = handleStudioProtection(userId, role, req)
-    if (studioProtection) return applySecurityHeaders(studioProtection, req)
+    if (studioProtection) return applySecurityHeaders(studioProtection, req, pathname)
   }
 
   // Protect /artist/* routes
   if (isArtistPath) {
     const artistProtection = handleArtistProtection(userId, role, req)
-    if (artistProtection) return applySecurityHeaders(artistProtection, req)
+    if (artistProtection) return applySecurityHeaders(artistProtection, req, pathname)
   }
 
   // ============ STEP 5: TENANCY RESOLUTION ============
-  return applySecurityHeaders(await resolveTenancy(req), req)
+  return applySecurityHeaders(await resolveTenancy(req), req, pathname)
 })
 
 export const config = {

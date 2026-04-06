@@ -21,6 +21,7 @@ export type EventType =
   | "domain_verification_failed"
   | "payments_connected"
   | "payments_disconnected"
+  | "onboarding_completed"
   | "workspace_created"
   | "subscription_activated"
   | "subscription_canceled"

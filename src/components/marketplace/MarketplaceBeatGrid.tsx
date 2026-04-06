@@ -10,6 +10,7 @@ import {
   dribbbleStaggerContainer,
   dribbbleStaggerChild,
 } from '@/platform/ui'
+import { WaveformVisualizer } from '@/components/beats/WaveformVisualizer'
 
 interface MarketplaceBeatGridProps {
   searchQuery: string
@@ -195,19 +196,13 @@ export default function MarketplaceBeatGrid({
                 </span>
               </div>
 
-              {/* Waveform placeholder */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="flex items-center justify-center h-full gap-1">
-                  {Array.from({ length: 40 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-1 bg-accent rounded-full"
-                      style={{
-                        height: `${Math.random() * 60 + 20}%`,
-                      }}
-                    />
-                  ))}
-                </div>
+              {/* Waveform visualization */}
+              <div className="absolute inset-0 opacity-30 p-4">
+                <WaveformVisualizer
+                  audioUrl={`/api/beats/${beat.id}/audio`}
+                  animated={playingId === beat.id}
+                  barCount={50}
+                />
               </div>
             </div>
 
