@@ -175,6 +175,11 @@ function resolveRuntimeEnv(): RuntimeEnv {
     errors.push('STRIPE_WEBHOOK_SECRET and STRIPE_CONNECT_WEBHOOK_SECRET must be different secrets.')
   }
 
+  const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
+
+  const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
+  validateUrl('NEXT_PUBLIC_SITE_URL', siteUrl, errors, { requireHttpsInProduction: true })
+
   // Allow test credentials in production if explicitly enabled (for local builds)
   const allowTestInProduction = readEnv('ALLOW_TEST_CREDENTIALS_IN_PRODUCTION') === 'true'
   
