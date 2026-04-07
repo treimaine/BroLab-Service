@@ -61,6 +61,14 @@ function main() {
 
   const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
   const isProduction = process.env.NODE_ENV === 'production'
+  const isVercel = process.env.VERCEL === '1'
+
+  // Skip strict checks on Vercel build - variables are injected by platform
+  if (isVercel && isBuildTime) {
+    console.log('ℹ️  Running on Vercel - skipping strict environment checks')
+    console.log('✅ Environment variables will be validated at runtime\n')
+    return
+  }
 
   let hasErrors = false
   let hasWarnings = false
