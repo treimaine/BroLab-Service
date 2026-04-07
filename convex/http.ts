@@ -6,6 +6,16 @@ import { httpRouter } from "convex/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
+import {
+  logWebhookSuccess,
+  logWebhookFailure,
+  logWebhookDuplicate,
+  logSignatureVerificationFailure,
+  logOrderCreation,
+  logEntitlementCreation,
+  logBookingCreation,
+  logEmailNotification,
+} from "./platform/monitoring";
 
 // Stripe event types
 interface StripeCheckoutSession {
@@ -101,27 +111,36 @@ http.route({
   path: "/api/stripe/webhook",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    const startTime = Date.now();
+    let eventId = "unknown";
+    let eventType = "unknown";
+
     try {
       const body = await request.text();
       const signature = request.headers.get("stripe-signature");
 
       if (!signature) {
         console.error("Missing stripe-signature header");
+        logSignatureVerificationFailure("Missing stripe-signature header");
         return jsonResponse({ error: "Missing signature" }, 400);
       }
 
       // Requirement 14.1: Verify Stripe webhook signature
       const event = await verifyStripeWebhook(body, signature);
       if (!event) {
+        logSignatureVerificationFailure("Invalid webhook signature");
         return jsonResponse({ error: "Webhook signature verification failed" }, 400);
       }
 
+      eventId = event.id;
+      eventType = event.type;
       console.log("Stripe webhook received:", event.type, "ID:", event.id);
 
       // Requirement 14.2 & 14.3: Check idempotency
       const isProcessed = await checkEventProcessed(ctx, event.id);
       if (isProcessed) {
         console.log("Event already processed, skipping:", event.id);
+        logWebhookDuplicate(event.id, event.type);
         return jsonResponse({ received: true, skipped: true }, 200);
       }
 
@@ -132,6 +151,12 @@ http.route({
 
       // For other event types, just mark as processed
       await markEventProcessed(ctx, event.id);
+      const duration = Date.now() - startTime;
+      logWebhookSuccess({
+        eventId: event.id,
+        eventType: event.type,
+        duration,
+      });
       return jsonResponse({
         received: true,
         eventType: event.type,
@@ -139,7 +164,16 @@ http.route({
       }, 200);
 
     } catch (error) {
+      const duration = Date.now() - startTime;
       console.error("Stripe webhook error:", error);
+      logWebhookFailure({
+        eventId,
+        eventType,
+        errorCode: error instanceof Error ? error.name : "UNKNOWN_ERROR",
+        errorMessage: error instanceof Error ? error.message : String(error),
+        duration,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return jsonResponse({
         error: "Webhook processing failed",
         message: error instanceof Error ? error.message : String(error),
@@ -383,12 +417,21 @@ async function markEventProcessed(ctx: GenericActionCtx<Record<string, never>>, 
 
 // Handle checkout.session.completed event
 async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, never>>, event: StripeEvent): Promise<Response> {
+  const startTime = Date.now();
   const session = event.data.object;
   console.log("Processing checkout.session.completed:", session.id);
 
   // Validate session metadata
   const validationError = validateSessionMetadata(session);
   if (validationError) {
+    const duration = Date.now() - startTime;
+    logWebhookFailure({
+      eventId: event.id,
+      eventType: event.type,
+      errorCode: "INVALID_METADATA",
+      errorMessage: "Invalid session metadata",
+      duration,
+    });
     return validationError;
   }
 
@@ -399,65 +442,137 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
   const buyerEmail = session.customer_email || undefined;
   const connectedAccountId = event.account || null;
 
-  // Create order
-  console.log("Creating order...");
-  const orderId = await createOrder(ctx, {
-    workspaceId,
-    buyerClerkUserId,
-    buyerEmail,
-    stripeSessionId: session.id,
-    itemType,
-    itemId,
-    currency,
-    amountCents: amountTotal,
-    licenseTier: itemType === "track" ? licenseTier : undefined,
-  });
-  console.log("Order created:", orderId);
+  try {
+    // Create order
+    console.log("Creating order...");
+    const orderId = await createOrder(ctx, {
+      workspaceId,
+      buyerClerkUserId,
+      buyerEmail,
+      stripeSessionId: session.id,
+      itemType,
+      itemId,
+      currency,
+      amountCents: amountTotal,
+      licenseTier: itemType === "track" ? licenseTier : undefined,
+    });
+    console.log("Order created:", orderId);
 
-  // Create entitlement or booking
-  if (itemType === "track") {
-    await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
+    // Log order creation
+    logOrderCreation({
+      orderId,
+      workspaceId,
+      buyerClerkUserId,
+      itemType: itemType as "track" | "service",
+      amountCents: amountTotal,
+      currency,
+    });
 
-    // Requirement 30.2: Send artist purchase confirmation email
-    if (buyerEmail) {
-      await sendArtistPurchaseEmailNotification(ctx, {
-        stripeEventId: event.id,
-        buyerEmail,
+    // Create entitlement or booking
+    if (itemType === "track") {
+      await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
+      logEntitlementCreation({
+        workspaceId,
+        buyerClerkUserId,
         trackId: itemId,
         licenseTier,
       });
-    }
-  } else {
-    await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
 
-    // Requirement 30.3: Send booking confirmation email
-    if (buyerEmail) {
-      await sendBookingConfirmationEmailNotification(ctx, {
-        stripeEventId: event.id,
-        buyerEmail,
+      // Requirement 30.2: Send artist purchase confirmation email
+      if (buyerEmail) {
+        try {
+          await sendArtistPurchaseEmailNotification(ctx, {
+            stripeEventId: event.id,
+            buyerEmail,
+            trackId: itemId,
+            licenseTier,
+          });
+          logEmailNotification({
+            type: "purchase_confirmation",
+            recipientEmail: buyerEmail,
+            success: true,
+          });
+        } catch (emailError) {
+          logEmailNotification({
+            type: "purchase_confirmation",
+            recipientEmail: buyerEmail,
+            success: false,
+            error: emailError instanceof Error ? emailError.message : String(emailError),
+          });
+        }
+      }
+    } else {
+      await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
+      logBookingCreation({
+        workspaceId,
+        buyerClerkUserId,
         serviceId: itemId,
       });
+
+      // Requirement 30.3: Send booking confirmation email
+      if (buyerEmail) {
+        try {
+          await sendBookingConfirmationEmailNotification(ctx, {
+            stripeEventId: event.id,
+            buyerEmail,
+            serviceId: itemId,
+          });
+          logEmailNotification({
+            type: "booking_confirmation",
+            recipientEmail: buyerEmail,
+            success: true,
+          });
+        } catch (emailError) {
+          logEmailNotification({
+            type: "booking_confirmation",
+            recipientEmail: buyerEmail,
+            success: false,
+            error: emailError instanceof Error ? emailError.message : String(emailError),
+          });
+        }
+      }
     }
+
+    // Record event
+    await recordCheckoutSuccessEvent(ctx, {
+      workspaceId,
+      orderId,
+      itemType,
+      itemId,
+      buyerClerkUserId,
+      amountCents: amountTotal,
+      currency,
+      stripeSessionId: session.id,
+      connectedAccountId,
+    });
+
+    // Mark as processed
+    await markEventProcessed(ctx, event.id);
+
+    const duration = Date.now() - startTime;
+    console.log("Webhook processing complete");
+    logWebhookSuccess({
+      eventId: event.id,
+      eventType: event.type,
+      orderId,
+      workspaceId,
+      duration,
+    });
+
+    return jsonResponse({ received: true, processed: true, orderId }, 200);
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error("Error processing checkout.session.completed:", error);
+    logWebhookFailure({
+      eventId: event.id,
+      eventType: event.type,
+      errorCode: error instanceof Error ? error.name : "CHECKOUT_PROCESSING_ERROR",
+      errorMessage: error instanceof Error ? error.message : String(error),
+      duration,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
   }
-
-  // Record event
-  await recordCheckoutSuccessEvent(ctx, {
-    workspaceId,
-    orderId,
-    itemType,
-    itemId,
-    buyerClerkUserId,
-    amountCents: amountTotal,
-    currency,
-    stripeSessionId: session.id,
-    connectedAccountId,
-  });
-
-  // Mark as processed
-  await markEventProcessed(ctx, event.id);
-  console.log("Webhook processing complete");
-
-  return jsonResponse({ received: true, processed: true, orderId }, 200);
 }
 
 // Validate session metadata

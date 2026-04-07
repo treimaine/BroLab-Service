@@ -10,15 +10,36 @@
 
 import { CONVEX_CONFIG } from '@/lib/env'
 import { NextResponse } from 'next/server'
+import { logWebhookReceived } from '@/lib/monitoring'
 
 export async function POST(request: Request) {
+  const startTime = Date.now()
   try {
     const body = await request.text()
     const signature = request.headers.get('stripe-signature')
 
     if (!signature) {
+      console.error('Missing stripe-signature header')
       return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
     }
+
+    // Extract event ID from body for monitoring
+    let eventId = 'unknown'
+    let eventType = 'unknown'
+    try {
+      const bodyJson = JSON.parse(body)
+      eventId = bodyJson.id || 'unknown'
+      eventType = bodyJson.type || 'unknown'
+    } catch {
+      // Ignore parse errors here, let Convex handle it
+    }
+
+    // Log webhook received
+    logWebhookReceived({
+      eventId,
+      eventType,
+      signature: true,
+    })
 
     // Forward to Convex HTTP endpoint which handles:
     // - Signature verification (Req 14.1)
@@ -39,9 +60,15 @@ export async function POST(request: Request) {
 
     const result = await convexResponse.json()
 
+    // Add timing info to response
+    const duration = Date.now() - startTime
+    console.log(`[MONITORING] Webhook ${eventType} processed in ${duration}ms`)
+
     return NextResponse.json(result, { status: convexResponse.status })
   } catch (error) {
+    const duration = Date.now() - startTime
     console.error('Stripe webhook proxy error:', error)
+    console.error(`[MONITORING] Webhook processing failed after ${duration}ms`)
     return NextResponse.json(
       {
         error: 'Webhook processing failed',

@@ -8,6 +8,7 @@
  */
 
 import { v } from "convex/values";
+import type { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
 
 // ============================================================================
@@ -43,9 +44,10 @@ export const getMarketplaceBeats = query({
     const sortBy = args.sortBy ?? "newest";
 
     // Query all published tracks
-    let tracksQuery = ctx.db
+    const tracksQuery = ctx.db
       .query("tracks")
-      .withIndex("by_status", (q) => q.eq("status", "published"));
+      .withIndex("by_workspace_status")
+      .filter((q) => q.eq(q.field("status"), "published"));
 
     // Collect all tracks (we'll filter and sort in memory)
     let tracks = await tracksQuery.collect();
@@ -71,17 +73,20 @@ export const getMarketplaceBeats = query({
     // Sort tracks
     tracks.sort((a, b) => {
       switch (sortBy) {
-        case "newest":
+        case "newest": {
           return b.createdAt - a.createdAt;
-        case "price-low":
+        }
+        case "price-low": {
           // Get the minimum license price for each track
-          const priceA = Math.min(...a.licenseTiers.map(l => l.priceUSD));
-          const priceB = Math.min(...b.licenseTiers.map(l => l.priceUSD));
+          const priceA = a.priceEurByTier ? Math.min(...Object.values(a.priceEurByTier)) : 0;
+          const priceB = b.priceEurByTier ? Math.min(...Object.values(b.priceEurByTier)) : 0;
           return priceA - priceB;
-        case "price-high":
-          const maxPriceA = Math.max(...a.licenseTiers.map(l => l.priceUSD));
-          const maxPriceB = Math.max(...b.licenseTiers.map(l => l.priceUSD));
+        }
+        case "price-high": {
+          const maxPriceA = a.priceEurByTier ? Math.max(...Object.values(a.priceEurByTier)) : 0;
+          const maxPriceB = b.priceEurByTier ? Math.max(...Object.values(b.priceEurByTier)) : 0;
           return maxPriceB - maxPriceA;
+        }
         default:
           return 0;
       }
@@ -123,7 +128,8 @@ export const getMarketplaceGenres = query({
     // Query all published tracks
     const tracks = await ctx.db
       .query("tracks")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .withIndex("by_workspace_status")
+      .filter((q) => q.eq(q.field("status"), "published"))
       .collect();
 
     // Extract unique genres from tags
@@ -136,7 +142,7 @@ export const getMarketplaceGenres = query({
     });
 
     // Convert to sorted array
-    return Array.from(genresSet).sort();
+    return Array.from(genresSet).sort((a, b) => a.localeCompare(b));
   },
 });
 
@@ -159,7 +165,8 @@ export const getFeaturedProducers = query({
     // Get all published tracks
     const tracks = await ctx.db
       .query("tracks")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .withIndex("by_workspace_status")
+      .filter((q) => q.eq(q.field("status"), "published"))
       .collect();
 
     // Count tracks by workspace
@@ -181,11 +188,11 @@ export const getFeaturedProducers = query({
     // Fetch workspace details
     const producers = await Promise.all(
       sortedWorkspaces.map(async ([workspaceId, trackCount]) => {
-        const workspace = await ctx.db.get(workspaceId as any);
+        const workspace = await ctx.db.get(workspaceId as Id<"workspaces">);
         return workspace ? {
           id: workspace._id,
-          slug: workspace.slug,
-          name: workspace.name,
+          slug: workspace.slug ?? 'unknown',
+          name: workspace.name ?? 'Unknown Producer',
           trackCount,
         } : null;
       })
@@ -211,7 +218,7 @@ export const getMarketplaceBeat = query({
   handler: async (ctx, args) => {
     const track = await ctx.db.get(args.trackId);
 
-    if (!track || track.status !== "published") {
+    if (track?.status !== "published") {
       return null;
     }
 
@@ -220,11 +227,11 @@ export const getMarketplaceBeat = query({
 
     return {
       ...track,
-      workspace: workspace ? {
+      workspace: workspace && {
         id: workspace._id,
         slug: workspace.slug,
         name: workspace.name,
-      } : null,
+      },
     };
   },
 });

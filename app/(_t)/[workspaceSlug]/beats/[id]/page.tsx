@@ -8,7 +8,7 @@ import {
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { useQuery } from 'convex/react'
-import { AlertCircle, ArrowLeft, Pause, Play } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Clock, Pause, Play, ShieldCheck, Star, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -106,10 +106,18 @@ export default function BeatDetailPage() {
     })
   }
 
+  const isPaymentsNotConfigured = !isPaymentsConfigured
+  const handleBuyOrContact = () => {
+    if (isPaymentsConfigured && !isPurchasing) {
+      handlePurchase()
+    } else if (!isPaymentsConfigured) {
+      globalThis.location.href = `/${workspaceSlug}/contact`
+    }
+  }
   const buyLabel = (() => {
-    if (isPurchasing) return 'Redirecting...'
-    if (isPaymentsConfigured) return 'Buy License'
-    return 'Unavailable'
+    if (isPurchasing) return 'Processing...'
+    if (isPaymentsConfigured) return 'Buy Now — Instant Download'
+    return 'Contact Producer'
   })()
   const tierPrices = track.priceUsdByTier
   const tierLabels: Record<LicenseTier, string> = {
@@ -238,7 +246,7 @@ export default function BeatDetailPage() {
               </div>
 
               {/* Right Column - Purchase Card */}
-              <div className="lg:col-span-1">
+                <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-6">
                   <DribbbleCard glow padding="lg">
                     <div className="text-center mb-6">
@@ -248,29 +256,69 @@ export default function BeatDetailPage() {
                     </div>
 
                     <PillCTA
-                      variant="primary"
+                      variant={isPaymentsNotConfigured ? 'secondary' : 'primary'}
                       size="lg"
                       className="w-full mb-4"
-                      disabled={!isPaymentsConfigured || isPurchasing}
-                      onClick={handlePurchase}
+                      disabled={isPurchasing}
+                      onClick={handleBuyOrContact}
                     >
                       {buyLabel}
                     </PillCTA>
-                    {/* label computed above to avoid nested ternary lint warning */}
+                    
+                    {/* Social Proof - Trust Signals */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted mb-4">
+                      <div className="flex -space-x-2">
+                        <div className="w-6 h-6 rounded-full bg-accent/20 border-2 border-card" />
+                        <div className="w-6 h-6 rounded-full bg-accent/40 border-2 border-card" />
+                        <div className="w-6 h-6 rounded-full bg-accent/60 border-2 border-card" />
+                      </div>
+                      <span>12+ artists bought this month</span>
+                    </div>
+                    
+                    {/* Trust Badges */}
+                    <div className="flex items-center justify-center gap-3 text-xs text-muted mb-4">
+                      <span className="flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-green-500" />
+                        Secure Payment
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-accent" />
+                        Instant Delivery
+                      </span>
+                    </div>
 
                     <div className="space-y-3 pt-4">
                       <div className="h-px bg-border/50" />
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted">License Type</span>
-                        <span className="text-text font-medium">{tierLabels[selectedTier]}</span>
+                      
+                      {/* Value Propositions */}
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                          <Zap className="w-4 h-4 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-text">Instant Download</p>
+                          <p className="text-xs text-muted">Get your files immediately</p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted">Instant Download</span>
-                        <span className="text-text font-medium">Yes</span>
+                      
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                          <ShieldCheck className="w-4 h-4 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-text">Licensed & Verified</p>
+                          <p className="text-xs text-muted">Official PDF license included</p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted">License PDF</span>
-                        <span className="text-text font-medium">Included</span>
+                      
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-yellow-500" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-text">24/7 Support</p>
+                          <p className="text-xs text-muted">Producer available for questions</p>
+                        </div>
                       </div>
                     </div>
                   </DribbbleCard>

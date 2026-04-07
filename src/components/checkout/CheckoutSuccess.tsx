@@ -1,21 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Check, Download, FileText, Home, Music, Sparkles } from 'lucide-react'
 import {
   DribbbleCard,
   PillCTA,
   dribbblePageEnter,
-  dribbbleStaggerContainer,
   dribbbleStaggerChild,
+  dribbbleStaggerContainer,
 } from '@/platform/ui'
+import { motion } from 'framer-motion'
+import { Check, FileText, Home, Music, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { InstantDelivery } from './InstantDelivery'
 
 export function CheckoutSuccess() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [purchaseData, setPurchaseData] = useState<{
     beatTitle: string
@@ -28,11 +28,28 @@ export function CheckoutSuccess() {
 
   // In production, fetch purchase data from session_id
   useEffect(() => {
-    const sessionId = searchParams.get('session_id')
+    const _sessionId = searchParams.get('session_id')
+
+    const trackPurchaseComplete = async () => {
+      if (!_sessionId) return
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'checkout_funnel',
+            step: 'complete_payment',
+            sessionId: _sessionId,
+          }),
+        })
+      } catch (e) {
+        console.error('Failed to track purchase completion:', e)
+      }
+    }
 
     // TODO: Fetch real purchase data from Stripe session
     // const fetchPurchaseData = async () => {
-    //   const response = await fetch(`/api/stripe/session/${sessionId}`)
+    //   const response = await fetch(`/api/stripe/session/${_sessionId}`)
     //   const data = await response.json()
     //   setPurchaseData(data)
     //   setIsLoading(false)
@@ -49,6 +66,7 @@ export function CheckoutSuccess() {
         licenseUrl: '#',
       })
       setIsLoading(false)
+      trackPurchaseComplete()
     }, 1000)
   }, [searchParams])
 
@@ -74,9 +92,11 @@ export function CheckoutSuccess() {
           <p className="text-muted mb-4">
             We couldn&apos;t find your purchase details. Please contact support.
           </p>
-          <PillCTA href="/" variant="secondary">
-            Go Home
-          </PillCTA>
+          <Link href="/">
+            <PillCTA variant="secondary">
+              Go Home
+            </PillCTA>
+          </Link>
         </DribbbleCard>
       </div>
     )
@@ -153,8 +173,8 @@ export function CheckoutSuccess() {
           <motion.div variants={dribbbleStaggerChild}>
             <InstantDelivery
               beatTitle={purchaseData.beatTitle}
-              downloadUrl={purchaseData.downloadUrl}
-              licenseUrl={purchaseData.licenseUrl}
+              _downloadUrl={purchaseData.downloadUrl}
+              _licenseUrl={purchaseData.licenseUrl}
             />
           </motion.div>
 
@@ -205,22 +225,24 @@ export function CheckoutSuccess() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <PillCTA
-            href="/artist/purchases"
-            variant="primary"
-            className="flex-1"
-            iconBefore={FileText}
-          >
-            View My Purchases
-          </PillCTA>
-          <PillCTA
-            href="/marketplace"
-            variant="secondary"
-            className="flex-1"
-            iconBefore={Home}
-          >
-            Back to Marketplace
-          </PillCTA>
+          <Link href="/artist/purchases" className="flex-1">
+            <PillCTA
+              variant="primary"
+              className="w-full"
+              icon={FileText}
+            >
+              View My Purchases
+            </PillCTA>
+          </Link>
+          <Link href="/marketplace" className="flex-1">
+            <PillCTA
+              variant="secondary"
+              className="w-full"
+              icon={Home}
+            >
+              Back to Marketplace
+            </PillCTA>
+          </Link>
         </motion.div>
 
         {/* Receipt Email Notice */}

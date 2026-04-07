@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Play, Pause, ShoppingCart, ExternalLink } from 'lucide-react'
+import { WaveformVisualizer } from '@/components/beats/WaveformVisualizer'
 import {
   DribbbleCard,
-  PillCTA,
   GlassSkeletonCard,
-  dribbbleStaggerContainer,
+  PillCTA,
   dribbbleStaggerChild,
+  dribbbleStaggerContainer,
 } from '@/platform/ui'
-import { WaveformVisualizer } from '@/components/beats/WaveformVisualizer'
+import { motion } from 'framer-motion'
+import { ExternalLink, Pause, Play, ShoppingCart } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 interface MarketplaceBeatGridProps {
   searchQuery: string
@@ -86,7 +86,7 @@ export default function MarketplaceBeatGrid({
   searchQuery,
   selectedGenre,
   sortBy,
-}: MarketplaceBeatGridProps) {
+}: Readonly<MarketplaceBeatGridProps>) {
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [isLoading] = useState(false)
 
@@ -135,7 +135,7 @@ export default function MarketplaceBeatGrid({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-grid-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <GlassSkeletonCard key={i} height={300} />
+          <GlassSkeletonCard key={i} rows={5} hasImage />
         ))}
       </div>
     )
@@ -172,7 +172,7 @@ export default function MarketplaceBeatGrid({
               {/* Play/Pause Button */}
               <button
                 onClick={() => togglePlay(beat.id)}
-                className="relative z-10 w-16 h-16 rounded-full bg-accent/90 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-glow"
+                className="relative z-10 w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center hover:scale-110 transition-transform shadow-glow"
                 aria-label={playingId === beat.id ? 'Pause' : 'Play'}
               >
                 {playingId === beat.id ? (
@@ -184,14 +184,14 @@ export default function MarketplaceBeatGrid({
 
               {/* Genre Badge */}
               <div className="absolute top-grid-2 left-grid-2">
-                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 backdrop-blur-sm text-xs font-medium text-text">
+                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 text-xs font-medium text-text">
                   {beat.genre}
                 </span>
               </div>
 
               {/* BPM Badge */}
               <div className="absolute top-grid-2 right-grid-2">
-                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 backdrop-blur-sm text-xs font-medium text-text">
+                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 text-xs font-medium text-text">
                   {beat.bpm} BPM
                 </span>
               </div>

@@ -24,15 +24,15 @@ interface WaveformVisualizerProps {
  * - Render actual waveform peaks
  */
 export function WaveformVisualizer({
-  audioUrl,
+  audioUrl: _audioUrl,
   className = '',
   barCount = 40,
   barColor = 'rgb(var(--accent))',
   barGap = 4,
   animated = false,
-}: WaveformVisualizerProps) {
+}: Readonly<WaveformVisualizerProps>) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -103,7 +103,7 @@ export function WaveformVisualizer({
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [audioUrl, barCount, barColor, barGap, animated])
+  }, [barCount, barColor, barGap, animated])
 
   return (
     <canvas

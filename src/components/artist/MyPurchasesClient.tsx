@@ -1,18 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Download, FileText, Music, ShoppingBag, Calendar, ExternalLink } from 'lucide-react'
+import { formatDate } from '@/lib/format'
 import {
   DribbbleCard,
+  GlassSkeletonCard,
   OutlineStackTitle,
   PillCTA,
-  GlassSkeletonCard,
   dribbblePageEnter,
-  dribbbleStaggerContainer,
   dribbbleStaggerChild,
+  dribbbleStaggerContainer,
 } from '@/platform/ui'
-import { formatDate } from '@/lib/format'
+import { motion } from 'framer-motion'
+import { Calendar, Download, ExternalLink, FileText, Music, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
 
 interface Purchase {
   id: string
@@ -71,11 +72,11 @@ export function MyPurchasesClient() {
       <div className="min-h-screen bg-bg text-text py-16 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-8">
-            <GlassSkeletonCard height={60} className="mb-4" />
+            <GlassSkeletonCard rows={2} className="mb-4" />
           </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <GlassSkeletonCard key={i} height={200} />
+              <GlassSkeletonCard key={i} rows={4} hasImage />
             ))}
           </div>
         </div>
@@ -101,7 +102,9 @@ export function MyPurchasesClient() {
               <ShoppingBag className="w-6 h-6 text-white" />
             </div>
             <div>
-              <OutlineStackTitle text="My Purchases" className="text-3xl" />
+              <OutlineStackTitle size="section" className="text-3xl">
+                My Purchases
+              </OutlineStackTitle>
               <p className="text-sm text-muted mt-1">
                 {purchases.length} {purchases.length === 1 ? 'beat' : 'beats'} in your library
               </p>
@@ -121,9 +124,11 @@ export function MyPurchasesClient() {
             <p className="text-muted mb-6">
               Start building your beat library by browsing the marketplace.
             </p>
-            <PillCTA href="/marketplace" iconBefore={Music}>
-              Browse Marketplace
-            </PillCTA>
+            <Link href="/marketplace">
+              <PillCTA icon={Music}>
+                Browse Marketplace
+              </PillCTA>
+            </Link>
           </motion.div>
         )}
 
@@ -190,22 +195,24 @@ export function MyPurchasesClient() {
 
                       {/* Download Actions */}
                       <div className="flex flex-wrap gap-2">
-                        <PillCTA
-                          size="sm"
-                          variant="primary"
-                          href={purchase.downloadUrl}
-                          iconBefore={Download}
-                        >
-                          Download Beat
-                        </PillCTA>
-                        <PillCTA
-                          size="sm"
-                          variant="secondary"
-                          href={purchase.licenseUrl}
-                          iconBefore={FileText}
-                        >
-                          Download License
-                        </PillCTA>
+                        <a href={purchase.downloadUrl} download>
+                          <PillCTA
+                            size="sm"
+                            variant="primary"
+                            icon={Download}
+                          >
+                            Download Beat
+                          </PillCTA>
+                        </a>
+                        <a href={purchase.licenseUrl} download>
+                          <PillCTA
+                            size="sm"
+                            variant="secondary"
+                            icon={FileText}
+                          >
+                            Download License
+                          </PillCTA>
+                        </a>
                       </div>
                     </div>
                   </div>

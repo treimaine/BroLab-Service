@@ -14,6 +14,11 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
+import {
+  logCheckoutAttempt,
+  logCheckoutSuccess,
+  logCheckoutFailure,
+} from '@/lib/monitoring'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
@@ -189,11 +194,24 @@ async function createCheckoutSession(
 // ============================================================================
 
 export async function POST(request: Request) {
+  const startTime = Date.now()
+  let userId: string | undefined
+  let workspaceId: string | undefined
+  let itemType: string | undefined
+  let itemId: string | undefined
+  let licenseTier: string | undefined
+
   try {
     // 1. Authenticate user (buyer)
-    const { userId } = await auth()
-    
+    const auth_result = await auth()
+    userId = auth_result.userId
+
     if (!userId) {
+      logCheckoutFailure({
+        errorCode: 'UNAUTHORIZED',
+        errorMessage: 'User not authenticated',
+        duration: Date.now() - startTime,
+      })
       return NextResponse.json(
         { error: 'Unauthorized. Please sign in to make a purchase.' },
         { status: 401 }
@@ -203,15 +221,34 @@ export async function POST(request: Request) {
     // 2. Parse and validate request body
     const body: CheckoutRequest = await request.json()
     const validation = validateCheckoutRequest(body)
-    
+
     if (!validation.valid) {
+      logCheckoutFailure({
+        userId,
+        errorCode: 'VALIDATION_FAILED',
+        errorMessage: validation.error || 'Invalid checkout request',
+        duration: Date.now() - startTime,
+      })
       return NextResponse.json(
         { error: validation.error },
         { status: 400 }
       )
     }
 
-    const { workspaceId, itemType, itemId, licenseTier, successUrl, cancelUrl } = body
+    workspaceId = body.workspaceId
+    itemType = body.itemType
+    itemId = body.itemId
+    licenseTier = body.licenseTier
+
+    // Log attempt
+    logCheckoutAttempt({
+      userId,
+      workspaceId,
+      itemType: itemType as 'track' | 'service',
+      itemId,
+      licenseTier,
+      startTime,
+    })
 
     // 3. Fetch workspace data from Convex
     const workspace = await convex.query(api.platform.workspaces.getWorkspace, {
@@ -219,6 +256,15 @@ export async function POST(request: Request) {
     })
 
     if (!workspace) {
+      logCheckoutFailure({
+        userId,
+        workspaceId,
+        itemType,
+        itemId,
+        errorCode: 'WORKSPACE_NOT_FOUND',
+        errorMessage: 'Workspace not found',
+        duration: Date.now() - startTime,
+      })
       return NextResponse.json(
         { error: 'Workspace not found' },
         { status: 404 }
@@ -227,10 +273,19 @@ export async function POST(request: Request) {
 
     // 4. Validate payments configuration
     const paymentsValidation = validatePaymentsConfiguration(workspace)
-    
+
     if (!paymentsValidation.valid) {
+      logCheckoutFailure({
+        userId,
+        workspaceId,
+        itemType,
+        itemId,
+        errorCode: 'PAYMENTS_NOT_CONFIGURED',
+        errorMessage: paymentsValidation.error || 'Payments not configured',
+        duration: Date.now() - startTime,
+      })
       return NextResponse.json(
-        { 
+        {
           error: 'Payments not configured',
           message: paymentsValidation.error,
         },
@@ -250,14 +305,14 @@ export async function POST(request: Request) {
       itemId,
       buyerClerkUserId: userId,
     }
-    
+
     if (licenseTier) {
       metadata.licenseTier = licenseTier
     }
 
     // 7. Build success/cancel URLs
-    const finalSuccessUrl = successUrl || `${SITE_CONFIG.url}/artist?purchase=success`
-    const finalCancelUrl = cancelUrl || `${SITE_CONFIG.url}/_t/${workspace.slug}/${itemType === 'track' ? 'beats' : 'services'}/${itemId}`
+    const finalSuccessUrl = body.successUrl || `${SITE_CONFIG.url}/artist?purchase=success`
+    const finalCancelUrl = body.cancelUrl || `${SITE_CONFIG.url}/_t/${workspace.slug}/${itemType === 'track' ? 'beats' : 'services'}/${itemId}`
 
     // 8. Create Stripe Checkout Session
     const session = await createCheckoutSession(
@@ -272,18 +327,42 @@ export async function POST(request: Request) {
       finalCancelUrl
     )
 
+    // Log success
+    const duration = Date.now() - startTime
+    logCheckoutSuccess({
+      userId,
+      workspaceId,
+      sessionId: session.id,
+      itemType: itemType as 'track' | 'service',
+      itemId,
+      priceInCents: itemData.priceInCents,
+      currency: itemData.currency,
+      duration,
+    })
+
     // 9. Return checkout session URL
     return NextResponse.json({
       url: session.url,
       sessionId: session.id,
     })
   } catch (error) {
+    const duration = Date.now() - startTime
     console.error('Stripe checkout error:', error)
-    
+
     // Handle Stripe-specific errors
     if (error instanceof Stripe.errors.StripeError) {
+      logCheckoutFailure({
+        userId,
+        workspaceId,
+        itemType: itemType as 'track' | 'service' | undefined,
+        itemId,
+        errorCode: error.code || 'STRIPE_ERROR',
+        errorMessage: error.message,
+        duration,
+        stack: error.stack,
+      })
       return NextResponse.json(
-        { 
+        {
           error: 'Payment processing error',
           message: error.message,
         },
@@ -293,6 +372,16 @@ export async function POST(request: Request) {
 
     // Handle validation errors from helper functions
     if (error instanceof Error) {
+      logCheckoutFailure({
+        userId,
+        workspaceId,
+        itemType: itemType as 'track' | 'service' | undefined,
+        itemId,
+        errorCode: 'VALIDATION_ERROR',
+        errorMessage: error.message,
+        duration,
+        stack: error.stack,
+      })
       return NextResponse.json(
         { error: error.message },
         { status: 400 }
@@ -300,6 +389,15 @@ export async function POST(request: Request) {
     }
 
     // Generic error
+    logCheckoutFailure({
+      userId,
+      workspaceId,
+      itemType: itemType as 'track' | 'service' | undefined,
+      itemId,
+      errorCode: 'INTERNAL_SERVER_ERROR',
+      errorMessage: 'Failed to create checkout session',
+      duration,
+    })
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
       { status: 500 }

@@ -1,0 +1,10 @@
+{
+  "title": "Phase 1: Product Validation - Smoke test checkout flow and landing page",
+  "description": "Execute Phase 1 of revenue execution plan:\n\n**Objective**: Confirm product readiness for paying users (15min)\n\n**Tasks**:\n1. Smoke test checkout flow (5min)\n   - Test signup → onboarding → beat upload → checkout\n   - Verify Stripe test mode works\n   - Confirm license PDF generation\n\n2. Landing page audit (5min)\n   - Check value prop is clear: \"0% commission beat marketplace\"\n   - Verify CTA works: \"Start Selling Today\"\n   - Mobile responsiveness check\n\n3. Identify blockers (5min)\n   - Document any broken flows\n   - Flag critical bugs\n\n**Success Metric**: Green light to start outreach OR critical blocker list for immediate fix\n\n**Parent Plan**: [BRO-92](/BRO/issues/BRO-92#document-plan)",
+  "status": "todo",
+  "priority": "critical",
+  "projectId": "58e03bc7-a14f-416e-882e-acde7e0353e2",
+  "goalId": "a7a2c44c-334f-4ad9-995b-757581edf6f1",
+  "parentId": "8776f7eb-ca68-4028-81e6-5886676a27e1",
+  "assigneeAgentId": "7b306bf2-7f28-49ab-a732-3c9c8588910f"
+}

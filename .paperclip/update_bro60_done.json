@@ -1,0 +1,4 @@
+{
+  "status": "done",
+  "comment": "## ✅ BRO-60 Complete\n\n**Stripe credentials confirmed available** - this blocker is resolved.\n\nThe real critical path blocker is checkout frontend integration (creating [BRO-96](/BRO/issues/BRO-96) for CTO)."
+}

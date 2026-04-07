@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { DribbbleCard } from '@/platform/ui'
 import { motion } from 'framer-motion'
 import { Check, Info } from 'lucide-react'
-import { DribbbleCard } from '@/platform/ui'
 
 export interface LicenseTier {
   id: string
@@ -24,7 +23,7 @@ export function LicenseSelector({
   tiers,
   selectedTierId,
   onSelect,
-}: LicenseSelectorProps) {
+}: Readonly<LicenseSelectorProps>) {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-2 p-3 rounded-lg bg-accent/5 border border-accent/20">
@@ -83,9 +82,9 @@ export function LicenseSelector({
 
                 {/* Features */}
                 <ul className="space-y-1.5">
-                  {tier.features.map((feature, index) => (
+                  {tier.features.map((feature) => (
                     <li
-                      key={index}
+                      key={feature}
                       className="flex items-start gap-2 text-xs text-muted"
                     >
                       <Check className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
@@ -101,12 +100,12 @@ export function LicenseSelector({
 
       {/* License Info Footer */}
       <div className="text-center pt-2">
-        <a
-          href="#"
+        <button
+          type="button"
           className="text-xs text-accent hover:underline"
         >
           Learn more about license types →
-        </a>
+        </button>
       </div>
     </div>
   )

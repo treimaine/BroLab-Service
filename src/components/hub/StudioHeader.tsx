@@ -14,7 +14,11 @@ import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-export function StudioHeader() {
+interface StudioHeaderProps {
+  title?: string
+}
+
+export function StudioHeader({ title }: StudioHeaderProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false)
   const { resolvedTheme } = useTheme()
 

@@ -251,4 +251,93 @@ export default defineSchema({
     dedupeKey: v.string(), // Unique business key e.g. "stripe:evt_123:artist_purchase"
     createdAt: v.number(),
   }).index("by_dedupe", ["provider", "dedupeKey"]),
+
+  // ============ ANALYTICS ============
+
+  trackViews: defineTable({
+    clerkUserId: v.optional(v.string()),
+    trackId: v.id("tracks"),
+    workspaceId: v.id("workspaces"),
+    source: v.optional(v.string()), // "marketplace", "search", "featured", "direct"
+    referrer: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_track", ["trackId"])
+    .index("by_workspace", ["workspaceId"])
+    .index("by_clerk_user", ["clerkUserId"])
+    .index("by_created_at", ["createdAt"]),
+
+  searchQueries: defineTable({
+    clerkUserId: v.optional(v.string()),
+    query: v.string(),
+    resultsCount: v.number(),
+    sessionId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_query", ["query"])
+    .index("by_created_at", ["createdAt"]),
+
+  checkoutFunnelEvents: defineTable({
+    clerkUserId: v.optional(v.string()),
+    trackId: v.optional(v.id("tracks")),
+    workspaceId: v.id("workspaces"),
+    step: v.union(
+      v.literal("view_checkout"),
+      v.literal("select_license"),
+      v.literal("enter_email"),
+      v.literal("begin_payment"),
+      v.literal("complete_payment")
+    ),
+    sessionId: v.optional(v.string()),
+    amountCents: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_track", ["trackId"])
+    .index("by_step", ["step"])
+    .index("by_created_at", ["createdAt"]),
+
+  surveyResponses: defineTable({
+    clerkUserId: v.string(),
+    workspaceId: v.optional(v.id("workspaces")),
+    role: v.union(v.literal("producer"), v.literal("engineer"), v.literal("artist")),
+    question: v.string(), // e.g. "what_made_you_choose_brolab"
+    answer: v.string(), // selected option
+    customAnswer: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_clerk_user", ["clerkUserId"])
+    .index("by_question", ["question"]),
+
+  checkoutAbandonment: defineTable({
+    clerkUserId: v.optional(v.string()),
+    trackId: v.optional(v.string()),
+    workspaceId: v.optional(v.id("workspaces")),
+    licenseTier: v.optional(v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited"))),
+    reason: v.string(), // selected multiple choice option
+    customReason: v.optional(v.string()),
+    checkoutSessionId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_clerk_user", ["clerkUserId"])
+    .index("by_track", ["trackId"])
+    .index("by_created_at", ["createdAt"]),
+
+  interviewRequests: defineTable({
+    clerkUserId: v.optional(v.string()),
+    email: v.string(),
+    name: v.string(),
+    company: v.optional(v.string()),
+    preferredTimes: v.array(v.string()), // ISO datetime strings
+    status: v.union(v.literal("pending"), v.literal("scheduled"), v.literal("completed"), v.literal("canceled")),
+    notes: v.optional(v.string()),
+    interviewDate: v.optional(v.number()), // Unix timestamp
+    interviewUrl: v.optional(v.string()), // Calendly or Savvycal URL
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_status", ["status"])
+    .index("by_created_at", ["createdAt"]),
 });

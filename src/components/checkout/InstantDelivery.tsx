@@ -1,24 +1,26 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Check, Download, FileText, Loader2 } from 'lucide-react'
 import {
   DribbbleCard,
   PillCTA,
 } from '@/platform/ui'
+import { motion } from 'framer-motion'
+import type { LucideIcon } from 'lucide-react'
+import { Check, Download, FileText, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
 
 interface InstantDeliveryProps {
   beatTitle: string
-  downloadUrl: string
-  licenseUrl: string
+  _downloadUrl: string
+  _licenseUrl: string
 }
 
 export function InstantDelivery({
   beatTitle,
-  downloadUrl,
-  licenseUrl,
-}: InstantDeliveryProps) {
+  _downloadUrl,
+  _licenseUrl,
+}: Readonly<InstantDeliveryProps>) {
   const [beatDownloaded, setBeatDownloaded] = useState(false)
   const [licenseDownloaded, setLicenseDownloaded] = useState(false)
   const [isDownloading, setIsDownloading] = useState<'beat' | 'license' | null>(null)
@@ -40,6 +42,30 @@ export function InstantDelivery({
     setIsDownloading(null)
   }
 
+  const getBeatIcon = (): LucideIcon => {
+    if (isDownloading === 'beat') return Loader2
+    if (beatDownloaded) return Check
+    return Download
+  }
+
+  const getBeatLabel = (): string => {
+    if (isDownloading === 'beat') return 'Downloading...'
+    if (beatDownloaded) return 'Downloaded'
+    return 'Download'
+  }
+
+  const getLicenseIcon = (): LucideIcon => {
+    if (isDownloading === 'license') return Loader2
+    if (licenseDownloaded) return Check
+    return FileText
+  }
+
+  const getLicenseLabel = (): string => {
+    if (isDownloading === 'license') return 'Downloading...'
+    if (licenseDownloaded) return 'Downloaded'
+    return 'Download'
+  }
+
   return (
     <DribbbleCard className="p-6">
       <div className="flex items-center gap-2 mb-4">
@@ -51,15 +77,15 @@ export function InstantDelivery({
 
       <p className="text-sm text-muted mb-6">
         Your files are ready for download. You can also access them anytime from{' '}
-        <a href="/artist/purchases" className="text-accent hover:underline">
+        <Link href="/artist/purchases" className="text-accent hover:underline">
           My Purchases
-        </a>
+        </Link>
         .
       </p>
 
       <div className="space-y-3">
         {/* Beat Download */}
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-card/60 backdrop-blur-glass border border-border">
+        <DribbbleCard padding="sm" className="flex items-center gap-3 border border-border">
           <div className="flex-1">
             <div className="font-semibold mb-1 flex items-center gap-2">
               {beatDownloaded && (
@@ -76,21 +102,15 @@ export function InstantDelivery({
             variant={beatDownloaded ? 'secondary' : 'primary'}
             size="sm"
             disabled={isDownloading !== null}
-            iconBefore={
-              isDownloading === 'beat' ? Loader2 : beatDownloaded ? Check : Download
-            }
+            icon={getBeatIcon()}
             className={isDownloading === 'beat' ? 'animate-pulse' : ''}
           >
-            {isDownloading === 'beat'
-              ? 'Downloading...'
-              : beatDownloaded
-              ? 'Downloaded'
-              : 'Download'}
+            {getBeatLabel()}
           </PillCTA>
-        </div>
+        </DribbbleCard>
 
         {/* License Download */}
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-card/60 backdrop-blur-glass border border-border">
+        <DribbbleCard padding="sm" className="flex items-center gap-3 border border-border">
           <div className="flex-1">
             <div className="font-semibold mb-1 flex items-center gap-2">
               {licenseDownloaded && (
@@ -107,18 +127,12 @@ export function InstantDelivery({
             variant={licenseDownloaded ? 'secondary' : 'primary'}
             size="sm"
             disabled={isDownloading !== null}
-            iconBefore={
-              isDownloading === 'license' ? Loader2 : licenseDownloaded ? Check : FileText
-            }
+            icon={getLicenseIcon()}
             className={isDownloading === 'license' ? 'animate-pulse' : ''}
           >
-            {isDownloading === 'license'
-              ? 'Downloading...'
-              : licenseDownloaded
-              ? 'Downloaded'
-              : 'Download'}
+            {getLicenseLabel()}
           </PillCTA>
-        </div>
+        </DribbbleCard>
       </div>
 
       {/* Important Notice */}

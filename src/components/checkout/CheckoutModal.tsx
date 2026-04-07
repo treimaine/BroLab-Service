@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, ShoppingCart, ArrowRight, Loader2, Lock } from 'lucide-react'
 import {
   DribbbleCard,
   PillCTA,
 } from '@/platform/ui'
-import { LicenseSelector, DEFAULT_LICENSE_TIERS, type LicenseTier } from './LicenseSelector'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowRight, Clock, Flame, Loader2, Lock, ShoppingCart, ShieldCheck, Star, X } from 'lucide-react'
+import { useState } from 'react'
+import { DEFAULT_LICENSE_TIERS, LicenseSelector, type LicenseTier } from './LicenseSelector'
+import { CheckoutAbandonmentSurvey } from './CheckoutAbandonmentSurvey'
 
 interface CheckoutModalProps {
   isOpen: boolean
@@ -20,6 +21,7 @@ interface CheckoutModalProps {
     bpm?: number
     genre?: string
   }
+  workspaceId: string
   licenseTiers?: LicenseTier[]
 }
 
@@ -27,37 +29,88 @@ export function CheckoutModal({
   isOpen,
   onClose,
   beat,
+  workspaceId,
   licenseTiers = DEFAULT_LICENSE_TIERS,
-}: CheckoutModalProps) {
+}: Readonly<CheckoutModalProps>) {
   const [selectedLicenseId, setSelectedLicenseId] = useState<string | null>(
     licenseTiers.find((t) => t.popular)?.id || licenseTiers[0]?.id || null
   )
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showAbandonmentSurvey, setShowAbandonmentSurvey] = useState(false)
 
   const selectedLicense = licenseTiers.find((t) => t.id === selectedLicenseId)
+
+  const trackFunnelEvent = async (step: string, amountCents?: number) => {
+    try {
+      await fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'checkout_funnel',
+          workspaceId,
+          trackId: beat.id,
+          step,
+          amountCents,
+        }),
+      })
+    } catch (e) {
+      console.error('Failed to track funnel event:', e)
+    }
+  }
+
+  const handleAbandonmentSubmit = async (data: { reason: string; customReason?: string }) => {
+    await fetch('/api/analytics/abandonment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        checkoutSessionId: beat.id,
+        licenseTier: selectedLicense?.id,
+        reason: data.reason,
+        customReason: data.customReason,
+      }),
+    })
+  }
+
+  const handleClose = () => {
+    setShowAbandonmentSurvey(true)
+    onClose()
+  }
 
   const handleCheckout = async () => {
     if (!selectedLicense) return
 
+    await trackFunnelEvent('select_license', selectedLicense.price * 100)
     setIsProcessing(true)
 
     try {
-      // TODO: Create Stripe checkout session
-      // const response = await fetch('/api/stripe/checkout', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     beatId: beat.id,
-      //     licenseId: selectedLicense.id,
-      //   }),
-      // })
-      // const { url } = await response.json()
-      // window.location.href = url
+      await trackFunnelEvent('begin_payment')
+      
+      // Map license tier ID: 'exclusive' → 'unlimited' for API compatibility
+      const licenseTier = selectedLicense.id === 'exclusive' ? 'unlimited' : selectedLicense.id
 
-      // Mock redirect for now
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      console.log('Checkout:', { beat, license: selectedLicense })
-      // In production: redirect to Stripe Checkout
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId,
+          itemType: 'track',
+          itemId: beat.id,
+          licenseTier,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Checkout failed: ${response.status}`)
+      }
+
+      const { url } = await response.json()
+
+      if (!url) {
+        throw new Error('No checkout URL received')
+      }
+
+      await trackFunnelEvent('view_checkout')
+      globalThis.location.href = url
     } catch (error) {
       console.error('Checkout error:', error)
       alert('Failed to start checkout. Please try again.')
@@ -67,16 +120,20 @@ export function CheckoutModal({
   }
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+          {/* Backdrop - button for a11y (closes modal on click) */}
+          <motion.button
+            type="button"
+            aria-label="Close modal"
+            className="fixed inset-0 z-50 w-full h-full cursor-default"
+            style={{ backgroundColor: 'rgb(0 0 0 / 0.6)' }}
+            onClick={handleClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
           />
 
           {/* Modal */}
@@ -92,7 +149,7 @@ export function CheckoutModal({
                 <DribbbleCard className="relative p-6 md:p-8">
                   {/* Close Button */}
                   <button
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card hover:bg-border flex items-center justify-center transition-colors"
                     aria-label="Close"
                   >
@@ -110,10 +167,14 @@ export function CheckoutModal({
                     <p className="text-sm text-muted">
                       Select your license and complete checkout securely with Stripe.
                     </p>
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 text-xs font-medium">
+                      <Flame className="w-3.5 h-3.5" />
+                      Popular beat — high demand!
+                    </div>
                   </div>
 
                   {/* Beat Info */}
-                  <div className="mb-6 p-4 rounded-xl bg-card/60 backdrop-blur-glass border border-border">
+                  <DribbbleCard padding="sm" className="mb-6 border border-border">
                     <div className="flex items-center gap-4">
                       {/* Cover Art */}
                       <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
@@ -140,7 +201,7 @@ export function CheckoutModal({
                         )}
                       </div>
                     </div>
-                  </div>
+                  </DribbbleCard>
 
                   {/* License Selection */}
                   <div className="mb-6">
@@ -177,15 +238,15 @@ export function CheckoutModal({
                       onClick={handleCheckout}
                       disabled={!selectedLicense || isProcessing}
                       fullWidth
-                      iconBefore={isProcessing ? Loader2 : Lock}
-                      iconAfter={!isProcessing ? ArrowRight : undefined}
+                      icon={isProcessing ? Loader2 : Lock}
+                      iconAfter={isProcessing ? undefined : ArrowRight}
                       className={isProcessing ? 'animate-pulse' : ''}
                     >
-                      {isProcessing ? 'Processing...' : 'Proceed to Secure Checkout'}
+                      {isProcessing ? 'Processing...' : 'Complete Purchase Now'}
                     </PillCTA>
 
                     <button
-                      onClick={onClose}
+                      onClick={handleClose}
                       className="w-full py-2 text-sm text-muted hover:text-text transition-colors"
                       disabled={isProcessing}
                     >
@@ -199,6 +260,22 @@ export function CheckoutModal({
                       <Lock className="w-3 h-3" />
                       Secured by Stripe. Your payment information is never stored.
                     </p>
+                    
+                    {/* Trust Signals */}
+                    <div className="mt-4 flex flex-wrap justify-center gap-4">
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
+                        <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
+                        <span>Secure Checkout</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
+                        <Clock className="w-3.5 h-3.5 text-accent" />
+                        <span>Instant Download</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
+                        <Star className="w-3.5 h-3.5 text-yellow-500" />
+                        <span>Licensed & Verified</span>
+                      </div>
+                    </div>
                   </div>
                 </DribbbleCard>
               </motion.div>
@@ -207,5 +284,14 @@ export function CheckoutModal({
         </>
       )}
     </AnimatePresence>
+
+    <CheckoutAbandonmentSurvey
+      isOpen={showAbandonmentSurvey}
+      onClose={() => setShowAbandonmentSurvey(false)}
+      trackId={beat.id}
+      workspaceId={workspaceId}
+      onSubmit={handleAbandonmentSubmit}
+    />
+    </>
   )
 }

@@ -32,6 +32,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../../../convex/_generated/api'
+import { PostSignupSurvey } from './PostSignupSurvey'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
 type OnboardingStep = 'role' | 'workspace' | 'stripe' | 'complete'
@@ -504,10 +505,12 @@ export function OnboardingClient() {
   const [slugError, setSlugError] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(null)
+  const [showSurvey, setShowSurvey] = useState(false)
   const isOnboardingActiveRef = useRef(false)
 
   const createUser = useMutation(api.platform.users.createUser)
   const createWorkspace = useMutation(api.platform.workspaces.createWorkspace)
+  const recordEvent = useMutation(api.platform.events.recordEvent)
   const checkSlugAvailability = useQuery(
     api.platform.workspaces.isSlugAvailable,
     workspaceSlug && workspaceSlug.length >= 3 ? { slug: workspaceSlug } : 'skip'
@@ -517,15 +520,15 @@ export function OnboardingClient() {
     user ? { clerkUserId: user.id } : 'skip'
   )
 
-  // Redirect if already onboarded
+  // Redirect if already onboarded (but not when showing survey)
   useEffect(() => {
-    if (isLoading || !isAuthenticated || !user) return
+    if (isLoading || !isAuthenticated || !user || showSurvey) return
     if (isOnboardingActiveRef.current) return
     const clerkRole = user.unsafeMetadata?.role as string | undefined
     if (shouldRedirectUser(clerkRole, existingUser)) {
       router.push(getRedirectPath(clerkRole!))
     }
-  }, [existingUser, user, router, isLoading, isAuthenticated])
+  }, [existingUser, user, router, isLoading, isAuthenticated, showSurvey])
 
   // Auto-generate slug from workspace name
   useEffect(() => {
@@ -591,10 +594,27 @@ export function OnboardingClient() {
 
   const handleSkipStripe = () => {
     setCurrentStep('complete')
+    setShowSurvey(true)
   }
 
   const handleGoToDashboard = () => {
+    setShowSurvey(true)
+  }
+
+  const handleSurveyClose = async () => {
+    setShowSurvey(false)
     router.push(selectedRole === 'artist' ? '/artist' : '/studio')
+    if (createdWorkspaceId && selectedRole !== 'artist') {
+      try {
+        await recordEvent({
+          workspaceId: createdWorkspaceId as any,
+          type: 'onboarding_completed',
+          meta: { role: selectedRole },
+        })
+      } catch (err) {
+        console.error('Failed to record onboarding_completed event:', err)
+      }
+    }
   }
 
   if (isLoading) {
@@ -611,70 +631,80 @@ export function OnboardingClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--bg))] flex flex-col">
-      {/* Header */}
-      <ChromeSurface as="header" blur="md" border="bottom" className="sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="text-xl font-black tracking-tight">BROLAB</div>
-          <div className="flex items-center gap-3">
-            <TrustChip icon={Users} label="Join 500+ creators" />
+    <>
+      <div className="min-h-screen bg-[rgb(var(--bg))] flex flex-col">
+        {/* Header */}
+        <ChromeSurface as="header" blur="md" border="bottom" className="sticky top-0 z-50">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="text-xl font-black tracking-tight">BROLAB</div>
+            <div className="flex items-center gap-3">
+              <TrustChip icon={Users} label="Join 500+ creators" />
+            </div>
           </div>
-        </div>
-      </ChromeSurface>
+        </ChromeSurface>
 
-      {/* Progress */}
-      {currentStep !== 'complete' && (
-        <div className="pt-8 pb-2 px-4">
-          <ProgressBar currentStep={currentStep} role={selectedRole} />
-        </div>
+        {/* Progress */}
+        {currentStep !== 'complete' && (
+          <div className="pt-8 pb-2 px-4">
+            <ProgressBar currentStep={currentStep} role={selectedRole} />
+          </div>
+        )}
+
+        {/* Content */}
+        <main className="flex-1 flex items-center justify-center p-4 py-8">
+          <div className="w-full max-w-2xl">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.25 }}
+              >
+                {currentStep === 'role' && (
+                  <RoleStep
+                    selectedRole={selectedRole}
+                    isCreating={isCreating}
+                    onRoleSelect={handleRoleSelect}
+                  />
+                )}
+                {currentStep === 'workspace' && (
+                  <WorkspaceStep
+                    workspaceName={workspaceName}
+                    workspaceSlug={workspaceSlug}
+                    slugError={slugError}
+                    isCreating={isCreating}
+                    checkSlugAvailability={checkSlugAvailability as { available: boolean; error?: string } | undefined}
+                    onWorkspaceCreate={handleWorkspaceCreate}
+                    setWorkspaceName={setWorkspaceName}
+                    setWorkspaceSlug={setWorkspaceSlug}
+                  />
+                )}
+                {currentStep === 'stripe' && (
+                  <StripeStep
+                    createdWorkspaceId={createdWorkspaceId}
+                    onSkipStripe={handleSkipStripe}
+                  />
+                )}
+                {currentStep === 'complete' && (
+                  <CompleteStep
+                    selectedRole={selectedRole}
+                    onGoToDashboard={handleGoToDashboard}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+      </div>
+      {showSurvey && user && selectedRole && (
+        <PostSignupSurvey
+          clerkUserId={user.id}
+          workspaceId={createdWorkspaceId || undefined}
+          role={selectedRole}
+          onClose={handleSurveyClose}
+        />
       )}
-
-      {/* Content */}
-      <main className="flex-1 flex items-center justify-center p-4 py-8">
-        <div className="w-full max-w-2xl">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.25 }}
-            >
-              {currentStep === 'role' && (
-                <RoleStep
-                  selectedRole={selectedRole}
-                  isCreating={isCreating}
-                  onRoleSelect={handleRoleSelect}
-                />
-              )}
-              {currentStep === 'workspace' && (
-                <WorkspaceStep
-                  workspaceName={workspaceName}
-                  workspaceSlug={workspaceSlug}
-                  slugError={slugError}
-                  isCreating={isCreating}
-                  checkSlugAvailability={checkSlugAvailability as { available: boolean; error?: string } | undefined}
-                  onWorkspaceCreate={handleWorkspaceCreate}
-                  setWorkspaceName={setWorkspaceName}
-                  setWorkspaceSlug={setWorkspaceSlug}
-                />
-              )}
-              {currentStep === 'stripe' && (
-                <StripeStep
-                  createdWorkspaceId={createdWorkspaceId}
-                  onSkipStripe={handleSkipStripe}
-                />
-              )}
-              {currentStep === 'complete' && (
-                <CompleteStep
-                  selectedRole={selectedRole}
-                  onGoToDashboard={handleGoToDashboard}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
-    </div>
+    </>
   )
 }
