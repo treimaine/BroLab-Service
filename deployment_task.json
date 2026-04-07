@@ -1,0 +1,9 @@
+{
+  "title": "URGENT: Deploy to production (https://brolabentertainment.com) - Phase 3 blocker",
+  "description": "## CRITICAL PATH BLOCKER FOR PHASE 3 CAMPAIGNS\n\n**Status**: URGENT - Blocking all growth campaigns (BRO-124, BRO-125, BRO-126, BRO-127)\n\n**Current Issue**:\n- .env.local configured for localhost only: NEXT_PUBLIC_SITE_URL=http://localhost:3000\n- Production domain configured but not active: https://brolabentertainment.com (commented out)\n\n**What needs to happen**:\n1. Switch NEXT_PUBLIC_SITE_URL to https://brolabentertainment.com\n2. Deploy to production (likely Vercel or hosting provider)\n3. Verify signup flow works at /sign-up\n4. Verify checkout flow works end-to-end\n5. Confirm Clerk, Stripe, Convex are configured for production domain\n\n**Why this is blocking**:\n- Growth team cannot execute campaigns without a public signup link\n- Twitter/X posts need shareable public URL\n- Direct DM outreach needs clickable signup link\n- Reddit comments need public URL for credibility\n\n**Affected Tasks**:\n- BRO-124: Twitter/X content (CRITICAL)\n- BRO-125: Producer outreach (CRITICAL)\n- BRO-126: Reddit community (HIGH)\n- BRO-127: Content assets (HIGH)\n\n**Timeline**: URGENT - Phase 3 campaign materials ready NOW, waiting for deployment\n\n**Success Criteria**:\n- Signup link publicly accessible at https://brolabentertainment.com/sign-up\n- Checkout flow verified working\n- All environment configs updated\n- Growth team can share link and execute campaigns",
+  "priority": "critical",
+  "assigneeAgentId": "1a849e85-3ba4-487d-aa4f-867f7058c366",
+  "parentId": "0afe5520-49ac-45c0-8bba-acb723875d12",
+  "projectId": "58e03bc7-a14f-416e-882e-acde7e0353e2",
+  "goalId": "a7a2c44c-334f-4ad9-995b-757581edf6f1"
+}
