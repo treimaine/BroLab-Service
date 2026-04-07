@@ -115,10 +115,16 @@ function validateRequiredPrefixedValue(
 function resolveRuntimeEnv(): RuntimeEnv {
   const errors: string[] = []
   const nodeEnv = getNodeEnv()
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
 
   const clerkPublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', 'pk_', errors)
   const clerkSecretKey = validateRequiredPrefixedValue('CLERK_SECRET_KEY', 'sk_', errors)
-  const clerkWebhookSecret = validateRequiredPrefixedValue('CLERK_WEBHOOK_SECRET', 'whsec_', errors)
+  
+  // Webhook secrets are only needed at runtime, not build time
+  const clerkWebhookSecret = isBuildTime 
+    ? 'whsec_build_placeholder' 
+    : validateRequiredPrefixedValue('CLERK_WEBHOOK_SECRET', 'whsec_', errors)
+  
   const clerkJwtIssuerDomain = readEnv('CLERK_JWT_ISSUER_DOMAIN')
   if (!clerkJwtIssuerDomain) {
     errors.push('CLERK_JWT_ISSUER_DOMAIN is required.')
@@ -142,9 +148,20 @@ function resolveRuntimeEnv(): RuntimeEnv {
 
   const stripeSecretKey = validateRequiredPrefixedValue('STRIPE_SECRET_KEY', 'sk_', errors)
   const stripePublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', 'pk_', errors)
-  const stripeConnectClientId = validateRequiredPrefixedValue('STRIPE_CONNECT_CLIENT_ID', 'ca_', errors)
-  const stripeWebhookSecret = validateRequiredPrefixedValue('STRIPE_WEBHOOK_SECRET', 'whsec_', errors)
-  const stripeConnectWebhookSecret = validateRequiredPrefixedValue('STRIPE_CONNECT_WEBHOOK_SECRET', 'whsec_', errors)
+  
+  // Connect Client ID is only needed at runtime for OAuth flow
+  const stripeConnectClientId = isBuildTime
+    ? 'ca_build_placeholder'
+    : validateRequiredPrefixedValue('STRIPE_CONNECT_CLIENT_ID', 'ca_', errors)
+  
+  // Webhook secrets are only needed at runtime
+  const stripeWebhookSecret = isBuildTime
+    ? 'whsec_build_placeholder'
+    : validateRequiredPrefixedValue('STRIPE_WEBHOOK_SECRET', 'whsec_', errors)
+  const stripeConnectWebhookSecret = isBuildTime
+    ? 'whsec_build_placeholder'
+    : validateRequiredPrefixedValue('STRIPE_CONNECT_WEBHOOK_SECRET', 'whsec_', errors)
+  
   const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
 
   const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
