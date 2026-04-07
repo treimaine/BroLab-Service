@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { api } from '../../../../convex/_generated/api'
 import { CONVEX_CONFIG } from '@/lib/env'
 import { ConvexHttpClient } from 'convex/browser'
-import Stripe from 'stripe'
+import { NextRequest, NextResponse } from 'next/server'
+import { api } from '../../../../convex/_generated/api'
 
 const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
 

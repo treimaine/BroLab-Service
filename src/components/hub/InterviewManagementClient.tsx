@@ -33,7 +33,7 @@ function formatDate(timestamp: number | undefined): string {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-    meridiem: 'short',
+    hour12: true,
   })
 }
 
@@ -44,12 +44,25 @@ function formatDateTime(isoString: string): string {
     weekday: 'short',
     hour: 'numeric',
     minute: '2-digit',
-    meridiem: 'short',
+    hour12: true,
   })
 }
 
-function InterviewCard({ request }: any) {
-  const statusColors: Record<string, { bg: string; text: string; icon: any }> = {
+interface InterviewRequest {
+  _id: string
+  status: 'pending' | 'scheduled' | 'completed' | 'canceled'
+  name: string
+  email: string
+  company?: string
+  createdAt?: number
+  preferredTimes?: string[]
+  interviewDate?: number
+  interviewUrl?: string
+  notes?: string
+}
+
+function InterviewCard({ request }: { request: InterviewRequest }) {
+  const statusColors: Record<string, { bg: string; text: string; icon: React.ComponentType<{ className?: string }> }> = {
     pending: {
       bg: 'bg-yellow-500/10 border-yellow-500/30',
       text: 'text-yellow-400',

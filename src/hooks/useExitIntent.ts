@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface ExitIntentOptions {
   onExitIntent: () => void
@@ -36,7 +36,7 @@ export function useExitIntent({ onExitIntent, threshold = 5, maxTriggers = 1 }: 
       }
     }
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (_e: BeforeUnloadEvent) => {
       if (triggerCount < maxTriggers) {
         onExitIntent()
         setTriggerCount((c) => c + 1)

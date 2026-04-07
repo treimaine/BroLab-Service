@@ -74,6 +74,6 @@ export default defineConfig({
     ['list'],
   ],
 
-  // Output folder for test artifacts
-  outputFolder: 'test-results',
+  // Output folder for test artifacts (use outputDir instead of outputFolder)
+  outputDir: 'test-results',
 })

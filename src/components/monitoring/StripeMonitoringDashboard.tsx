@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -159,12 +160,12 @@ export function StripeMonitoringDashboard() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-current border-opacity-20">
-            <a
+            <Link
               href="/admin/monitoring/checkout"
               className="text-sm font-semibold hover:opacity-75 transition-opacity"
             >
               View Details →
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -220,12 +221,12 @@ export function StripeMonitoringDashboard() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-current border-opacity-20">
-            <a
+            <Link
               href="/admin/monitoring/webhooks"
               className="text-sm font-semibold hover:opacity-75 transition-opacity"
             >
               View Details →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

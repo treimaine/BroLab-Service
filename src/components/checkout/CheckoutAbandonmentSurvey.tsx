@@ -1,8 +1,8 @@
 'use client'
 
 import {
-  DribbbleCard,
-  PillCTA,
+    DribbbleCard,
+    PillCTA,
 } from '@/platform/ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, MessageSquare, X } from 'lucide-react'
@@ -35,11 +35,6 @@ interface CheckoutAbandonmentSurveyProps {
 export function CheckoutAbandonmentSurvey({
   isOpen,
   onClose,
-  clerkUserId,
-  trackId,
-  workspaceId,
-  licenseTier,
-  checkoutSessionId,
   onSubmit,
 }: Readonly<CheckoutAbandonmentSurveyProps>) {
   const [selectedReason, setSelectedReason] = useState<string | null>(null)

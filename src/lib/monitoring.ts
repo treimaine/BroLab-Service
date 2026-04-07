@@ -86,7 +86,7 @@ export function logCheckoutAttempt(params: {
   workspaceId: string;
   itemType: 'track' | 'service';
   itemId: string;
-  licenseTier?: string;
+  licenseTier?: 'basic' | 'premium' | 'unlimited';
   startTime: number;
 }): void {
   logMonitoringEvent({

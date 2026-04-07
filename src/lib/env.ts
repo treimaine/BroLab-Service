@@ -158,7 +158,10 @@ function resolveRuntimeEnv(): RuntimeEnv {
     errors.push('STRIPE_WEBHOOK_SECRET and STRIPE_CONNECT_WEBHOOK_SECRET must be different secrets.')
   }
 
-  if (nodeEnv === 'production') {
+  // Allow test credentials in production if explicitly enabled (for local builds)
+  const allowTestInProduction = readEnv('ALLOW_TEST_CREDENTIALS_IN_PRODUCTION') === 'true'
+  
+  if (nodeEnv === 'production' && !allowTestInProduction) {
     const productionOnlyChecks: Array<[string, string | undefined]> = [
       ['NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', clerkPublishableKey],
       ['CLERK_SECRET_KEY', clerkSecretKey],

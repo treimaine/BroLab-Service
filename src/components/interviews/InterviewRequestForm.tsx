@@ -8,8 +8,8 @@
  */
 
 import {
-  DribbbleCard,
-  PillCTA,
+    DribbbleCard,
+    PillCTA,
 } from '@/platform/ui'
 import { useMutation } from 'convex/react'
 import { motion } from 'framer-motion'
@@ -52,7 +52,7 @@ export function InterviewRequestForm() {
               day: 'numeric',
               hour: 'numeric',
               minute: '2-digit',
-              meridiem: 'short',
+              hour12: true,
             }),
             value: slotTime.toISOString(),
           })

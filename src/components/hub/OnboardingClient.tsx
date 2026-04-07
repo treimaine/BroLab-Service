@@ -32,6 +32,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../../../convex/_generated/api'
+import type { Id } from '../../../convex/_generated/dataModel'
 import { PostSignupSurvey } from './PostSignupSurvey'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
@@ -607,7 +608,7 @@ export function OnboardingClient() {
     if (createdWorkspaceId && selectedRole !== 'artist') {
       try {
         await recordEvent({
-          workspaceId: createdWorkspaceId as any,
+          workspaceId: createdWorkspaceId as Id<'workspaces'>,
           type: 'onboarding_completed',
           meta: { role: selectedRole },
         })

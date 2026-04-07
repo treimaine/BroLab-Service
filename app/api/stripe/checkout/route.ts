@@ -8,17 +8,17 @@
  */
 
 import { CONVEX_CONFIG, SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
+import {
+    logCheckoutAttempt,
+    logCheckoutFailure,
+    logCheckoutSuccess,
+} from '@/lib/monitoring'
 import { auth } from '@clerk/nextjs/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
-import {
-  logCheckoutAttempt,
-  logCheckoutSuccess,
-  logCheckoutFailure,
-} from '@/lib/monitoring'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
@@ -204,7 +204,7 @@ export async function POST(request: Request) {
   try {
     // 1. Authenticate user (buyer)
     const auth_result = await auth()
-    userId = auth_result.userId
+    userId = auth_result.userId ?? undefined
 
     if (!userId) {
       logCheckoutFailure({
@@ -246,7 +246,7 @@ export async function POST(request: Request) {
       workspaceId,
       itemType: itemType as 'track' | 'service',
       itemId,
-      licenseTier,
+      licenseTier: licenseTier as 'basic' | 'premium' | 'unlimited' | undefined,
       startTime,
     })
 
@@ -259,7 +259,7 @@ export async function POST(request: Request) {
       logCheckoutFailure({
         userId,
         workspaceId,
-        itemType,
+        itemType: itemType as 'track' | 'service' | undefined,
         itemId,
         errorCode: 'WORKSPACE_NOT_FOUND',
         errorMessage: 'Workspace not found',
@@ -278,7 +278,7 @@ export async function POST(request: Request) {
       logCheckoutFailure({
         userId,
         workspaceId,
-        itemType,
+        itemType: itemType as 'track' | 'service' | undefined,
         itemId,
         errorCode: 'PAYMENTS_NOT_CONFIGURED',
         errorMessage: paymentsValidation.error || 'Payments not configured',
@@ -295,7 +295,7 @@ export async function POST(request: Request) {
 
     // 5. Fetch item data and calculate price
     const itemData = itemType === 'track'
-      ? await getTrackItemData(itemId, licenseTier!)
+      ? await getTrackItemData(itemId, licenseTier as 'basic' | 'premium' | 'unlimited')
       : await getServiceItemData(itemId)
 
     // 6. Build metadata for webhook processing

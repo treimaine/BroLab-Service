@@ -9,11 +9,12 @@
  * Stores responses in Convex surveyResponses table.
  */
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, Sparkles } from 'lucide-react'
 import { useMutation } from 'convex/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Send, Sparkles, X } from 'lucide-react'
+import { useState } from 'react'
 import { api } from '../../../convex/_generated/api'
+import type { Id } from '../../../convex/_generated/dataModel'
 
 const SURVEY_OPTIONS = [
   { value: 'zero_commission', label: '0% commission on sales' },
@@ -48,7 +49,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Po
     try {
       await submitSurvey({
         clerkUserId,
-        workspaceId: workspaceId as any,
+        workspaceId: workspaceId ? (workspaceId as Id<'workspaces'>) : undefined,
         role,
         question: 'what_made_you_choose_brolab',
         answer: selected,
@@ -72,7 +73,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Po
         exit={{ opacity: 0 }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
         {/* Modal */}
         <motion.div

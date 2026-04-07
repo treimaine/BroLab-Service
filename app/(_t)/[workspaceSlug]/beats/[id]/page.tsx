@@ -2,13 +2,13 @@
 
 import { useWorkspace } from '@/components/tenant'
 import {
-  DribbbleCard,
-  DribbbleSectionEnter,
-  PillCTA,
+    DribbbleCard,
+    DribbbleSectionEnter,
+    PillCTA,
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { useQuery } from 'convex/react'
-import { AlertCircle, ArrowLeft, Clock, Pause, Play, ShieldCheck, Star, Zap } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Clock, Pause, Play, ShieldCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'

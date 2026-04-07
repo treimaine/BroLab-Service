@@ -18,7 +18,7 @@ interface StudioHeaderProps {
   title?: string
 }
 
-export function StudioHeader({ title }: StudioHeaderProps = {}) {
+export function StudioHeader(_props: StudioHeaderProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false)
   const { resolvedTheme } = useTheme()
 
