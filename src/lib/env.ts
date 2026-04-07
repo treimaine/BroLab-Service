@@ -139,10 +139,14 @@ function resolveRuntimeEnv(): RuntimeEnv {
     validateUrl('NEXT_PUBLIC_CONVEX_URL', convexUrl, errors, { requireHttpsInProduction: true })
   }
 
-  const convexDeployment = readEnv('CONVEX_DEPLOYMENT')
-  if (!convexDeployment) {
+  // CONVEX_DEPLOYMENT is only needed at runtime, not build time
+  const convexDeployment = isBuildTime
+    ? 'build_placeholder'
+    : readEnv('CONVEX_DEPLOYMENT')
+  
+  if (!isBuildTime && !convexDeployment) {
     errors.push('CONVEX_DEPLOYMENT is required.')
-  } else if (isPlaceholderValue(convexDeployment)) {
+  } else if (!isBuildTime && convexDeployment && isPlaceholderValue(convexDeployment)) {
     errors.push('CONVEX_DEPLOYMENT still contains a placeholder value.')
   }
 
@@ -156,18 +160,14 @@ function resolveRuntimeEnv(): RuntimeEnv {
   
   // Webhook secrets are only needed at runtime
   const stripeWebhookSecret = isBuildTime
-    ? 'whsec_build_placeholder'
+    ? 'whsec_build_placeholder_1'
     : validateRequiredPrefixedValue('STRIPE_WEBHOOK_SECRET', 'whsec_', errors)
   const stripeConnectWebhookSecret = isBuildTime
-    ? 'whsec_build_placeholder'
+    ? 'whsec_build_placeholder_2'
     : validateRequiredPrefixedValue('STRIPE_CONNECT_WEBHOOK_SECRET', 'whsec_', errors)
   
-  const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
-
-  const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
-  validateUrl('NEXT_PUBLIC_SITE_URL', siteUrl, errors, { requireHttpsInProduction: true })
-
   if (
+    !isBuildTime &&
     stripeWebhookSecret &&
     stripeConnectWebhookSecret &&
     stripeWebhookSecret === stripeConnectWebhookSecret
