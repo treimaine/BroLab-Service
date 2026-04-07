@@ -10,6 +10,8 @@
     "lint:chrome": "node scripts/lint-chrome-surfaces.mjs",
     "lint:surfaces": "node scripts/lint-surfaces.mjs",
     "typecheck": "tsc --noEmit",
+    "check-env": "node scripts/check-env.mjs",
+    "prebuild": "npm run check-env",
     "build:worker": "tsc -p worker/tsconfig.json",
     "worker": "node dist/worker/index.js",
     "test": "vitest",
