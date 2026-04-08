@@ -20,10 +20,8 @@ const pressStart2P = Press_Start_2P({
   display: "swap",
 });
 
-const siteUrl = new URL(SITE_CONFIG.url);
-
 export const metadata: Metadata = {
-  metadataBase: siteUrl,
+  metadataBase: new URL(SITE_CONFIG.url),
   title: {
     default: SITE_CONFIG.brand.name,
     template: `%s | ${SITE_CONFIG.brand.name}`,
