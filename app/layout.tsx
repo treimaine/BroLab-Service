@@ -1,7 +1,7 @@
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudioPlayer";
-import { SITE_CONFIG, validateEnv } from "@/lib/env";
+import { SITE_CONFIG } from "@/lib/env";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Press_Start_2P } from "next/font/google";
@@ -19,8 +19,6 @@ const pressStart2P = Press_Start_2P({
   variable: "--font-press-start",
   display: "swap",
 });
-
-validateEnv();
 
 const siteUrl = new URL(SITE_CONFIG.url);
 
