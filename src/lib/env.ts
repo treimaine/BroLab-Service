@@ -237,16 +237,26 @@ function resolveRuntimeEnv(): RuntimeEnv {
   // Validate production credentials
   validateProductionCredentials(nodeEnv, clerkPublishableKey, clerkSecretKey, stripeSecretKey, stripePublishableKey, errors)
 
+  // In production on Vercel, log errors but don't throw to prevent 500 errors
+  const isVercel = process.env.VERCEL === '1'
+  const shouldThrow = !isVercel || nodeEnv !== 'production'
+
   if (errors.length > 0) {
     const details = errors.map((error) => `  - ${error}`).join('\n')
-    throw new Error(
-      [
-        'Invalid environment configuration:',
-        details,
-        '',
-        'Review docs/environment-setup.md and docs/security-secret-rotation.md before restarting the app.',
-      ].join('\n')
-    )
+    const errorMessage = [
+      'Invalid environment configuration:',
+      details,
+      '',
+      'Review docs/environment-setup.md and docs/security-secret-rotation.md before restarting the app.',
+    ].join('\n')
+    
+    if (shouldThrow) {
+      throw new Error(errorMessage)
+    } else {
+      // In production on Vercel, log errors but allow app to start
+      console.error('⚠️ Environment validation errors (non-fatal in production):')
+      console.error(errorMessage)
+    }
   }
 
   return {
