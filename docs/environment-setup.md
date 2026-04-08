@@ -4,6 +4,31 @@
 
 This guide covers setting up all required environment variables for BroLab Entertainment.
 
+## Variable Categories
+
+### Build-Time Variables (Required for `npm run build`)
+
+These must be configured before building:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `CLERK_JWT_ISSUER_DOMAIN`
+- `NEXT_PUBLIC_CONVEX_URL`
+- `CONVEX_DEPLOYMENT`
+- `STRIPE_SECRET_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `RESEND_API_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+
+### Runtime-Only Variables (Can be added after build)
+
+These are only needed when the app is running:
+
+- `CLERK_WEBHOOK_SECRET` (webhook verification)
+- `STRIPE_WEBHOOK_SECRET` (webhook verification)
+- `STRIPE_CONNECT_WEBHOOK_SECRET` (Connect webhook verification)
+- `STRIPE_CONNECT_CLIENT_ID` (OAuth flow)
+
 ## Quick Start
 
 1. Copy `.env.example` to `.env.local`:

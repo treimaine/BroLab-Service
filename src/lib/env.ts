@@ -238,56 +238,64 @@ function resolveRuntimeEnv(): RuntimeEnv {
   }
 }
 
-const runtimeEnv = resolveRuntimeEnv()
+// Lazy initialization - only validate when first accessed
+let runtimeEnv: RuntimeEnv | null = null
+
+function getRuntimeEnv(): RuntimeEnv {
+  if (!runtimeEnv) {
+    runtimeEnv = resolveRuntimeEnv()
+  }
+  return runtimeEnv
+}
 
 export const CLERK_CONFIG = {
-  publishableKey: runtimeEnv.clerkPublishableKey,
-  secretKey: runtimeEnv.clerkSecretKey,
-  jwtIssuerDomain: runtimeEnv.clerkJwtIssuerDomain,
-  webhookSecret: runtimeEnv.clerkWebhookSecret,
-  signInUrl: runtimeEnv.clerkSignInUrl,
-  signUpUrl: runtimeEnv.clerkSignUpUrl,
-  signInFallbackRedirectUrl: runtimeEnv.clerkSignInFallbackRedirectUrl,
-  signUpFallbackRedirectUrl: runtimeEnv.clerkSignUpFallbackRedirectUrl,
-  billingEnabled: runtimeEnv.clerkBillingEnabled,
+  get publishableKey() { return getRuntimeEnv().clerkPublishableKey },
+  get secretKey() { return getRuntimeEnv().clerkSecretKey },
+  get jwtIssuerDomain() { return getRuntimeEnv().clerkJwtIssuerDomain },
+  get webhookSecret() { return getRuntimeEnv().clerkWebhookSecret },
+  get signInUrl() { return getRuntimeEnv().clerkSignInUrl },
+  get signUpUrl() { return getRuntimeEnv().clerkSignUpUrl },
+  get signInFallbackRedirectUrl() { return getRuntimeEnv().clerkSignInFallbackRedirectUrl },
+  get signUpFallbackRedirectUrl() { return getRuntimeEnv().clerkSignUpFallbackRedirectUrl },
+  get billingEnabled() { return getRuntimeEnv().clerkBillingEnabled },
 } as const
 
 export const CONVEX_CONFIG = {
-  url: runtimeEnv.convexUrl,
-  deployment: runtimeEnv.convexDeployment,
+  get url() { return getRuntimeEnv().convexUrl },
+  get deployment() { return getRuntimeEnv().convexDeployment },
 } as const
 
 export const STRIPE_CONFIG = {
-  secretKey: runtimeEnv.stripeSecretKey,
-  publishableKey: runtimeEnv.stripePublishableKey,
-  connectClientId: runtimeEnv.stripeConnectClientId,
-  webhookSecret: runtimeEnv.stripeWebhookSecret,
-  connectWebhookSecret: runtimeEnv.stripeConnectWebhookSecret,
+  get secretKey() { return getRuntimeEnv().stripeSecretKey },
+  get publishableKey() { return getRuntimeEnv().stripePublishableKey },
+  get connectClientId() { return getRuntimeEnv().stripeConnectClientId },
+  get webhookSecret() { return getRuntimeEnv().stripeWebhookSecret },
+  get connectWebhookSecret() { return getRuntimeEnv().stripeConnectWebhookSecret },
 } as const
 
 export const RESEND_CONFIG = {
-  apiKey: runtimeEnv.resendApiKey,
+  get apiKey() { return getRuntimeEnv().resendApiKey },
 } as const
 
 export const SITE_CONFIG = {
-  url: runtimeEnv.siteUrl,
+  get url() { return getRuntimeEnv().siteUrl },
   brand: {
-    name: runtimeEnv.brandName,
-    email: runtimeEnv.brandEmail,
-    address: runtimeEnv.brandAddress,
-    phone: runtimeEnv.brandPhone,
-    website: runtimeEnv.brandWebsite,
+    get name() { return getRuntimeEnv().brandName },
+    get email() { return getRuntimeEnv().brandEmail },
+    get address() { return getRuntimeEnv().brandAddress },
+    get phone() { return getRuntimeEnv().brandPhone },
+    get website() { return getRuntimeEnv().brandWebsite },
   },
 } as const
 
 export const ENV = {
-  isDevelopment: runtimeEnv.nodeEnv === 'development',
-  isProduction: runtimeEnv.nodeEnv === 'production',
-  isTest: runtimeEnv.nodeEnv === 'test',
+  get isDevelopment() { return getRuntimeEnv().nodeEnv === 'development' },
+  get isProduction() { return getRuntimeEnv().nodeEnv === 'production' },
+  get isTest() { return getRuntimeEnv().nodeEnv === 'test' },
 } as const
 
 export function validateEnv() {
-  return runtimeEnv
+  return getRuntimeEnv()
 }
 
 /**

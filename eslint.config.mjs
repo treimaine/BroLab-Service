@@ -2,13 +2,7 @@ import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
-
-const __filename = fileURLToPath(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const __dirname = dirname(__filename);
 
 export default tseslint.config(
   js.configs.recommended,
@@ -25,7 +19,6 @@ export default tseslint.config(
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
       
-      // Override specific Next.js rules
       // React rules
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
@@ -34,7 +27,7 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       
-      // Override specific Next.js rules
+      // Next.js rules overrides
       "@next/next/no-html-link-for-pages": "error",
       "@next/next/no-img-element": "warn",
       
@@ -86,13 +79,20 @@ export default tseslint.config(
     },
   },
   {
-    files: ["scripts/**/*.{js,mjs}"],
+    files: ["scripts/**/*.{js,mjs}", "*.js"],
     languageOptions: {
       globals: {
         console: "readonly",
         process: "readonly",
         fetch: "readonly", // Node.js 18+ has native fetch
+        require: "readonly",
+        module: "readonly",
+        __dirname: "readonly",
+        __filename: "readonly",
       },
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off", // Allow CommonJS in scripts
     },
   },
   {
@@ -104,6 +104,8 @@ export default tseslint.config(
       ".brv/**",
       ".agent/**",
       "next-env.d.ts",
+      "out/**",
+      "build/**",
     ],
   }
 );

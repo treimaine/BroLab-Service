@@ -13,7 +13,7 @@
 
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
-import { query, mutation } from "../_generated/server";
+import { mutation, query } from "../_generated/server";
 
 // ============ TRACK VIEW TRACKING ============
 
@@ -54,7 +54,7 @@ export const getTrackViewStats = query({
     
     const bySource: Record<string, number> = {};
     const byTrack: Record<string, number> = {};
-    let uniqueVisitors = new Set<string>();;
+    const uniqueVisitors = new Set<string>();
     
     for (const view of views) {
       bySource[view.source || "direct"] = (bySource[view.source || "direct"] || 0) + 1;
