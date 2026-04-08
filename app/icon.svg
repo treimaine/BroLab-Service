@@ -1,0 +1,25 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="transparent"/>
+  
+  <!-- Main lightning bolt symbol -->
+  <path d="M256 100 L320 256 L256 280 L192 436 L128 280 L192 256 Z" fill="url(#gradient)" stroke="url(#gradient)" stroke-width="8" stroke-linejoin="round"/>
+  
+  <!-- Top star -->
+  <path d="M140 180 L145 195 L160 200 L145 205 L140 220 L135 205 L120 200 L135 195 Z" fill="#7C3AED"/>
+  
+  <!-- Bottom star -->
+  <path d="M360 340 L365 355 L380 360 L365 365 L360 380 L355 365 L340 360 L355 355 Z" fill="#7C3AED"/>
+  
+  <!-- Top right accent star -->
+  <path d="M380 160 L383 168 L391 171 L383 174 L380 182 L377 174 L369 171 L377 168 Z" fill="#8B5CF6"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="128" y1="100" x2="320" y2="436" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -32,6 +32,16 @@ export const metadata: Metadata = {
   keywords: ["music producer platform", "sell beats online", "beat store", "producer storefront", "music licensing", "audio engineer services"],
   authors: [{ name: SITE_CONFIG.brand.name }],
   creator: SITE_CONFIG.brand.name,
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   openGraph: {
     type: "website",
     siteName: SITE_CONFIG.brand.name,

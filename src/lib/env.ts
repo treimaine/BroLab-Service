@@ -112,31 +112,32 @@ function validateRequiredPrefixedValue(
   return value
 }
 
-function resolveRuntimeEnv(): RuntimeEnv {
-  const errors: string[] = []
-  const nodeEnv = getNodeEnv()
-  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
-
+function validateClerkConfig(errors: string[], isBuildTime: boolean) {
   const clerkPublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', 'pk_', errors)
   const clerkSecretKey = validateRequiredPrefixedValue('CLERK_SECRET_KEY', 'sk_', errors)
   
+  // cspell:ignore whsec
   // Webhook secrets are only needed at runtime, not build time
   const clerkWebhookSecret = isBuildTime 
     ? 'whsec_build_placeholder' 
     : validateRequiredPrefixedValue('CLERK_WEBHOOK_SECRET', 'whsec_', errors)
   
   const clerkJwtIssuerDomain = readEnv('CLERK_JWT_ISSUER_DOMAIN')
-  if (!clerkJwtIssuerDomain) {
-    errors.push('CLERK_JWT_ISSUER_DOMAIN is required.')
-  } else {
+  if (clerkJwtIssuerDomain) {
     validateUrl('CLERK_JWT_ISSUER_DOMAIN', clerkJwtIssuerDomain, errors, { requireHttpsInProduction: true })
+  } else {
+    errors.push('CLERK_JWT_ISSUER_DOMAIN is required.')
   }
 
+  return { clerkPublishableKey, clerkSecretKey, clerkWebhookSecret, clerkJwtIssuerDomain }
+}
+
+function validateConvexConfig(errors: string[], isBuildTime: boolean) {
   const convexUrl = readEnv('NEXT_PUBLIC_CONVEX_URL')
-  if (!convexUrl) {
-    errors.push('NEXT_PUBLIC_CONVEX_URL is required.')
-  } else {
+  if (convexUrl) {
     validateUrl('NEXT_PUBLIC_CONVEX_URL', convexUrl, errors, { requireHttpsInProduction: true })
+  } else {
+    errors.push('NEXT_PUBLIC_CONVEX_URL is required.')
   }
 
   // CONVEX_DEPLOYMENT is only needed at runtime, not build time
@@ -150,6 +151,10 @@ function resolveRuntimeEnv(): RuntimeEnv {
     errors.push('CONVEX_DEPLOYMENT still contains a placeholder value.')
   }
 
+  return { convexUrl, convexDeployment }
+}
+
+function validateStripeConfig(errors: string[], isBuildTime: boolean) {
   const stripeSecretKey = validateRequiredPrefixedValue('STRIPE_SECRET_KEY', 'sk_', errors)
   const stripePublishableKey = validateRequiredPrefixedValue('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', 'pk_', errors)
   
@@ -158,6 +163,7 @@ function resolveRuntimeEnv(): RuntimeEnv {
     ? 'ca_build_placeholder'
     : validateRequiredPrefixedValue('STRIPE_CONNECT_CLIENT_ID', 'ca_', errors)
   
+  // cspell:ignore whsec
   // Webhook secrets are only needed at runtime
   const stripeWebhookSecret = isBuildTime
     ? 'whsec_build_placeholder_1'
@@ -175,11 +181,17 @@ function resolveRuntimeEnv(): RuntimeEnv {
     errors.push('STRIPE_WEBHOOK_SECRET and STRIPE_CONNECT_WEBHOOK_SECRET must be different secrets.')
   }
 
-  const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
+  return { stripeSecretKey, stripePublishableKey, stripeConnectClientId, stripeWebhookSecret, stripeConnectWebhookSecret }
+}
 
-  const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
-  validateUrl('NEXT_PUBLIC_SITE_URL', siteUrl, errors, { requireHttpsInProduction: true })
-
+function validateProductionCredentials(
+  nodeEnv: NodeEnv,
+  clerkPublishableKey: string | undefined,
+  clerkSecretKey: string | undefined,
+  stripeSecretKey: string | undefined,
+  stripePublishableKey: string | undefined,
+  errors: string[]
+) {
   // Allow test credentials in production if explicitly enabled (for local builds)
   const allowTestInProduction = readEnv('ALLOW_TEST_CREDENTIALS_IN_PRODUCTION') === 'true'
   
@@ -197,6 +209,33 @@ function resolveRuntimeEnv(): RuntimeEnv {
       }
     }
   }
+}
+
+function resolveRuntimeEnv(): RuntimeEnv {
+  const errors: string[] = []
+  const nodeEnv = getNodeEnv()
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
+
+  // Validate Clerk configuration
+  const { clerkPublishableKey, clerkSecretKey, clerkWebhookSecret, clerkJwtIssuerDomain } = 
+    validateClerkConfig(errors, isBuildTime)
+
+  // Validate Convex configuration
+  const { convexUrl, convexDeployment } = validateConvexConfig(errors, isBuildTime)
+
+  // Validate Stripe configuration
+  const { stripeSecretKey, stripePublishableKey, stripeConnectClientId, stripeWebhookSecret, stripeConnectWebhookSecret } = 
+    validateStripeConfig(errors, isBuildTime)
+
+  // Validate Resend configuration
+  const resendApiKey = validateRequiredPrefixedValue('RESEND_API_KEY', 're_', errors)
+
+  // Validate site URL
+  const siteUrl = readEnv('NEXT_PUBLIC_SITE_URL') ?? 'http://localhost:3000'
+  validateUrl('NEXT_PUBLIC_SITE_URL', siteUrl, errors, { requireHttpsInProduction: true })
+
+  // Validate production credentials
+  validateProductionCredentials(nodeEnv, clerkPublishableKey, clerkSecretKey, stripeSecretKey, stripePublishableKey, errors)
 
   if (errors.length > 0) {
     const details = errors.map((error) => `  - ${error}`).join('\n')
@@ -242,9 +281,7 @@ function resolveRuntimeEnv(): RuntimeEnv {
 let runtimeEnv: RuntimeEnv | null = null
 
 function getRuntimeEnv(): RuntimeEnv {
-  if (!runtimeEnv) {
-    runtimeEnv = resolveRuntimeEnv()
-  }
+  runtimeEnv ??= resolveRuntimeEnv()
   return runtimeEnv
 }
 
