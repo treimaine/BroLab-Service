@@ -22,7 +22,7 @@ import { Id } from '../../../../convex/_generated/dataModel'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2026-03-25.dahlia',
 })
 
 // Initialize Convex client for server-side queries

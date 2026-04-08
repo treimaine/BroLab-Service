@@ -103,6 +103,7 @@ export default tseslint.config(
       "convex/_generated/**",
       ".brv/**",
       ".agent/**",
+      ".paperclip/**",
       "next-env.d.ts",
       "out/**",
       "build/**",

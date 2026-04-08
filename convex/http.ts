@@ -7,14 +7,14 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import {
-  logWebhookSuccess,
-  logWebhookFailure,
-  logWebhookDuplicate,
-  logSignatureVerificationFailure,
-  logOrderCreation,
-  logEntitlementCreation,
-  logBookingCreation,
-  logEmailNotification,
+    logBookingCreation,
+    logEmailNotification,
+    logEntitlementCreation,
+    logOrderCreation,
+    logSignatureVerificationFailure,
+    logWebhookDuplicate,
+    logWebhookFailure,
+    logWebhookSuccess,
 } from "./platform/monitoring";
 
 // Stripe event types
@@ -382,7 +382,7 @@ function parseWebhookBody(rawBody: string): Record<string, unknown> | null {
 async function verifyStripeWebhook(body: string, signature: string): Promise<StripeEvent | null> {
   const stripe = new (await import("stripe")).default(
     process.env.STRIPE_SECRET_KEY!,
-    { apiVersion: "2024-12-18.acacia" }
+    { apiVersion: "2026-03-25.dahlia" }
   );
 
   try {
