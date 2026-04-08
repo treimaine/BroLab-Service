@@ -36,11 +36,11 @@ const CONTENT_SECURITY_POLICY = [
   "base-uri 'self'",
   "form-action 'self' https://checkout.stripe.com https://connect.stripe.com",
   "frame-ancestors 'none'",
-  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://clerk.brolabentertainment.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https:",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://*.clerk.accounts.dev https://clerk.brolabentertainment.com",
   "style-src 'self' 'unsafe-inline' https:",
   "connect-src 'self' https: ws: wss:",
 ].join('; ')
