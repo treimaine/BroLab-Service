@@ -63,3 +63,15 @@ worker/dist/
 
 # Design reference files
 *.mov
+
+# PaperclipAI artifacts (internal coordination, not for production)
+.paperclip/
+/check-paperclip-status.sh
+/deploy_update.sh
+/final_status_update.sh
+/update_blocked_status.sh
+/checkout.sh
+/blocker_comment.json
+/deployment_task.json
+/get-metrics.js
+/get-signups.js
