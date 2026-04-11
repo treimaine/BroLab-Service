@@ -203,7 +203,7 @@ function PricingToggle({
         leftLabel="Monthly" 
         rightLabel="Annual" 
       />
-      <span className="ml-2 px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_2px_8px_rgba(var(--accent),0.3)]">
+      <span className="ml-2 px-3 py-1 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_2px_8px_rgba(var(--accent),0.3)]">
         SAVE UP TO 70%
       </span>
     </div>
@@ -237,7 +237,7 @@ function PlanCard({
     <div className={isPro ? 'pt-4' : ''}>
       {isPro && (
         <div className="flex justify-center mb-[-14px] relative z-20">
-          <span className="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_4px_14px_rgba(var(--accent),0.4)]">
+          <span className="px-4 py-1.5 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_4px_14px_rgba(var(--accent),0.4)]">
             MOST POPULAR
           </span>
         </div>
@@ -271,7 +271,7 @@ function PlanCard({
             variant="primary"
             size="lg" 
             fullWidth
-            className={isPro ? '' : 'bg-gradient-to-r from-[rgba(var(--accent),0.15)] to-[rgba(var(--accent-2),0.15)] !text-accent border border-[rgba(var(--accent),0.3)]'}
+            className={isPro ? '' : 'bg-linear-to-r from-[rgba(var(--accent),0.15)] to-[rgba(var(--accent-2),0.15)] !text-accent border border-[rgba(var(--accent),0.3)]'}
           >
             Get Started
           </PillCTA>
@@ -281,9 +281,9 @@ function PlanCard({
           {features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-3">
               {feature.included ? (
-                <Check className="w-5 h-5 text-accent flex-shrink-0" />
+                <Check className="w-5 h-5 text-accent shrink-0" />
               ) : (
-                <X className="w-5 h-5 text-muted/50 flex-shrink-0" />
+                <X className="w-5 h-5 text-muted/50 shrink-0" />
               )}
               <span className={`text-sm ${feature.included ? 'text-text' : 'text-muted/50'}`}>
                 {feature.label}
@@ -386,7 +386,7 @@ function FAQItem({
       >
         <span className="text-sm font-medium text-text pr-4">{question}</span>
         <ChevronDown 
-          className={`w-5 h-5 text-muted flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+          className={`w-5 h-5 text-muted shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
       {isOpen && (

@@ -43,7 +43,7 @@ const sizeStyles = {
     icon: 'w-4 h-4',
     cover: 'w-5 h-5',
     title: 'text-xs max-w-[100px]',
-    artist: 'text-[10px] max-w-[80px]',
+    artist: 'text-[10px] max-w-grid-10',
     bars: 'h-3 gap-[2px]',
     barWidth: 'w-[2px]',
   },
@@ -162,7 +162,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         {/* Cover art or icon */}
         {coverUrl ? (
           <div 
-            className={`${config.cover} rounded-full overflow-hidden flex-shrink-0 bg-[rgba(var(--border),0.1)] relative`}
+            className={`${config.cover} rounded-full overflow-hidden shrink-0 bg-[rgba(var(--border),0.1)] relative`}
           >
             {/* Using img for dynamic external URLs (Convex storage) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -174,7 +174,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
           </div>
         ) : (
           <div 
-            className={`${config.cover} rounded-full flex items-center justify-center flex-shrink-0 bg-[rgba(var(--accent),0.1)]`}
+            className={`${config.cover} rounded-full flex items-center justify-center shrink-0 bg-[rgba(var(--accent),0.1)]`}
           >
             <Music className={`${config.icon} text-[rgb(var(--accent))]`} />
           </div>
@@ -216,7 +216,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
 
         {/* Equalizer bars (when playing) */}
         {hasContent && (
-          <div className="flex-shrink-0 ml-1">
+          <div className="shrink-0 ml-1">
             <EqualizerBars isPlaying={isPlaying} size={size} />
           </div>
         )}

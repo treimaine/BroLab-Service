@@ -110,9 +110,9 @@ brolab-entertainment/
 │   ├── TASK-3-COMPLETION-SUMMARY.md          ✅ NEW
 │   ├── SECURITY-TASK-3-VISUAL-SUMMARY.md     ✅ NEW
 │   ├── TASK-3-FILES-CREATED.md               ✅ NEW (this file)
-│   ├── SECURITY-AUDIT-REPORT.md              ��� MODIFIED
+│   ├── SECURITY-AUDIT-REPORT.md              ��� MODIFIED
 │   └── security/
-│       └── README.md                         ��� MODIFIED
+│       └── README.md                         ��� MODIFIED
 │
 ├── tests/
 │   └── security/
@@ -121,7 +121,7 @@ brolab-entertainment/
 ├── scripts/
 │   └── verify-jwt-security.sh                ✅ NEW
 │
-└── package.json                              ��� MODIFIED
+└── package.json                              ��� MODIFIED
 ```
 
 ---

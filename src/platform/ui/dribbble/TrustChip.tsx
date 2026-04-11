@@ -51,7 +51,7 @@ export const TrustChip = forwardRef<HTMLDivElement, TrustChipProps>(
       >
         {/* Icon */}
         <Icon
-          className="w-3.5 h-3.5 text-[rgb(var(--muted))] flex-shrink-0"
+          className="w-3.5 h-3.5 text-[rgb(var(--muted))] shrink-0"
           aria-hidden="true"
         />
 

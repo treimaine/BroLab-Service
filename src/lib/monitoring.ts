@@ -3,51 +3,19 @@
  * Structured logging, metrics, and alerting for Stripe checkout and webhooks
  */
 
+import type {
+  CheckoutAttemptParams,
+  CheckoutFailureParams,
+  CheckoutSuccessParams,
+  DeliveryCompletionParams,
+  HealthStatus,
+  MonitoringEvent,
+  OrderCreationParams,
+  WebhookFailureParams,
+  WebhookReceivedParams,
+  WebhookSuccessParams
+} from '@/shared/types/monitoring';
 import { SITE_CONFIG } from './env';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface MonitoringEvent {
-  timestamp: number;
-  level: 'info' | 'warn' | 'error';
-  service: 'checkout' | 'webhook' | 'convex';
-  eventType: string;
-  userId?: string;
-  workspaceId?: string;
-  sessionId?: string;
-  orderId?: string;
-  message: string;
-  metadata?: Record<string, unknown>;
-  duration?: number;
-  error?: {
-    code: string;
-    message: string;
-    stack?: string;
-  };
-}
-
-export interface CheckoutMetrics {
-  totalAttempts: number;
-  successCount: number;
-  failureCount: number;
-  successRate: number;
-  avgResponseTime: number;
-  errorCodes: Record<string, number>;
-  lastUpdated: number;
-}
-
-export interface WebhookMetrics {
-  totalEvents: number;
-  processedCount: number;
-  failedCount: number;
-  duplicateCount: number;
-  avgProcessingTime: number;
-  eventTypeBreakdown: Record<string, number>;
-  errorCodes: Record<string, number>;
-  lastUpdated: number;
-}
 
 // ============================================================================
 // Structured Logging
@@ -81,14 +49,7 @@ export function logMonitoringEvent(event: MonitoringEvent): void {
 /**
  * Log checkout session creation attempt
  */
-export function logCheckoutAttempt(params: {
-  userId: string;
-  workspaceId: string;
-  itemType: 'track' | 'service';
-  itemId: string;
-  licenseTier?: 'basic' | 'premium' | 'unlimited';
-  startTime: number;
-}): void {
+export function logCheckoutAttempt(params: CheckoutAttemptParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -109,16 +70,7 @@ export function logCheckoutAttempt(params: {
 /**
  * Log checkout session creation success
  */
-export function logCheckoutSuccess(params: {
-  userId: string;
-  workspaceId: string;
-  sessionId: string;
-  itemType: 'track' | 'service';
-  itemId: string;
-  priceInCents: number;
-  currency: string;
-  duration: number;
-}): void {
+export function logCheckoutSuccess(params: CheckoutSuccessParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -141,16 +93,7 @@ export function logCheckoutSuccess(params: {
 /**
  * Log checkout failure
  */
-export function logCheckoutFailure(params: {
-  userId?: string;
-  workspaceId?: string;
-  itemType?: 'track' | 'service';
-  itemId?: string;
-  errorCode: string;
-  errorMessage: string;
-  duration?: number;
-  stack?: string;
-}): void {
+export function logCheckoutFailure(params: CheckoutFailureParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'error',
@@ -175,11 +118,7 @@ export function logCheckoutFailure(params: {
 /**
  * Log webhook event received
  */
-export function logWebhookReceived(params: {
-  eventId: string;
-  eventType: string;
-  signature: boolean;
-}): void {
+export function logWebhookReceived(params: WebhookReceivedParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -197,13 +136,7 @@ export function logWebhookReceived(params: {
 /**
  * Log webhook processing success
  */
-export function logWebhookSuccess(params: {
-  eventId: string;
-  eventType: string;
-  orderId?: string;
-  workspaceId?: string;
-  duration: number;
-}): void {
+export function logWebhookSuccess(params: WebhookSuccessParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -223,14 +156,7 @@ export function logWebhookSuccess(params: {
 /**
  * Log webhook processing failure
  */
-export function logWebhookFailure(params: {
-  eventId: string;
-  eventType: string;
-  errorCode: string;
-  errorMessage: string;
-  duration?: number;
-  stack?: string;
-}): void {
+export function logWebhookFailure(params: WebhookFailureParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'error',
@@ -287,14 +213,7 @@ export function logSignatureVerificationFailure(reason: string): void {
 /**
  * Log order creation success
  */
-export function logOrderCreation(params: {
-  orderId: string;
-  workspaceId: string;
-  buyerClerkUserId: string;
-  itemType: 'track' | 'service';
-  amountCents: number;
-  currency: string;
-}): void {
+export function logOrderCreation(params: OrderCreationParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -315,12 +234,7 @@ export function logOrderCreation(params: {
 /**
  * Log delivery completion
  */
-export function logDeliveryCompletion(params: {
-  orderId: string;
-  workspaceId: string;
-  itemType: 'track' | 'service';
-  deliveryType: 'download' | 'booking' | 'entitlement';
-}): void {
+export function logDeliveryCompletion(params: DeliveryCompletionParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
     level: 'info',
@@ -377,11 +291,7 @@ async function sendToMonitoringService(logEntry: unknown): Promise<void> {
  * Generate current health metrics (in-memory from logs)
  * For production, integrate with time-series database
  */
-export function getCheckoutHealthStatus(): {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  successRate: number;
-  lastError?: string;
-} {
+export function getCheckoutHealthStatus(): HealthStatus {
   // This is a simplified in-memory implementation
   // In production, query metrics from database/monitoring service
   return {
@@ -391,12 +301,7 @@ export function getCheckoutHealthStatus(): {
   };
 }
 
-export function getWebhookHealthStatus(): {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  processedCount: number;
-  failureRate: number;
-  lastError?: string;
-} {
+export function getWebhookHealthStatus(): HealthStatus {
   // This is a simplified in-memory implementation
   // In production, query metrics from database/monitoring service
   return {

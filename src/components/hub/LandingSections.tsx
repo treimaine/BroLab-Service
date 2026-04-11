@@ -167,7 +167,7 @@ export function FeaturesSection() {
             <DribbbleStaggerItem className="lg:col-span-7">
               <DribbbleCard glow hoverLift padding="lg" className="h-full">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center flex-shrink-0">
+                  <div className="w-16 h-16 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
                     <Music className="w-8 h-8 text-accent" />
                   </div>
                   <div>
@@ -318,8 +318,8 @@ export function ProductPreviewSection() {
                         { name: 'Melodic Wave', genre: 'Pop', price: '$19.99', color: 'from-green-500/40 to-teal-500/20' },
                       ].map((beat) => (
                         <div key={beat.name} className="rounded-lg bg-[rgba(var(--card),0.6)] border border-border/20 p-2.5 space-y-2 cursor-pointer hover:border-accent/40 transition-colors">
-                          <div className={`aspect-square rounded-md bg-gradient-to-br ${beat.color} flex items-center justify-center`}>
-                            <div className="w-0 h-0 border-l-[8px] border-l-white/70 border-y-[5px] border-y-transparent ml-0.5" />
+                          <div className={`aspect-square rounded-md bg-linear-to-br ${beat.color} flex items-center justify-center`}>
+                            <div className="w-0 h-0 border-l-8 border-l-white/70 border-y-[5px] border-y-transparent ml-0.5" />
                           </div>
                           <div>
                             <p className="text-[10px] font-bold text-text truncate">{beat.name}</p>
@@ -334,8 +334,8 @@ export function ProductPreviewSection() {
 
                     {/* Player bar */}
                     <div className="flex items-center gap-3 p-2.5 rounded-lg bg-[rgba(var(--accent),0.12)] border border-[rgba(var(--accent),0.2)]">
-                      <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                        <div className="w-0 h-0 border-l-[6px] border-l-[rgb(var(--bg))] border-y-[4px] border-y-transparent ml-0.5" />
+                      <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center shrink-0">
+                        <div className="w-0 h-0 border-l-[6px] border-l-[rgb(var(--bg))] border-y-4 border-y-transparent ml-0.5" />
                       </div>
                       <div className="flex-1 space-y-1 min-w-0">
                         <p className="text-[10px] font-bold text-text truncate">Dark Trap 808</p>
@@ -343,7 +343,7 @@ export function ProductPreviewSection() {
                           <div className="w-2/5 h-full rounded-full bg-accent" />
                         </div>
                       </div>
-                      <div className="text-[10px] text-muted flex-shrink-0">0:47 / 1:30</div>
+                      <div className="text-[10px] text-muted shrink-0">0:47 / 1:30</div>
                     </div>
                   </div>
                 </DribbbleCard>
@@ -476,7 +476,7 @@ export function PricingSection() {
                     <ul className="space-y-2.5 mb-8">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-center gap-2.5 text-sm text-text">
-                          <Check className="w-4 h-4 text-accent flex-shrink-0" />
+                          <Check className="w-4 h-4 text-accent shrink-0" />
                           {f}
                         </li>
                       ))}
@@ -538,15 +538,15 @@ export function ComparisonSection() {
               >
                 <div className="p-4 text-muted text-xs">{row.label}</div>
                 <div className="p-4 text-center bg-[rgba(var(--accent),0.04)] flex items-center justify-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
                   <span className="text-xs font-bold text-accent">{row.brolab}</span>
                 </div>
                 <div className="p-4 text-center flex items-center justify-center gap-1.5">
-                  <X className="w-3.5 h-3.5 text-muted/50 flex-shrink-0" />
+                  <X className="w-3.5 h-3.5 text-muted/50 shrink-0" />
                   <span className="text-xs text-muted">{row.beatstars}</span>
                 </div>
                 <div className="p-4 text-center flex items-center justify-center gap-1.5">
-                  <X className="w-3.5 h-3.5 text-muted/50 flex-shrink-0" />
+                  <X className="w-3.5 h-3.5 text-muted/50 shrink-0" />
                   <span className="text-xs text-muted">{row.airbit}</span>
                 </div>
               </div>
@@ -597,7 +597,7 @@ export function TestimonialSection() {
                     <p className="text-sm text-text leading-relaxed italic mb-6">"{t.quote}"</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-accent-2/20 flex items-center justify-center text-xs font-bold text-accent">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent/20 to-accent-2/20 flex items-center justify-center text-xs font-bold text-accent">
                       {t.avatar}
                     </div>
                     <div>

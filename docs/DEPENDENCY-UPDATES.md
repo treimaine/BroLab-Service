@@ -84,7 +84,16 @@ declare module '*.css' {
 ### 6. Tailwind CSS 4.x
 **Change:** New CSS engine with improved performance
 
-**Status:** ✅ No breaking changes detected, all utilities compatible
+**Fix Applied:** Installed `@tailwindcss/postcss` package and updated `postcss.config.mjs`:
+```javascript
+const config = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+```
+
+**Status:** ✅ Working correctly, dev server starts successfully
 
 ## Testing Results
 
@@ -99,10 +108,11 @@ declare module '*.css' {
 2. `package-lock.json` - Lock file updated
 3. `eslint.config.mjs` - Added `.paperclip/**` to ignores
 4. `global.d.ts` - Created for TypeScript 6.x CSS imports
-5. `app/api/stripe/checkout/route.ts` - Updated Stripe API version
-6. `app/api/stripe/connect/callback/route.ts` - Updated Stripe API version
-7. `app/api/stripe/connect/login-link/route.ts` - Updated Stripe API version
-8. `convex/http.ts` - Updated Stripe API version
+5. `postcss.config.mjs` - Updated to use `@tailwindcss/postcss` for Tailwind 4.x
+6. `app/api/stripe/checkout/route.ts` - Updated Stripe API version
+7. `app/api/stripe/connect/callback/route.ts` - Updated Stripe API version
+8. `app/api/stripe/connect/login-link/route.ts` - Updated Stripe API version
+9. `convex/http.ts` - Updated Stripe API version
 
 ## Recommendations
 
@@ -149,6 +159,7 @@ npm install -D typescript@latest
 npm install @clerk/nextjs@latest @clerk/themes@latest
 npm install next@latest @next/eslint-plugin-next@latest eslint-config-next@latest
 npm install -D tailwindcss@latest
+npm install -D @tailwindcss/postcss  # Required for Tailwind 4.x
 
 # Verify
 npm run typecheck

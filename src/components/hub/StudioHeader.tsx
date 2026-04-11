@@ -9,7 +9,6 @@
 
 import { ThemeToggle, TopMinimalBar } from '@/platform/ui'
 import { UserButton } from '@clerk/nextjs'
-import { dark } from '@clerk/themes'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -47,7 +46,6 @@ export function StudioHeader(_props: StudioHeaderProps = {}) {
           <ThemeToggle />
           <UserButton
             appearance={{
-              baseTheme: resolvedTheme === 'dark' ? dark : undefined,
               elements: {
                 userButtonAvatarBox:
                   'w-8 h-8 rounded-full ring-2 ring-accent/20 hover:ring-accent/40 transition-all',

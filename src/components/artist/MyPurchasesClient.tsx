@@ -98,7 +98,7 @@ export function MyPurchasesClient() {
           transition={{ duration: 0.4 }}
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-accent to-accent-2 flex items-center justify-center">
               <ShoppingBag className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -145,7 +145,7 @@ export function MyPurchasesClient() {
                 <DribbbleCard className="p-6 hover:shadow-glow-subtle transition-shadow">
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Beat Cover */}
-                    <div className="w-full md:w-32 h-32 rounded-xl bg-gradient-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
+                    <div className="w-full md:w-32 h-32 rounded-xl bg-linear-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
                       <span className="text-4xl">🎵</span>
                     </div>
 

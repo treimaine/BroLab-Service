@@ -32,7 +32,7 @@ export function RoleCTACard({
       </h3>
       
       {/* Description */}
-      <p className="text-muted text-sm leading-relaxed mb-6 flex-grow">
+      <p className="text-muted text-sm leading-relaxed mb-6 grow">
         {description}
       </p>
       

@@ -164,7 +164,7 @@ export function TenantLayout({
     />
   ) : (
     <div 
-      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold text-lg select-none shadow-lg"
+      className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold text-lg select-none shadow-lg"
       aria-label={workspaceName}
     >
       {workspaceName.charAt(0).toUpperCase()}

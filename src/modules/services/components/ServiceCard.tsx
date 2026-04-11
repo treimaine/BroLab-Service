@@ -71,7 +71,7 @@ export function ServiceCard({ service, onEdit, onError, onSuccess }: ServiceCard
   return (
     <DribbbleCard padding="md" hoverLift className="flex items-start gap-4">
       {/* Icon */}
-      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[rgb(var(--accent))]/20">
+      <div className="shrink-0 w-12 h-12 bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[rgb(var(--accent))]/20">
         <Wrench className="w-6 h-6 text-white" />
       </div>
 
@@ -122,7 +122,7 @@ export function ServiceCard({ service, onEdit, onError, onSuccess }: ServiceCard
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={() => onEdit?.(service)}
           className="p-2 text-muted hover:text-[rgb(var(--text))] hover:bg-card/60 rounded-lg transition-colors cursor-pointer"

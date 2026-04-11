@@ -56,7 +56,7 @@ const HeroTitle = ({ className }: { className?: string }) => (
     
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
       <div className="absolute w-full h-[2px] bg-[rgb(var(--accent))] opacity-20" style={{ top: '35%' }} />
-      <div className="absolute w-full h-[1px] bg-white opacity-10" style={{ top: '65%' }} />
+      <div className="absolute w-full h-px bg-white opacity-10" style={{ top: '65%' }} />
     </div>
   </div>
 )

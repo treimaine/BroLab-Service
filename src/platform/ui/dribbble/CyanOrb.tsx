@@ -23,7 +23,7 @@ export function CyanOrb({
     <div
       className={`
         rounded-full
-        bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
+        bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
         motion-safe:animate-pulse
         ${className}
       `}

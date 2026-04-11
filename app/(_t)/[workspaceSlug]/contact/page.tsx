@@ -66,7 +66,7 @@ export default function ContactPage() {
                 <div className="lg:col-span-1 space-y-4">
                   <DribbbleCard padding="lg" hoverLift>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0">
                         <Mail className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -78,7 +78,7 @@ export default function ContactPage() {
 
                   <DribbbleCard padding="lg" hoverLift>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
                         <Phone className="w-6 h-6 text-accent" />
                       </div>
                       <div>
@@ -90,7 +90,7 @@ export default function ContactPage() {
 
                   <DribbbleCard padding="lg" hoverLift>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
                         <MapPin className="w-6 h-6 text-accent" />
                       </div>
                       <div>
@@ -187,7 +187,7 @@ export default function ContactPage() {
       <GlassFooter className="py-12 px-4 lg:px-8">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
               {workspaceName.charAt(0)}
             </div>
             <div>

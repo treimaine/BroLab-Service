@@ -183,7 +183,7 @@ export default function BeatDetailPage() {
                   <button
                     onClick={handlePlayPause}
                     disabled={!hasPreview}
-                    className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-20 h-20 rounded-2xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     aria-label={isTrackPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
                   >
                     {isTrackPlaying ? (
@@ -327,7 +327,7 @@ export default function BeatDetailPage() {
                   {!isPaymentsConfigured && (
                     <DribbbleCard padding="lg" className="border-2 border-[rgba(var(--accent),0.3)]">
                       <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <div>
                           <h3 className="text-base font-bold text-text mb-2">Payments Not Configured</h3>
                           <p className="text-sm text-muted">

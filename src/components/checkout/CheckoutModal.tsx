@@ -159,7 +159,7 @@ export function CheckoutModal({
                   {/* Header */}
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent to-accent-2 flex items-center justify-center">
                         <ShoppingCart className="w-4 h-4 text-white" />
                       </div>
                       <h2 className="text-2xl font-bold">Purchase Beat</h2>
@@ -177,7 +177,7 @@ export function CheckoutModal({
                   <DribbbleCard padding="sm" className="mb-6 border border-border">
                     <div className="flex items-center gap-4">
                       {/* Cover Art */}
-                      <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
+                      <div className="w-16 h-16 rounded-lg bg-linear-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
                         <span className="text-2xl">🎵</span>
                       </div>
 

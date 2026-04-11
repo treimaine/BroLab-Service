@@ -58,6 +58,7 @@ convex/**/*.d.ts.map
 .kiro/
 .brv/
 .agent/
+.playwright-mcp/
 # Worker build output
 worker/dist/
 

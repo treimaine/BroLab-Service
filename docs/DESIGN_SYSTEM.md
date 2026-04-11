@@ -163,7 +163,7 @@ grid-5: 40px   grid-6: 48px   grid-8: 64px   grid-10: 80px
 ### Marketplace Beat Card
 ```tsx
 <DribbbleCard className="group hover:shadow-glow-strong transition-shadow">
-  <div className="aspect-square bg-gradient-to-br from-accent/20 to-accent-2/20 rounded-xl mb-grid-2">
+  <div className="aspect-square bg-linear-to-br from-accent/20 to-accent-2/20 rounded-xl mb-grid-2">
     <PlayButton />
   </div>
   <h3 className="text-lg font-semibold text-text">Beat Title</h3>

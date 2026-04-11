@@ -102,7 +102,7 @@ function ProgressBar({
           return (
             <div key={step.key} className="flex items-center flex-1">
               {/* Node */}
-              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+              <div className="flex flex-col items-center gap-1 shrink-0">
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${getNodeStyle(isDone, isActive)}`}
                 >
@@ -228,7 +228,7 @@ function RoleStep({
               } ${selectedRole === role ? 'border-[rgb(var(--accent))]/60' : ''}`}
             >
               <div className="flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center">
+                <div className="w-11 h-11 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center">
                   {isCreating && selectedRole === role ? (
                     <Loader2 className="w-5 h-5 text-white animate-spin" />
                   ) : (
@@ -391,7 +391,7 @@ function StripeStep({
       <DribbbleCard className="p-8 space-y-6">
         {/* Key benefit */}
         <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgb(var(--accent))]/5 border border-[rgb(var(--accent))]/20">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -419,7 +419,7 @@ function StripeStep({
         <div className="space-y-3 pt-1">
           <a
             href={createdWorkspaceId ? `/api/stripe/connect?workspaceId=${createdWorkspaceId}` : '#'}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold text-white bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200 cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200 cursor-pointer"
           >
             Connect Stripe Account
             <ExternalLink className="w-4 h-4" />
@@ -457,7 +457,7 @@ function CompleteStep({
       {/* Celebration icon */}
       <div className="flex justify-center">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shadow-[0_0_40px_rgba(var(--accent),0.4)]">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shadow-[0_0_40px_rgba(var(--accent),0.4)]">
             <Check className="w-10 h-10 text-white" />
           </div>
           <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">

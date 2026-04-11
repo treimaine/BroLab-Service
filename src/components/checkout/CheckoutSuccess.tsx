@@ -74,7 +74,7 @@ export function CheckoutSuccess() {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center animate-pulse">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-linear-to-br from-accent to-accent-2 flex items-center justify-center animate-pulse">
             <Music className="w-8 h-8 text-white" />
           </div>
           <p className="text-muted">Processing your purchase...</p>
@@ -117,7 +117,7 @@ export function CheckoutSuccess() {
         >
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center shadow-glow-strong">
+              <div className="w-20 h-20 rounded-full bg-linear-to-br from-accent to-accent-2 flex items-center justify-center shadow-glow-strong">
                 <Check className="w-10 h-10 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">

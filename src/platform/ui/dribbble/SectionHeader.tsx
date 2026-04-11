@@ -48,7 +48,7 @@ export function SectionHeader({
           
           {/* Horizontal rule */}
           {showRule && (
-            <div className="flex-1 h-px bg-border min-w-[40px]" />
+            <div className="flex-1 h-px bg-border min-w-grid-5" />
           )}
         </div>
 

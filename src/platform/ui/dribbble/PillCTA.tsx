@@ -39,7 +39,7 @@ interface PillCTAProps {
 
 const variantStyles = {
   primary: `
-    bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
+    bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
     text-white font-semibold
     shadow-[0_4px_14px_rgba(var(--accent),0.3)]
     hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)]

@@ -168,7 +168,7 @@ export default function MarketplaceBeatGrid({
         <motion.div key={beat.id} variants={dribbbleStaggerChild}>
           <DribbbleCard className="group overflow-hidden hover:shadow-glow-strong transition-all">
             {/* Beat Cover Art */}
-            <div className="relative aspect-square bg-gradient-to-br from-accent/20 via-accent-2/10 to-transparent rounded-xl mb-grid-3 flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-square bg-linear-to-br from-accent/20 via-accent-2/10 to-transparent rounded-xl mb-grid-3 flex items-center justify-center overflow-hidden">
               {/* Play/Pause Button */}
               <button
                 onClick={() => togglePlay(beat.id)}

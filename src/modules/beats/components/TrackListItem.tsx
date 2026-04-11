@@ -87,7 +87,7 @@ export function TrackListItem({ track, onError, onSuccess }: TrackListItemProps)
       className="flex items-center gap-4"
     >
       {/* Track Icon */}
-      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[rgb(var(--accent))]/20">
+      <div className="shrink-0 w-12 h-12 bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[rgb(var(--accent))]/20">
         <Music className="w-6 h-6 text-white" />
       </div>
 

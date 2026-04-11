@@ -176,7 +176,7 @@ export function CreateWorkspaceClient() {
 
         {step === 'complete' && (
           <DribbbleCard className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto rounded-full bg-linear-to-br from-accent to-accent-2 flex items-center justify-center">
               <Check className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-bold">Workspace Created!</h3>

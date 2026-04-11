@@ -132,7 +132,7 @@ export default function ServiceDetailPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {service.features.map((feature) => (
                       <div key={feature} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <span className="text-muted">{feature}</span>
                       </div>
                     ))}
@@ -182,7 +182,7 @@ export default function ServiceDetailPage() {
                   {!isPaymentsConfigured && (
                     <DribbbleCard padding="lg" className="border-2 border-[rgba(var(--accent),0.3)]">
                       <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <div>
                           <h3 className="text-base font-bold text-text mb-2">Payments Not Configured</h3>
                           <p className="text-sm text-muted">

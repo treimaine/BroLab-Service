@@ -294,7 +294,7 @@ export const VolumePill = forwardRef<HTMLFieldSetElement, VolumePillProps>(
               <motion.div
                 className={`
                   absolute left-0 rounded-full
-                  bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
+                  bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
                   ${sizeConfig.sliderHeight}
                 `}
                 style={{ width: `${effectiveVolume * 100}%` }}

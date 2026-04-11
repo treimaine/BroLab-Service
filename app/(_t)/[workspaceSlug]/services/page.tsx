@@ -95,9 +95,9 @@ export default function ServicesListPage() {
                       >
                         <div className="flex items-start justify-between gap-4 mb-4">
                           <div className="flex items-start gap-4 flex-1 min-w-0">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                               index === 0
-                                ? 'bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
+                                ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
                                 : 'bg-[rgba(var(--accent),0.15)]'
                             }`}>
                               <Headphones className={`w-7 h-7 ${index === 0 ? 'text-white' : 'text-accent'}`} />
@@ -105,12 +105,12 @@ export default function ServicesListPage() {
                             <div className="flex-1 min-w-0">
                               <h3 className="text-xl font-bold text-text mb-2 truncate">{service.title.toUpperCase()}</h3>
                               <div className="flex items-center gap-2 text-sm text-muted">
-                                <Clock className="w-4 h-4 flex-shrink-0" />
+                                <Clock className="w-4 h-4 shrink-0" />
                                 <span>{service.turnaround}</span>
                               </div>
                             </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
+                          <div className="text-right shrink-0">
                             <p className="text-sm text-muted">From</p>
                             <p className="text-2xl font-bold text-text">${service.priceUSD}</p>
                           </div>
@@ -121,7 +121,7 @@ export default function ServicesListPage() {
                         <div className="space-y-2 mb-6">
                           {service.features.slice(0, 4).map((feature) => (
                             <div key={feature} className="flex items-center gap-2 text-sm text-muted">
-                              <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
                               <span>{feature}</span>
                             </div>
                           ))}
@@ -153,7 +153,7 @@ export default function ServicesListPage() {
       <GlassFooter className="py-12 px-4 lg:px-8">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
               {workspaceName.charAt(0)}
             </div>
             <div>

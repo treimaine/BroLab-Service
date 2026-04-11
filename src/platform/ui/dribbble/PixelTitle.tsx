@@ -22,7 +22,7 @@ export function PixelTitle({
         className="
           text-[clamp(60px,12vw,160px)] 
           font-black 
-          tracking-[0.1em]
+          tracking-widest
           text-white
           leading-none
           relative
@@ -53,7 +53,7 @@ export function PixelTitle({
           style={{ top: '30%' }}
         />
         <div 
-          className="absolute w-full h-[1px] bg-white opacity-30"
+          className="absolute w-full h-px bg-white opacity-30"
           style={{ top: '45%' }}
         />
         <div 

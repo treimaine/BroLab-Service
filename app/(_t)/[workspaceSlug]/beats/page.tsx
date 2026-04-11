@@ -135,7 +135,7 @@ export default function BeatsListPage() {
                             <button
                               onClick={() => handlePlay(track)}
                               disabled={!hasPreview}
-                              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                              className="w-12 h-12 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                               aria-label={isTrackPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
                             >
                               {isTrackPlaying ? (
@@ -184,7 +184,7 @@ export default function BeatsListPage() {
       <GlassFooter className="py-12 px-4 lg:px-8">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
               {workspaceName.charAt(0)}
             </div>
             <div>

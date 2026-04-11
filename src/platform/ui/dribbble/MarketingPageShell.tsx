@@ -194,7 +194,7 @@ function MarketingHero({
                   {/* Scanlines - 2 horizontal lines (ELECTRI-X signature) */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
                     <div className="absolute w-full h-[2px] bg-[rgb(var(--accent))] opacity-15" style={{ top: '40%' }} />
-                    <div className="absolute w-full h-[1px] bg-white opacity-8" style={{ top: '60%' }} />
+                    <div className="absolute w-full h-px bg-white opacity-8" style={{ top: '60%' }} />
                   </div>
                 </div>
                 

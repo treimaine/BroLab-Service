@@ -3,6 +3,10 @@
  * Structured logging for Convex actions and mutations
  */
 
+
+// Note: Import types from shared when available in Convex context
+// For now, we define minimal types needed for Convex functions
+
 // ============================================================================
 // Structured Logging
 // ============================================================================

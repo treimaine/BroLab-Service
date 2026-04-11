@@ -72,7 +72,7 @@ export function MobileNav({
                   min-w-[44px] min-h-[44px] w-14 h-14
                   rounded-2xl transition-colors duration-200
                   ${isActive
-                    ? 'bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] text-white'
+                    ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] text-white'
                     : 'text-[rgb(var(--muted))] hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--bg-2),0.5)]'
                   }
                 `}

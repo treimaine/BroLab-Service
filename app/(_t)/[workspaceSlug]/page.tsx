@@ -222,7 +222,7 @@ export default function TenantHomePage() {
                           <button
                             onClick={() => handlePlay(track)}
                             disabled={!track.previewUrl}
-                            className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-12 h-12 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0 hover:scale-105 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                             aria-label={isTrackPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
                           >
                             {isTrackPlaying ? (
@@ -290,9 +290,9 @@ export default function TenantHomePage() {
                   <DribbbleStaggerItem key={service._id}>
                     <DribbbleCard glow={index === 0} hoverLift padding="lg" className="h-full">
                       <div className="flex items-start gap-4">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                           index === 0
-                            ? 'bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
+                            ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
                             : 'bg-[rgba(var(--accent),0.15)]'
                         }`}>
                           <Headphones className={`w-7 h-7 ${index === 0 ? 'text-white' : 'text-accent'}`} />
@@ -364,7 +364,7 @@ export default function TenantHomePage() {
       <GlassFooter className="py-12 px-4 lg:px-8">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
               {workspaceName.charAt(0)}
             </div>
             <div>

@@ -132,7 +132,7 @@ export default function TenantDemoPage() {
                 </OutlineStackTitle>
                 <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
                   <div className="absolute w-full h-[2px] bg-[rgb(var(--accent))] opacity-20" style={{ top: '35%' }} />
-                  <div className="absolute w-full h-[1px] bg-white opacity-10" style={{ top: '65%' }} />
+                  <div className="absolute w-full h-px bg-white opacity-10" style={{ top: '65%' }} />
                 </div>
               </div>
 
@@ -186,7 +186,7 @@ export default function TenantDemoPage() {
                   <div className="flex items-start gap-4">
                     <button 
                       onClick={() => handlePlayBeat(featuredBeats[0])}
-                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform"
+                      className="w-16 h-16 rounded-2xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
                       aria-label={`Play ${featuredBeats[0].title}`}
                     >
                       <Play className="w-8 h-8 text-white ml-1" />
@@ -256,7 +256,7 @@ export default function TenantDemoPage() {
               <DribbbleStaggerItem>
                 <DribbbleCard glow hoverLift padding="lg" className="h-full">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center flex-shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0">
                       <Headphones className="w-7 h-7 text-white" />
                     </div>
                     <div>
@@ -274,7 +274,7 @@ export default function TenantDemoPage() {
               <DribbbleStaggerItem>
                 <DribbbleCard hoverLift padding="lg" className="h-full">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center flex-shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
                       <Star className="w-7 h-7 text-accent" />
                     </div>
                     <div>
@@ -325,7 +325,7 @@ export default function TenantDemoPage() {
       <GlassFooter className="py-12 px-4 lg:px-8 border-t border-border/20">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center text-white font-bold select-none">
               D
             </div>
             <div>

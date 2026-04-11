@@ -1,6 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* ============================================
+   Tailwind 4.x Theme Configuration
+   ============================================ */
+
+@theme {
+  /* Font families */
+  --font-sans: Inter, system-ui, -apple-system, sans-serif;
+  --font-pixel: var(--font-press-start), monospace;
+
+  /* Spacing (8px grid) */
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+  --spacing-grid-1: 8px;
+  --spacing-grid-2: 16px;
+  --spacing-grid-3: 24px;
+  --spacing-grid-4: 32px;
+  --spacing-grid-5: 40px;
+  --spacing-grid-6: 48px;
+  --spacing-grid-8: 64px;
+  --spacing-grid-10: 80px;
+
+  /* Border radius */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Backdrop blur */
+  --blur-glass: 14px;
+
+  /* Font sizes */
+  --text-hero: clamp(48px, 12vw, 140px);
+}
 
 /* ============================================
    BroLab Entertainment Design System
@@ -508,112 +537,4 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-
-
-
-/* ============================================
-   Clerk Component Enhancements
-   Match BroLab app UI/UX standard with proper visibility
-   Follows Requirements: 23.x (Glassmorphism & Contrast)
-   ============================================ */
-
-/* Main Containers & Popovers */
-.cl-card,
-.cl-userButtonPopoverCard {
-  background: rgba(var(--bg-2), 0.8) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(var(--border), var(--border-alpha)) !important;
-  box-shadow:
-    0 0 0 1px rgba(var(--accent), 0.1),
-    0 0 30px rgba(var(--glow), calc(var(--glow-alpha) * 0.5)) !important;
-}
-
-/* UserProfile Modal (Account Management) */
-.cl-userProfile-root {
-  background: rgba(var(--bg), 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Headers & Labels visibility */
-.cl-headerTitle,
-.cl-headerSubtitle,
-.cl-formFieldLabel,
-.cl-userButtonPopoverActionButtonText,
-.cl-userButtonPopoverCustomItemButtonText {
-  color: rgb(var(--text)) !important;
-  opacity: 1 !important;
-}
-
-.cl-headerSubtitle,
-.cl-userButtonPopoverActionButtonText,
-.cl-footerActionText,
-.cl-formFieldHintText,
-.cl-identityPreviewText,
-.cl-userButtonOuterIdentifier {
-  color: rgb(var(--muted)) !important;
-}
-
-.cl-userButtonPopoverActionButton:hover .cl-userButtonPopoverActionButtonText {
-  color: rgb(var(--text)) !important;
-}
-
-/* Buttons */
-.cl-formButtonPrimary {
-  background-color: rgb(var(--accent)) !important;
-  color: #000000 !important;
-  /* Force black in light mode */
-  font-weight: 700 !important;
-}
-
-.dark .cl-formButtonPrimary {
-  color: #ffffff !important;
-  /* Force white in dark mode */
-}
-
-.cl-formButtonPrimary:hover {
-  background-color: rgb(var(--accent-2)) !important;
-}
-
-.cl-socialButtonsBlockButton {
-  background: rgba(var(--bg-2), 0.6) !important;
-  border: 1px solid rgba(var(--border), var(--border-alpha)) !important;
-  color: rgb(var(--text)) !important;
-}
-
-.cl-socialButtonsBlockButtonText {
-  color: rgb(var(--text)) !important;
-  opacity: 1 !important;
-}
-
-.cl-socialButtonsBlockButton:hover {
-  border-color: rgb(var(--accent)) !important;
-  background: rgba(var(--accent), 0.1) !important;
-}
-
-/* Input Fields */
-.cl-formFieldInput {
-  background: rgba(var(--bg-2), 0.5) !important;
-  border-color: rgba(var(--border), var(--border-alpha)) !important;
-  color: rgb(var(--text)) !important;
-}
-
-.cl-formFieldInput:focus {
-  border-color: rgb(var(--accent)) !important;
-  box-shadow: 0 0 0 2px rgba(var(--accent), 0.2) !important;
-}
-
-/* Divider & Footer */
-.cl-dividerLine {
-  background: rgba(var(--border), var(--border-alpha)) !important;
-}
-
-.cl-footerActionLink {
-  color: rgb(var(--accent)) !important;
-}
-
-.cl-footerActionLink:hover {
-  color: rgb(var(--accent-2)) !important;
 }

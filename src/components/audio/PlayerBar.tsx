@@ -114,8 +114,8 @@ export function PlayerBar({
         <motion.div
           key="player-bar"
           className="
-            fixed bottom-[64px] md:bottom-0 left-0 right-0 md:left-[80px]
-            h-[72px] md:h-[80px]
+            fixed bottom-grid-8 md:bottom-0 left-0 right-0 md:left-grid-10
+            h-[72px] md:h-grid-10
             z-30
           "
           style={{
@@ -167,7 +167,7 @@ export function PlayerBar({
             </motion.div>
 
             {/* Track Info Section - MicroModule pattern for compact layout */}
-            <div className="flex items-center gap-3 flex-shrink-0 min-w-0 max-w-[40%] sm:max-w-none">
+            <div className="flex items-center gap-3 shrink-0 min-w-0 max-w-[40%] sm:max-w-none">
               {/* NowPlayingChip for track info with hover lift */}
               <motion.div {...controlHoverProps}>
                 <NowPlayingChip

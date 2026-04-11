@@ -65,7 +65,7 @@ const FAQItem = ({
           {faq.question}
         </span>
         <span 
-          className={`text-accent text-xl transition-transform duration-300 flex-shrink-0 ${
+          className={`text-accent text-xl transition-transform duration-300 shrink-0 ${
             isOpen ? 'rotate-45' : ''
           }`}
         >

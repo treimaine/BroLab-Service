@@ -88,7 +88,7 @@ export const GlassChip = forwardRef<HTMLButtonElement | HTMLDivElement, GlassChi
       <>
         {/* Icon */}
         <Icon 
-          className={`${config.icon} text-[rgb(var(--accent))] flex-shrink-0`}
+          className={`${config.icon} text-[rgb(var(--accent))] shrink-0`}
           aria-hidden="true"
         />
 

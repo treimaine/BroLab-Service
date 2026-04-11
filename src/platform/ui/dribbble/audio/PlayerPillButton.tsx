@@ -92,7 +92,7 @@ export const PlayerPillButton = forwardRef<HTMLButtonElement, PlayerPillButtonPr
             disabled
               ? 'bg-[rgba(var(--border),0.1)] text-[rgb(var(--muted))] cursor-not-allowed opacity-50'
               : `
-                bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
+                bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
                 text-white
                 shadow-[0_4px_14px_rgba(var(--accent),0.3)]
                 hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)]

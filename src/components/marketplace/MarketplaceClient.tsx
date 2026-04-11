@@ -39,7 +39,7 @@ export default function MarketplaceClient() {
     >
       {/* Hero Section */}
       <section className="relative pt-grid-10 pb-grid-6 px-grid-3 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <motion.div
@@ -152,7 +152,7 @@ export default function MarketplaceClient() {
             {[1, 2, 3].map((i) => (
               <motion.div key={i} variants={dribbbleStaggerChild}>
                 <DribbbleCard className="p-grid-4 text-center">
-                  <div className="w-20 h-20 mx-auto mb-grid-3 rounded-full bg-gradient-to-br from-accent/20 to-accent-2/20 flex items-center justify-center">
+                  <div className="w-20 h-20 mx-auto mb-grid-3 rounded-full bg-linear-to-br from-accent/20 to-accent-2/20 flex items-center justify-center">
                     <span className="text-3xl">🎵</span>
                   </div>
                   <h3 className="text-lg font-semibold mb-grid-1">Producer {i}</h3>
@@ -168,7 +168,7 @@ export default function MarketplaceClient() {
       {/* CTA Section */}
       <section className="px-grid-3 pb-grid-10">
         <div className="container mx-auto max-w-7xl">
-          <DribbbleCard className="p-grid-8 text-center bg-gradient-to-br from-accent/10 to-accent-2/10 border-2 border-accent/30">
+          <DribbbleCard className="p-grid-8 text-center bg-linear-to-br from-accent/10 to-accent-2/10 border-2 border-accent/30">
             <h2 className="text-3xl md:text-4xl font-bold mb-grid-3">
               Ready to Sell Your Beats?
             </h2>

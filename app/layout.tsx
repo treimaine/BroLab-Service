@@ -78,11 +78,9 @@ export default function RootLayout({
     <ClerkProvider
       afterSignOutUrl="/"
       appearance={{
-        baseTheme: undefined,
         variables: {
           // Spacing and sizing (8px grid)
           borderRadius: "1rem",
-          spacingUnit: "0.5rem",
           
           // Typography
           fontFamily: `${inter.style.fontFamily}, system-ui, -apple-system, sans-serif`,
@@ -177,7 +175,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <ThemeProvider
               attribute="class"
-              defaultTheme="dark"
+              defaultTheme="light"
               enableSystem
             >
               {/* Headless audio player - mounted once at app root */}

@@ -209,7 +209,7 @@ function SupportInfoSection() {
             <DribbbleStaggerItem>
               <DribbbleCard padding="lg" hoverLift className="h-full">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center shrink-0">
                     <Mail className="w-6 h-6 text-accent" />
                   </div>
                   <div>
@@ -233,7 +233,7 @@ function SupportInfoSection() {
             <DribbbleStaggerItem>
               <DribbbleCard padding="lg" hoverLift className="h-full">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center shrink-0">
                     <Clock className="w-6 h-6 text-accent" />
                   </div>
                   <div>

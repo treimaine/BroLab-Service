@@ -167,7 +167,7 @@ function RoadmapSection() {
                   className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(var(--bg),0.5)] border border-border/50"
                 >
                   <div className={`
-                    flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                    shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
                     ${item.status === 'live' 
                       ? 'bg-[rgba(var(--accent),0.15)] text-accent' 
                       : 'bg-[rgba(var(--muted),0.1)] text-muted'
