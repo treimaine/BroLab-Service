@@ -14,9 +14,9 @@
 
 ```env
 # Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bmF0dXJhbC1yYXR0bGVyLTg4LmNsZXJrLmFjY291bnRzLmRldiQ
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
-CLERK_JWT_ISSUER_DOMAIN=https://natural-rattler-88.clerk.accounts.dev
+CLERK_JWT_ISSUER_DOMAIN=https://your-instance.clerk.accounts.dev
 
 # Convex
 NEXT_PUBLIC_CONVEX_URL=https://famous-starling-265.convex.cloud

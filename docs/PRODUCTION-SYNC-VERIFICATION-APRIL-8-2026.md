@@ -9,7 +9,7 @@ This document verifies that Clerk, Convex, and Stripe are properly synchronized 
 ## 1. Clerk Configuration ✅
 
 ### Authentication Setup
-- **Publishable Key**: `pk_test_bmF0dXJhbC1yYXR0bGVyLTg4LmNsZXJrLmFjY291bnRzLmRldiQ`
+- **Publishable Key**: `pk_test_...` (stored in Vercel env vars)
 - **JWT Issuer Domain**: `https://natural-rattler-88.clerk.accounts.dev`
 - **Sign In URL**: `/sign-in`
 - **Sign Up URL**: `/sign-up`
@@ -103,11 +103,11 @@ export default {
 ### Platform Account (Clerk Billing)
 - **Secret Key**: `sk_test_51Sxm03EQlVQTGQYd...`
 - **Publishable Key**: `pk_test_51Sxm03EQlVQTGQYd...`
-- **Webhook Secret**: `whsec_hgb6Rc2X56Frd3KFWhMfqQJ4B4Tr6hTo`
+- **Webhook Secret**: `whsec_...` (stored in Vercel env vars)
 
 ### Stripe Connect (Artist Purchases)
-- **Client ID**: `ca_TvdPhAH9azuNK8YhGCXJzJpqqQlYN5d4`
-- **Connect Webhook Secret**: `whsec_SieTC0Pg4RwRlAY0SiRhaYKVnlLQJ5Jc`
+- **Client ID**: `ca_...` (stored in Vercel env vars)
+- **Connect Webhook Secret**: `whsec_...` (stored in Vercel env vars)
 
 ### Webhook Endpoint
 **Next.js Route**: `app/api/stripe/webhook/route.ts`
