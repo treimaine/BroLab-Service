@@ -19,13 +19,13 @@ Scanned all `.md` files for:
 
 **Files cleaned:**
 - `docs/PRODUCTION-SYNC-VERIFICATION-APRIL-8-2026.md`
-  - Removed: `whsec_hgb6Rc2X56Frd3KFWhMfqQJ4B4Tr6hTo`
-  - Removed: `whsec_SieTC0Pg4RwRlAY0SiRhaYKVnlLQJ5Jc`
-  - Removed: `ca_TvdPhAH9azuNK8YhGCXJzJpqqQlYN5d4`
-  - Removed: `pk_test_bmF0dXJhbC1yYXR0bGVyLTg4LmNsZXJrLmFjY291bnRzLmRldiQ`
+  - Removed: Stripe webhook secret (whsec_...)
+  - Removed: Stripe Connect webhook secret (whsec_...)
+  - Removed: Stripe Connect client ID (ca_...)
+  - Removed: Clerk publishable key (pk_test_...)
 
 - `docs/quick-start-clerk-convex.md`
-  - Removed: `pk_test_bmF0dXJhbC1yYXR0bGVyLTg4LmNsZXJrLmFjY291bnRzLmRldiQ`
+  - Removed: Clerk publishable key (pk_test_...)
 
 ### 3. Replaced with Placeholders
 
