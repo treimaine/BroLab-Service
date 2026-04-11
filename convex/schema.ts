@@ -340,4 +340,35 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_status", ["status"])
     .index("by_created_at", ["createdAt"]),
+
+  // ============ FAILED TRANSACTIONS MONITOR ============
+
+  failedTransactions: defineTable({
+    stripePaymentIntentId: v.string(), // Stripe payment intent ID
+    workspaceId: v.optional(v.id("workspaces")), // Producer workspace
+    buyerClerkUserId: v.optional(v.string()), // Customer who failed to pay
+    buyerEmail: v.optional(v.string()),
+    amount: v.number(), // Amount in cents
+    currency: v.string(), // "usd", "eur", etc.
+    reason: v.string(), // Stripe error code (e.g., "card_declined")
+    reasonMessage: v.string(), // Human-readable error (e.g., "Your card was declined")
+    status: v.union(
+      v.literal("pending_retry"),
+      v.literal("retry_in_progress"),
+      v.literal("retry_failed"),
+      v.literal("resolved"),
+      v.literal("support_ticket_created")
+    ),
+    retryCount: v.number(), // Number of retry attempts
+    lastRetryAt: v.optional(v.number()), // Timestamp of last retry attempt
+    supportTicketId: v.optional(v.string()), // Associated support ticket ID
+    notes: v.optional(v.string()), // Admin notes
+    createdAt: v.number(), // When payment failed
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_buyer", ["buyerClerkUserId"])
+    .index("by_status", ["status"])
+    .index("by_created_at", ["createdAt"])
+    .index("by_payment_intent", ["stripePaymentIntentId"]),
 });
