@@ -61,7 +61,7 @@ interface InterviewRequest {
   notes?: string
 }
 
-function InterviewCard({ request }: { request: InterviewRequest }) {
+function InterviewCard({ request }: Readonly<{ request: InterviewRequest }>) {
   const statusColors: Record<string, { bg: string; text: string; icon: React.ComponentType<{ className?: string }> }> = {
     pending: {
       bg: 'bg-yellow-500/10 border-yellow-500/30',

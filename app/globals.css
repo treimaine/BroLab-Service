@@ -4,6 +4,7 @@
    Tailwind 4.x Theme Configuration
    ============================================ */
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
   /* Font families */
   --font-sans: Inter, system-ui, -apple-system, sans-serif;

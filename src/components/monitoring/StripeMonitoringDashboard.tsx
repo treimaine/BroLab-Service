@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+type HealthStatusType = 'healthy' | 'degraded' | 'unhealthy';
+
 interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: HealthStatusType;
   successRate?: number;
   failureRate?: number;
   lastError?: string;
@@ -50,7 +52,7 @@ export function StripeMonitoringDashboard() {
     return () => clearInterval(interval);
   }, [refreshInterval]);
 
-  const getStatusColor = (status: 'healthy' | 'degraded' | 'unhealthy') => {
+  const getStatusColor = (status: HealthStatusType) => {
     switch (status) {
       case 'healthy':
         return 'bg-green-100 text-green-800 border-green-300';
@@ -61,7 +63,7 @@ export function StripeMonitoringDashboard() {
     }
   };
 
-  const getStatusIcon = (status: 'healthy' | 'degraded' | 'unhealthy') => {
+  const getStatusIcon = (status: HealthStatusType) => {
     switch (status) {
       case 'healthy':
         return '✓';
@@ -267,12 +269,13 @@ export function StripeMonitoringDashboard() {
 
       {/* Refresh Control */}
       <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <label className="text-sm font-medium text-gray-700">
+        <label htmlFor="refresh-interval" className="text-sm font-medium text-gray-700">
           Refresh Interval (seconds):
         </label>
         <select
+          id="refresh-interval"
           value={refreshInterval / 1000}
-          onChange={(e) => setRefreshInterval(parseInt(e.target.value) * 1000)}
+          onChange={(e) => setRefreshInterval(Number.parseInt(e.target.value) * 1000)}
           className="px-3 py-2 border border-gray-300 rounded-md text-sm"
         >
           <option value={10}>10s</option>

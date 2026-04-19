@@ -47,10 +47,10 @@ export function InterviewsPageClient() {
               title: 'Exclusive Updates',
               description: 'Get insider news about BroLab',
             },
-          ].map((benefit, i) => {
+          ].map((benefit) => {
             const Icon = benefit.icon
             return (
-              <DribbbleCard key={i} padding="md" className="text-center">
+              <DribbbleCard key={benefit.title} padding="md" className="text-center">
                 <div className="flex justify-center mb-3">
                   <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                     <Icon className="w-5 h-5 text-accent" />
@@ -85,7 +85,7 @@ export function InterviewsPageClient() {
             },
           ].map((faq, i) => (
             <motion.div
-              key={i}
+              key={faq.q}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
@@ -104,19 +104,19 @@ export function InterviewsPageClient() {
 }
 
 // Icons
-function Clock({ className }: { className?: string }) {
+function Clock({ className }: Readonly<{ className?: string }>) {
   return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 }
 
-function MessageSquare({ className }: { className?: string }) {
+function MessageSquare({ className }: Readonly<{ className?: string }>) {
   return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
   </svg>
 }
 
-function Mail({ className }: { className?: string }) {
+function Mail({ className }: Readonly<{ className?: string }>) {
   return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
   </svg>

@@ -371,4 +371,34 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_created_at", ["createdAt"])
     .index("by_payment_intent", ["stripePaymentIntentId"]),
+
+  // ============ ONBOARDING EXCEPTIONS MONITOR ============
+
+  onboardingEvents: defineTable({
+    userId: v.string(), // Clerk user ID of user being onboarded
+    eventType: v.union(
+      v.literal("signup"),
+      v.literal("email_verified"),
+      v.literal("profile_created"),
+      v.literal("beat_uploaded"),
+      v.literal("checkout_started"),
+      v.literal("payment_success"),
+      v.literal("payment_failed")
+    ),
+    timestamp: v.number(), // Event timestamp (milliseconds)
+    metadata: v.optional(v.object({
+      error: v.optional(v.string()), // Error message if applicable
+      stage_duration: v.optional(v.number()), // Time spent at this stage (ms)
+      retry_count: v.optional(v.number()), // For failed payment events
+      additional_data: v.optional(v.any()), // Extensible field for extra data
+    })),
+    status: v.optional(v.union(v.literal("blocked"), v.literal("completed"))), // Track if user is stuck
+    blocked_reason: v.optional(v.string()), // Why user is blocked if applicable
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_event_type", ["eventType"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_status", ["status"])
+    .index("by_user_timestamp", ["userId", "timestamp"]),
 });

@@ -3,9 +3,10 @@
 // Requirements: 4.1, 4.2, 4.3, 4.4
 
 import { v } from "convex/values";
-import { recordEventHelper } from "./events";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
+import { recordEventHelper } from "./events";
+import { internal } from "../_generated/api";
 
 // ============ TYPES ============
 
@@ -80,10 +81,10 @@ export function normalizeSlug(input: string): string {
   return input
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/[^a-z0-9-]/g, "") // Remove invalid characters
-    .replace(/--+/g, "-") // Replace consecutive hyphens with single hyphen
-    .replace(/(?:^-+|-+$)/g, ""); // Remove leading/trailing hyphens
+    .replaceAll(/\s+/g, "-") // Replace spaces with hyphens
+    .replaceAll(/[^a-z0-9-]/g, "") // Remove invalid characters
+    .replaceAll(/--+/g, "-") // Replace consecutive hyphens with single hyphen
+    .replaceAll(/(?:^-+|-+$)/g, ""); // Remove leading/trailing hyphens
 }
 
 // ============ QUERIES ============
@@ -235,6 +236,23 @@ export const createWorkspace = mutation({
         source: "onboarding",
       },
     });
+
+    // Record onboarding event: profile_created
+    await ctx.runMutation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+      {
+        userId: args.ownerClerkUserId,
+        eventType: "profile_created",
+        metadata: {
+          additional_data: {
+            workspaceId: workspaceId.toString(),
+            workspaceName: args.name,
+            workspaceType: args.type,
+          },
+        },
+      }
+    );
 
     return workspaceId;
   },

@@ -21,7 +21,9 @@
     "test:e2e": "playwright test tests/e2e",
     "test:security": "playwright test tests/security/",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:security",
-    "security:jwt": "bash scripts/verify-jwt-security.sh"
+    "security:jwt": "bash scripts/verify-jwt-security.sh",
+    "paperclip": "bash scripts/launch-paperclip.sh",
+    "paperclip:verify": "bash scripts/verify-paperclip-instance.sh"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.12",

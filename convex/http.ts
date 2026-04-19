@@ -149,6 +149,11 @@ http.route({
         return await handleCheckoutCompleted(ctx, event);
       }
 
+      // Handle charge.failed events for failed transaction monitoring
+      if (event.type === "charge.failed") {
+        return await handleChargeFailed(ctx, event);
+      }
+
       // For other event types, just mark as processed
       await markEventProcessed(ctx, event.id);
       const duration = Date.now() - startTime;
@@ -160,7 +165,7 @@ http.route({
       return jsonResponse({
         received: true,
         eventType: event.type,
-        message: "Event received but not processed (not checkout.session.completed)",
+        message: "Event received but not processed",
       }, 200);
 
     } catch (error) {
@@ -356,6 +361,263 @@ http.route({
   handler: clerkWebhookHandler,
 });
 
+// Failed Transactions Monitor API Endpoints
+// Provides admin/support access to view and manage failed transactions
+
+// List failed transactions with filtering
+http.route({
+  path: "/api/failed-transactions/list",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const url = new URL(request.url);
+      const workspaceId = url.searchParams.get("workspaceId");
+      const status = url.searchParams.get("status");
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "50"), 100);
+      const offset = parseInt(url.searchParams.get("offset") || "0");
+
+      // Query failed transactions with filters
+      const results = await ctx.runQuery(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.failedTransactions.listFailedTransactions,
+        {
+          workspaceId: workspaceId || undefined,
+          status: status || undefined,
+          limit,
+          offset,
+        }
+      );
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          count: results.transactions.length,
+          total: results.total,
+          limit,
+          offset,
+          transactions: results.transactions,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to list failed transactions:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to retrieve failed transactions",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }),
+});
+
+// Get failed transaction detail
+http.route({
+  path: "/api/failed-transactions/:transactionId",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const transactionId = request.url.split("/").pop();
+
+      const transaction = await ctx.runQuery(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.failedTransactions.getFailedTransaction,
+        { transactionId: transactionId as unknown }
+      );
+
+      if (!transaction) {
+        return new Response(
+          JSON.stringify({ error: "Transaction not found" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          transaction,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to get transaction detail:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to retrieve transaction",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }),
+});
+
+// Retry failed transaction payment
+http.route({
+  path: "/api/failed-transactions/:transactionId/retry",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const transactionId = request.url.split("/").slice(-2)[0];
+      const body = await request.json() as { paymentMethodId?: string };
+
+      // Call retry mutation
+      const result = await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.failedTransactions.retryFailedTransaction,
+        {
+          transactionId: transactionId as unknown,
+          paymentMethodId: body.paymentMethodId || undefined,
+        }
+      );
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Retry attempt queued",
+          transactionId,
+          result,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to retry transaction:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to retry transaction",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }),
+});
+
+// Create support ticket for failed transaction
+http.route({
+  path: "/api/failed-transactions/:transactionId/support-ticket",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const transactionId = request.url.split("/").slice(-2)[0];
+      const body = await request.json() as { notes?: string };
+
+      // Generate a support ticket ID (could also integrate with external ticketing system)
+      const ticketId = `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // First, add notes to the transaction
+      if (body.notes) {
+        await ctx.runMutation(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (internal as any).modules.failedTransactions.addTransactionNotes,
+          {
+            transactionId: transactionId as unknown,
+            notes: body.notes,
+          }
+        );
+      }
+
+      // Call support ticket creation
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.failedTransactions.createSupportTicket,
+        {
+          transactionId: transactionId as unknown,
+          ticketId,
+        }
+      );
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Support ticket created",
+          ticketId,
+          transactionId,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to create support ticket:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to create support ticket",
+          message: error instanceof Error ? error.message : String(error),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }),
+});
+
+// Trigger failed transaction retry scheduler
+// Can be called by external cron service (GitHub Actions, AWS Lambda, etc.)
+// Expects optional authorization header to prevent unauthorized triggers
+http.route({
+  path: "/api/failed-transactions/scheduler/trigger",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      // Verify authorization token if configured
+      const authToken = request.headers.get("x-scheduler-token");
+      const expectedToken = process.env.SCHEDULER_TRIGGER_TOKEN;
+
+      if (expectedToken && (!authToken || authToken !== expectedToken)) {
+        return jsonResponse({ error: "Unauthorized" }, 401);
+      }
+
+      console.log("Triggering failed transaction retry scheduler...");
+
+      // Call the retry scheduler action
+      const result = await ctx.runAction(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.retryScheduler
+          .retryFailedTransactionsScheduled,
+        {}
+      );
+
+      return jsonResponse({
+        success: true,
+        message: "Retry scheduler triggered",
+        result,
+      }, 200);
+    } catch (error) {
+      console.error("Failed to trigger retry scheduler:", error);
+      return jsonResponse({
+        error: "Failed to trigger retry scheduler",
+        message: error instanceof Error ? error.message : String(error),
+      }, 500);
+    }
+  }),
+});
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -546,6 +808,24 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
       connectedAccountId,
     });
 
+    // Record onboarding event: payment_success
+    await ctx.runMutation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+      {
+        userId: buyerClerkUserId,
+        eventType: "payment_success",
+        metadata: {
+          additional_data: {
+            orderId,
+            itemType,
+            amountCents: amountTotal,
+            currency,
+          },
+        },
+      }
+    );
+
     // Mark as processed
     await markEventProcessed(ctx, event.id);
 
@@ -571,6 +851,74 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
       duration,
       stack: error instanceof Error ? error.stack : undefined,
     });
+    throw error;
+  }
+}
+
+// Handle charge.failed webhook events
+// Records failed transactions for monitoring and retry
+async function handleChargeFailed(ctx: GenericActionCtx<Record<string, never>>, event: StripeEvent): Promise<Response> {
+  const startTime = Date.now();
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const charge = event.data.object as any;
+
+    console.log("Processing charge.failed event:", {
+      chargeId: charge.id,
+      amount: charge.amount,
+      reason: charge.failure_code,
+      paymentIntentId: charge.payment_intent,
+    });
+
+    // Extract payment intent ID from charge
+    const paymentIntentId = charge.payment_intent || charge.id;
+
+    // Call the failed transactions module to record the failure
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transactionId = await (ctx.runMutation as any)(
+      (internal as any).modules.failedTransactions.createFailedTransaction,
+      {
+        stripePaymentIntentId: paymentIntentId,
+        amount: charge.amount || 0,
+        currency: charge.currency || "usd",
+        reason: charge.failure_code || "unknown",
+        reasonMessage: charge.failure_message || "Payment failed without specific reason",
+      }
+    );
+
+    console.log("Failed transaction recorded:", transactionId);
+
+    // Mark event as processed
+    await markEventProcessed(ctx, event.id);
+
+    const duration = Date.now() - startTime;
+    logWebhookSuccess({
+      eventId: event.id,
+      eventType: event.type,
+      duration,
+    });
+
+    return jsonResponse({
+      received: true,
+      processed: true,
+      transactionId,
+      message: "Failed transaction recorded for retry",
+    }, 200);
+
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error("Error processing charge.failed:", error);
+    logWebhookFailure({
+      eventId: event.id,
+      eventType: event.type,
+      errorCode: error instanceof Error ? error.name : "CHARGE_FAILED_PROCESSING_ERROR",
+      errorMessage: error instanceof Error ? error.message : String(error),
+      duration,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    // Still mark as processed to avoid infinite retries
+    await markEventProcessed(ctx, event.id);
     throw error;
   }
 }
@@ -919,6 +1267,15 @@ async function handleStandardEvent(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (internal as any).platform.users.upsertUserFromClerk,
           { clerkUserId: dataId }
+        );
+        // Record onboarding event: signup
+        await ctx.runMutation(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+          {
+            userId: dataId,
+            eventType: "signup",
+          }
         );
         console.log("User upserted in Convex:", dataId);
       }

@@ -60,6 +60,7 @@ export const updateFailedTransactionRetry = internalMutation({
   args: {
     transactionId: v.id("failedTransactions"),
     newStatus: v.union(
+      v.literal("pending_retry"),
       v.literal("retry_in_progress"),
       v.literal("retry_failed"),
       v.literal("resolved")
@@ -117,27 +118,63 @@ export const listFailedTransactions = query({
       )
     ),
     limit: v.optional(v.number()),
-    cursor: v.optional(v.string()),
+    offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("failedTransactions");
+    const limit = Math.max(1, Math.min(args.limit ?? 50, 100));
+    const offset = Math.max(0, args.offset ?? 0);
 
-    // Filter by workspace if provided
+    // Workspace-scoped queries use by_workspace index and optional in-memory status filtering.
     if (args.workspaceId) {
-      query = query.withIndex("by_workspace", (q) =>
-        q.eq("workspaceId", args.workspaceId)
-      );
-    } else {
-      // Default: order by creation time descending
-      query = query.withIndex("by_created_at", (q) => q.gt("createdAt", 0));
+      let workspaceTransactions = await ctx.db
+        .query("failedTransactions")
+        .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+        .order("desc")
+        .take(10000);
+
+      if (args.status) {
+        const status = args.status;
+        workspaceTransactions = workspaceTransactions.filter(
+          (transaction) => transaction.status === status
+        );
+      }
+
+      const pagedTransactions = workspaceTransactions.slice(offset, offset + limit);
+      return {
+        transactions: pagedTransactions,
+        total: workspaceTransactions.length,
+        hasMore: offset + limit < workspaceTransactions.length,
+      };
     }
 
-    const limit = args.limit ?? 50;
-    const results = await query.order("desc").take(limit + 1);
+    // Global status filtering can use the by_status index directly.
+    if (args.status) {
+      const status = args.status;
+      const statusTransactions = await ctx.db
+        .query("failedTransactions")
+        .withIndex("by_status", (q) => q.eq("status", status))
+        .order("desc")
+        .take(10000);
+
+      const pagedTransactions = statusTransactions.slice(offset, offset + limit);
+      return {
+        transactions: pagedTransactions,
+        total: statusTransactions.length,
+        hasMore: offset + limit < statusTransactions.length,
+      };
+    }
+
+    const results = await ctx.db
+      .query("failedTransactions")
+      .withIndex("by_created_at", (q) => q.gt("createdAt", 0))
+      .order("desc")
+      .take(10000);
+    const pagedTransactions = results.slice(offset, offset + limit);
 
     return {
-      transactions: results.slice(0, limit),
-      hasMore: results.length > limit,
+      transactions: pagedTransactions,
+      total: results.length,
+      hasMore: offset + limit < results.length,
     };
   },
 });
@@ -256,6 +293,37 @@ export const addTransactionNotes = internalMutation({
       notes: args.notes,
       updatedAt: Date.now(),
     });
+  },
+});
+
+/**
+ * Retry a failed transaction (queue retry attempt)
+ * Updates status to retry_in_progress and triggers retry job
+ */
+export const retryFailedTransaction = internalMutation({
+  args: {
+    transactionId: v.id("failedTransactions"),
+    paymentMethodId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tx = await ctx.db.get(args.transactionId);
+    if (!tx) {
+      throw new Error("Transaction not found");
+    }
+
+    // Update status to retry_in_progress
+    await ctx.db.patch(args.transactionId, {
+      status: "retry_in_progress",
+      retryCount: tx.retryCount + 1,
+      lastRetryAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    // Queue a retry job (if job system is available)
+    // This would trigger the payment retry through Stripe API
+    // For now, just mark as in progress - the scheduler will handle actual retry
+
+    return args.transactionId;
   },
 });
 

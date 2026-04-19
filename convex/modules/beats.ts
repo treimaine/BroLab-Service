@@ -10,6 +10,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { assertActiveSubscription, assertQuota } from "../platform/entitlements";
+import { internal } from "../_generated/api";
 
 // ============================================================================
 // TYPES
@@ -239,6 +240,23 @@ export const createTrack = mutation({
         processingStatus: "processing",
       });
     }
+
+    // Record onboarding event: beat_uploaded
+    await ctx.runMutation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+      {
+        userId: identity.subject,
+        eventType: "beat_uploaded",
+        metadata: {
+          additional_data: {
+            trackId: trackId.toString(),
+            title: args.title,
+            fileSizeBytes: args.fileSizeBytes,
+          },
+        },
+      }
+    );
 
     return trackId;
   },
