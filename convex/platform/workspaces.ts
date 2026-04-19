@@ -6,7 +6,6 @@ import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
 import { recordEventHelper } from "./events";
-import { internal } from "../_generated/api";
 
 // ============ TYPES ============
 
@@ -236,23 +235,6 @@ export const createWorkspace = mutation({
         source: "onboarding",
       },
     });
-
-    // Record onboarding event: profile_created
-    await ctx.runMutation(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).modules.onboardingEvents.recordOnboardingEvent,
-      {
-        userId: args.ownerClerkUserId,
-        eventType: "profile_created",
-        metadata: {
-          additional_data: {
-            workspaceId: workspaceId.toString(),
-            workspaceName: args.name,
-            workspaceType: args.type,
-          },
-        },
-      }
-    );
 
     return workspaceId;
   },

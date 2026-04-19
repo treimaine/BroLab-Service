@@ -1,28 +1,28 @@
-<testsuites id="" name="" tests="12" failures="0" skipped="0" errors="0" time="7.968661">
-<testsuite name="checkout-flow.spec.ts" timestamp="2026-04-19T12:33:47.621Z" hostname="chromium" tests="12" failures="0" skipped="0" time="6.044" errors="0">
-<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete track purchase end-to-end" classname="checkout-flow.spec.ts" time="2.038">
+<testsuites id="" name="" tests="12" failures="0" skipped="0" errors="0" time="9.764068">
+<testsuite name="checkout-flow.spec.ts" timestamp="2026-04-19T12:35:45.352Z" hostname="chromium" tests="12" failures="0" skipped="0" time="7.554" errors="0">
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete track purchase end-to-end" classname="checkout-flow.spec.ts" time="2.332">
 </testcase>
-<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete service booking end-to-end" classname="checkout-flow.spec.ts" time="1.547">
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete service booking end-to-end" classname="checkout-flow.spec.ts" time="2.293">
 </testcase>
-<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should handle order creation and all database mutations" classname="checkout-flow.spec.ts" time="1.494">
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should handle order creation and all database mutations" classname="checkout-flow.spec.ts" time="1.769">
 </testcase>
-<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject checkout with invalid workspace ID" classname="checkout-flow.spec.ts" time="0.049">
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject checkout with invalid workspace ID" classname="checkout-flow.spec.ts" time="0.042">
 </testcase>
-<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing metadata" classname="checkout-flow.spec.ts" time="0.237">
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing metadata" classname="checkout-flow.spec.ts" time="0.426">
 </testcase>
-<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing stripe-signature header" classname="checkout-flow.spec.ts" time="0.052">
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing stripe-signature header" classname="checkout-flow.spec.ts" time="0.04">
 </testcase>
-<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with invalid signature" classname="checkout-flow.spec.ts" time="0.038">
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with invalid signature" classname="checkout-flow.spec.ts" time="0.043">
 </testcase>
-<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should handle webhook delivery timeout gracefully" classname="checkout-flow.spec.ts" time="0.112">
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should handle webhook delivery timeout gracefully" classname="checkout-flow.spec.ts" time="0.111">
 </testcase>
-<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle duplicate webhook delivery with idempotency" classname="checkout-flow.spec.ts" time="0.088">
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle duplicate webhook delivery with idempotency" classname="checkout-flow.spec.ts" time="0.077">
 </testcase>
-<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle race condition with multiple simultaneous purchases" classname="checkout-flow.spec.ts" time="0.165">
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle race condition with multiple simultaneous purchases" classname="checkout-flow.spec.ts" time="0.176">
 </testcase>
-<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle partial failure: order created but license generation fails" classname="checkout-flow.spec.ts" time="0.151">
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle partial failure: order created but license generation fails" classname="checkout-flow.spec.ts" time="0.138">
 </testcase>
-<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle idempotency key collision" classname="checkout-flow.spec.ts" time="0.073">
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle idempotency key collision" classname="checkout-flow.spec.ts" time="0.107">
 </testcase>
 </testsuite>
 </testsuites>

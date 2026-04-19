@@ -15,10 +15,12 @@ export const recordOnboardingEvent = internalMutation({
       v.literal("signup"),
       v.literal("email_verified"),
       v.literal("profile_created"),
+      v.literal("workspace_created"),
       v.literal("beat_uploaded"),
       v.literal("checkout_started"),
       v.literal("payment_success"),
-      v.literal("payment_failed")
+      v.literal("payment_failed"),
+      v.literal("onboarding_completed")
     ),
     metadata: v.optional(v.object({
       error: v.optional(v.string()),
