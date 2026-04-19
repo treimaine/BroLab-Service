@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 2
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "projects": [
@@ -20,7 +20,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 1
         },
         "id": "chromium",
         "name": "chromium",
@@ -36,7 +36,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 1
         },
         "id": "firefox",
         "name": "firefox",
@@ -52,7 +52,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 1
         },
         "id": "webkit",
         "name": "webkit",
@@ -106,465 +106,6 @@
   },
   "suites": [
     {
-      "title": "auth\\sign-in.spec.ts",
-      "file": "auth/sign-in.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Sign In Flow",
-          "file": "auth/sign-in.spec.ts",
-          "line": 14,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display sign-in button on homepage",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2056,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:24.406Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-15b1fea26b964b3623fd",
-              "file": "auth/sign-in.spec.ts",
-              "line": 26,
-              "column": 7
-            },
-            {
-              "title": "should navigate to sign-in page",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2380,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:26.571Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-254b1da8d00f5cb87db4",
-              "file": "auth/sign-in.spec.ts",
-              "line": 36,
-              "column": 7
-            },
-            {
-              "title": "should load Clerk sign-in component",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3456,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:28.967Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-ee6fa2e66f56d6d98242",
-              "file": "auth/sign-in.spec.ts",
-              "line": 54,
-              "column": 7
-            },
-            {
-              "title": "should show email and password fields",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3423,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:32.441Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-1333fae7707335762bae",
-              "file": "auth/sign-in.spec.ts",
-              "line": 66,
-              "column": 7
-            },
-            {
-              "title": "should redirect to dashboard after successful sign-in (with test credentials)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [
-                    {
-                      "type": "skip",
-                      "location": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\auth\\sign-in.spec.ts",
-                        "line": 86,
-                        "column": 12
-                      }
-                    }
-                  ],
-                  "expectedStatus": "skipped",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "skipped",
-                      "duration": 2850,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:35.885Z",
-                      "annotations": [
-                        {
-                          "type": "skip",
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\auth\\sign-in.spec.ts",
-                            "line": 86,
-                            "column": 12
-                          }
-                        }
-                      ],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "skipped"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-bcb87602b39e64f23bd7",
-              "file": "auth/sign-in.spec.ts",
-              "line": 80,
-              "column": 7
-            },
-            {
-              "title": "should show error for invalid credentials",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3491,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:38.764Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-c59029d009502c8e3f23",
-              "file": "auth/sign-in.spec.ts",
-              "line": 118,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Sign Up Flow",
-          "file": "auth/sign-in.spec.ts",
-          "line": 147,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should navigate to sign-up page",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2210,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:42.280Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-6344fa1264145e0909aa",
-              "file": "auth/sign-in.spec.ts",
-              "line": 159,
-              "column": 7
-            },
-            {
-              "title": "should load Clerk sign-up component",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2567,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:44.509Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-7df1b9d4c679d590b7a7",
-              "file": "auth/sign-in.spec.ts",
-              "line": 177,
-              "column": 7
-            },
-            {
-              "title": "should show required fields for registration",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2500,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:47.098Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-9287e1275e77ff687d49",
-              "file": "auth/sign-in.spec.ts",
-              "line": 188,
-              "column": 7
-            },
-            {
-              "title": "should show validation errors for invalid email",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3320,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:49.618Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-cb174cab917af5a5883f",
-              "file": "auth/sign-in.spec.ts",
-              "line": 200,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Authentication Security",
-          "file": "auth/sign-in.spec.ts",
-          "line": 226,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should not expose JWT tokens in localStorage",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2039,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:52.954Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-5fd1fc1f458b35cc4089",
-              "file": "auth/sign-in.spec.ts",
-              "line": 234,
-              "column": 7
-            },
-            {
-              "title": "should use httpOnly cookies for session",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1952,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-19T12:27:55.012Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "69d4de2b2c4466803729-587a3f76a10475851dc5",
-              "file": "auth/sign-in.spec.ts",
-              "line": 247,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
       "title": "checkout-flow.spec.ts",
       "file": "checkout-flow.spec.ts",
       "column": 0,
@@ -590,15 +131,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2056,
+                      "duration": 2038,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:24.406Z",
+                      "startTime": "2026-04-19T12:33:48.388Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -613,7 +154,7 @@
             },
             {
               "title": "should complete service booking end-to-end",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -624,60 +165,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 1736,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:175:38",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 38,
-                          "line": 175
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 173 |\u001b[39m     })\n \u001b[90m 174 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 175 |\u001b[39m     expect(webhookResponse\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m400\u001b[39m)\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 176 |\u001b[39m\n \u001b[90m 177 |\u001b[39m     \u001b[90m// Step 3: Verify booking creation\u001b[39m\n \u001b[90m 178 |\u001b[39m     \u001b[36mconst\u001b[39m convexResponse \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39mpost(\u001b[32m`${TEST_CONFIG.convexUrl}/api/query`\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 38,
-                            "line": 175
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m\n\n  173 |     })\n  174 |\n> 175 |     expect(webhookResponse.status()).toBeLessThan(400)\n      |                                      ^\n  176 |\n  177 |     // Step 3: Verify booking creation\n  178 |     const convexResponse = await request.post(`${TEST_CONFIG.convexUrl}/api/query`, {\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:175:38"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1547,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:26.571Z",
+                      "startTime": "2026-04-19T12:33:50.572Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 38,
-                        "line": 175
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-813eb59c69c4dfa9cf59",
@@ -687,7 +188,7 @@
             },
             {
               "title": "should handle order creation and all database mutations",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -698,65 +199,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 1753,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:217:38",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 38,
-                          "line": 217
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 215 |\u001b[39m     })\n \u001b[90m 216 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 217 |\u001b[39m     expect(webhookResponse\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 218 |\u001b[39m\n \u001b[90m 219 |\u001b[39m     \u001b[90m// Verify all expected database records\u001b[39m\n \u001b[90m 220 |\u001b[39m     \u001b[90m// 1. Order created\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 38,
-                            "line": 217
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  215 |     })\n  216 |\n> 217 |     expect(webhookResponse.status()).toBe(200)\n      |                                      ^\n  218 |\n  219 |     // Verify all expected database records\n  220 |     // 1. Order created\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:217:38"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1494,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:29.023Z",
+                      "startTime": "2026-04-19T12:33:52.144Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 38,
-                        "line": 217
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-6ee8efcd4ccc782d29ac",
               "file": "checkout-flow.spec.ts",
-              "line": 189,
+              "line": 181,
               "column": 7
             }
           ]
@@ -764,12 +225,12 @@
         {
           "title": "Stripe Checkout Flow - Error Scenarios (P1)",
           "file": "checkout-flow.spec.ts",
-          "line": 230,
+          "line": 217,
           "column": 6,
           "specs": [
             {
               "title": "should reject checkout with invalid workspace ID",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -780,60 +241,30 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 61,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"workspace\"\u001b[39m\nReceived string:    \u001b[31m\"Unauthorized. Please sign in to make a purchase.\"\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"workspace\"\u001b[39m\nReceived string:    \u001b[31m\"Unauthorized. Please sign in to make a purchase.\"\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:247:29",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 29,
-                          "line": 247
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 245 |\u001b[39m     \u001b[36mconst\u001b[39m errorData \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\n \u001b[90m 246 |\u001b[39m     expect(errorData)\u001b[33m.\u001b[39mtoHaveProperty(\u001b[32m'error'\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 247 |\u001b[39m     expect(errorData\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoContain(\u001b[32m'workspace'\u001b[39m)\n \u001b[90m     |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 248 |\u001b[39m   })\n \u001b[90m 249 |\u001b[39m\n \u001b[90m 250 |\u001b[39m   test(\u001b[32m'should reject webhook with missing metadata'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 29,
-                            "line": 247
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"workspace\"\u001b[39m\nReceived string:    \u001b[31m\"Unauthorized. Please sign in to make a purchase.\"\u001b[39m\n\n  245 |     const errorData = await response.json()\n  246 |     expect(errorData).toHaveProperty('error')\n> 247 |     expect(errorData.error).toContain('workspace')\n      |                             ^\n  248 |   })\n  249 |\n  250 |   test('should reject webhook with missing metadata', async ({ request }) => {\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:247:29"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 49,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:31.888Z",
+                      "startTime": "2026-04-19T12:33:53.661Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-d8ffe-t-with-invalid-workspace-ID-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 29,
-                        "line": 247
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-3ef5294e6081e9c25fec",
               "file": "checkout-flow.spec.ts",
-              "line": 231,
+              "line": 218,
               "column": 7
             },
             {
               "title": "should reject webhook with missing metadata",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -844,55 +275,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 238,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:271:31",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 31,
-                          "line": 271
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 269 |\u001b[39m     })\n \u001b[90m 270 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 271 |\u001b[39m     expect(response\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 272 |\u001b[39m     \u001b[36mconst\u001b[39m errorData \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\n \u001b[90m 273 |\u001b[39m     expect(errorData\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Missing required metadata'\u001b[39m)\n \u001b[90m 274 |\u001b[39m   })\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 31,
-                            "line": 271
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  269 |     })\n  270 |\n> 271 |     expect(response.status()).toBe(400)\n      |                               ^\n  272 |     const errorData = await response.json()\n  273 |     expect(errorData.error).toContain('Missing required metadata')\n  274 |   })\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:271:31"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 237,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:32.641Z",
+                      "startTime": "2026-04-19T12:33:53.727Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-75d5b-bhook-with-missing-metadata-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 31,
-                        "line": 271
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-bc020cacec9c5f3f8b1f",
               "file": "checkout-flow.spec.ts",
-              "line": 250,
+              "line": 238,
               "column": 7
             },
             {
@@ -908,15 +309,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 56,
+                      "duration": 52,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:33.790Z",
+                      "startTime": "2026-04-19T12:33:53.981Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -926,12 +327,12 @@
               ],
               "id": "bd61b1856f0a92f3f43c-9d414ea96cba2f26650f",
               "file": "checkout-flow.spec.ts",
-              "line": 276,
+              "line": 265,
               "column": 7
             },
             {
               "title": "should reject webhook with invalid signature",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -942,55 +343,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 159,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:331:31",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 31,
-                          "line": 331
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 329 |\u001b[39m     })\n \u001b[90m 330 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 331 |\u001b[39m     expect(response\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 332 |\u001b[39m     \u001b[36mconst\u001b[39m errorData \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\n \u001b[90m 333 |\u001b[39m     expect(errorData\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoContain(\u001b[32m'signature verification failed'\u001b[39m)\n \u001b[90m 334 |\u001b[39m   })\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 31,
-                            "line": 331
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  329 |     })\n  330 |\n> 331 |     expect(response.status()).toBe(400)\n      |                               ^\n  332 |     const errorData = await response.json()\n  333 |     expect(errorData.error).toContain('signature verification failed')\n  334 |   })\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:331:31"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 38,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:33.867Z",
+                      "startTime": "2026-04-19T12:33:54.050Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-b90e8-hook-with-invalid-signature-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 31,
-                        "line": 331
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-42738e8de3abae158b7c",
               "file": "checkout-flow.spec.ts",
-              "line": 306,
+              "line": 295,
               "column": 7
             },
             {
@@ -1006,15 +377,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 130,
+                      "duration": 112,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:34.785Z",
+                      "startTime": "2026-04-19T12:33:54.103Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1024,7 +395,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-b964c4c33480e7df985d",
               "file": "checkout-flow.spec.ts",
-              "line": 336,
+              "line": 326,
               "column": 7
             }
           ]
@@ -1032,12 +403,12 @@
         {
           "title": "Stripe Checkout Flow - Edge Cases (P2)",
           "file": "checkout-flow.spec.ts",
-          "line": 371,
+          "line": 361,
           "column": 6,
           "specs": [
             {
               "title": "should handle duplicate webhook delivery with idempotency",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1048,55 +419,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 308,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:402:36",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 36,
-                          "line": 402
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 400 |\u001b[39m     })\n \u001b[90m 401 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 402 |\u001b[39m     expect(firstResponse\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m400\u001b[39m)\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 403 |\u001b[39m\n \u001b[90m 404 |\u001b[39m     \u001b[90m// Duplicate webhook delivery with same event ID\u001b[39m\n \u001b[90m 405 |\u001b[39m     \u001b[36mconst\u001b[39m secondResponse \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39mpost(\u001b[32m`${TEST_CONFIG.baseUrl}/api/stripe/webhook`\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 36,
-                            "line": 402
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m400\u001b[39m\nReceived:   \u001b[31m404\u001b[39m\n\n  400 |     })\n  401 |\n> 402 |     expect(firstResponse.status()).toBeLessThan(400)\n      |                                    ^\n  403 |\n  404 |     // Duplicate webhook delivery with same event ID\n  405 |     const secondResponse = await request.post(`${TEST_CONFIG.baseUrl}/api/stripe/webhook`, {\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:402:36"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 88,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:34.941Z",
+                      "startTime": "2026-04-19T12:33:54.232Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-da4df-k-delivery-with-idempotency-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 36,
-                        "line": 402
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-59307c04c25de0ee282f",
               "file": "checkout-flow.spec.ts",
-              "line": 372,
+              "line": 362,
               "column": 7
             },
             {
@@ -1112,15 +453,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 7,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 168,
+                      "duration": 165,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:36.127Z",
+                      "startTime": "2026-04-19T12:33:54.334Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1130,12 +471,12 @@
               ],
               "id": "bd61b1856f0a92f3f43c-8772046ccddd29083273",
               "file": "checkout-flow.spec.ts",
-              "line": 429,
+              "line": 412,
               "column": 7
             },
             {
               "title": "should handle partial failure: order created but license generation fails",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1146,60 +487,30 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 7,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 672,
-                      "error": {
-                        "message": "SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
-                        "stack": "SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:506:23",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 23,
-                          "line": 506
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 504 |\u001b[39m     })\n \u001b[90m 505 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 506 |\u001b[39m     \u001b[36mconst\u001b[39m orderData \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m orderResponse\u001b[33m.\u001b[39mjson()\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 507 |\u001b[39m     expect(orderData)\u001b[33m.\u001b[39mtoBeTruthy()\n \u001b[90m 508 |\u001b[39m\n \u001b[90m 509 |\u001b[39m     \u001b[90m// Verify failed job is tracked for retry\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 23,
-                            "line": 506
-                          },
-                          "message": "SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON\n\n  504 |     })\n  505 |\n> 506 |     const orderData = await orderResponse.json()\n      |                       ^\n  507 |     expect(orderData).toBeTruthy()\n  508 |\n  509 |     // Verify failed job is tracked for retry\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:506:23"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 151,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:36.318Z",
+                      "startTime": "2026-04-19T12:33:54.516Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-58cdb-ut-license-generation-fails-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 23,
-                        "line": 506
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-e84df90610979d0b0ae0",
               "file": "checkout-flow.spec.ts",
-              "line": 465,
+              "line": 448,
               "column": 7
             },
             {
               "title": "should handle idempotency key collision",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1210,55 +521,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 8,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 206,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"cs_test_1776601658\u001b[7m861\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"cs_test_1776601658\u001b[7m789\u001b[27m\"\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"cs_test_1776601658\u001b[7m861\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"cs_test_1776601658\u001b[7m789\u001b[27m\"\u001b[39m\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:552:33",
-                        "location": {
-                          "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                          "column": 33,
-                          "line": 552
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 550 |\u001b[39m\n \u001b[90m 551 |\u001b[39m     \u001b[90m// Should return same session ID\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 552 |\u001b[39m     expect(firstData\u001b[33m.\u001b[39msessionId)\u001b[33m.\u001b[39mtoBe(secondData\u001b[33m.\u001b[39msessionId)\n \u001b[90m     |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 553 |\u001b[39m   })\n \u001b[90m 554 |\u001b[39m })\n \u001b[90m 555 |\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                            "column": 33,
-                            "line": 552
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"cs_test_1776601658\u001b[7m861\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"cs_test_1776601658\u001b[7m789\u001b[27m\"\u001b[39m\n\n  550 |\n  551 |     // Should return same session ID\n> 552 |     expect(firstData.sessionId).toBe(secondData.sessionId)\n      |                                 ^\n  553 |   })\n  554 | })\n  555 |\n    at C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts:552:33"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 73,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:27:38.663Z",
+                      "startTime": "2026-04-19T12:33:54.679Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\test-results\\checkout-flow-Stripe-Check-9ff8c-e-idempotency-key-collision-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\TREIGUA\\Desktop\\WEBSITE\\BroLab MVP\\tests\\e2e\\checkout-flow.spec.ts",
-                        "column": 33,
-                        "line": 552
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "bd61b1856f0a92f3f43c-eddf1dfff47aebcf711c",
               "file": "checkout-flow.spec.ts",
-              "line": 512,
+              "line": 485,
               "column": 7
             }
           ]
@@ -1268,11 +549,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-19T12:27:23.510Z",
-    "duration": 33551.136999999995,
-    "expected": 15,
-    "skipped": 1,
-    "unexpected": 8,
+    "startTime": "2026-04-19T12:33:46.896Z",
+    "duration": 7968.661,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }

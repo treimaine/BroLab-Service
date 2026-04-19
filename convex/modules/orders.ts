@@ -299,6 +299,8 @@ export const getSessionPurchaseData = internalQuery({
         : null;
 
       return {
+        orderId: order._id,
+        stripeSessionId: order.stripeSessionId,
         itemType: "track" as const,
         itemTitle: track.title,
         producerName,
@@ -307,6 +309,8 @@ export const getSessionPurchaseData = internalQuery({
         currency: order.currency,
         downloadUrl,
         licenseUrl,
+        buyerEmail: order.buyerEmail,
+        paidAt: order.createdAt,
       };
     }
 
@@ -314,6 +318,8 @@ export const getSessionPurchaseData = internalQuery({
     if (!service) return null;
 
     return {
+      orderId: order._id,
+      stripeSessionId: order.stripeSessionId,
       itemType: "service" as const,
       itemTitle: service.title,
       producerName,
@@ -322,6 +328,8 @@ export const getSessionPurchaseData = internalQuery({
       currency: order.currency,
       downloadUrl: null,
       licenseUrl: null,
+      buyerEmail: order.buyerEmail,
+      paidAt: order.createdAt,
     };
   },
 });

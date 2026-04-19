@@ -4,30 +4,36 @@ import {
   DribbbleCard,
   PillCTA,
   dribbblePageEnter,
-  dribbbleStaggerChild,
-  dribbbleStaggerContainer,
 } from '@/platform/ui'
 import { motion } from 'framer-motion'
-import { Check, FileText, Home, Music, Sparkles } from 'lucide-react'
+import { Check, Copy, HelpCircle, Music } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { InstantDelivery } from './InstantDelivery'
 
+interface PurchaseData {
+  itemType: 'track' | 'service'
+  itemTitle: string
+  producerName: string
+  licenseType: string | null
+  amountCents: number
+  currency: string
+  downloadUrl: string | null
+  licenseUrl: string | null
+  buyerEmail: string | undefined
+  paidAt: string
+  orderId: string
+  sessionId: string
+  price: number
+}
+
 export function CheckoutSuccess() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
-  const [purchaseData, setPurchaseData] = useState<{
-    itemType: 'track' | 'service'
-    beatTitle: string
-    producerName: string
-    licenseType: string | null
-    price: number
-    downloadUrl: string | null
-    licenseUrl: string | null
-  } | null>(null)
+  const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  // In production, fetch purchase data from session_id
   useEffect(() => {
     const sessionId = searchParams.get('session_id')
 
@@ -72,12 +78,18 @@ export function CheckoutSuccess() {
         const data = await response.json()
         setPurchaseData({
           itemType: data.itemType,
-          beatTitle: data.beatTitle,
+          itemTitle: data.itemTitle,
           producerName: data.producerName,
           licenseType: data.licenseType,
-          price: data.price,
+          amountCents: data.amountCents,
+          currency: data.currency,
           downloadUrl: data.downloadUrl,
           licenseUrl: data.licenseUrl,
+          buyerEmail: data.buyerEmail,
+          paidAt: data.paidAt,
+          orderId: data.orderId,
+          sessionId: data.sessionId,
+          price: data.price,
         })
         setIsLoading(false)
         await trackPurchaseComplete()
@@ -89,6 +101,14 @@ export function CheckoutSuccess() {
 
     fetchPurchaseData().catch(() => setIsLoading(false))
   }, [searchParams])
+
+  const copyOrderId = () => {
+    if (purchaseData?.orderId) {
+      navigator.clipboard.writeText(purchaseData.orderId)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -122,164 +142,187 @@ export function CheckoutSuccess() {
     )
   }
 
+  const itemTypeBadge = purchaseData.itemType === 'track' && purchaseData.licenseType
+    ? purchaseData.licenseType
+    : purchaseData.itemType === 'track'
+      ? 'Beat License'
+      : 'Service'
+
+  const formatCurrency = (amountCents: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency || 'USD',
+    }).format(amountCents / 100)
+  }
+
   return (
     <motion.div
-      className="min-h-screen bg-bg text-text py-16 px-4"
+      className="min-h-screen bg-bg text-text py-8 sm:py-16 px-4"
       {...dribbblePageEnter}
     >
-      <div className="container mx-auto max-w-3xl">
-        {/* Success Header */}
+      <div className="container mx-auto max-w-2xl space-y-6 sm:space-y-8">
+        {/* Confirmation Header */}
         <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
           <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-linear-to-br from-accent to-accent-2 flex items-center justify-center shadow-glow-strong">
-                <Check className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 rounded-full bg-linear-to-br from-accent to-accent-2 flex items-center justify-center">
+              <Check className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+            Payment successful
+          </h1>
+          <p className="text-base sm:text-lg text-muted mb-6">
+            Your order is confirmed and ready now.
+          </p>
+
+          {/* Utility Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-4 bg-bg-secondary rounded-lg">
+            <div className="text-left">
+              <div className="text-xs text-muted mb-1">Order #</div>
+              <button
+                onClick={copyOrderId}
+                className="text-sm font-semibold text-text hover:text-accent flex items-center gap-1 group"
+                title="Click to copy"
+              >
+                {purchaseData.orderId.slice(0, 8)}
+                <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            </div>
+            <div className="text-left">
+              <div className="text-xs text-muted mb-1">Paid at</div>
+              <div className="text-sm font-semibold text-text">
+                {purchaseData.paidAt}
               </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-900" />
+            </div>
+            <div className="col-span-2 sm:col-span-1 text-left">
+              <div className="text-xs text-muted mb-1">Payment method</div>
+              <div className="text-sm font-semibold text-text">****</div>
+            </div>
+            <div className="col-span-2 sm:col-span-1 text-left">
+              <div className="text-xs text-muted mb-1">Receipt</div>
+              <div className="text-xs text-text truncate">
+                {purchaseData.buyerEmail || 'email'}
               </div>
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">
-            Purchase Successful!
-          </h1>
-          <p className="text-lg text-muted">
-            {purchaseData.itemType === 'track'
-              ? 'Your beat and license are ready for download.'
-              : 'Your payment is confirmed. Your provider will contact you shortly.'}
-          </p>
-        </motion.div>
-
-        {/* Purchase Summary */}
-        <motion.div
-          variants={dribbbleStaggerContainer}
-          initial="initial"
-          animate="animate"
-          className="space-y-4 mb-8"
-        >
-          <motion.div variants={dribbbleStaggerChild}>
-            <DribbbleCard className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold mb-1">
-                    {purchaseData.beatTitle}
-                  </h2>
-                  <p className="text-sm text-muted">
-                    by {purchaseData.producerName}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted mb-1">License</div>
-                  {purchaseData.licenseType && (
-                    <div className="text-sm font-semibold text-accent">
-                      {purchaseData.licenseType}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <span className="text-muted">Total Paid</span>
-                <span className="text-2xl font-bold text-accent">
-                  ${purchaseData.price.toFixed(2)}
-                </span>
-              </div>
-            </DribbbleCard>
-          </motion.div>
-
-          {/* Instant Delivery */}
-          {purchaseData.itemType === 'track' && (
-            <motion.div variants={dribbbleStaggerChild}>
-              <InstantDelivery
-                beatTitle={purchaseData.beatTitle}
-                downloadUrl={purchaseData.downloadUrl}
-                licenseUrl={purchaseData.licenseUrl}
-              />
-            </motion.div>
+          {copied && (
+            <p className="text-xs text-accent mt-2">Order # copied!</p>
           )}
-
-          {/* What's Next */}
-          <motion.div variants={dribbbleStaggerChild}>
-            <DribbbleCard className="p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-accent" />
-                What&apos;s Next?
-              </h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-semibold">Download your beat</div>
-                    <div className="text-sm text-muted">
-                      High-quality WAV or MP3 file
-                    </div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-semibold">Save your license PDF</div>
-                    <div className="text-sm text-muted">
-                      Keep it for your records
-                    </div>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-semibold">Start creating</div>
-                    <div className="text-sm text-muted">
-                      Make your next hit!
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </DribbbleCard>
-          </motion.div>
         </motion.div>
 
-        {/* Actions */}
+        {/* Purchase Summary Card */}
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <DribbbleCard className="p-6">
+            <div className="space-y-4">
+              {/* Item Info */}
+              <div>
+                <h2 className="text-2xl font-bold mb-2">
+                  {purchaseData.itemTitle}
+                </h2>
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-accent/10 text-accent">
+                    {itemTypeBadge}
+                  </span>
+                  <span className="text-sm text-muted">
+                    by {purchaseData.producerName}
+                  </span>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border" />
+
+              {/* Price and Details */}
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-xs text-muted mb-1">Amount paid</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-accent">
+                    {formatCurrency(purchaseData.amountCents, purchaseData.currency)}
+                  </div>
+                </div>
+                {purchaseData.itemType === 'track' && purchaseData.licenseType && (
+                  <div className="text-right">
+                    <div className="text-xs text-muted mb-1">License tier</div>
+                    <div className="text-sm font-semibold text-text">
+                      {purchaseData.licenseType.split(' ')[0]}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </DribbbleCard>
+        </motion.div>
+
+        {/* Instant Delivery Card (Primary CTA Block) */}
+        {purchaseData.itemType === 'track' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <InstantDelivery
+              downloadUrl={purchaseData.downloadUrl}
+              licenseUrl={purchaseData.licenseUrl}
+            />
+          </motion.div>
+        )}
+
+        {/* Next Actions Row */}
         <motion.div
           className="flex flex-col sm:flex-row gap-3"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
         >
           <Link href="/artist/purchases" className="flex-1">
             <PillCTA
               variant="primary"
               className="w-full"
-              icon={FileText}
             >
-              View My Purchases
+              View my purchases
             </PillCTA>
           </Link>
           <Link href="/marketplace" className="flex-1">
             <PillCTA
               variant="secondary"
               className="w-full"
-              icon={Home}
             >
-              Back to Marketplace
+              Back to dashboard
+            </PillCTA>
+          </Link>
+          <Link href="/support" className="flex-1">
+            <PillCTA
+              variant="secondary"
+              className="w-full"
+              icon={HelpCircle}
+            >
+              Contact support
             </PillCTA>
           </Link>
         </motion.div>
 
-        {/* Receipt Email Notice */}
-        <motion.p
-          className="text-center text-sm text-muted mt-6"
+        {/* Support Helper */}
+        <motion.div
+          className="text-center text-sm text-muted"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
         >
-          A receipt has been sent to your email address.
-        </motion.p>
+          <p>
+            Need help? Contact support and include your order number.
+          </p>
+        </motion.div>
       </div>
     </motion.div>
   )

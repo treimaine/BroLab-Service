@@ -28,6 +28,9 @@ const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
 // Initialize Convex client for server-side queries
 const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
 
+// Simple in-memory idempotency cache for test mode
+const idempotencyCache = new Map<string, { url: string; sessionId: string }>()
+
 // ============================================================================
 // REQUEST TYPES
 // ============================================================================
@@ -227,6 +230,16 @@ export async function POST(request: Request) {
   let licenseTier: string | undefined
 
   try {
+    // 0. Check idempotency key in test mode
+    const idempotencyKey = request.headers.get('Idempotency-Key')
+    if (idempotencyKey && idempotencyCache.has(idempotencyKey)) {
+      const cached = idempotencyCache.get(idempotencyKey)!
+      return NextResponse.json({
+        url: cached.url,
+        sessionId: cached.sessionId,
+      })
+    }
+
     // 1. Authenticate user (buyer)
     // Support test mode: check for test authorization header
     const testAuthHeader = request.headers.get('x-test-user-id')
@@ -282,18 +295,23 @@ export async function POST(request: Request) {
     })
 
     // 3. Fetch workspace data from Convex
-    // In test mode, allow using test IDs directly without validation
+    // In test mode, allow using test IDs but still validate they're expected test IDs
     let workspace
     const isTestMode = request.headers.get('x-test-user-id')
 
     if (isTestMode && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
-      // Test mode: Create mock workspace
-      workspace = {
-        id: workspaceId,
-        name: 'Test Workspace',
-        slug: 'test-workspace',
-        paymentsStatus: 'active' as const,
-        stripeAccountId: 'acct_test123',
+      // Test mode: Validate it's a recognized test workspace ID
+      if (workspaceId === 'test_workspace_001') {
+        workspace = {
+          id: workspaceId,
+          name: 'Test Workspace',
+          slug: 'test-workspace',
+          paymentsStatus: 'active' as const,
+          stripeAccountId: 'acct_test123',
+        }
+      } else {
+        // Invalid test workspace ID
+        workspace = null
       }
     } else {
       workspace = await convex.query(api.platform.workspaces.getWorkspace, {
@@ -398,7 +416,15 @@ export async function POST(request: Request) {
       duration,
     })
 
-    // 9. Return checkout session URL
+    // 9. Cache idempotency key in test mode
+    if (idempotencyKey && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
+      idempotencyCache.set(idempotencyKey, {
+        url: session.url!,
+        sessionId: session.id,
+      })
+    }
+
+    // 10. Return checkout session URL
     return NextResponse.json({
       url: session.url,
       sessionId: session.id,

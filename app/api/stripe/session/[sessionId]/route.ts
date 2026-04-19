@@ -41,16 +41,28 @@ export async function GET(
       )
     }
 
+    const paidAtDate = new Date(purchase.paidAt)
+    const formattedDate = paidAtDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+
     return NextResponse.json({
       status: 'ready',
+      orderId: purchase.orderId.toString(),
+      sessionId: purchase.stripeSessionId,
       itemType: purchase.itemType,
-      beatTitle: purchase.itemTitle,
+      itemTitle: purchase.itemTitle,
       producerName: purchase.producerName,
       licenseType: purchase.licenseType ? `${toTitleCase(purchase.licenseType)} License` : null,
-      price: purchase.amountCents / 100,
+      amountCents: purchase.amountCents,
       currency: purchase.currency,
       downloadUrl: purchase.downloadUrl,
       licenseUrl: purchase.licenseUrl,
+      buyerEmail: purchase.buyerEmail,
+      paidAt: formattedDate,
+      price: purchase.amountCents / 100,
     })
   } catch (error) {
     console.error('Failed to fetch checkout session details:', error)
