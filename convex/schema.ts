@@ -401,4 +401,36 @@ export default defineSchema({
     .index("by_timestamp", ["timestamp"])
     .index("by_status", ["status"])
     .index("by_user_timestamp", ["userId", "timestamp"]),
+
+  // ============ EARNINGS TRANSPARENCY DASHBOARD ============
+
+  beatSales: defineTable({
+    beatId: v.string(), // Track/beat ID (from orders.itemId)
+    sellerId: v.string(), // Producer's Clerk user ID (from workspaceId owner)
+    buyerId: v.string(), // Buyer's Clerk user ID
+    amount: v.number(), // Amount in cents
+    currency: v.string(), // "usd", "eur", etc.
+    licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
+    orderId: v.id("orders"), // Link to order for transaction details
+    status: v.union(v.literal("completed"), v.literal("refunded"), v.literal("disputed")),
+    soldAt: v.number(), // Timestamp when sale was completed
+  })
+    .index("by_beat", ["beatId"])
+    .index("by_seller", ["sellerId"])
+    .index("by_buyer", ["buyerId"])
+    .index("by_status", ["status"])
+    .index("by_seller_date", ["sellerId", "soldAt"])
+    .index("by_date", ["soldAt"]),
+
+  sellerEarnings: defineTable({
+    sellerId: v.string(), // Producer's Clerk user ID
+    totalEarnings: v.number(), // Total in cents (cached)
+    salesCount: v.number(), // Total number of sales
+    lastUpdated: v.number(), // Last recalculation timestamp
+    monthlyBreakdown: v.optional(v.object({
+      // JSON object with earnings by month e.g. {"2026-04": 5000, "2026-05": 7500}
+      // Key format: "YYYY-MM", value in cents
+    })),
+  })
+    .index("by_seller", ["sellerId"]),
 });

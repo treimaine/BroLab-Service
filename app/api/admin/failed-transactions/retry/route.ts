@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
@@ -10,17 +10,20 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL || '');
  */
 export async function POST(request: Request) {
   try {
-    // Verify admin authentication
+    // Verify authentication
     const session = await auth();
     if (!session?.userId) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // TODO: Add admin role check once roles are implemented
-    // const user = await currentUser();
-    // if (user?.publicMetadata?.role !== 'admin') {
-    //   return Response.json({ error: 'Forbidden' }, { status: 403 });
-    // }
+    // Verify admin role
+    const user = await currentUser();
+    if (user?.publicMetadata?.role !== 'admin') {
+      return Response.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
 
     const { transactionId, paymentIntentId } = await request.json();
 
@@ -38,16 +41,19 @@ export async function POST(request: Request) {
       incrementRetryCount: true,
     });
 
-    // TODO: Integrate with Stripe to initiate payment recovery
-    // This would typically:
-    // 1. Fetch the payment intent details from Stripe
-    // 2. Create a new payment method confirmation link
-    // 3. Send email to customer with retry link
-    // 4. Track retry attempt in audit log
+    // Note: Stripe payment recovery typically requires either:
+    // 1. Customer manually retrying with updated payment method via recovery email
+    // 2. Automated retry via Stripe Billing (if subscription-based)
+    // 3. Custom recovery flow redirecting to checkout with same payment intent
+    //
+    // For BroLab (pay-per-beat model), we rely on:
+    // - Customer re-initiating purchase with valid payment method
+    // - Support team follow-up (handled via support ticket creation)
+    // - Admin manual retry if needed (via Stripe dashboard)
 
     return Response.json({
       success: true,
-      message: 'Retry initiated. Customer will receive retry link.',
+      message: 'Retry marked in progress. Admin can send recovery link or customer can retry payment.',
       transactionId,
     });
   } catch (error) {

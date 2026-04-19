@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { Resend } from 'resend';
@@ -12,10 +12,19 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export async function POST(request: Request) {
   try {
-    // Verify admin authentication
+    // Verify authentication
     const session = await auth();
     if (!session?.userId) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify admin role
+    const user = await currentUser();
+    if (user?.publicMetadata?.role !== 'admin') {
+      return Response.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
     }
 
     const { transactionId, buyerEmail, amount, currency, reason } = await request.json();

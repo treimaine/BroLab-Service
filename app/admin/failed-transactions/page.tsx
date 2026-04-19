@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { FailedTransactionsDashboard } from '@/src/components/admin/FailedTransactionsDashboard';
 
@@ -9,10 +9,14 @@ import { FailedTransactionsDashboard } from '@/src/components/admin/FailedTransa
 export default async function FailedTransactionsPage() {
   const session = await auth();
 
-  // TODO: Implement proper admin role check
-  // For now, just verify user is authenticated
   if (!session?.userId) {
     redirect('/sign-in');
+  }
+
+  // Verify admin role
+  const user = await currentUser();
+  if (user?.publicMetadata?.role !== 'admin') {
+    redirect('/unauthorized');
   }
 
   return (
