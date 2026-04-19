@@ -9,7 +9,6 @@
  * Usage: Run via Convex CLI for testing
  */
 
-import { v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 
 /**
@@ -79,14 +78,20 @@ export const seedSampleUserJourneys = internalMutation({
     // Insert all events
     let insertedCount = 0;
     for (const event of allJourneys) {
-      await ctx.db.insert("onboardingEvents", {
+      const eventData: any = {
         userId: event.userId,
         eventType: event.eventType,
         timestamp: event.timestamp,
-        status: event.blocked ? "blocked" : undefined,
-        blocked_reason: event.blocked ? "Support required" : undefined,
         createdAt: event.timestamp,
-      });
+      };
+      
+      // Only add status/blocked_reason if event has blocked property
+      if ('blocked' in event && event.blocked) {
+        eventData.status = "blocked";
+        eventData.blocked_reason = "Support required";
+      }
+      
+      await ctx.db.insert("onboardingEvents", eventData);
       insertedCount++;
     }
 

@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { FailedTransactionsDashboard } from '@/src/components/admin/FailedTransactionsDashboard';
+import { FailedTransactionsDashboard } from '../../../src/components/admin/FailedTransactionsDashboard';
 
 /**
  * Admin Failed Transactions Dashboard Page

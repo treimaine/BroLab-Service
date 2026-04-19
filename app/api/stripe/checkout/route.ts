@@ -9,9 +9,9 @@
 
 import { CONVEX_CONFIG, SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
 import {
-    logCheckoutAttempt,
-    logCheckoutFailure,
-    logCheckoutSuccess,
+  logCheckoutAttempt,
+  logCheckoutFailure,
+  logCheckoutSuccess,
 } from '@/lib/monitoring'
 import { auth } from '@clerk/nextjs/server'
 import { ConvexHttpClient } from 'convex/browser'
@@ -77,6 +77,7 @@ function validateCheckoutRequest(body: CheckoutRequest): { valid: boolean; error
 function validatePaymentsConfiguration(workspace: {
   paymentsStatus: string
   stripeAccountId?: string
+  [key: string]: any // Allow additional properties from Convex
 }): { valid: boolean; error?: string } {
   if (workspace.paymentsStatus !== 'active' || !workspace.stripeAccountId) {
     return {
@@ -303,7 +304,6 @@ export async function POST(request: Request) {
       // Test mode: Validate it's a recognized test workspace ID
       if (workspaceId === 'test_workspace_001') {
         workspace = {
-          id: workspaceId,
           name: 'Test Workspace',
           slug: 'test-workspace',
           paymentsStatus: 'active' as const,
@@ -358,9 +358,10 @@ export async function POST(request: Request) {
     }
 
     // 5. Fetch item data and calculate price
+    const isTestModeBoolean = !!isTestMode
     const itemData = itemType === 'track'
-      ? await getTrackItemData(itemId, licenseTier as 'basic' | 'premium' | 'unlimited', isTestMode)
-      : await getServiceItemData(itemId, isTestMode)
+      ? await getTrackItemData(itemId, licenseTier as 'basic' | 'premium' | 'unlimited', isTestModeBoolean)
+      : await getServiceItemData(itemId, isTestModeBoolean)
 
     // 6. Build metadata for webhook processing
     const metadata: Record<string, string> = {
