@@ -12,31 +12,31 @@ import { useState } from 'react'
 
 interface InstantDeliveryProps {
   beatTitle: string
-  _downloadUrl: string
-  _licenseUrl: string
+  downloadUrl: string | null
+  licenseUrl: string | null
 }
 
 export function InstantDelivery({
   beatTitle,
-  _downloadUrl,
-  _licenseUrl,
+  downloadUrl,
+  licenseUrl,
 }: Readonly<InstantDeliveryProps>) {
   const [beatDownloaded, setBeatDownloaded] = useState(false)
   const [licenseDownloaded, setLicenseDownloaded] = useState(false)
   const [isDownloading, setIsDownloading] = useState<'beat' | 'license' | null>(null)
 
   const handleDownload = async (type: 'beat' | 'license') => {
+    const targetUrl = type === 'beat' ? downloadUrl : licenseUrl
+    if (!targetUrl) return
+
     setIsDownloading(type)
 
-    // Simulate download delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    globalThis.open(targetUrl, '_blank', 'noopener,noreferrer')
 
     if (type === 'beat') {
       setBeatDownloaded(true)
-      // In production: window.open(downloadUrl, '_blank')
     } else {
       setLicenseDownloaded(true)
-      // In production: window.open(licenseUrl, '_blank')
     }
 
     setIsDownloading(null)
@@ -101,11 +101,11 @@ export function InstantDelivery({
             onClick={() => handleDownload('beat')}
             variant={beatDownloaded ? 'secondary' : 'primary'}
             size="sm"
-            disabled={isDownloading !== null}
+            disabled={isDownloading !== null || !downloadUrl}
             icon={getBeatIcon()}
             className={isDownloading === 'beat' ? 'animate-pulse' : ''}
           >
-            {getBeatLabel()}
+            {downloadUrl ? getBeatLabel() : 'Unavailable'}
           </PillCTA>
         </DribbbleCard>
 
@@ -126,11 +126,11 @@ export function InstantDelivery({
             onClick={() => handleDownload('license')}
             variant={licenseDownloaded ? 'secondary' : 'primary'}
             size="sm"
-            disabled={isDownloading !== null}
+            disabled={isDownloading !== null || !licenseUrl}
             icon={getLicenseIcon()}
             className={isDownloading === 'license' ? 'animate-pulse' : ''}
           >
-            {getLicenseLabel()}
+            {licenseUrl ? getLicenseLabel() : 'Preparing...'}
           </PillCTA>
         </DribbbleCard>
       </div>

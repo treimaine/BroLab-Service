@@ -1,0 +1,281 @@
+<testsuites id="" name="" tests="24" failures="7" skipped="1" errors="1" time="33.551137">
+<testsuite name="auth\sign-in.spec.ts" timestamp="2026-04-19T12:27:23.823Z" hostname="chromium" tests="12" failures="0" skipped="1" time="32.244" errors="0">
+<testcase name="Sign In Flow › should display sign-in button on homepage" classname="auth\sign-in.spec.ts" time="2.056">
+</testcase>
+<testcase name="Sign In Flow › should navigate to sign-in page" classname="auth\sign-in.spec.ts" time="2.38">
+</testcase>
+<testcase name="Sign In Flow › should load Clerk sign-in component" classname="auth\sign-in.spec.ts" time="3.456">
+</testcase>
+<testcase name="Sign In Flow › should show email and password fields" classname="auth\sign-in.spec.ts" time="3.423">
+</testcase>
+<testcase name="Sign In Flow › should redirect to dashboard after successful sign-in (with test credentials)" classname="auth\sign-in.spec.ts">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Sign In Flow › should show error for invalid credentials" classname="auth\sign-in.spec.ts" time="3.491">
+</testcase>
+<testcase name="Sign Up Flow › should navigate to sign-up page" classname="auth\sign-in.spec.ts" time="2.21">
+</testcase>
+<testcase name="Sign Up Flow › should load Clerk sign-up component" classname="auth\sign-in.spec.ts" time="2.567">
+</testcase>
+<testcase name="Sign Up Flow › should show required fields for registration" classname="auth\sign-in.spec.ts" time="2.5">
+</testcase>
+<testcase name="Sign Up Flow › should show validation errors for invalid email" classname="auth\sign-in.spec.ts" time="3.32">
+</testcase>
+<testcase name="Authentication Security › should not expose JWT tokens in localStorage" classname="auth\sign-in.spec.ts" time="2.039">
+</testcase>
+<testcase name="Authentication Security › should use httpOnly cookies for session" classname="auth\sign-in.spec.ts" time="1.952">
+</testcase>
+</testsuite>
+<testsuite name="checkout-flow.spec.ts" timestamp="2026-04-19T12:27:23.823Z" hostname="chromium" tests="12" failures="7" skipped="0" time="7.543" errors="1">
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete track purchase end-to-end" classname="checkout-flow.spec.ts" time="2.056">
+</testcase>
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should complete service booking end-to-end" classname="checkout-flow.spec.ts" time="1.736">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\video.webm]]
+
+[[ATTACHMENT|checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBeLessThan(expected)" type="expect.toBeLessThan">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:130:7 › Stripe Checkout Flow - Happy Paths (P0) › should complete service booking end-to-end 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 400
+    Received:   404
+
+      173 |     })
+      174 |
+    > 175 |     expect(webhookResponse.status()).toBeLessThan(400)
+          |                                      ^
+      176 |
+      177 |     // Step 3: Verify booking creation
+      178 |     const convexResponse = await request.post(`${TEST_CONFIG.convexUrl}/api/query`, {
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:175:38
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-85eb4--service-booking-end-to-end-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Happy Paths (P0) › should handle order creation and all database mutations" classname="checkout-flow.spec.ts" time="1.753">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\video.webm]]
+
+[[ATTACHMENT|checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:189:7 › Stripe Checkout Flow - Happy Paths (P0) › should handle order creation and all database mutations 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      215 |     })
+      216 |
+    > 217 |     expect(webhookResponse.status()).toBe(200)
+          |                                      ^
+      218 |
+      219 |     // Verify all expected database records
+      220 |     // 1. Order created
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:217:38
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-4d61f--and-all-database-mutations-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject checkout with invalid workspace ID" classname="checkout-flow.spec.ts" time="0.061">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-d8ffe-t-with-invalid-workspace-ID-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toContain(expected) // indexOf" type="expect.toContain">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:231:7 › Stripe Checkout Flow - Error Scenarios (P1) › should reject checkout with invalid workspace ID 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "workspace"
+    Received string:    "Unauthorized. Please sign in to make a purchase."
+
+      245 |     const errorData = await response.json()
+      246 |     expect(errorData).toHaveProperty('error')
+    > 247 |     expect(errorData.error).toContain('workspace')
+          |                             ^
+      248 |   })
+      249 |
+      250 |   test('should reject webhook with missing metadata', async ({ request }) => {
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:247:29
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-d8ffe-t-with-invalid-workspace-ID-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing metadata" classname="checkout-flow.spec.ts" time="0.238">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-75d5b-bhook-with-missing-metadata-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:250:7 › Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing metadata 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 404
+
+      269 |     })
+      270 |
+    > 271 |     expect(response.status()).toBe(400)
+          |                               ^
+      272 |     const errorData = await response.json()
+      273 |     expect(errorData.error).toContain('Missing required metadata')
+      274 |   })
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:271:31
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-75d5b-bhook-with-missing-metadata-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with missing stripe-signature header" classname="checkout-flow.spec.ts" time="0.056">
+</testcase>
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with invalid signature" classname="checkout-flow.spec.ts" time="0.159">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-b90e8-hook-with-invalid-signature-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:306:7 › Stripe Checkout Flow - Error Scenarios (P1) › should reject webhook with invalid signature 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 404
+
+      329 |     })
+      330 |
+    > 331 |     expect(response.status()).toBe(400)
+          |                               ^
+      332 |     const errorData = await response.json()
+      333 |     expect(errorData.error).toContain('signature verification failed')
+      334 |   })
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:331:31
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-b90e8-hook-with-invalid-signature-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Error Scenarios (P1) › should handle webhook delivery timeout gracefully" classname="checkout-flow.spec.ts" time="0.13">
+</testcase>
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle duplicate webhook delivery with idempotency" classname="checkout-flow.spec.ts" time="0.308">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-da4df-k-delivery-with-idempotency-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBeLessThan(expected)" type="expect.toBeLessThan">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:372:7 › Stripe Checkout Flow - Edge Cases (P2) › should handle duplicate webhook delivery with idempotency 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 400
+    Received:   404
+
+      400 |     })
+      401 |
+    > 402 |     expect(firstResponse.status()).toBeLessThan(400)
+          |                                    ^
+      403 |
+      404 |     // Duplicate webhook delivery with same event ID
+      405 |     const secondResponse = await request.post(`${TEST_CONFIG.baseUrl}/api/stripe/webhook`, {
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:402:36
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-da4df-k-delivery-with-idempotency-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle race condition with multiple simultaneous purchases" classname="checkout-flow.spec.ts" time="0.168">
+</testcase>
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle partial failure: order created but license generation fails" classname="checkout-flow.spec.ts" time="0.672">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-58cdb-ut-license-generation-fails-chromium\error-context.md]]
+]]>
+</system-out>
+<error message="Unexpected token &apos;&lt;&apos;, &quot;&lt;!DOCTYPE &quot;... is not valid JSON" type="SyntaxError">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:465:7 › Stripe Checkout Flow - Edge Cases (P2) › should handle partial failure: order created but license generation fails 
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+      504 |     })
+      505 |
+    > 506 |     const orderData = await orderResponse.json()
+          |                       ^
+      507 |     expect(orderData).toBeTruthy()
+      508 |
+      509 |     // Verify failed job is tracked for retry
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:506:23
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-58cdb-ut-license-generation-fails-chromium\error-context.md
+]]>
+</error>
+</testcase>
+<testcase name="Stripe Checkout Flow - Edge Cases (P2) › should handle idempotency key collision" classname="checkout-flow.spec.ts" time="0.206">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-flow-Stripe-Check-9ff8c-e-idempotency-key-collision-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  [chromium] › checkout-flow.spec.ts:512:7 › Stripe Checkout Flow - Edge Cases (P2) › should handle idempotency key collision 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "cs_test_1776601658861"
+    Received: "cs_test_1776601658789"
+
+      550 |
+      551 |     // Should return same session ID
+    > 552 |     expect(firstData.sessionId).toBe(secondData.sessionId)
+          |                                 ^
+      553 |   })
+      554 | })
+      555 |
+        at C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts:552:33
+
+    Error Context: ..\..\test-results\checkout-flow-Stripe-Check-9ff8c-e-idempotency-key-collision-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

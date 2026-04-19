@@ -18,20 +18,21 @@ export function CheckoutSuccess() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
   const [purchaseData, setPurchaseData] = useState<{
+    itemType: 'track' | 'service'
     beatTitle: string
     producerName: string
-    licenseType: string
+    licenseType: string | null
     price: number
-    downloadUrl: string
-    licenseUrl: string
+    downloadUrl: string | null
+    licenseUrl: string | null
   } | null>(null)
 
   // In production, fetch purchase data from session_id
   useEffect(() => {
-    const _sessionId = searchParams.get('session_id')
+    const sessionId = searchParams.get('session_id')
 
     const trackPurchaseComplete = async () => {
-      if (!_sessionId) return
+      if (!sessionId) return
       try {
         await fetch('/api/analytics/track', {
           method: 'POST',
@@ -39,7 +40,7 @@ export function CheckoutSuccess() {
           body: JSON.stringify({
             type: 'checkout_funnel',
             step: 'complete_payment',
-            sessionId: _sessionId,
+            sessionId,
           }),
         })
       } catch (e) {
@@ -47,27 +48,46 @@ export function CheckoutSuccess() {
       }
     }
 
-    // TODO: Fetch real purchase data from Stripe session
-    // const fetchPurchaseData = async () => {
-    //   const response = await fetch(`/api/stripe/session/${_sessionId}`)
-    //   const data = await response.json()
-    //   setPurchaseData(data)
-    //   setIsLoading(false)
-    // }
+    const fetchPurchaseData = async () => {
+      if (!sessionId) {
+        setIsLoading(false)
+        return
+      }
 
-    // Mock data for now
-    setTimeout(() => {
-      setPurchaseData({
-        beatTitle: 'Midnight Dreams',
-        producerName: 'BeatMaker Pro',
-        licenseType: 'Premium License',
-        price: 29.99,
-        downloadUrl: '#',
-        licenseUrl: '#',
-      })
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        const response = await fetch(`/api/stripe/session/${sessionId}`, {
+          cache: 'no-store',
+        })
+
+        if (response.status === 202) {
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          continue
+        }
+
+        if (!response.ok) {
+          setIsLoading(false)
+          return
+        }
+
+        const data = await response.json()
+        setPurchaseData({
+          itemType: data.itemType,
+          beatTitle: data.beatTitle,
+          producerName: data.producerName,
+          licenseType: data.licenseType,
+          price: data.price,
+          downloadUrl: data.downloadUrl,
+          licenseUrl: data.licenseUrl,
+        })
+        setIsLoading(false)
+        await trackPurchaseComplete()
+        return
+      }
+
       setIsLoading(false)
-      trackPurchaseComplete()
-    }, 1000)
+    }
+
+    fetchPurchaseData().catch(() => setIsLoading(false))
   }, [searchParams])
 
   if (isLoading) {
@@ -130,7 +150,9 @@ export function CheckoutSuccess() {
             Purchase Successful!
           </h1>
           <p className="text-lg text-muted">
-            Your beat and license are ready for download.
+            {purchaseData.itemType === 'track'
+              ? 'Your beat and license are ready for download.'
+              : 'Your payment is confirmed. Your provider will contact you shortly.'}
           </p>
         </motion.div>
 
@@ -154,9 +176,11 @@ export function CheckoutSuccess() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted mb-1">License</div>
-                  <div className="text-sm font-semibold text-accent">
-                    {purchaseData.licenseType}
-                  </div>
+                  {purchaseData.licenseType && (
+                    <div className="text-sm font-semibold text-accent">
+                      {purchaseData.licenseType}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -170,13 +194,15 @@ export function CheckoutSuccess() {
           </motion.div>
 
           {/* Instant Delivery */}
-          <motion.div variants={dribbbleStaggerChild}>
-            <InstantDelivery
-              beatTitle={purchaseData.beatTitle}
-              _downloadUrl={purchaseData.downloadUrl}
-              _licenseUrl={purchaseData.licenseUrl}
-            />
-          </motion.div>
+          {purchaseData.itemType === 'track' && (
+            <motion.div variants={dribbbleStaggerChild}>
+              <InstantDelivery
+                beatTitle={purchaseData.beatTitle}
+                downloadUrl={purchaseData.downloadUrl}
+                licenseUrl={purchaseData.licenseUrl}
+              />
+            </motion.div>
+          )}
 
           {/* What's Next */}
           <motion.div variants={dribbbleStaggerChild}>

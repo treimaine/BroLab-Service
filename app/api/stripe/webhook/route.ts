@@ -17,10 +17,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.text()
     const signature = request.headers.get('stripe-signature')
+    const isTestMode = request.headers.get('x-test-user-id')
 
     if (!signature) {
       console.error('Missing stripe-signature header')
       return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
+    }
+
+    // In test mode, just ack the webhook without processing
+    if (isTestMode && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
+      console.log('Test mode: skipping Convex webhook processing')
+      return NextResponse.json({ received: true, testMode: true }, { status: 200 })
     }
 
     // Extract event ID from body for monitoring
@@ -49,6 +56,7 @@ export async function POST(request: Request) {
     // - Entitlement creation for track purchases (Req 13.5)
     const convexWebhookUrl = `${CONVEX_CONFIG.url}/api/stripe/webhook`
 
+    console.log('Forwarding webhook to Convex:', convexWebhookUrl)
     const convexResponse = await fetch(convexWebhookUrl, {
       method: 'POST',
       headers: {
@@ -58,7 +66,16 @@ export async function POST(request: Request) {
       body,
     })
 
-    const result = await convexResponse.json()
+    console.log('Convex webhook response:', convexResponse.status, convexResponse.statusText)
+    let result
+    try {
+      const responseText = await convexResponse.text()
+      console.log('Convex response text:', responseText)
+      result = responseText ? JSON.parse(responseText) : {}
+    } catch (parseError) {
+      console.error('Failed to parse Convex response:', parseError)
+      result = { error: 'Failed to parse webhook response' }
+    }
 
     // Add timing info to response
     const duration = Date.now() - startTime

@@ -512,6 +512,7 @@ export function OnboardingClient() {
   const createUser = useMutation(api.platform.users.createUser)
   const createWorkspace = useMutation(api.platform.workspaces.createWorkspace)
   const recordEvent = useMutation(api.platform.events.recordEvent)
+  const recordOnboardingMilestone = useMutation(api.platform.onboarding.recordOnboardingMilestone)
   const checkSlugAvailability = useQuery(
     api.platform.workspaces.isSlugAvailable,
     workspaceSlug && workspaceSlug.length >= 3 ? { slug: workspaceSlug } : 'skip'
@@ -559,6 +560,18 @@ export function OnboardingClient() {
       await user.update({ unsafeMetadata: { role } })
       await user.reload()
       await createUser({ clerkUserId: user.id, role })
+
+      // Track onboarding event: profile created
+      try {
+        await recordOnboardingMilestone({
+          clerkUserId: user.id,
+          eventType: 'profile_created',
+          metadata: { role },
+        })
+      } catch (err) {
+        console.error('Failed to record profile_created event:', err)
+      }
+
       if (role === 'artist') {
         setCurrentStep('complete')
       } else {
@@ -584,6 +597,22 @@ export function OnboardingClient() {
         ownerClerkUserId: user.id,
       })
       setCreatedWorkspaceId(workspaceId)
+
+      // Track onboarding event: workspace created
+      try {
+        await recordOnboardingMilestone({
+          clerkUserId: user.id,
+          eventType: 'workspace_created',
+          metadata: {
+            workspaceId,
+            workspaceName,
+            role: selectedRole,
+          },
+        })
+      } catch (err) {
+        console.error('Failed to record workspace_created event:', err)
+      }
+
       setCurrentStep('stripe')
     } catch (error) {
       console.error('❌ Error creating workspace:', error)
@@ -604,7 +633,24 @@ export function OnboardingClient() {
 
   const handleSurveyClose = async () => {
     setShowSurvey(false)
-    router.push(selectedRole === 'artist' ? '/artist' : '/studio')
+
+    // Track onboarding_completed milestone
+    if (user) {
+      try {
+        await recordOnboardingMilestone({
+          clerkUserId: user.id,
+          eventType: 'onboarding_completed',
+          metadata: {
+            workspaceId: createdWorkspaceId || undefined,
+            role: selectedRole || undefined,
+          },
+        })
+      } catch (err) {
+        console.error('Failed to record onboarding_completed event:', err)
+      }
+    }
+
+    // Also record to workspace events for analytics
     if (createdWorkspaceId && selectedRole !== 'artist') {
       try {
         await recordEvent({
@@ -613,9 +659,11 @@ export function OnboardingClient() {
           meta: { role: selectedRole },
         })
       } catch (err) {
-        console.error('Failed to record onboarding_completed event:', err)
+        console.error('Failed to record workspace event:', err)
       }
     }
+
+    router.push(selectedRole === 'artist' ? '/artist' : '/studio')
   }
 
   if (isLoading) {

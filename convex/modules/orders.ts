@@ -2,7 +2,8 @@
 // Implements Requirement 14: Stripe Webhook Processing
 
 import { v } from "convex/values";
-import { internalMutation } from "../_generated/server";
+import { Id } from "../_generated/dataModel";
+import { internalMutation, internalQuery } from "../_generated/server";
 
 /**
  * Create an order from Stripe checkout session
@@ -254,5 +255,73 @@ export const markEventProcessed = internalMutation({
     });
 
     return id;
+  },
+});
+
+/**
+ * Get checkout session purchase details for success page rendering.
+ * Server-only query used by the Next.js API route.
+ */
+export const getSessionPurchaseData = internalQuery({
+  args: {
+    stripeSessionId: v.string(),
+    buyerClerkUserId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("orders")
+      .withIndex("by_stripe_session", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .first();
+
+    if (!order || order.buyerClerkUserId !== args.buyerClerkUserId) {
+      return null;
+    }
+
+    const workspace = await ctx.db.get(order.workspaceId);
+    const producerName = workspace?.name ?? "Unknown Producer";
+
+    if (order.itemType === "track") {
+      const track = await ctx.db.get(order.itemId as Id<"tracks">);
+      if (!track) return null;
+
+      const entitlement = await ctx.db
+        .query("purchaseEntitlements")
+        .withIndex("by_buyer_track", (q) =>
+          q.eq("buyerClerkUserId", args.buyerClerkUserId).eq("trackId", track._id)
+        )
+        .first();
+
+      const downloadUrl = track.fullStorageId
+        ? await ctx.storage.getUrl(track.fullStorageId)
+        : null;
+      const licenseUrl = entitlement?.licensePdfStorageId
+        ? await ctx.storage.getUrl(entitlement.licensePdfStorageId)
+        : null;
+
+      return {
+        itemType: "track" as const,
+        itemTitle: track.title,
+        producerName,
+        licenseType: order.licenseTier ?? null,
+        amountCents: order.amountCents,
+        currency: order.currency,
+        downloadUrl,
+        licenseUrl,
+      };
+    }
+
+    const service = await ctx.db.get(order.itemId as Id<"services">);
+    if (!service) return null;
+
+    return {
+      itemType: "service" as const,
+      itemTitle: service.title,
+      producerName,
+      licenseType: null,
+      amountCents: order.amountCents,
+      currency: order.currency,
+      downloadUrl: null,
+      licenseUrl: null,
+    };
   },
 });
