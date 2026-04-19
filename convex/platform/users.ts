@@ -4,6 +4,7 @@
 
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { internal } from "../_generated/api";
 
 // ============ TYPES ============
 
@@ -72,6 +73,15 @@ export const createUser = mutation({
       createdAt: Date.now(),
     });
 
+    // Record onboarding event: signup
+    await ctx.runMutation(internal.modules.onboardingEvents.recordOnboardingEvent, {
+      userId: args.clerkUserId,
+      eventType: "signup",
+      metadata: {
+        additional_data: { role: args.role },
+      },
+    });
+
     return userId;
   },
 });
@@ -129,6 +139,15 @@ export const updateUserRole = mutation({
 
     await ctx.db.patch(user._id, {
       role: args.role,
+    });
+
+    // Record onboarding event: profile_created (role finalized)
+    await ctx.runMutation(internal.modules.onboardingEvents.recordOnboardingEvent, {
+      userId: args.clerkUserId,
+      eventType: "profile_created",
+      metadata: {
+        additional_data: { role: args.role },
+      },
     });
 
     return user._id;

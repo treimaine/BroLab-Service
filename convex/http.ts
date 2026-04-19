@@ -1526,4 +1526,77 @@ async function sendBookingConfirmationEmailNotification(
   }
 }
 
+// Onboarding Events Recording Endpoint (BRO-157)
+// Allows frontend to record user onboarding milestone events
+// Events: email_verified, checkout_started, beat_uploaded, payment_failed
+http.route({
+  path: "/api/onboarding/record-event",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.json();
+      const { userId, eventType, metadata } = body as {
+        userId?: string;
+        eventType?: string;
+        metadata?: unknown;
+      };
+
+      if (!userId || !eventType) {
+        return jsonResponse(
+          { error: "Missing userId or eventType" },
+          400
+        );
+      }
+
+      // Validate eventType
+      const validEventTypes = [
+        "email_verified",
+        "checkout_started",
+        "beat_uploaded",
+        "payment_failed",
+      ];
+      if (!validEventTypes.includes(eventType)) {
+        return jsonResponse(
+          { error: `Invalid eventType. Must be one of: ${validEventTypes.join(", ")}` },
+          400
+        );
+      }
+
+      // Record the onboarding event
+      const eventId = await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+        {
+          userId,
+          eventType: eventType as
+            | "email_verified"
+            | "checkout_started"
+            | "beat_uploaded"
+            | "payment_failed",
+          metadata: metadata as Record<string, unknown> | undefined,
+        }
+      );
+
+      return jsonResponse(
+        {
+          success: true,
+          eventId,
+          eventType,
+          userId,
+        },
+        200
+      );
+    } catch (error) {
+      console.error("Error recording onboarding event:", error);
+      return jsonResponse(
+        {
+          error: "Failed to record onboarding event",
+          message: error instanceof Error ? error.message : String(error),
+        },
+        500
+      );
+    }
+  }),
+});
+
 export default http;
