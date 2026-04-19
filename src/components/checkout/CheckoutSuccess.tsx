@@ -142,11 +142,17 @@ export function CheckoutSuccess() {
     )
   }
 
-  const itemTypeBadge = purchaseData.itemType === 'track' && purchaseData.licenseType
-    ? purchaseData.licenseType
-    : purchaseData.itemType === 'track'
-      ? 'Beat License'
-      : 'Service'
+  const getItemTypeBadge = () => {
+    if (purchaseData.itemType === 'track' && purchaseData.licenseType) {
+      return purchaseData.licenseType
+    }
+    if (purchaseData.itemType === 'track') {
+      return 'Beat License'
+    }
+    return 'Service'
+  }
+
+  const itemTypeBadge = getItemTypeBadge()
 
   const formatCurrency = (amountCents: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {

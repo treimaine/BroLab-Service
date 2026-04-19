@@ -15,7 +15,7 @@ import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { AuthLoading, Authenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { AlertCircle, TrendingUp, Users, ShoppingCart, Clock, Zap, Loader2, BarChart3 } from 'lucide-react'
+import { AlertCircle, BarChart3, Clock, Loader2, ShoppingCart, TrendingUp, Users, Zap } from 'lucide-react'
 import { api } from '../../../convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
@@ -27,14 +27,14 @@ function MetricCard({
   icon: Icon,
   trend = null,
   description = '',
-}: {
+}: Readonly<{
   title: string
   value: string | number
   unit?: string
   icon: React.ComponentType<{ className?: string }>
   trend?: { value: number; direction: 'up' | 'down' } | null
   description?: string
-}) {
+}>) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -174,27 +174,27 @@ export function MetricsClient() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <MetricCard
                     title="Total Users"
-                    value={dashboardMetrics!.userCounts.total}
+                    value={dashboardMetrics.userCounts.total}
                     icon={Users}
                     description="All signed-up users"
                   />
                   <MetricCard
                     title="Active Producers"
-                    value={dashboardMetrics!.userCounts.producer}
+                    value={dashboardMetrics.userCounts.producer}
                     icon={Users}
                     description="Providers with workspaces"
                   />
                   <MetricCard
                     title="Onboarding Completion"
-                    value={formatPercent(dashboardMetrics!.onboardingCompletionRate)}
+                    value={formatPercent(dashboardMetrics.onboardingCompletionRate)}
                     icon={TrendingUp}
                     description="Workspaces with at least 1 track"
                   />
                   <MetricCard
                     title="Checkout Completion"
-                    value={formatPercent(dashboardMetrics!.checkoutCompletionRate)}
+                    value={formatPercent(dashboardMetrics.checkoutCompletionRate)}
                     icon={ShoppingCart}
-                    description={`${dashboardMetrics!.completedOrders} / ${dashboardMetrics!.totalOrders} orders`}
+                    description={`${dashboardMetrics.completedOrders} / ${dashboardMetrics.totalOrders} orders`}
                   />
                 </div>
               </div>
@@ -208,23 +208,23 @@ export function MetricsClient() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <MetricCard
                     title="Total Revenue"
-                    value={formatCurrency(dashboardMetrics!.totalRevenueCents)}
+                    value={formatCurrency(dashboardMetrics.totalRevenueCents)}
                     icon={TrendingUp}
                     description="From completed orders"
                   />
                   <MetricCard
                     title="Revenue Per Producer"
-                    value={formatCurrency(revenuePerUser!.revenuePerUserCents)}
+                    value={formatCurrency(revenuePerUser.revenuePerUserCents)}
                     icon={TrendingUp}
-                    description={`${revenuePerUser!.activeProducers} active producers`}
+                    description={`${revenuePerUser.activeProducers} active producers`}
                   />
                   <MetricCard
                     title="Avg Order Value"
                     value={
-                      dashboardMetrics!.completedOrders > 0
+                      dashboardMetrics.completedOrders > 0
                         ? formatCurrency(
-                            dashboardMetrics!.totalRevenueCents /
-                              dashboardMetrics!.completedOrders
+                            dashboardMetrics.totalRevenueCents /
+                              dashboardMetrics.completedOrders
                           )
                         : '$0.00'
                     }
@@ -243,21 +243,21 @@ export function MetricsClient() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <MetricCard
                     title="Time to Signup"
-                    value={formatDuration(timeToSignup!.avgMs)}
+                    value={formatDuration(timeToSignup.avgMs)}
                     icon={Clock}
-                    description={`${timeToSignup!.count} users tracked`}
+                    description={`${timeToSignup.count} users tracked`}
                   />
                   <MetricCard
                     title="Time to First Upload"
-                    value={formatDuration(timeToFirstUpload!.avgMs)}
+                    value={formatDuration(timeToFirstUpload.avgMs)}
                     icon={Clock}
-                    description={`${timeToFirstUpload!.count} uploads tracked`}
+                    description={`${timeToFirstUpload.count} uploads tracked`}
                   />
                   <MetricCard
                     title="Time to First Purchase"
-                    value={formatDuration(firstTransactionTime!.avgMs)}
+                    value={formatDuration(firstTransactionTime.avgMs)}
                     icon={Clock}
-                    description={`${firstTransactionTime!.count} transactions tracked`}
+                    description={`${firstTransactionTime.count} transactions tracked`}
                   />
                 </div>
               </div>
@@ -377,7 +377,7 @@ export function MetricsClient() {
                             .map(([reason, count]) => (
                               <div key={reason} className="flex items-center justify-between">
                                 <span className="text-sm capitalize">
-                                  {reason.replace(/_/g, ' ')}
+                                  {reason.replaceAll('_', ' ')}
                                 </span>
                                 <div className="flex items-center gap-2">
                                   <div className="w-32 h-2 rounded-full bg-border overflow-hidden">
@@ -410,19 +410,19 @@ export function MetricsClient() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <MetricCard
                     title="Total Tracks"
-                    value={dashboardMetrics!.totalTracks}
+                    value={dashboardMetrics.totalTracks}
                     icon={Zap}
                     description="Beats uploaded"
                   />
                   <MetricCard
                     title="Total Orders"
-                    value={dashboardMetrics!.totalOrders}
+                    value={dashboardMetrics.totalOrders}
                     icon={ShoppingCart}
                     description="All purchase attempts"
                   />
                   <MetricCard
                     title="Completed Orders"
-                    value={dashboardMetrics!.completedOrders}
+                    value={dashboardMetrics.completedOrders}
                     icon={TrendingUp}
                     description="Successful transactions"
                   />

@@ -271,7 +271,7 @@ function PlanCard({
             variant="primary"
             size="lg" 
             fullWidth
-            className={isPro ? '' : 'bg-linear-to-r from-[rgba(var(--accent),0.15)] to-[rgba(var(--accent-2),0.15)] !text-accent border border-[rgba(var(--accent),0.3)]'}
+            className={isPro ? '' : 'bg-linear-to-r from-[rgba(var(--accent),0.15)] to-[rgba(var(--accent-2),0.15)] text-accent! border border-[rgba(var(--accent),0.3)]'}
           >
             Get Started
           </PillCTA>

@@ -44,8 +44,9 @@ const mockService = {
 test.describe('Stripe Checkout Flow - Happy Paths (P0)', () => {
   test.beforeEach(async ({ page }) => {
     // Ensure app is running
-    await page.goto('/')
-    await expect(page).toHaveTitle(/BroLab/)
+    await page.goto('/', { waitUntil: 'networkidle' })
+    // Wait for metadata to render with a timeout
+    await expect(page).toHaveTitle(/BroLab/, { timeout: 10000 })
   })
 
   test('should complete track purchase end-to-end', async ({ page, request }) => {

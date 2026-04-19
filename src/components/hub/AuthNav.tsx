@@ -2,7 +2,6 @@
 
 import { PillCTA } from '@/platform/ui'
 import { UserButton, useUser } from '@clerk/nextjs'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -25,7 +24,6 @@ interface AuthNavProps {
  */
 export function AuthNav({ ctaLabel = 'Explore' }: AuthNavProps) {
   const { isSignedIn, user, isLoaded } = useUser()
-  const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // Prevent hydration mismatch

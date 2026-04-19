@@ -204,18 +204,18 @@ export function StudioDashboard() {
                     >
                       <p className="text-xs font-semibold uppercase tracking-widest mb-2">Payments</p>
                       <p className="text-lg font-bold text-text">
-                        {paymentsStatus === 'active'
-                          ? 'Ready'
-                          : paymentsStatus === 'pending'
-                            ? 'Pending review'
-                            : 'Action required'}
+                        {(() => {
+                          if (paymentsStatus === 'active') return 'Ready'
+                          if (paymentsStatus === 'pending') return 'Pending review'
+                          return 'Action required'
+                        })()}
                       </p>
                       <p className="text-xs mt-1">
-                        {paymentsStatus === 'active'
-                          ? 'Stripe can accept payouts and charges.'
-                          : paymentsStatus === 'pending'
-                            ? 'Stripe is connected but still needs verification.'
-                            : 'Connect Stripe before artist purchases can complete.'}
+                        {(() => {
+                          if (paymentsStatus === 'active') return 'Stripe can accept payouts and charges.'
+                          if (paymentsStatus === 'pending') return 'Stripe is connected but still needs verification.'
+                          return 'Connect Stripe before artist purchases can complete.'
+                        })()}
                       </p>
                     </div>
 

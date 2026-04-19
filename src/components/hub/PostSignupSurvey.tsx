@@ -35,7 +35,7 @@ interface PostSignupSurveyProps {
   onClose: () => void
 }
 
-export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: PostSignupSurveyProps) {
+export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Readonly<PostSignupSurveyProps>) {
   const [selected, setSelected] = useState<SurveyOption | null>(null)
   const [customAnswer, setCustomAnswer] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -73,7 +73,15 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Po
         exit={{ opacity: 0 }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/60 cursor-default"
+          onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') onClose()
+          }}
+          aria-label="Close survey"
+        />
 
         {/* Modal */}
         <motion.div
@@ -157,7 +165,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Po
               >
                 {isSubmitting ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{' '}
                     Submitting...
                   </>
                 ) : (

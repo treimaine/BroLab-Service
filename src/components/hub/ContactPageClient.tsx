@@ -1,26 +1,26 @@
 'use client'
 
 import {
-    DribbbleCard,
-    DribbbleSectionEnter,
-    DribbbleStaggerItem,
-    MarketingPageShell,
-    PillCTA,
-    SectionHeader,
+  DribbbleCard,
+  DribbbleSectionEnter,
+  DribbbleStaggerItem,
+  MarketingPageShell,
+  PillCTA,
+  SectionHeader,
 } from '@/platform/ui'
 import {
-    ArrowRight,
-    Clock,
-    Mail,
-    MessageSquare,
-    Music,
-    Send,
-    Sparkles,
-    User,
-    Users,
+  ArrowRight,
+  Clock,
+  Mail,
+  MessageSquare,
+  Music,
+  Send,
+  Sparkles,
+  User,
+  Users,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 
 // ============ Types ============
 
@@ -59,7 +59,7 @@ function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
     

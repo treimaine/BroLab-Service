@@ -9,7 +9,6 @@
 
 import { ThemeToggle, TopMinimalBar } from '@/platform/ui'
 import { UserButton } from '@clerk/nextjs'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -19,7 +18,6 @@ interface StudioHeaderProps {
 
 export function StudioHeader(_props: StudioHeaderProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false)
-  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0)

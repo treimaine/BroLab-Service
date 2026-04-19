@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { useMemo, useState } from 'react';
+import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
 
 interface FilterOptions {
   status?: string;
@@ -28,11 +28,15 @@ interface FailedTransaction {
   notes?: string;
 }
 
+interface FailedTransactionsDashboardProps {
+  readonly workspaceId?: string;
+}
+
 /**
  * Failed Transactions Monitor Dashboard
  * Real-time admin dashboard for monitoring and managing failed payments
  */
-export function FailedTransactionsDashboard({ workspaceId }: { workspaceId?: string }) {
+export function FailedTransactionsDashboard({ workspaceId }: FailedTransactionsDashboardProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<FailedTransaction | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     status: 'pending_retry',
@@ -42,12 +46,15 @@ export function FailedTransactionsDashboard({ workspaceId }: { workspaceId?: str
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   // Subscribe to real-time transaction updates
-  const allTransactions = useQuery(api.failedTransactions.subscribeToFailedTransactions, {
+  const rawTransactions = useQuery(api.modules.failedTransactions.subscribeToFailedTransactions, {
     workspaceId: workspaceId as Id<'workspaces'> | undefined,
-  }) || [];
+  });
+
+  // Memoize allTransactions to prevent dependency changes
+  const allTransactions = useMemo(() => rawTransactions || [], [rawTransactions]);
 
   // Fetch stats
-  const stats = useQuery(api.failedTransactions.getFailedTransactionStats, {
+  const stats = useQuery(api.modules.failedTransactions.getFailedTransactionStats, {
     workspaceId: workspaceId as Id<'workspaces'> | undefined,
   });
 
@@ -164,7 +171,7 @@ export function FailedTransactionsDashboard({ workspaceId }: { workspaceId?: str
   };
 
   // Show loading state while fetching
-  const isLoading = allTransactions === undefined || stats === undefined;
+  const isLoading = rawTransactions === undefined || stats === undefined;
 
   return (
     <div className="space-y-6 p-6">
@@ -203,8 +210,11 @@ export function FailedTransactionsDashboard({ workspaceId }: { workspaceId?: str
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg border border-gray-200">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+        <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-2">
+          Filter by Status
+        </label>
         <select
+          id="status-filter"
           value={filters.status || ''}
           onChange={(e) =>
             setFilters({
