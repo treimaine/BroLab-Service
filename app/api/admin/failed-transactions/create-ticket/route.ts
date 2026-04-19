@@ -1,15 +1,14 @@
-// @ts-nocheck - Temporary: API types need regeneration
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { ConvexHttpClient } from 'convex/browser';
 import { Resend } from 'resend';
-import { api } from '../../../../../convex/_generated/api';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL || '');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * POST /api/admin/failed-transactions/create-ticket
  * Creates a support ticket for a failed transaction and notifies customer
+ * 
+ * Note: This endpoint creates a support ticket and sends notification email.
+ * The actual ticket creation in Convex is handled by the HTTP endpoint.
  */
 export async function POST(request: Request) {
   try {
@@ -40,11 +39,26 @@ export async function POST(request: Request) {
     // Generate support ticket ID (format: TKT-XXXXXX)
     const ticketId = `TKT-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-    // Create support ticket in database
-    await convex.mutation(api.failedTransactions.createSupportTicket, {
-      transactionId,
-      ticketId,
+    // Call Convex HTTP endpoint to create support ticket
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace('/api', '');
+    const response = await fetch(`${convexUrl}/admin/failed-transactions/create-ticket`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        transactionId,
+        ticketId,
+      }),
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return Response.json(
+        { error: 'Failed to create support ticket', details: error },
+        { status: response.status }
+      );
+    }
 
     // Format amount for email
     const symbols: Record<string, string> = { usd: '$', eur: '€', gbp: '£' };

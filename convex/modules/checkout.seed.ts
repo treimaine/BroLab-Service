@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary: Convex query builder types issue
 /**
  * Test Data Seeding for Checkout E2E Tests
  *
@@ -6,6 +5,7 @@
  * Run before E2E tests to establish valid test data
  */
 
+import type { Id } from "../_generated/dataModel";
 import { internalMutation } from "../_generated/server";
 
 /**
@@ -32,10 +32,9 @@ export const seedCheckoutTestData = internalMutation({
       bpm: 90,
       key: "C",
       status: "published",
-      previewStorageId: "test_storage_001" as any,
-      fullStorageId: "test_storage_full_001" as any,
+      previewStorageId: "test_storage_001" as Id<"_storage">,
+      fullStorageId: "test_storage_full_001" as Id<"_storage">,
       fileSizeBytes: 5000000, // 5MB
-      durationSeconds: 180,
       priceUsdByTier: {
         basic: 29.99,
         premium: 49.99,

@@ -78,9 +78,22 @@ export const seedSampleUserJourneys = internalMutation({
     // Insert all events
     let insertedCount = 0;
     for (const event of allJourneys) {
-      const eventData: any = {
+      const eventData: {
+        userId: string;
+        eventType: "signup" | "email_verified" | "profile_created" | "workspace_created" | "beat_uploaded" | "checkout_started" | "payment_success" | "payment_failed" | "onboarding_completed";
+        timestamp: number;
+        createdAt: number;
+        status?: "blocked" | "completed";
+        blocked_reason?: string;
+        metadata?: {
+          error?: string;
+          stage_duration?: number;
+          retry_count?: number;
+          additional_data?: unknown;
+        };
+      } = {
         userId: event.userId,
-        eventType: event.eventType,
+        eventType: event.eventType as "signup" | "email_verified" | "profile_created" | "workspace_created" | "beat_uploaded" | "checkout_started" | "payment_success" | "payment_failed" | "onboarding_completed",
         timestamp: event.timestamp,
         createdAt: event.timestamp,
       };

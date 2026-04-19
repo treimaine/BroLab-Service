@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary: Convex query builder types issue
 /**
  * Earnings Transparency Dashboard Module
  *
@@ -10,6 +9,7 @@
  */
 
 import { v } from "convex/values";
+import type { MutationCtx } from "../_generated/server";
 import { internalMutation, query } from "../_generated/server";
 
 // ============================================================================
@@ -35,24 +35,14 @@ export const getProducerEarnings = query({
     // Get cached earnings total
     const cachedEarnings = await ctx.db
       .query("sellerEarnings")
-      .withIndex("by_seller", (q) => q.eq("sellerId", sellerId))
+      .filter((q) => q.eq(q.field("sellerId"), sellerId))
       .first();
 
     // Query beat sales for this seller
-    let salesQuery = ctx.db
+    const allSales = await ctx.db
       .query("beatSales")
-      .withIndex("by_seller", (q) => q.eq("sellerId", sellerId));
-
-    // Apply date range filters if provided
-    if (startDate && endDate) {
-      // Note: Convex doesn't support range queries directly in the index chain,
-      // so we'll filter in memory for date range
-      salesQuery = salesQuery.withIndex("by_seller_date", (q) =>
-        q.eq("sellerId", sellerId)
-      );
-    }
-
-    const allSales = await salesQuery.collect();
+      .filter((q) => q.eq(q.field("sellerId"), sellerId))
+      .collect();
 
     // Filter by date range if provided
     let filteredSales = allSales;
@@ -75,8 +65,8 @@ export const getProducerEarnings = query({
     const salesCount = completedSales.length;
 
     // Get recent sales (last 10)
-    const recentSales = completedSales
-      .sort((a, b) => b.soldAt - a.soldAt)
+    const sortedSales = completedSales.toSorted((a, b) => b.soldAt - a.soldAt);
+    const recentSales = sortedSales
       .slice(0, 10)
       .map((sale) => ({
         id: sale._id,
@@ -143,33 +133,29 @@ export const listAllSales = query({
     const validLimit = Math.min(Math.max(limit, 1), 100);
     const validOffset = Math.max(offset, 0);
 
-    // Start query - use index if available
-    let query;
+    // Start query - use filter instead of withIndex
+    let allSales;
     if (sellerId) {
-      query = ctx.db
+      allSales = await ctx.db
         .query("beatSales")
-        .withIndex("by_seller", (q) => q.eq("sellerId", sellerId));
+        .filter((q) => q.eq(q.field("sellerId"), sellerId))
+        .collect();
     } else if (buyerId) {
-      query = ctx.db
+      allSales = await ctx.db
         .query("beatSales")
-        .withIndex("by_buyer", (q) => q.eq("buyerId", buyerId));
+        .filter((q) => q.eq(q.field("buyerId"), buyerId))
+        .collect();
     } else if (status) {
-      query = ctx.db
+      allSales = await ctx.db
         .query("beatSales")
-        .withIndex("by_status", (q) => q.eq("status", status));
+        .filter((q) => q.eq(q.field("status"), status))
+        .collect();
     } else {
-      query = ctx.db.query("beatSales");
+      allSales = await ctx.db.query("beatSales").collect();
     }
 
-    const allSales = await query.collect();
-
-    // Apply filters in memory
+    // Apply additional filters in memory
     let filteredSales = allSales;
-
-    // Filter by additional criteria
-    if (sellerId && !query) filteredSales = filteredSales.filter((s) => s.sellerId === sellerId);
-    if (buyerId && !query) filteredSales = filteredSales.filter((s) => s.buyerId === buyerId);
-    if (status && !query) filteredSales = filteredSales.filter((s) => s.status === status);
 
     if (startDate && endDate) {
       filteredSales = filteredSales.filter(
@@ -178,7 +164,7 @@ export const listAllSales = query({
     }
 
     // Sort by date descending
-    const sorted = filteredSales.sort((a, b) => b.soldAt - a.soldAt);
+    const sorted = filteredSales.toSorted((a, b) => b.soldAt - a.soldAt);
 
     // Paginate
     const total = sorted.length;
@@ -275,7 +261,7 @@ export const getEarningsMetrics = query({
       refundedSales,
       disputedSales,
       averageBeatPrice,
-      refundRate: parseFloat(refundRate.toFixed(2)),
+      refundRate: Number.parseFloat(refundRate.toFixed(2)),
       topSellers,
     };
   },
@@ -392,13 +378,10 @@ export const triggerMonthlyPayoutBatch = query({
       new Date(`${month}-01`).getTime() + 32 * 24 * 60 * 60 * 1000
     ).getTime(); // +32 days to cover full month
 
-    const monthlySales = await ctx.db
-      .query("beatSales")
-      .withIndex("by_date", (q) => q.gte("soldAt", startDate))
-      .collect()
-      .then((sales) =>
-        sales.filter((s) => s.soldAt <= endDate && s.status === "completed")
-      );
+    const allSales = await ctx.db.query("beatSales").collect();
+    const monthlySales = allSales.filter(
+      (s) => s.soldAt >= startDate && s.soldAt <= endDate && s.status === "completed"
+    );
 
     // Group sales by seller
     const payoutsBySellerMap: Record<
@@ -482,11 +465,11 @@ export const triggerMonthlyPayoutBatch = query({
  *
  * @internal
  */
-async function updateSellerEarnings(ctx: any, sellerId: string): Promise<void> {
+async function updateSellerEarnings(ctx: MutationCtx, sellerId: string): Promise<void> {
   // Get all sales for this seller
   const sales = await ctx.db
     .query("beatSales")
-    .withIndex("by_seller", (q) => q.eq("sellerId", sellerId))
+    .filter((q) => q.eq(q.field("sellerId"), sellerId))
     .collect();
 
   // Calculate totals (only completed sales)
@@ -511,7 +494,7 @@ async function updateSellerEarnings(ctx: any, sellerId: string): Promise<void> {
   // Check if earnings record exists
   const existing = await ctx.db
     .query("sellerEarnings")
-    .withIndex("by_seller", (q) => q.eq("sellerId", sellerId))
+    .filter((q) => q.eq(q.field("sellerId"), sellerId))
     .first();
 
   if (existing) {

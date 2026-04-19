@@ -7,14 +7,14 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import {
-    logBookingCreation,
-    logEmailNotification,
-    logEntitlementCreation,
-    logOrderCreation,
-    logSignatureVerificationFailure,
-    logWebhookDuplicate,
-    logWebhookFailure,
-    logWebhookSuccess,
+  logBookingCreation,
+  logEmailNotification,
+  logEntitlementCreation,
+  logOrderCreation,
+  logSignatureVerificationFailure,
+  logWebhookDuplicate,
+  logWebhookFailure,
+  logWebhookSuccess,
 } from "./platform/monitoring";
 
 // Stripe event types
@@ -378,8 +378,8 @@ http.route({
       const url = new URL(request.url);
       const workspaceId = url.searchParams.get("workspaceId");
       const status = url.searchParams.get("status");
-      const limit = Math.min(parseInt(url.searchParams.get("limit") || "50"), 100);
-      const offset = parseInt(url.searchParams.get("offset") || "0");
+      const limit = Math.min(Number.parseInt(url.searchParams.get("limit") || "50"), 100);
+      const offset = Number.parseInt(url.searchParams.get("offset") || "0");
 
       // Query failed transactions with filters
       const results = await ctx.runQuery(
@@ -530,7 +530,7 @@ http.route({
       const body = await request.json() as { notes?: string };
 
       // Generate a support ticket ID (could also integrate with external ticketing system)
-      const ticketId = `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const ticketId = `TICKET-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
       // First, add notes to the transaction
       if (body.notes) {
@@ -692,6 +692,153 @@ async function markEventProcessed(ctx: GenericActionCtx<Record<string, never>>, 
   );
 }
 
+// ============================================================================
+// Checkout Processing Helpers
+// ============================================================================
+
+/**
+ * Process track purchase (entitlement + email)
+ */
+async function processTrackPurchase(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    workspaceId: string;
+    buyerClerkUserId: string;
+    itemId: string;
+    licenseTier: string;
+    buyerEmail: string | undefined;
+    orderId: string;
+    eventId: string;
+  }
+): Promise<void> {
+  const { workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId, eventId } = params;
+  
+  await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
+  logEntitlementCreation({
+    workspaceId,
+    buyerClerkUserId,
+    trackId: itemId,
+    licenseTier,
+  });
+
+  // Requirement 30.2: Send artist purchase confirmation email
+  if (buyerEmail) {
+    try {
+      await sendArtistPurchaseEmailNotification(ctx, {
+        stripeEventId: eventId,
+        buyerEmail,
+        trackId: itemId,
+        licenseTier,
+      });
+      logEmailNotification({
+        type: "purchase_confirmation",
+        recipientEmail: buyerEmail,
+        success: true,
+      });
+    } catch (emailError) {
+      logEmailNotification({
+        type: "purchase_confirmation",
+        recipientEmail: buyerEmail,
+        success: false,
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+      });
+    }
+  }
+}
+
+/**
+ * Process service booking (booking + email)
+ */
+async function processServiceBooking(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    workspaceId: string;
+    buyerClerkUserId: string;
+    itemId: string;
+    buyerEmail: string | undefined;
+    eventId: string;
+  }
+): Promise<void> {
+  const { workspaceId, buyerClerkUserId, itemId, buyerEmail, eventId } = params;
+  
+  await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
+  logBookingCreation({
+    workspaceId,
+    buyerClerkUserId,
+    serviceId: itemId,
+  });
+
+  // Requirement 30.3: Send booking confirmation email
+  if (buyerEmail) {
+    try {
+      await sendBookingConfirmationEmailNotification(ctx, {
+        stripeEventId: eventId,
+        buyerEmail,
+        serviceId: itemId,
+      });
+      logEmailNotification({
+        type: "booking_confirmation",
+        recipientEmail: buyerEmail,
+        success: true,
+      });
+    } catch (emailError) {
+      logEmailNotification({
+        type: "booking_confirmation",
+        recipientEmail: buyerEmail,
+        success: false,
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+      });
+    }
+  }
+}
+
+/**
+ * Record beat sale for earnings dashboard
+ */
+async function recordBeatSaleForEarnings(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    workspaceId: string;
+    itemId: string;
+    buyerClerkUserId: string;
+    amountTotal: number;
+    currency: string;
+    licenseTier: string;
+    orderId: string;
+  }
+): Promise<void> {
+  const { workspaceId, itemId, buyerClerkUserId, amountTotal, currency, licenseTier, orderId } = params;
+  
+  try {
+    // Get workspace to find seller (workspace owner is the producer)
+    const workspace = await ctx.runQuery(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (internal as any).platform.workspaces.getWorkspace,
+      { workspaceId }
+    );
+
+    if (workspace) {
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.earnings.createBeatSale,
+        {
+          beatId: itemId,
+          sellerId: workspace.ownerClerkUserId,
+          buyerId: buyerClerkUserId,
+          amount: amountTotal,
+          currency,
+          licenseTier: licenseTier as "basic" | "premium" | "unlimited",
+          orderId,
+          soldAt: Date.now(),
+        }
+      );
+    }
+  } catch (err) {
+    // Earnings recording failure should not fail the webhook
+    console.error("Failed to record beat sale for earnings dashboard:", err);
+  }
+}
+
 // Handle checkout.session.completed event
 async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, never>>, event: StripeEvent): Promise<Response> {
   const startTime = Date.now();
@@ -747,67 +894,23 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
 
     // Create entitlement or booking
     if (itemType === "track") {
-      await createTrackEntitlement(ctx, workspaceId, buyerClerkUserId, itemId, licenseTier, buyerEmail, orderId);
-      logEntitlementCreation({
+      await processTrackPurchase(ctx, {
         workspaceId,
         buyerClerkUserId,
-        trackId: itemId,
+        itemId,
         licenseTier,
+        buyerEmail,
+        orderId,
+        eventId: event.id,
       });
-
-      // Requirement 30.2: Send artist purchase confirmation email
-      if (buyerEmail) {
-        try {
-          await sendArtistPurchaseEmailNotification(ctx, {
-            stripeEventId: event.id,
-            buyerEmail,
-            trackId: itemId,
-            licenseTier,
-          });
-          logEmailNotification({
-            type: "purchase_confirmation",
-            recipientEmail: buyerEmail,
-            success: true,
-          });
-        } catch (emailError) {
-          logEmailNotification({
-            type: "purchase_confirmation",
-            recipientEmail: buyerEmail,
-            success: false,
-            error: emailError instanceof Error ? emailError.message : String(emailError),
-          });
-        }
-      }
     } else {
-      await createServiceBooking(ctx, workspaceId, buyerClerkUserId, itemId);
-      logBookingCreation({
+      await processServiceBooking(ctx, {
         workspaceId,
         buyerClerkUserId,
-        serviceId: itemId,
+        itemId,
+        buyerEmail,
+        eventId: event.id,
       });
-
-      // Requirement 30.3: Send booking confirmation email
-      if (buyerEmail) {
-        try {
-          await sendBookingConfirmationEmailNotification(ctx, {
-            stripeEventId: event.id,
-            buyerEmail,
-            serviceId: itemId,
-          });
-          logEmailNotification({
-            type: "booking_confirmation",
-            recipientEmail: buyerEmail,
-            success: true,
-          });
-        } catch (emailError) {
-          logEmailNotification({
-            type: "booking_confirmation",
-            recipientEmail: buyerEmail,
-            success: false,
-            error: emailError instanceof Error ? emailError.message : String(emailError),
-          });
-        }
-      }
     }
 
     // Record event
@@ -844,34 +947,15 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
     // Record beat sale for earnings dashboard (BRO-158)
     // Only record for track purchases
     if (itemType === "track") {
-      try {
-        // Get workspace to find seller (workspace owner is the producer)
-        const workspace = await ctx.runQuery(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (internal as any).platform.workspaces.getWorkspace,
-          { workspaceId }
-        );
-
-        if (workspace) {
-          await ctx.runMutation(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (internal as any).modules.earnings.createBeatSale,
-            {
-              beatId: itemId,
-              sellerId: workspace.ownerClerkUserId,
-              buyerId: buyerClerkUserId,
-              amount: amountTotal,
-              currency,
-              licenseTier: licenseTier as "basic" | "premium" | "unlimited",
-              orderId,
-              soldAt: Date.now(),
-            }
-          );
-        }
-      } catch (err) {
-        // Earnings recording failure should not fail the webhook
-        console.error("Failed to record beat sale for earnings dashboard:", err);
-      }
+      await recordBeatSaleForEarnings(ctx, {
+        workspaceId,
+        itemId,
+        buyerClerkUserId,
+        amountTotal,
+        currency,
+        licenseTier,
+        orderId,
+      });
     }
 
     // Mark as processed
@@ -909,8 +993,14 @@ async function handleChargeFailed(ctx: GenericActionCtx<Record<string, never>>, 
   const startTime = Date.now();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const charge = event.data.object as any;
+    const charge = event.data.object as StripeCheckoutSession & {
+      id: string;
+      amount?: number;
+      currency?: string;
+      payment_intent?: string;
+      failure_code?: string;
+      failure_message?: string;
+    };
 
     console.log("Processing charge.failed event:", {
       chargeId: charge.id,
@@ -923,8 +1013,8 @@ async function handleChargeFailed(ctx: GenericActionCtx<Record<string, never>>, 
     const paymentIntentId = charge.payment_intent || charge.id;
 
     // Call the failed transactions module to record the failure
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transactionId = await (ctx.runMutation as any)(
+    const transactionId = await ctx.runMutation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (internal as any).modules.failedTransactions.createFailedTransaction,
       {
         stripePaymentIntentId: paymentIntentId,
@@ -977,8 +1067,11 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
   const startTime = Date.now();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const charge = event.data.object as any;
+    const charge = event.data.object as StripeCheckoutSession & {
+      id: string;
+      amount?: number;
+      payment_intent?: string;
+    };
 
     console.log("Processing charge.refunded event:", {
       chargeId: charge.id,
@@ -986,10 +1079,6 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
       paymentIntentId: charge.payment_intent,
     });
 
-    // Extract payment intent ID from charge
-    const paymentIntentId = charge.payment_intent || charge.id;
-
-    // Find the order by payment intent to get orderId
     // Note: In a real system, you'd have a way to map payment_intent → orderId
     // For now, we'll mark as processed without updating earnings
     // In production, add a mapping table: paymentIntentId → orderId
