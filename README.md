@@ -175,6 +175,18 @@ BroLab Entertainment révolutionne la vente de beats et services audio en élimi
 - **Slug-based routing** (`/orgs/:slug`)
 - **Role-based access control** (RBAC)
 
+### 🤖 Agent Architecture & Governance
+
+This project uses the **[PaperClip AI Architecture Guide](.paperclip/PAPERCLIPAI-ARCHITECTURE.md)** for all agent-based work including CRO analysis, social media monitoring, site audits, and other automated tasks.
+
+**Key Components:**
+- **MCP Tools**: Vercel, Firecrawl, Playwright, Fetch APIs for external integrations
+- **Security Model**: Enforced boundaries (no direct DB access, secrets protected, PII restricted)
+- **Workflows**: Standardized patterns for common agent tasks
+- **Governance**: Training, technical enforcement, code review integration, auditing
+
+See `.paperclip/PAPERCLIPAI-ARCHITECTURE.md` for complete documentation.
+
 ---
 
 ## 🚀 Installation
@@ -433,6 +445,21 @@ Les contributions sont les bienvenues ! Veuillez suivre ces étapes :
 Ce projet est sous licence propriétaire. Tous droits réservés.
 
 ---
+
+## 🤖 PaperClip AI Integration
+
+BroLab Entertainment est configuré pour l'accès automatique des agents PaperClip AI :
+
+- **Quick Start:** [`docs/PAPERCLIPAI-QUICK-START.md`](docs/PAPERCLIPAI-QUICK-START.md)
+- **Setup Guide:** [`docs/PAPERCLIPAI-SETUP.md`](docs/PAPERCLIPAI-SETUP.md)
+- **Full Documentation:** [`docs/AGENT-PRODUCTION-ACCESS.md`](docs/AGENT-PRODUCTION-ACCESS.md)
+- **Auto-loaded Config:** [`.kiro/steering/paperclipai-agent-access.md`](.kiro/steering/paperclipai-agent-access.md)
+
+Les agents ont accès à :
+- ✅ Production URLs (site, Convex, Clerk)
+- ✅ MCP Tools (Vercel, Firecrawl, Playwright, Fetch)
+- ✅ X API (@brolabent, @brolabapp)
+- ✅ CRO Skills (page-cro, paywall-upgrade-cro, marketing-ideas)
 
 ## 📞 Contact & Support
 

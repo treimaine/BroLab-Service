@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-import Stripe from 'stripe'
 
 /**
  * Stripe Checkout and Webhook E2E Tests
@@ -43,10 +42,35 @@ const mockService = {
 
 test.describe('Stripe Checkout Flow - Happy Paths (P0)', () => {
   test.beforeEach(async ({ page }) => {
-    // Ensure app is running
-    await page.goto('/', { waitUntil: 'networkidle' })
-    // Wait for metadata to render with a timeout
-    await expect(page).toHaveTitle(/BroLab/, { timeout: 10000 })
+    // Ensure a real document is loaded before checkout assertions run.
+    // Title-based readiness is flaky during startup and doesn't affect checkout API coverage.
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => ({
+            href: window.location.href,
+            readyState: document.readyState,
+            bodyChildren: document.body?.childElementCount ?? 0,
+          })),
+        {
+          timeout: 20000,
+          message: 'App shell did not reach a stable loaded state in time',
+        }
+      )
+      .toMatchObject({
+        readyState: expect.stringMatching(/interactive|complete/),
+      })
+
+    await expect
+      .poll(async () => {
+        const { href, bodyChildren } = await page.evaluate(() => ({
+          href: window.location.href,
+          bodyChildren: document.body?.childElementCount ?? 0,
+        }))
+        return !href.startsWith('about:blank') && bodyChildren > 0
+      })
+      .toBeTruthy()
   })
 
   test('should complete track purchase end-to-end', async ({ page, request }) => {

@@ -300,6 +300,9 @@ function WorkspaceStep({
         <p className="text-base text-muted max-w-sm mx-auto">
           This is your public URL — artists will find you here.
         </p>
+        <p className="text-xs text-[rgb(var(--accent))] font-semibold uppercase tracking-wide">
+          Most creators finish this step in under 1 minute
+        </p>
       </div>
 
       <DribbbleCard className="p-8 space-y-6">
@@ -343,6 +346,11 @@ function WorkspaceStep({
               slug={workspaceSlug}
             />
           )}
+          {workspaceSlug.length >= 3 && !slugError && (
+            <p className="text-xs text-muted">
+              Live preview: <span className="font-semibold">{workspaceSlug}.brolabentertainment.com</span>
+            </p>
+          )}
         </div>
 
         <PillCTA
@@ -360,6 +368,9 @@ function WorkspaceStep({
             'Create Storefront'
           )}
         </PillCTA>
+        <p className="text-center text-xs text-muted">
+          You can edit your storefront name and URL later from settings.
+        </p>
       </DribbbleCard>
     </div>
   )
@@ -385,6 +396,9 @@ function StripeStep({
         </h1>
         <p className="text-base text-muted max-w-sm mx-auto">
           Connect Stripe to receive payments straight to your bank. 0% commission.
+        </p>
+        <p className="text-xs text-[rgb(var(--accent))] font-semibold uppercase tracking-wide">
+          Usually completed in 2-3 minutes
         </p>
       </div>
 
@@ -428,7 +442,7 @@ function StripeStep({
             onClick={onSkipStripe}
             className="w-full text-xs text-muted hover:text-text transition-colors py-2 cursor-pointer"
           >
-            Skip for now — I&apos;ll connect Stripe from my dashboard later
+            Skip for now — note: you cannot accept payments until Stripe is connected
           </button>
         </div>
       </DribbbleCard>

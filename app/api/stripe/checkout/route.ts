@@ -233,21 +233,59 @@ async function createCheckoutSession(
  */
 async function authenticateUser(request: Request): Promise<string | null> {
   const testAuthHeader = request.headers.get('x-test-user-id')
-  if (testAuthHeader && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
+  const allowTestMode = process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true'
+
+  // Test mode: accept x-test-user-id header
+  if (testAuthHeader && allowTestMode) {
+    console.log('[AUTH] Test mode authentication via x-test-user-id:', testAuthHeader)
     return testAuthHeader
   }
 
-  const auth_result = await auth()
-  return auth_result.userId ?? null
+  // Production mode: use Clerk authentication
+  try {
+    const auth_result = await auth()
+    const userId = auth_result.userId
+
+    if (userId) {
+      console.log('[AUTH] Clerk authentication successful:', userId)
+      return userId
+    }
+
+    // If no userId but request has x-test-user-id, allow it if test mode is enabled
+    if (testAuthHeader && allowTestMode) {
+      console.log('[AUTH] Test mode fallback via x-test-user-id')
+      return testAuthHeader
+    }
+
+    console.log('[AUTH] Clerk auth() returned no userId, test mode not available')
+    return null
+  } catch (error) {
+    console.error('[AUTH] Clerk auth error:', error)
+
+    // Fallback to test mode if enabled
+    if (testAuthHeader && allowTestMode) {
+      console.log('[AUTH] Test mode fallback after auth error')
+      return testAuthHeader
+    }
+
+    return null
+  }
 }
 
 /**
  * Check idempotency cache
  */
 function checkIdempotencyCache(idempotencyKey: string | null): { url: string; sessionId: string } | null {
-  if (idempotencyKey && idempotencyCache.has(idempotencyKey)) {
-    return idempotencyCache.get(idempotencyKey)!
+  if (!idempotencyKey) {
+    return null
   }
+
+  if (idempotencyCache.has(idempotencyKey)) {
+    const cached = idempotencyCache.get(idempotencyKey)!
+    console.log('[IDEMPOTENCY] Cache hit for key:', idempotencyKey)
+    return cached
+  }
+
   return null
 }
 
@@ -255,8 +293,19 @@ function checkIdempotencyCache(idempotencyKey: string | null): { url: string; se
  * Cache idempotency result
  */
 function cacheIdempotencyResult(idempotencyKey: string | null, url: string, sessionId: string): void {
-  if (idempotencyKey && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
-    idempotencyCache.set(idempotencyKey, { url, sessionId })
+  if (!idempotencyKey) {
+    return
+  }
+
+  // Always cache in memory for idempotency
+  // In production, this is ephemeral but still useful for immediate duplicate detection
+  idempotencyCache.set(idempotencyKey, { url, sessionId })
+  console.log('[IDEMPOTENCY] Cached result for key:', idempotencyKey, 'sessionId:', sessionId)
+
+  // Optional: Add cleanup for old cache entries after 1 hour
+  // This prevents memory leaks in long-running servers
+  if (idempotencyCache.size > 1000) {
+    console.warn('[IDEMPOTENCY] Cache size exceeds 1000 entries, consider cleanup')
   }
 }
 

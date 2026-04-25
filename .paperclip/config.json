@@ -52,5 +52,11 @@
     "localEncrypted": {
       "keyFilePath": "C:\\Users\\TREIGUA\\.paperclip-worktrees\\instances\\brolab\\secrets\\master.key"
     }
+  },
+  "editor": {
+    "default": "cursor",
+    "cursor": {
+      "path": "C:\\Users\\TREIGUA\\AppData\\Local\\Programs\\cursor\\Cursor.exe"
+    }
   }
 }

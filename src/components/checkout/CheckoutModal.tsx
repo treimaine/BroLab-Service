@@ -37,6 +37,7 @@ export function CheckoutModal({
   )
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAbandonmentSurvey, setShowAbandonmentSurvey] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   const selectedLicense = licenseTiers.find((t) => t.id === selectedLicenseId)
 
@@ -72,6 +73,7 @@ export function CheckoutModal({
   }
 
   const handleClose = () => {
+    setCheckoutError(null)
     setShowAbandonmentSurvey(true)
     onClose()
   }
@@ -79,6 +81,7 @@ export function CheckoutModal({
   const handleCheckout = async () => {
     if (!selectedLicense) return
 
+    setCheckoutError(null)
     await trackFunnelEvent('select_license', selectedLicense.price * 100)
     setIsProcessing(true)
 
@@ -100,7 +103,9 @@ export function CheckoutModal({
       })
 
       if (!response.ok) {
-        throw new Error(`Checkout failed: ${response.status}`)
+        const errorPayload = await response.json().catch(() => null)
+        const detail = typeof errorPayload?.error === 'string' ? errorPayload.error : `Checkout failed: ${response.status}`
+        throw new Error(detail)
       }
 
       const { url } = await response.json()
@@ -113,7 +118,7 @@ export function CheckoutModal({
       globalThis.location.href = url
     } catch (error) {
       console.error('Checkout error:', error)
-      alert('Failed to start checkout. Please try again.')
+      setCheckoutError(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.')
     } finally {
       setIsProcessing(false)
     }
@@ -234,6 +239,14 @@ export function CheckoutModal({
 
                   {/* Actions */}
                   <div className="space-y-3">
+                    {checkoutError && (
+                      <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                        <p className="font-semibold">Checkout could not be opened</p>
+                        <p className="mt-1 text-red-200/90">
+                          {checkoutError}. Please retry in a few seconds.
+                        </p>
+                      </div>
+                    )}
                     <PillCTA
                       onClick={handleCheckout}
                       disabled={!selectedLicense || isProcessing}
@@ -252,6 +265,9 @@ export function CheckoutModal({
                     >
                       Cancel
                     </button>
+                    <p className="text-center text-xs text-muted">
+                      Checkout usually takes less than 60 seconds.
+                    </p>
                   </div>
 
                   {/* Security Notice */}

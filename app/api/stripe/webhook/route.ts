@@ -57,6 +57,11 @@ export async function POST(request: Request) {
     const convexWebhookUrl = `${CONVEX_CONFIG.url}/api/stripe/webhook`
 
     console.log('Forwarding webhook to Convex:', convexWebhookUrl)
+
+    // Create AbortController for timeout (Node 15+, modern browsers)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
     const convexResponse = await fetch(convexWebhookUrl, {
       method: 'POST',
       headers: {
@@ -64,23 +69,71 @@ export async function POST(request: Request) {
         'stripe-signature': signature,
       },
       body,
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
+
     console.log('Convex webhook response:', convexResponse.status, convexResponse.statusText)
-    let result
+
+    let responseText = ''
     try {
-      const responseText = await convexResponse.text()
-      console.log('Convex response text:', responseText)
-      result = responseText ? JSON.parse(responseText) : {}
-    } catch (parseError) {
-      console.error('Failed to parse Convex response:', parseError)
-      result = { error: 'Failed to parse webhook response' }
+      responseText = await convexResponse.text()
+      console.log('Convex response text:', responseText.substring(0, 500))
+    } catch (textError) {
+      console.error('Failed to read Convex response text:', textError)
+      // If we can't read the response, treat as degraded
+      return NextResponse.json(
+        {
+          received: true,
+          degraded: true,
+          error: 'failed_to_read_response',
+        },
+        { status: 202 }
+      )
+    }
+
+    let result: Record<string, unknown> = {}
+    if (responseText) {
+      try {
+        result = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error('Failed to parse Convex response as JSON:', parseError)
+        console.error('Response was:', responseText.substring(0, 1000))
+        result = {
+          received: true,
+          degraded: true,
+          parseError: 'invalid_json_response',
+          preview: responseText.substring(0, 200),
+        }
+      }
     }
 
     // Add timing info to response
     const duration = Date.now() - startTime
     console.log(`[MONITORING] Webhook ${eventType} processed in ${duration}ms`)
 
+    // If Convex had a server error, still ack webhook (202) so Stripe doesn't retry forever
+    if (convexResponse.status >= 500) {
+      console.warn(`[ALERT] Convex returned 5xx status: ${convexResponse.status}`)
+      return NextResponse.json(
+        {
+          received: true,
+          degraded: true,
+          upstreamStatus: convexResponse.status,
+          ...(Object.keys(result).length ? { upstream: result } : {}),
+        },
+        { status: 202 }
+      )
+    }
+
+    // For 4xx errors, return the error to Stripe so it doesn't retry
+    if (convexResponse.status >= 400) {
+      console.warn(`[ALERT] Convex returned 4xx status: ${convexResponse.status}`)
+      return NextResponse.json(result, { status: convexResponse.status })
+    }
+
+    // For 2xx/3xx success, return the response as-is
     return NextResponse.json(result, { status: convexResponse.status })
   } catch (error) {
     const duration = Date.now() - startTime

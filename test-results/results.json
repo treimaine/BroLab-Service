@@ -96,7 +96,7 @@
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.59.1",
-    "workers": 8,
+    "workers": 1,
     "webServer": {
       "command": "npm run dev",
       "url": "http://localhost:3000",
@@ -115,7 +115,7 @@
         {
           "title": "Stripe Checkout Flow - Happy Paths (P0)",
           "file": "checkout-flow.spec.ts",
-          "line": 44,
+          "line": 43,
           "column": 6,
           "specs": [
             {
@@ -134,12 +134,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2332,
+                      "duration": 2050,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:46.281Z",
+                      "startTime": "2026-04-25T14:51:03.839Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -149,7 +149,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-72cd2c9bd74907cfcaa1",
               "file": "checkout-flow.spec.ts",
-              "line": 51,
+              "line": 76,
               "column": 7
             },
             {
@@ -168,12 +168,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2293,
+                      "duration": 1135,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:48.766Z",
+                      "startTime": "2026-04-25T14:51:05.997Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -183,7 +183,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-813eb59c69c4dfa9cf59",
               "file": "checkout-flow.spec.ts",
-              "line": 130,
+              "line": 155,
               "column": 7
             },
             {
@@ -202,12 +202,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1769,
+                      "duration": 1394,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:51.084Z",
+                      "startTime": "2026-04-25T14:51:07.155Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -217,7 +217,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-6ee8efcd4ccc782d29ac",
               "file": "checkout-flow.spec.ts",
-              "line": 181,
+              "line": 206,
               "column": 7
             }
           ]
@@ -225,7 +225,7 @@
         {
           "title": "Stripe Checkout Flow - Error Scenarios (P1)",
           "file": "checkout-flow.spec.ts",
-          "line": 217,
+          "line": 242,
           "column": 6,
           "specs": [
             {
@@ -244,12 +244,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 42,
+                      "duration": 33,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:52.881Z",
+                      "startTime": "2026-04-25T14:51:08.570Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -259,7 +259,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-3ef5294e6081e9c25fec",
               "file": "checkout-flow.spec.ts",
-              "line": 218,
+              "line": 243,
               "column": 7
             },
             {
@@ -278,12 +278,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 426,
+                      "duration": 415,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:52.942Z",
+                      "startTime": "2026-04-25T14:51:08.615Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -293,7 +293,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-bc020cacec9c5f3f8b1f",
               "file": "checkout-flow.spec.ts",
-              "line": 238,
+              "line": 263,
               "column": 7
             },
             {
@@ -312,12 +312,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 40,
+                      "duration": 35,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.385Z",
+                      "startTime": "2026-04-25T14:51:09.041Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -327,7 +327,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-9d414ea96cba2f26650f",
               "file": "checkout-flow.spec.ts",
-              "line": 265,
+              "line": 290,
               "column": 7
             },
             {
@@ -346,12 +346,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 43,
+                      "duration": 28,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.442Z",
+                      "startTime": "2026-04-25T14:51:09.089Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -361,7 +361,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-42738e8de3abae158b7c",
               "file": "checkout-flow.spec.ts",
-              "line": 295,
+              "line": 320,
               "column": 7
             },
             {
@@ -380,12 +380,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 111,
+                      "duration": 112,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.502Z",
+                      "startTime": "2026-04-25T14:51:09.130Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -395,7 +395,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-b964c4c33480e7df985d",
               "file": "checkout-flow.spec.ts",
-              "line": 326,
+              "line": 351,
               "column": 7
             }
           ]
@@ -403,7 +403,7 @@
         {
           "title": "Stripe Checkout Flow - Edge Cases (P2)",
           "file": "checkout-flow.spec.ts",
-          "line": 361,
+          "line": 386,
           "column": 6,
           "specs": [
             {
@@ -422,12 +422,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 77,
+                      "duration": 64,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.630Z",
+                      "startTime": "2026-04-25T14:51:09.257Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -437,7 +437,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-59307c04c25de0ee282f",
               "file": "checkout-flow.spec.ts",
-              "line": 362,
+              "line": 387,
               "column": 7
             },
             {
@@ -456,12 +456,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 176,
+                      "duration": 117,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.721Z",
+                      "startTime": "2026-04-25T14:51:09.336Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -471,7 +471,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-8772046ccddd29083273",
               "file": "checkout-flow.spec.ts",
-              "line": 412,
+              "line": 437,
               "column": 7
             },
             {
@@ -490,12 +490,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 138,
+                      "duration": 161,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:53.915Z",
+                      "startTime": "2026-04-25T14:51:09.465Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -505,7 +505,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-e84df90610979d0b0ae0",
               "file": "checkout-flow.spec.ts",
-              "line": 448,
+              "line": 473,
               "column": 7
             },
             {
@@ -524,12 +524,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 107,
+                      "duration": 67,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-04-19T12:35:54.075Z",
+                      "startTime": "2026-04-25T14:51:09.640Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -539,7 +539,7 @@
               ],
               "id": "bd61b1856f0a92f3f43c-eddf1dfff47aebcf711c",
               "file": "checkout-flow.spec.ts",
-              "line": 485,
+              "line": 510,
               "column": 7
             }
           ]
@@ -549,8 +549,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-19T12:35:44.554Z",
-    "duration": 9764.068,
+    "startTime": "2026-04-25T14:50:59.766Z",
+    "duration": 10300.454,
     "expected": 12,
     "skipped": 0,
     "unexpected": 0,
