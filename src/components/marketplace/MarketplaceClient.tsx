@@ -8,6 +8,7 @@ import {
   dribbbleStaggerChild,
   dribbbleStaggerContainer
 } from '@/platform/ui'
+import { StatsBanner } from '@/components/hub'
 import { motion } from 'framer-motion'
 import { TrendingUp } from 'lucide-react'
 import Link from 'next/link'
@@ -122,6 +123,20 @@ export default function MarketplaceClient() {
           </motion.div>
         </div>
       </section>
+
+      {/* Creator Stats Banner - Trust Building */}
+      <StatsBanner
+        title="Join Our Creator Community"
+        subtitle="See the success happening on BroLab right now"
+        stats={[
+          { stat: '2,000+', label: 'Active Creators', highlight: true },
+          { stat: '50K+', label: 'Beats Sold' },
+          { stat: '$500K+', label: 'Paid Out', highlight: true },
+          { stat: '100%', label: 'Creator Revenue' }
+        ]}
+        variant="prominent"
+        className="bg-gradient-to-b from-accent/5 to-transparent"
+      />
 
       {/* Marketplace Grid */}
       <section id="beats" className="px-grid-3 pb-grid-10">
