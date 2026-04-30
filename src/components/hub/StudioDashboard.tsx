@@ -15,6 +15,7 @@
 
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
+import { ServicePromoSection } from '@/components/hub'
 import { useUser } from '@clerk/nextjs'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
@@ -363,6 +364,21 @@ export function StudioDashboard() {
                 </a>
               ))}
             </div>
+
+            {/* Revenue Diversification Promo */}
+            <ServicePromoSection
+              title="Expand Your Revenue"
+              description="Offer production services alongside your beats to increase earnings and create more value for artists."
+              features={[
+                'Beat licensing & sales',
+                'Mixing & mastering services',
+                'Music production consulting',
+                'Sound design & composition'
+              ]}
+              ctaText="Manage Services"
+              ctaHref="/studio/services"
+              variant="prominent"
+            />
           </div>
         </motion.div>
       </Authenticated>
