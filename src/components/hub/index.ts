@@ -11,5 +11,9 @@
 export { BillingManagement } from './BillingManagement'
 export { Footer } from './Footer'
 export { Header } from './Header'
+export { StatsBanner } from './StatsBanner'
+export { CreatorStory, CreatorStories } from './CreatorStory'
+export { TrustBadges, TrustFooter, DEFAULT_TRUST_BADGES } from './TrustBadges'
+export { ServicePromoSection, ServicePromoRow } from './ServicePromoSection'
 
 

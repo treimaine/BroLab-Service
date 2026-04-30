@@ -113,17 +113,17 @@ export async function POST(request: Request) {
     const duration = Date.now() - startTime
     console.log(`[MONITORING] Webhook ${eventType} processed in ${duration}ms`)
 
-    // If Convex had a server error, still ack webhook (202) so Stripe doesn't retry forever
+    // If Convex had a server error, return 5xx so Stripe retries delivery.
+    // Acknowledging with 2xx here can drop paid events permanently.
     if (convexResponse.status >= 500) {
       console.warn(`[ALERT] Convex returned 5xx status: ${convexResponse.status}`)
       return NextResponse.json(
         {
-          received: true,
-          degraded: true,
+          error: 'Upstream webhook processing failed',
           upstreamStatus: convexResponse.status,
           ...(Object.keys(result).length ? { upstream: result } : {}),
         },
-        { status: 202 }
+        { status: 502 }
       )
     }
 

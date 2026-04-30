@@ -211,9 +211,9 @@ async function createCheckoutSession(
         },
       ],
       metadata,
-      payment_intent_data: {
-        application_fee_amount: 0, // 0% platform fee for MVP
-      },
+      // Do not send application_fee_amount for 0% fee.
+      // Stripe rejects zero-valued application fees on Checkout payment intents.
+      payment_intent_data: undefined,
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: undefined, // Stripe will prompt for email

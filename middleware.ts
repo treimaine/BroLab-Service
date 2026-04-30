@@ -28,7 +28,11 @@ const isPublicRoute = createRouteMatcher([
   '/terms(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/webhooks(.*)', // Webhooks should be public
+  '/api/webhooks(.*)', // Legacy webhook namespace
+  '/api/stripe/checkout(.*)', // Stripe checkout session creation
+  '/api/stripe/webhook(.*)', // Stripe webhook deliveries
+  '/api/clerk/webhook(.*)', // Clerk webhook deliveries
+  '/api/clerk/billing/webhook(.*)', // Clerk Billing webhook deliveries
 ])
 
 const CONTENT_SECURITY_POLICY = [
@@ -174,6 +178,7 @@ function handleArtistProtection(
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth()
   const pathname = req.nextUrl.pathname
+  const isAuthPath = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')
 
   // ============ STEP 1: STATIC FILE EXCLUSION ============
   const isStaticExt = /\.(css|js|png|gif|svg|ico|csv|zip|webp|webmanifest)$/i.test(pathname)
@@ -189,16 +194,28 @@ export default clerkMiddleware(async (auth, req) => {
   const isOnboardingPath = pathname.startsWith('/onboarding')
   const isPublicPath = isPublicRoute(req)
 
+  // API routes should never be rewritten by tenancy resolution.
+  // Route handlers are responsible for their own auth/validation.
+  if (pathname.startsWith('/api/')) {
+    return applySecurityHeaders(NextResponse.next(), req, pathname)
+  }
+
   // ============ STEP 2: AUTHENTICATION REDIRECTION ============
   if (!userId) {
     if (isStudioPath || isArtistPath || isOnboardingPath) {
       return applySecurityHeaders(NextResponse.redirect(new URL('/sign-in', req.url)), req, pathname)
+    }
+    if (isAuthPath) {
+      return applySecurityHeaders(NextResponse.next(), req, pathname)
     }
     return applySecurityHeaders(await resolveTenancy(req), req, pathname)
   }
 
   // ============ STEP 3: PUBLIC ROUTES (Logged in) ============
   if (isPublicPath) {
+    if (isAuthPath) {
+      return applySecurityHeaders(NextResponse.next(), req, pathname)
+    }
     return applySecurityHeaders(await resolveTenancy(req), req, pathname)
   }
 
