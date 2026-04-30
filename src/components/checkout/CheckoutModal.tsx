@@ -4,6 +4,7 @@ import {
   DribbbleCard,
   PillCTA,
 } from '@/platform/ui'
+import { TrustBadges, DEFAULT_TRUST_BADGES } from '@/components/hub'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Clock, Flame, Loader2, Lock, ShoppingCart, ShieldCheck, Star, X } from 'lucide-react'
 import { useState } from 'react'
@@ -270,28 +271,19 @@ export function CheckoutModal({
                     </p>
                   </div>
 
-                  {/* Security Notice */}
-                  <div className="mt-6 pt-4 border-t border-border">
+                  {/* Security Notice & Trust Badges */}
+                  <div className="mt-6 pt-4 border-t border-border space-y-4">
                     <p className="text-xs text-muted text-center flex items-center justify-center gap-2">
                       <Lock className="w-3 h-3" />
                       Secured by Stripe. Your payment information is never stored.
                     </p>
-                    
-                    {/* Trust Signals */}
-                    <div className="mt-4 flex flex-wrap justify-center gap-4">
-                      <div className="flex items-center gap-1.5 text-xs text-muted">
-                        <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
-                        <span>Secure Checkout</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted">
-                        <Clock className="w-3.5 h-3.5 text-accent" />
-                        <span>Instant Download</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted">
-                        <Star className="w-3.5 h-3.5 text-yellow-500" />
-                        <span>Licensed & Verified</span>
-                      </div>
-                    </div>
+
+                    {/* Trust Badges - Consistent branding */}
+                    <TrustBadges
+                      badges={DEFAULT_TRUST_BADGES}
+                      size="sm"
+                      layout="row"
+                    />
                   </div>
                 </DribbbleCard>
               </motion.div>

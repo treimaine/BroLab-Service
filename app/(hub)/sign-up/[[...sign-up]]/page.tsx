@@ -1,27 +1,33 @@
 import { SignUp } from '@clerk/nextjs'
+import { TrustFooter } from '@/components/hub'
 
 /**
  * Sign Up Page
- * 
+ *
  * Uses Clerk's <SignUp /> component with Dribbble styling configured in root layout.
- * 
+ *
  * Styling:
  * - Glass container with glow effect
  * - Cyan accent colors
  * - Inter font family
  * - Rounded corners (2xl/3xl via borderRadius in ClerkProvider)
  * - Focus-visible rings on interactive elements
- * 
+ *
+ * Security Trust Footer:
+ * - Displays SSL, Stripe, PCI compliance badges
+ * - Reassures users about payment safety
+ * - Positioned at bottom of page for maximum impact
+ *
  * Redirects:
  * - After sign-up: /onboarding (fallback)
  * - Sign-in link: /sign-in
- * 
+ *
  * Requirements: 26.1, 26.2, 26.3, 26.5, 26.6
  */
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen bg-app">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center gap-8 px-4 py-10 lg:flex-row lg:items-center lg:gap-10 lg:px-8">
+    <div className="min-h-screen bg-app flex flex-col">
+      <div className="flex-1 mx-auto flex w-full max-w-6xl flex-col justify-center gap-8 px-4 py-10 lg:flex-row lg:items-center lg:gap-10 lg:px-8">
         <section className="w-full flex-1">
           <div className="mx-auto w-full max-w-md space-y-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))]">
@@ -54,6 +60,9 @@ export default function SignUpPage() {
           />
         </section>
       </div>
+
+      {/* Trust Footer - Security & Payment Trust Badges */}
+      <TrustFooter />
     </div>
   )
 }
