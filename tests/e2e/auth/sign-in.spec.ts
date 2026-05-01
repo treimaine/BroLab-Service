@@ -131,8 +131,11 @@ test.describe('Sign Up Flow', () => {
   })
 
   test('should navigate to sign-up page', async ({ page }) => {
+    // Navigate to home page first to ensure full page load and hydration
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 45000 })
+
     // Use getByRole for better stability across browsers
-    // The CTA button with "Start Free →" (or similar) is more reliable than generic "Sign Up" text
+    // The CTA button with "Get Started →" matches /start/i pattern
     const signUpLink = page.getByRole('link', { name: /start|sign up/i })
 
     // Wait for the link to be interactive
