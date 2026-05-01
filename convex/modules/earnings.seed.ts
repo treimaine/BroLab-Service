@@ -8,7 +8,6 @@
  */
 
 import { internalMutation } from "../_generated/server";
-import { v } from "convex/values";
 
 /**
  * Seed test data for earnings dashboard
@@ -49,7 +48,7 @@ export const seedEarningsTestData = internalMutation({
     ];
 
     // Create test workspace IDs (we'll use fake Convex IDs)
-    const workspaceId1 = "z7x4k2m1p5" as any;
+    // const workspaceId1 = "z7x4k2m1p5" as Id<"workspaces">;
 
     let salesCount = 0;
     const createdSales = [];
@@ -76,7 +75,7 @@ export const seedEarningsTestData = internalMutation({
           amount: priceInfo.amount,
           currency: "usd",
           licenseTier: priceInfo.tier,
-          orderId: `ord_${salesCount++}` as any, // Mock order ID
+          // orderId omitted for test data (optional field)
           status: Math.random() > 0.9 ? "refunded" : "completed", // 10% refunded
           soldAt,
         });
@@ -93,8 +92,8 @@ export const seedEarningsTestData = internalMutation({
 
     // Update seller earnings caches
     for (const sellerId of sellers) {
-      // Get all sales for this seller
-      const sellerSales = createdSales.filter((s) => s.sellerId === sellerId);
+      // Get all sales for this seller (used for logging)
+      // const sellerSales = createdSales.filter((s) => s.sellerId === sellerId);
 
       // Calculate totals (only completed)
       const completedSales = await ctx.db

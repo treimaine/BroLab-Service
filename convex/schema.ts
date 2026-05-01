@@ -413,7 +413,7 @@ export default defineSchema({
     amount: v.number(), // Amount in cents
     currency: v.string(), // "usd", "eur", etc.
     licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
-    orderId: v.id("orders"), // Link to order for transaction details
+    orderId: v.optional(v.id("orders")), // Link to order for transaction details (optional for test data)
     status: v.union(v.literal("completed"), v.literal("refunded"), v.literal("disputed")),
     soldAt: v.number(), // Timestamp when sale was completed
   })

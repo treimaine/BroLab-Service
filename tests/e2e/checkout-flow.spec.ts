@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 /**
  * Stripe Checkout and Webhook E2E Tests
@@ -152,7 +152,7 @@ test.describe('Stripe Checkout Flow - Happy Paths (P0)', () => {
     // - license_pdf_generation job queued
   })
 
-  test('should complete service booking end-to-end', async ({ page, request }) => {
+  test('should complete service booking end-to-end', async ({ request }) => {
     // Step 1: Create checkout session for service
     const checkoutResponse = await request.post(`${TEST_CONFIG.baseUrl}/api/stripe/checkout`, {
       data: {

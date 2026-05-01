@@ -187,7 +187,7 @@ test.describe('JWT Storage Security', () => {
     expect(leakedTokens).toHaveLength(0)
   })
 
-  test('should use secure cookies in production', async ({ page, context }) => {
+  test('should use secure cookies in production', async ({ context }) => {
     // This test should only run in production-like environments
     const isProduction = process.env.NODE_ENV === 'production'
     
@@ -207,7 +207,7 @@ test.describe('JWT Storage Security', () => {
     }
   })
 
-  test('should have SameSite protection on cookies', async ({ page, context }) => {
+  test('should have SameSite protection on cookies', async ({ context }) => {
     const cookies = await context.cookies()
     const clerkCookies = cookies.filter(cookie => 
       cookie.name === '__session' || cookie.name === '__client_uat'

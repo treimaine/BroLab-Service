@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 /**
  * Authentication E2E Tests
@@ -207,7 +207,7 @@ test.describe('Authentication Security', () => {
     expect(foundForbidden).toHaveLength(0)
   })
 
-  test('should use httpOnly cookies for session', async ({ page, context }) => {
+  test('should use httpOnly cookies for session', async ({ context }) => {
     // Get cookies
     const cookies = await context.cookies()
 

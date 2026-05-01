@@ -1,15 +1,15 @@
 'use client'
 
+import { DEFAULT_TRUST_BADGES, TrustBadges } from '@/components/hub'
 import {
   DribbbleCard,
   PillCTA,
 } from '@/platform/ui'
-import { TrustBadges, DEFAULT_TRUST_BADGES } from '@/components/hub'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, Clock, Flame, Loader2, Lock, ShoppingCart, ShieldCheck, Star, X } from 'lucide-react'
+import { ArrowRight, Flame, Loader2, Lock, ShoppingCart, X } from 'lucide-react'
 import { useState } from 'react'
-import { DEFAULT_LICENSE_TIERS, LicenseSelector, type LicenseTier } from './LicenseSelector'
 import { CheckoutAbandonmentSurvey } from './CheckoutAbandonmentSurvey'
+import { DEFAULT_LICENSE_TIERS, LicenseSelector, type LicenseTier } from './LicenseSelector'
 
 interface CheckoutModalProps {
   isOpen: boolean
