@@ -26,8 +26,8 @@ import { motion } from 'framer-motion'
 import { AlertCircle, Plus, Upload, X } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 type FilterStatus = 'all' | 'draft' | 'published'
 

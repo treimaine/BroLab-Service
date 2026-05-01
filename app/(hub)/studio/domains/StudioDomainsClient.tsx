@@ -21,8 +21,8 @@ import { motion } from 'framer-motion'
 import { AlertCircle, CheckCircle2, Clock, Globe, Plus, RefreshCw, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import type { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import type { Id } from 'convex/_generated/dataModel'
 
 type DomainStatus = 'pending' | 'verified' | 'failed'
 

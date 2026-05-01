@@ -17,7 +17,7 @@ import { SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AlertCircle, Check, CreditCard, Database, ExternalLink, Loader2, Music, X, Zap } from 'lucide-react'
 import Link from 'next/link'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 // Helper function to get status badge styles

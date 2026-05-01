@@ -20,8 +20,8 @@ import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { useMutation } from 'convex/react'
 import { Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 interface TrackUploadFormProps {
   readonly workspaceId: Id<'workspaces'>

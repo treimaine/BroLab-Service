@@ -10,8 +10,8 @@ import { SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { api } from '../../../../../convex/_generated/api'
-import { Id } from '../../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
   apiVersion: '2026-03-25.dahlia',

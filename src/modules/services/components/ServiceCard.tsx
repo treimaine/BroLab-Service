@@ -14,8 +14,8 @@ import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { useMutation } from 'convex/react'
 import { Clock, DollarSign, Edit2, Eye, EyeOff, Trash2, Wrench } from 'lucide-react'
 import { useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 interface Service {
   _id: Id<'services'>

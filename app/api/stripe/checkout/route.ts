@@ -17,8 +17,8 @@ import { auth } from '@clerk/nextjs/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {

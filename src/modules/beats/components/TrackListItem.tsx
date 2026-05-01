@@ -20,8 +20,8 @@ import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { useMutation } from 'convex/react'
 import { Music, Play, RefreshCw, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { ProcessingStatusBadge } from './ProcessingStatusBadge'
 
 interface Track {

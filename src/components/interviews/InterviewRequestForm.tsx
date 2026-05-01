@@ -15,7 +15,7 @@ import { useMutation } from 'convex/react'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, Loader2, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 
 export function InterviewRequestForm() {
   const [step, setStep] = useState<'form' | 'success'>('form')

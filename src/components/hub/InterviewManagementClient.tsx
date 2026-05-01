@@ -23,7 +23,7 @@ import {
   Mail,
   X,
 } from 'lucide-react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 function formatDate(timestamp: number | undefined): string {

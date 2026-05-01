@@ -19,8 +19,8 @@ import { useAudioStore } from '@/stores/audio-store'
 import { useQuery } from 'convex/react'
 import { Headphones, Music, Play, Users } from 'lucide-react'
 import Link from 'next/link'
-import { api } from '../../../convex/_generated/api'
-import { Id } from '../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 /**
  * Tenant Storefront Home Page

@@ -21,7 +21,7 @@ import { motion } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 
 type FilterStatus = 'all' | 'active' | 'inactive'
 

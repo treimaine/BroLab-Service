@@ -2,8 +2,8 @@
 
 import { useQuery } from 'convex/react';
 import { useMemo, useState } from 'react';
-import { api } from '../../../convex/_generated/api';
-import { Id } from '../../../convex/_generated/dataModel';
+import { api } from 'convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
 
 interface FilterOptions {
   status?: string;

@@ -15,8 +15,8 @@ import { useQuery } from 'convex/react'
 import { Music, Pause, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 /**
  * Beats List Page

@@ -12,8 +12,8 @@ import { AlertCircle, ArrowLeft, Clock, Pause, Play, ShieldCheck, Zap } from 'lu
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { api } from '../../../../../convex/_generated/api'
-import { Id } from '../../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 type LicenseTier = 'basic' | 'premium' | 'unlimited'
 

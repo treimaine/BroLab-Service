@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import type { PublicPlanInfo } from '../../../convex/platform/billing/plans'
 
 // ============ Pricing Data ============

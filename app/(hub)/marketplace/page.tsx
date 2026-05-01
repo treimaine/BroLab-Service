@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   },
 }
 
+// Server Component - metadata is allowed here
 export default function MarketplacePage() {
   return <MarketplaceClient />
 }

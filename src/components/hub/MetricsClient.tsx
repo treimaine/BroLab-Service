@@ -16,7 +16,7 @@ import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { AuthLoading, Authenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { AlertCircle, BarChart3, Clock, Loader2, ShoppingCart, TrendingUp, Users, Zap } from 'lucide-react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 // Metric card component

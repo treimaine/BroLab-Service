@@ -40,7 +40,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   // Opt out of parallel tests on CI for deterministic webhook handling
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
 
   // Configure projects
   projects: [
@@ -60,7 +60,7 @@ export default defineConfig({
 
   // Web server configuration for running tests against dev server
   webServer: {
-    command: 'npm run dev',
+    command: 'npx next dev --webpack',
     url: 'http://localhost:3000',
     timeout: 120000,
     reuseExistingServer: !process.env.CI,

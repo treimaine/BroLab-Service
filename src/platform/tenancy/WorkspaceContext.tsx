@@ -2,7 +2,7 @@
 
 import { useQuery } from 'convex/react'
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 
 /**
  * Workspace data type

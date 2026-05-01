@@ -7,6 +7,30 @@ on:
     branches: [main, develop]
 
 jobs:
+  technical-enforcement:
+    name: Technical Enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enforce UI surface taxonomy
+        run: npm run lint:surfaces
+
+      - name: Enforce chrome surface tokens
+        run: npm run lint:chrome
+
+      - name: Validate Next.js segment config exports
+        run: node scripts/check-segment-configs.mjs
+
   lint-and-typecheck:
     name: Lint & TypeCheck
     runs-on: ubuntu-latest
@@ -128,7 +152,7 @@ jobs:
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, unit-tests]
+    needs: [technical-enforcement, lint-and-typecheck, unit-tests]
     steps:
       - uses: actions/checkout@v4
 
@@ -152,21 +176,23 @@ jobs:
   qa-summary:
     name: QA Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, unit-tests, integration-tests, e2e-tests, security-tests, build]
+    needs: [technical-enforcement, lint-and-typecheck, unit-tests, integration-tests, e2e-tests, security-tests, build]
     if: always()
     steps:
       - name: Check all jobs status
         run: |
           echo "All QA gates completed!"
-          echo "✅ Lint & TypeCheck: ${{ needs.lint-and-typecheck.result }}"
-          echo "✅ Unit Tests: ${{ needs.unit-tests.result }}"
-          echo "✅ Integration Tests: ${{ needs.integration-tests.result }}"
-          echo "✅ E2E Tests: ${{ needs.e2e-tests.result }}"
-          echo "✅ Security Tests: ${{ needs.security-tests.result }}"
-          echo "✅ Build: ${{ needs.build.result }}"
+          echo "? Technical Enforcement: ${{ needs.technical-enforcement.result }}"
+          echo "? Lint & TypeCheck: ${{ needs.lint-and-typecheck.result }}"
+          echo "? Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "? Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "? E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "? Security Tests: ${{ needs.security-tests.result }}"
+          echo "? Build: ${{ needs.build.result }}"
 
       - name: Fail if any job failed
         if: |
+          needs.technical-enforcement.result == 'failure' ||
           needs.lint-and-typecheck.result == 'failure' ||
           needs.unit-tests.result == 'failure' ||
           needs.integration-tests.result == 'failure' ||
@@ -174,5 +200,5 @@ jobs:
           needs.security-tests.result == 'failure' ||
           needs.build.result == 'failure'
         run: |
-          echo "❌ One or more QA gates failed!"
+          echo "? One or more QA gates failed!"
           exit 1

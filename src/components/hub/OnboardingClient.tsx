@@ -31,8 +31,8 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { api } from '../../../convex/_generated/api'
-import type { Id } from '../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import type { Id } from 'convex/_generated/dataModel'
 import { PostSignupSurvey } from './PostSignupSurvey'
 
 type UserRole = 'producer' | 'engineer' | 'artist'

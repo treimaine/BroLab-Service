@@ -15,8 +15,8 @@ import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { useMutation } from 'convex/react'
 import { Plus, Save, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 
 interface ServiceFormProps {
   readonly workspaceId: Id<'workspaces'>

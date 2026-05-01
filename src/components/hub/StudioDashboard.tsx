@@ -22,7 +22,7 @@ import { motion } from 'framer-motion'
 import { AlertTriangle, CheckCircle2, CreditCard, ExternalLink, Globe, Loader2, Music, Receipt, Wrench } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 const NAV_ITEMS = [

@@ -2,7 +2,7 @@ import { CONVEX_CONFIG } from '@/lib/env'
 import { auth } from '@clerk/nextjs/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
-import { internal } from '../../../../../convex/_generated/api'
+import { internal } from 'convex/_generated/api'
 
 const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
 

@@ -11,8 +11,8 @@ import { RefreshCw, ShoppingCart, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { api } from '../../../convex/_generated/api'
-import type { Id } from '../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import type { Id } from 'convex/_generated/dataModel'
 import { CheckoutAbandonmentSurvey } from './CheckoutAbandonmentSurvey'
 
 export function CheckoutCancel() {

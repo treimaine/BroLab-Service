@@ -18,7 +18,7 @@
     "test:integration": "vitest run tests/integration",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test tests/e2e",
+    "test:e2e": "playwright test",
     "test:security": "playwright test tests/security/",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:security",
     "security:jwt": "bash scripts/verify-jwt-security.sh",

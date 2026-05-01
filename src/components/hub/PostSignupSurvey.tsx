@@ -13,8 +13,8 @@ import { useMutation } from 'convex/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Send, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
-import { api } from '../../../convex/_generated/api'
-import type { Id } from '../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import type { Id } from 'convex/_generated/dataModel'
 
 const SURVEY_OPTIONS = [
   { value: 'zero_commission', label: '0% commission on sales' },

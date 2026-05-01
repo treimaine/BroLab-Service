@@ -19,7 +19,7 @@ import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/re
 import { AlertCircle, CheckCircle, Clock, Download, FileText, Loader2, Music, Package, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 import { ArtistHeader } from './ArtistHeader'
 
 export function ArtistDashboard() {

@@ -16,8 +16,8 @@ import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { Music } from 'lucide-react'
 import { useState } from 'react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { TrackListItem } from './TrackListItem'
 
 interface TrackListProps {

@@ -18,7 +18,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { ArrowRight, Check, Loader2, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { api } from '../../../convex/_generated/api'
+import { api } from 'convex/_generated/api'
 
 type Step = 'form' | 'complete'
 
