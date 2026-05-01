@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary: Convex query builder types issue
 // Convex queries and mutations for Failed Transactions Monitor
 // Implements May Phase: Failed Transactions tracking and retry management
 
@@ -231,15 +230,17 @@ export const getWorkspaceFailedTransactions = query({
     ),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db
+    let transactions = await ctx.db
       .query("failedTransactions")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId));
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .order("desc")
+      .take(1000);
 
+    // Filter by status in memory if provided
     if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+      transactions = transactions.filter((t) => t.status === args.status);
     }
 
-    const transactions = await query.order("desc").take(1000);
     return transactions;
   },
 });
@@ -252,15 +253,18 @@ export const getFailedTransactionStats = query({
     workspaceId: v.optional(v.id("workspaces")),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("failedTransactions");
+    let allTransactions;
 
     if (args.workspaceId) {
-      query = query.withIndex("by_workspace", (q) =>
-        q.eq("workspaceId", args.workspaceId)
-      );
+      allTransactions = await ctx.db
+        .query("failedTransactions")
+        .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+        .take(10000);
+    } else {
+      allTransactions = await ctx.db
+        .query("failedTransactions")
+        .take(10000);
     }
-
-    const allTransactions = await query.take(10000);
 
     const stats = {
       total: allTransactions.length,
@@ -337,14 +341,17 @@ export const subscribeToFailedTransactions = query({
     workspaceId: v.optional(v.id("workspaces")),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("failedTransactions");
-
     if (args.workspaceId) {
-      query = query.withIndex("by_workspace", (q) =>
-        q.eq("workspaceId", args.workspaceId)
-      );
+      return await ctx.db
+        .query("failedTransactions")
+        .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+        .order("desc")
+        .take(100);
     }
 
-    return await query.order("desc").take(100);
+    return await ctx.db
+      .query("failedTransactions")
+      .order("desc")
+      .take(100);
   },
 });
