@@ -63,6 +63,7 @@ convex/**/*.d.ts.map
 # AI Agent configurations (should not be committed)
 .agent/
 .agents/
+.kiro/
 .claude/
 .paperclip/
 .qwen/
