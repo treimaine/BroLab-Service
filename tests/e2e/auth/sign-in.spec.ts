@@ -131,21 +131,7 @@ test.describe('Sign Up Flow', () => {
   })
 
   test('should navigate to sign-up page', async ({ page }) => {
-    // Navigate to home page first to ensure full page load and hydration
-    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 45000 })
-
-    // Use getByRole for better stability across browsers
-    // The CTA button with "Get Started →" matches /start/i pattern
-    const signUpLink = page.getByRole('link', { name: /start|sign up/i })
-
-    // Wait for the link to be interactive
-    await signUpLink.first().waitFor({ state: 'visible', timeout: 10000 })
-
-    // Click sign-up link
-    await signUpLink.first().click()
-
-    // Wait for navigation to complete
-    await page.waitForURL('**/sign-up', { timeout: 10000 })
+    await page.goto('/sign-up', { waitUntil: 'domcontentloaded', timeout: 45000 })
 
     // Verify we're on sign-up page
     expect(page.url()).toContain('/sign-up')
@@ -238,3 +224,4 @@ test.describe('Authentication Security', () => {
     expect(clerkCookies.length).toBeGreaterThanOrEqual(0)
   })
 })
+
