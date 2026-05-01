@@ -59,7 +59,14 @@ convex/**/*.d.ts.map
 *.swo
 .kiro/
 .brv/
+
+# AI Agent configurations (should not be committed)
 .agent/
+.agents/
+.claude/
+.paperclip/
+.qwen/
+.trae/
 .playwright-mcp/
 # Worker build output
 worker/dist/
