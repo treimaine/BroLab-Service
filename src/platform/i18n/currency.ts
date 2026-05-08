@@ -7,7 +7,7 @@
  * - NO automatic currency conversion
  */
 
-import type { Locale } from '@/i18n/config'
+import type { Locale } from './config'
 
 export interface PriceInput {
   /** Price in USD (always required) */

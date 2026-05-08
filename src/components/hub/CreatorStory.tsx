@@ -1,142 +1,145 @@
-import React from 'react'
+'use client'
+
+import { DribbbleCard, DribbbleSectionEnter, DribbbleStaggerItem } from '@/platform/ui'
+import { Quote } from 'lucide-react'
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 export interface CreatorStoryData {
   id: string
   name: string
-  niche: string
-  earnings: string
-  quote: string
+  niche?: string
+  genre?: string
+  role?: string
+  earnings?: string
+  monthlyEarnings?: number
+  quote?: string
+  testimonial?: string
   image?: string
+  avatar?: string
   profileUrl?: string
 }
 
-interface CreatorStoryProps {
-  story: CreatorStoryData
-  variant?: 'card' | 'compact'
-  className?: string
-}
-
-/**
- * CreatorStory Component
- *
- * Displays individual creator success stories
- * Builds trust through social proof and real earnings examples
- *
- * Features:
- * - Creator photo/avatar
- * - Name and niche
- * - Earnings highlight
- * - Testimonial quote
- * - Link to creator profile
- * - Mobile responsive
- */
-export const CreatorStory: React.FC<CreatorStoryProps> = ({
-  story,
-  variant = 'card',
-  className = ''
-}) => {
-  const isCard = variant === 'card'
-
-  return (
-    <div
-      className={`rounded-xl border border-border bg-[rgba(var(--bg-2),0.45)] overflow-hidden transition-all hover:border-[rgb(var(--accent))]/50 hover:shadow-lg ${
-        isCard ? 'p-6' : 'p-4'
-      } ${className}`}
-    >
-      {/* Creator Header */}
-      <div className="flex items-start gap-3 mb-4">
-        {/* Avatar Placeholder */}
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[rgb(var(--accent))]/30 to-[rgb(var(--accent))]/10 flex-shrink-0 flex items-center justify-center">
-          <span className="text-sm font-bold text-[rgb(var(--accent))]">
-            {story.name.charAt(0)}
-          </span>
-        </div>
-
-        {/* Creator Info */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-text truncate">
-            {story.name}
-          </h3>
-          <p className="text-xs text-muted">
-            {story.niche}
-          </p>
-        </div>
-      </div>
-
-      {/* Earnings Highlight */}
-      <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-[rgb(var(--accent))]/15 to-transparent border border-[rgb(var(--accent))]/20">
-        <p className="text-sm font-semibold text-[rgb(var(--accent))]">
-          {story.earnings}
-        </p>
-      </div>
-
-      {/* Quote */}
-      <p className={`text-muted mb-4 line-clamp-3 ${
-        isCard ? 'text-sm' : 'text-xs'
-      }`}>
-        &quot;{story.quote}&quot;
-      </p>
-
-      {/* CTA Link */}
-      {story.profileUrl && (
-        <a
-          href={story.profileUrl}
-          className="text-xs font-semibold text-[rgb(var(--accent))] hover:underline inline-block"
-        >
-          View Profile →
-        </a>
-      )}
-    </div>
-  )
-}
-
 interface CreatorStoriesProps {
-  stories: CreatorStoryData[]
-  title?: string
-  subtitle?: string
-  maxStories?: number
-  className?: string
+  readonly stories: CreatorStoryData[]
+  readonly title?: string
+  readonly subtitle?: string
+  readonly maxStories?: number
+  readonly className?: string
 }
 
+// ============================================================================
+// MOCK DATA (Compatible with existing testimonials)
+// ============================================================================
+
+export const MOCK_CREATOR_STORIES: CreatorStoryData[] = [
+  {
+    id: '1',
+    name: 'Alex Rivers',
+    role: 'Multi-Platinum Producer',
+    niche: 'Hip-Hop/Trap',
+    avatar: 'AR',
+    monthlyEarnings: 3400,
+    earnings: '$3,400/month',
+    quote: "BroLab changed everything for me. I launched my store in 10 minutes and sold my first exclusive beat the next day with 0% commission.",
+    profileUrl: '#',
+  },
+  {
+    id: '2',
+    name: 'Sarah Chen',
+    role: 'Mixing Engineer',
+    niche: 'Electronic/Ambient',
+    avatar: 'SC',
+    monthlyEarnings: 2100,
+    earnings: '$2,100/month',
+    quote: "The automated licensing and Stripe integration are seamless. I can focus on mixing while the platform handles the business.",
+    profileUrl: '#',
+  },
+  {
+    id: '3',
+    name: 'Marcus J',
+    role: 'Independent Artist',
+    niche: 'R&B/Soul',
+    avatar: 'MJ',
+    monthlyEarnings: 5200,
+    earnings: '$5,200/month',
+    quote: "As an artist, I love the clean interface and the high-quality previews. Finding the right beat has never been this professional.",
+    profileUrl: '#',
+  },
+]
+
+// ============================================================================
+// MAIN COMPONENT (Dribbble Design System)
+// ============================================================================
+
 /**
- * CreatorStories Component - Grid/Carousel of success stories
- *
- * Displays multiple creator success stories
- * Builds social proof and conversion confidence
+ * CreatorStories Component
+ * 
+ * Displays creator testimonials with Dribbble design system
+ * Compatible with existing TestimonialSection layout
+ * 
+ * Features:
+ * - Dribbble card styling
+ * - Staggered animations
+ * - Responsive grid
+ * - Optional earnings display
  */
-export const CreatorStories: React.FC<CreatorStoriesProps> = ({
+export function CreatorStories({
   stories,
-  title = 'Creator Success Stories',
-  subtitle = 'See how creators are earning with BroLab',
+  title,
+  subtitle,
   maxStories = 3,
   className = ''
-}) => {
+}: CreatorStoriesProps) {
   const displayStories = stories.slice(0, maxStories)
 
   return (
-    <section className={`w-full py-8 sm:py-12 px-4 sm:px-6 ${className}`}>
-      {/* Header */}
-      <div className="mb-8 max-w-3xl">
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-text mb-2">
-          {title}
-        </h2>
-        <p className="text-base text-muted">
-          {subtitle}
-        </p>
-      </div>
-
-      {/* Stories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {displayStories.map((story) => (
-          <CreatorStory
-            key={story.id}
-            story={story}
-            variant="card"
-          />
-        ))}
+    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+      <div className="container mx-auto max-w-6xl">
+        {(title || subtitle) && (
+          <div className="text-center mb-8">
+            {title && (
+              <h2 className="text-2xl md:text-3xl font-bold text-text mb-2">{title}</h2>
+            )}
+            {subtitle && (
+              <p className="text-muted text-sm">{subtitle}</p>
+            )}
+          </div>
+        )}
+        
+        <DribbbleSectionEnter stagger>
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${className}`}>
+            {displayStories.map((story) => (
+              <DribbbleStaggerItem key={story.id}>
+                <DribbbleCard hoverLift padding="lg" className="h-full flex flex-col justify-between">
+                  <div>
+                    <Quote className="w-8 h-8 text-accent opacity-20 mb-4" />
+                    <p className="text-sm text-text leading-relaxed italic mb-6">
+                      &quot;{story.quote || story.testimonial}&quot;
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent/20 to-accent-2/20 flex items-center justify-center text-xs font-bold text-accent">
+                      {story.avatar || story.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-text uppercase">{story.name}</p>
+                      <p className="text-[10px] text-muted">{story.role || story.niche || story.genre}</p>
+                    </div>
+                  </div>
+                </DribbbleCard>
+              </DribbbleStaggerItem>
+            ))}
+          </div>
+        </DribbbleSectionEnter>
       </div>
     </section>
   )
 }
 
-export default CreatorStory
+// Backward compatibility - Simple card variant
+export const CreatorStory = CreatorStories
+
+export default CreatorStories

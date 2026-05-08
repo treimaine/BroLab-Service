@@ -1,5 +1,6 @@
 'use client'
 
+import { StatsBanner } from '@/components/hub'
 import {
   DribbbleCard,
   OutlineStackTitle,
@@ -8,7 +9,6 @@ import {
   dribbbleStaggerChild,
   dribbbleStaggerContainer
 } from '@/platform/ui'
-import { StatsBanner } from '@/components/hub'
 import { motion } from 'framer-motion'
 import { TrendingUp } from 'lucide-react'
 import Link from 'next/link'
@@ -135,7 +135,7 @@ export default function MarketplaceClient() {
           { stat: '100%', label: 'Creator Revenue' }
         ]}
         variant="prominent"
-        className="bg-gradient-to-b from-accent/5 to-transparent"
+        className="bg-linear-to-b from-accent/5 to-transparent"
       />
 
       {/* Marketplace Grid */}

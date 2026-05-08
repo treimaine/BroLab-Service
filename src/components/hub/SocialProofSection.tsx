@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { CreatorStatsCounter } from './CreatorStatsCounter';
-import { TrustBadges } from './TrustBadges';
-import { CreatorSuccessStories } from './CreatorSuccessStories';
+import { CreatorStatsCounter } from './CreatorStatsCounter'
+import { CreatorStories, MOCK_CREATOR_STORIES } from './CreatorStory'
+import { TrustSection } from './TrustBadges'
 
 /**
- * Phase 2A: Trust Signals & Social Proof
+ * SocialProofSection (formerly Phase2ASection)
  *
  * Composite component integrating three trust-building sections:
  * 1. Creator Stats Counter (homepage hero) - builds confidence through scale
@@ -19,12 +19,15 @@ import { CreatorSuccessStories } from './CreatorSuccessStories';
  * - Semantic HTML with ARIA labels
  * - Performance optimized (lazy loading via Intersection Observer)
  */
-export function Phase2ASection() {
+export function SocialProofSection() {
   return (
     <>
       <CreatorStatsCounter />
-      <TrustBadges />
-      <CreatorSuccessStories />
+      <TrustSection />
+      <CreatorStories stories={MOCK_CREATOR_STORIES} />
     </>
-  );
+  )
 }
+
+// Backward compatibility alias
+export { SocialProofSection as Phase2ASection }

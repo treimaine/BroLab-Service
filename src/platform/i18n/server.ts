@@ -5,8 +5,8 @@
  * from the incoming request's Accept-Language header.
  */
 
-import { detectLocaleFromHeader, type Locale } from '@/i18n/config'
 import { headers } from 'next/headers'
+import { detectLocaleFromHeader, type Locale } from './config'
 
 /**
  * Detect locale from the current request's Accept-Language header.

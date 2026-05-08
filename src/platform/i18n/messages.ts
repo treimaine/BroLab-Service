@@ -1,10 +1,8 @@
 /**
- * i18n public API
+ * i18n Messages API
  *
  * Lightweight translation utility — no external library.
  * Loads message files statically (bundled at build time).
- *
- * Requirements: 25.1, 25.2, 25.3
  */
 
 import type { Locale } from './config'
@@ -54,13 +52,3 @@ export function t(
   // Fallback: return the key itself so missing translations are visible
   return key
 }
-
-export {
-    DEFAULT_LOCALE,
-    SUPPORTED_LOCALES,
-    detectLocaleFromHeader,
-    detectLocaleFromNavigator,
-    normalizeLocale
-} from './config'
-export type { Locale } from './config'
-

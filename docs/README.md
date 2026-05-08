@@ -25,7 +25,7 @@ Bienvenue dans la documentation complète du projet BroLab Entertainment.
 |------|----------------------|
 | **👨‍💼 CEO / Executives** | [Executive Summary](./EXECUTIVE-SUMMARY-MAY-1-2026.md), [Visual Summary](./COMMITS-VISUAL-SUMMARY.md) |
 | **👨‍💻 Lead Engineer** | [Commits Summary](./COMMITS-SUMMARY-MAY-1-2026.md), [Changelog](../CHANGELOG-MAY-2026.md), [Credential Rotation](./BRO-212-CREDENTIAL-ROTATION-CHECKLIST-2026-05-01.md) |
-| **👨‍🎨 Frontend Dev** | [Phase 2A Guide](../src/components/phase-2a/README.md), [Structure](./structure.md), [Architecture](./project-architecture.md) |
+| **👨‍🎨 Frontend Dev** | [Social Proof Integration](./SOCIAL-PROOF-INTEGRATION-MAY-2026.md), [Structure](./structure.md), [Architecture](./project-architecture.md) |
 | **🔧 Backend Dev** | [Tech Stack](./tech.md), [Official Docs](./official-docs.md), [Credential Framework](./CREDENTIAL-ACCESS-FRAMEWORK.md) |
 | **🧪 QA Engineer** | [Test Evidence](./BRO-217-TEST-EVIDENCE-BUNDLE-2026-05-01.md), [Flaky Test Fix](../BRO-219-COMPLETION.md), [Pre-Prod Checklist](./PRE-PRODUCTION-CHECKLIST.md) |
 | **🔐 Security / DevOps** | [Security Checklist](./CREDENTIAL-SECURITY-CHECKLIST.md), [Secrets Audit](./BRO-211-SECRETS-AUDIT-2026-05-01.md), [Rotation Checklist](./BRO-212-CREDENTIAL-ROTATION-CHECKLIST-2026-05-01.md) |
@@ -44,14 +44,15 @@ Bienvenue dans la documentation complète du projet BroLab Entertainment.
 - [BRO-211: Secrets Audit](./BRO-211-SECRETS-AUDIT-2026-05-01.md) - Secrets exposés
 - [BRO-212: Credential Rotation](./BRO-212-CREDENTIAL-ROTATION-CHECKLIST-2026-05-01.md) - Process rotation
 
-#### 🎨 Trust Signals & Social Proof (Phase 2)
-- [Phase 2A Components Guide](../src/components/phase-2a/README.md) - Integration guide
-- [Phase 2A Demo Page](../app/(hub)/phase-2a-demo/page.tsx) - Live demo
-- Composants:
-  - [StatsBanner](../src/components/hub/StatsBanner.tsx)
-  - [CreatorStory](../src/components/hub/CreatorStory.tsx)
-  - [TrustBadges](../src/components/hub/TrustBadges.tsx)
-  - [ServicePromoSection](../src/components/hub/ServicePromoSection.tsx)
+#### 🎨 Trust Signals & Social Proof
+- [Social Proof Integration Guide](./SOCIAL-PROOF-INTEGRATION-MAY-2026.md) - Integration complète
+- [Restructuration Guide](./RESTRUCTURATION-MAY-2026.md) - Migration phase-2a
+- Composants (tous dans `src/components/hub/`):
+  - [CreatorStatsCounter](../src/components/hub/CreatorStatsCounter.tsx) - Métriques animées
+  - [CreatorStories](../src/components/hub/CreatorStory.tsx) - Témoignages créateurs
+  - [TrustBadges](../src/components/hub/TrustBadges.tsx) - Badges de confiance
+  - [StatsBanner](../src/components/hub/StatsBanner.tsx) - Bannière stats
+  - [ServicePromoSection](../src/components/hub/ServicePromoSection.tsx) - Promo services
 
 #### 🧪 Tests & Stabilisation
 - [BRO-217: Test Evidence Bundle](./BRO-217-TEST-EVIDENCE-BUNDLE-2026-05-01.md) - Build fix
@@ -156,7 +157,7 @@ Bienvenue dans la documentation complète du projet BroLab Entertainment.
 **Par Mot-Clé:**
 - **Sécurité** → [Credential Access Framework](./CREDENTIAL-ACCESS-FRAMEWORK.md)
 - **Secrets** → [BRO-211 Secrets Audit](./BRO-211-SECRETS-AUDIT-2026-05-01.md)
-- **Phase 2** → [Phase 2A Guide](../src/components/phase-2a/README.md)
+- **Social Proof** → [Social Proof Integration](./SOCIAL-PROOF-INTEGRATION-MAY-2026.md)
 - **Tests** → [BRO-219 Completion](../BRO-219-COMPLETION.md)
 - **Production** → [Pre-Production Checklist](./PRE-PRODUCTION-CHECKLIST.md)
 

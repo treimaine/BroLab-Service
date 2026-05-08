@@ -50,7 +50,6 @@ export const seedEarningsTestData = internalMutation({
     // Create test workspace IDs (we'll use fake Convex IDs)
     // const workspaceId1 = "z7x4k2m1p5" as Id<"workspaces">;
 
-    let salesCount = 0;
     const createdSales = [];
 
     // Generate sales for each seller

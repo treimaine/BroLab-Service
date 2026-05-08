@@ -8,19 +8,19 @@
  * - Locale is stable for the session (no runtime switching needed for MVP)
  */
 
-import { getMessages, t as translate, type Messages } from '@/i18n'
 import {
-    DEFAULT_LOCALE,
-    detectLocaleFromNavigator,
-    normalizeLocale,
-    type Locale,
-} from '@/i18n/config'
-import {
-    createContext,
-    useContext,
-    useMemo,
-    type ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+  type ReactNode,
 } from 'react'
+import {
+  DEFAULT_LOCALE,
+  detectLocaleFromNavigator,
+  normalizeLocale,
+  type Locale,
+} from './config'
+import { getMessages, t as translate, type Messages } from './messages'
 
 interface LocaleContextValue {
   locale: Locale

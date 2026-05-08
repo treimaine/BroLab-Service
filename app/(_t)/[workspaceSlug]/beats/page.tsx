@@ -1,22 +1,22 @@
 'use client'
 
 import { useWorkspace } from '@/components/tenant'
-import { useTranslation } from '@/i18n/useTranslation'
+import { useTranslation } from '@/platform/i18n/useTranslation'
 import {
-    DribbbleCard,
-    DribbbleSectionEnter,
-    DribbbleStaggerItem,
-    GlassFooter,
-    PillCTA,
-    WavyLines,
+  DribbbleCard,
+  DribbbleSectionEnter,
+  DribbbleStaggerItem,
+  GlassFooter,
+  PillCTA,
+  WavyLines,
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { useQuery } from 'convex/react'
 import { Music, Pause, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { api } from 'convex/_generated/api'
-import { Id } from 'convex/_generated/dataModel'
 
 /**
  * Beats List Page
