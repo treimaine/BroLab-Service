@@ -12,12 +12,12 @@
 'use client'
 
 import { dribbbleStaggerChild, dribbbleStaggerContainer } from '@/platform/ui/dribbble/motion'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { Music } from 'lucide-react'
 import { useState } from 'react'
-import { api } from 'convex/_generated/api'
-import { Id } from 'convex/_generated/dataModel'
 import { TrackListItem } from './TrackListItem'
 
 interface TrackListProps {
@@ -34,14 +34,13 @@ export function TrackList({ workspaceId, status }: TrackListProps) {
     status,
   })
 
-  // Clear messages after 5 seconds
   const showMessage = (message: string, type: 'error' | 'success') => {
     if (type === 'error') {
       setError(message)
-      setTimeout(() => setError(null), 5000)
+      setTimeout(() => setError(null), REQUEST_TIMEOUT_MS.NORMAL)
     } else {
       setSuccess(message)
-      setTimeout(() => setSuccess(null), 5000)
+      setTimeout(() => setSuccess(null), REQUEST_TIMEOUT_MS.NORMAL)
     }
   }
 

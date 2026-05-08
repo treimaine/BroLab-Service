@@ -3,10 +3,6 @@
 import { DribbbleCard, DribbbleSectionEnter, DribbbleStaggerItem } from '@/platform/ui'
 import { Quote } from 'lucide-react'
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export interface CreatorStoryData {
   id: string
   name: string
@@ -29,10 +25,6 @@ interface CreatorStoriesProps {
   readonly maxStories?: number
   readonly className?: string
 }
-
-// ============================================================================
-// MOCK DATA (Compatible with existing testimonials)
-// ============================================================================
 
 export const MOCK_CREATOR_STORIES: CreatorStoryData[] = [
   {
@@ -70,22 +62,6 @@ export const MOCK_CREATOR_STORIES: CreatorStoryData[] = [
   },
 ]
 
-// ============================================================================
-// MAIN COMPONENT (Dribbble Design System)
-// ============================================================================
-
-/**
- * CreatorStories Component
- * 
- * Displays creator testimonials with Dribbble design system
- * Compatible with existing TestimonialSection layout
- * 
- * Features:
- * - Dribbble card styling
- * - Staggered animations
- * - Responsive grid
- * - Optional earnings display
- */
 export function CreatorStories({
   stories,
   title,
@@ -139,7 +115,6 @@ export function CreatorStories({
   )
 }
 
-// Backward compatibility - Simple card variant
 export const CreatorStory = CreatorStories
 
 export default CreatorStories

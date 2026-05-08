@@ -7,14 +7,14 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import {
-  logBookingCreation,
-  logEmailNotification,
-  logEntitlementCreation,
-  logOrderCreation,
-  logSignatureVerificationFailure,
-  logWebhookDuplicate,
-  logWebhookFailure,
-  logWebhookSuccess,
+    logBookingCreation,
+    logEmailNotification,
+    logEntitlementCreation,
+    logOrderCreation,
+    logSignatureVerificationFailure,
+    logWebhookDuplicate,
+    logWebhookFailure,
+    logWebhookSuccess,
 } from "./platform/monitoring";
 
 // Stripe event types
@@ -839,24 +839,14 @@ async function recordBeatSaleForEarnings(
   }
 }
 
-// Handle checkout.session.completed event
 async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, never>>, event: StripeEvent): Promise<Response> {
   const startTime = Date.now();
   const session = event.data.object;
   console.log("Processing checkout.session.completed:", session.id);
 
-  // Validate session metadata
   const validationError = validateSessionMetadata(session);
   if (validationError) {
-    const duration = Date.now() - startTime;
-    logWebhookFailure({
-      eventId: event.id,
-      eventType: event.type,
-      errorCode: "INVALID_METADATA",
-      errorMessage: "Invalid session metadata",
-      duration,
-    });
-    return validationError;
+    return handleValidationFailure(event, startTime, validationError);
   }
 
   const metadata = session.metadata!;
@@ -867,124 +857,233 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
   const connectedAccountId = event.account || null;
 
   try {
-    // Create order
-    console.log("Creating order...");
-    const orderId = await createOrder(ctx, {
+    const orderId = await createOrderFromSession(ctx, {
       workspaceId,
       buyerClerkUserId,
       buyerEmail,
-      stripeSessionId: session.id,
+      session,
       itemType,
       itemId,
       currency,
-      amountCents: amountTotal,
-      licenseTier: itemType === "track" ? licenseTier : undefined,
+      amountTotal,
+      licenseTier,
     });
-    console.log("Order created:", orderId);
 
-    // Log order creation
-    logOrderCreation({
-      orderId,
+    await processItemPurchase(ctx, {
+      itemType,
       workspaceId,
       buyerClerkUserId,
-      itemType: itemType as "track" | "service",
-      amountCents: amountTotal,
+      itemId,
+      licenseTier,
+      buyerEmail,
+      orderId,
+      eventId: event.id,
+      amountTotal,
       currency,
     });
 
-    // Create entitlement or booking
-    if (itemType === "track") {
-      await processTrackPurchase(ctx, {
-        workspaceId,
-        buyerClerkUserId,
-        itemId,
-        licenseTier,
-        buyerEmail,
-        orderId,
-        eventId: event.id,
-      });
-    } else {
-      await processServiceBooking(ctx, {
-        workspaceId,
-        buyerClerkUserId,
-        itemId,
-        buyerEmail,
-        eventId: event.id,
-      });
-    }
-
-    // Record event
-    await recordCheckoutSuccessEvent(ctx, {
+    await recordSuccessMetrics(ctx, {
       workspaceId,
       orderId,
       itemType,
       itemId,
       buyerClerkUserId,
-      amountCents: amountTotal,
+      amountTotal,
       currency,
-      stripeSessionId: session.id,
+      session,
       connectedAccountId,
     });
 
-    // Record onboarding event: payment_success
-    await ctx.runMutation(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).modules.onboardingEvents.recordOnboardingEvent,
-      {
-        userId: buyerClerkUserId,
-        eventType: "payment_success",
-        metadata: {
-          additional_data: {
-            orderId,
-            itemType,
-            amountCents: amountTotal,
-            currency,
-          },
-        },
-      }
-    );
-
-    // Record beat sale for earnings dashboard (BRO-158)
-    // Only record for track purchases
-    if (itemType === "track") {
-      await recordBeatSaleForEarnings(ctx, {
-        workspaceId,
-        itemId,
-        buyerClerkUserId,
-        amountTotal,
-        currency,
-        licenseTier,
-        orderId,
-      });
-    }
-
-    // Mark as processed
     await markEventProcessed(ctx, event.id);
 
-    const duration = Date.now() - startTime;
-    console.log("Webhook processing complete");
-    logWebhookSuccess({
-      eventId: event.id,
-      eventType: event.type,
-      orderId,
-      workspaceId,
-      duration,
+    return handleCheckoutSuccess(event, orderId, workspaceId, startTime);
+  } catch (error) {
+    return handleCheckoutError(event, error, startTime);
+  }
+}
+
+async function createOrderFromSession(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    workspaceId: string;
+    buyerClerkUserId: string;
+    buyerEmail?: string;
+    session: StripeCheckoutSession;
+    itemType: string;
+    itemId: string;
+    currency: string;
+    amountTotal: number;
+    licenseTier: string;
+  }
+): Promise<string> {
+  console.log("Creating order...");
+  
+  const orderId = await createOrder(ctx, {
+    workspaceId: params.workspaceId,
+    buyerClerkUserId: params.buyerClerkUserId,
+    buyerEmail: params.buyerEmail,
+    stripeSessionId: params.session.id,
+    itemType: params.itemType,
+    itemId: params.itemId,
+    currency: params.currency,
+    amountCents: params.amountTotal,
+    licenseTier: params.itemType === "track" ? params.licenseTier : undefined,
+  });
+
+  console.log("Order created:", orderId);
+  
+  logOrderCreation({
+    orderId,
+    workspaceId: params.workspaceId,
+    buyerClerkUserId: params.buyerClerkUserId,
+    itemType: params.itemType as "track" | "service",
+    amountCents: params.amountTotal,
+    currency: params.currency,
+  });
+
+  return orderId;
+}
+
+async function processItemPurchase(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    itemType: string;
+    workspaceId: string;
+    buyerClerkUserId: string;
+    itemId: string;
+    licenseTier: string;
+    buyerEmail?: string;
+    orderId: string;
+    eventId: string;
+    amountTotal: number;
+    currency: string;
+  }
+): Promise<void> {
+  if (params.itemType === "track") {
+    await processTrackPurchase(ctx, {
+      workspaceId: params.workspaceId,
+      buyerClerkUserId: params.buyerClerkUserId,
+      itemId: params.itemId,
+      licenseTier: params.licenseTier,
+      buyerEmail: params.buyerEmail,
+      orderId: params.orderId,
+      eventId: params.eventId,
     });
 
-    return jsonResponse({ received: true, processed: true, orderId }, 200);
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error("Error processing checkout.session.completed:", error);
-    logWebhookFailure({
-      eventId: event.id,
-      eventType: event.type,
-      errorCode: error instanceof Error ? error.name : "CHECKOUT_PROCESSING_ERROR",
-      errorMessage: error instanceof Error ? error.message : String(error),
-      duration,
-      stack: error instanceof Error ? error.stack : undefined,
+    await recordBeatSaleForEarnings(ctx, {
+      workspaceId: params.workspaceId,
+      itemId: params.itemId,
+      buyerClerkUserId: params.buyerClerkUserId,
+      amountTotal: params.amountTotal,
+      currency: params.currency,
+      licenseTier: params.licenseTier,
+      orderId: params.orderId,
     });
-    throw error;
+  } else {
+    await processServiceBooking(ctx, {
+      workspaceId: params.workspaceId,
+      buyerClerkUserId: params.buyerClerkUserId,
+      itemId: params.itemId,
+      buyerEmail: params.buyerEmail,
+      eventId: params.eventId,
+    });
   }
+}
+
+async function recordSuccessMetrics(
+  ctx: GenericActionCtx<Record<string, never>>,
+  params: {
+    workspaceId: string;
+    orderId: string;
+    itemType: string;
+    itemId: string;
+    buyerClerkUserId: string;
+    amountTotal: number;
+    currency: string;
+    session: StripeCheckoutSession;
+    connectedAccountId: string | null;
+  }
+): Promise<void> {
+  await recordCheckoutSuccessEvent(ctx, {
+    workspaceId: params.workspaceId,
+    orderId: params.orderId,
+    itemType: params.itemType,
+    itemId: params.itemId,
+    buyerClerkUserId: params.buyerClerkUserId,
+    amountCents: params.amountTotal,
+    currency: params.currency,
+    stripeSessionId: params.session.id,
+    connectedAccountId: params.connectedAccountId,
+  });
+
+  await ctx.runMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.onboardingEvents.recordOnboardingEvent,
+    {
+      userId: params.buyerClerkUserId,
+      eventType: "payment_success",
+      metadata: {
+        additional_data: {
+          orderId: params.orderId,
+          itemType: params.itemType,
+          amountCents: params.amountTotal,
+          currency: params.currency,
+        },
+      },
+    }
+  );
+}
+
+function handleValidationFailure(
+  event: StripeEvent,
+  startTime: number,
+  validationError: Response
+): Response {
+  const duration = Date.now() - startTime;
+  logWebhookFailure({
+    eventId: event.id,
+    eventType: event.type,
+    errorCode: "INVALID_METADATA",
+    errorMessage: "Invalid session metadata",
+    duration,
+  });
+  return validationError;
+}
+
+function handleCheckoutSuccess(
+  event: StripeEvent,
+  orderId: string,
+  workspaceId: string,
+  startTime: number
+): Response {
+  const duration = Date.now() - startTime;
+  console.log("Webhook processing complete");
+  logWebhookSuccess({
+    eventId: event.id,
+    eventType: event.type,
+    orderId,
+    workspaceId,
+    duration,
+  });
+  return jsonResponse({ received: true, processed: true, orderId }, 200);
+}
+
+function handleCheckoutError(
+  event: StripeEvent,
+  error: unknown,
+  startTime: number
+): Response {
+  const duration = Date.now() - startTime;
+  console.error("Error processing checkout.session.completed:", error);
+  logWebhookFailure({
+    eventId: event.id,
+    eventType: event.type,
+    errorCode: error instanceof Error ? error.name : "CHECKOUT_PROCESSING_ERROR",
+    errorMessage: error instanceof Error ? error.message : String(error),
+    duration,
+    stack: error instanceof Error ? error.stack : undefined,
+  });
+  throw error;
 }
 
 // Handle charge.failed webhook events

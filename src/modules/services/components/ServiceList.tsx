@@ -11,12 +11,12 @@
 
 import { PillCTA } from '@/platform/ui/dribbble/PillCTA'
 import { dribbbleStaggerChild, dribbbleStaggerContainer } from '@/platform/ui/dribbble/motion'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { Plus, Wrench } from 'lucide-react'
 import { useState } from 'react'
-import { api } from 'convex/_generated/api'
-import { Id } from 'convex/_generated/dataModel'
 import { ServiceCard } from './ServiceCard'
 import { ServiceForm } from './ServiceForm'
 
@@ -55,10 +55,10 @@ export function ServiceList({ workspaceId, filterStatus }: ServiceListProps) {
   const showMessage = (message: string, type: 'error' | 'success') => {
     if (type === 'error') {
       setError(message)
-      setTimeout(() => setError(null), 5000)
+      setTimeout(() => setError(null), REQUEST_TIMEOUT_MS.NORMAL)
     } else {
       setSuccess(message)
-      setTimeout(() => setSuccess(null), 5000)
+      setTimeout(() => setSuccess(null), REQUEST_TIMEOUT_MS.NORMAL)
     }
   }
 

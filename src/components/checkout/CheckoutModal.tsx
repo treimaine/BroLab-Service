@@ -2,8 +2,8 @@
 
 import { DEFAULT_TRUST_BADGES, TrustBadges } from '@/components/hub'
 import {
-  DribbbleCard,
-  PillCTA,
+    DribbbleCard,
+    PillCTA,
 } from '@/platform/ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Flame, Loader2, Lock, ShoppingCart, X } from 'lucide-react'
@@ -26,6 +26,82 @@ interface CheckoutModalProps {
   licenseTiers?: LicenseTier[]
 }
 
+const CHECKOUT_TIMEOUT_MESSAGE = 'Checkout usually takes less than 60 seconds.'
+
+async function trackFunnelEvent(
+  step: string,
+  workspaceId: string,
+  trackId: string,
+  amountCents?: number
+): Promise<void> {
+  try {
+    await fetch('/api/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'checkout_funnel',
+        workspaceId,
+        trackId,
+        step,
+        amountCents,
+      }),
+    })
+  } catch (e) {
+    console.error('Failed to track funnel event:', e)
+  }
+}
+
+async function submitAbandonmentSurvey(
+  checkoutSessionId: string,
+  licenseTier: string | undefined,
+  reason: string,
+  customReason?: string
+): Promise<void> {
+  await fetch('/api/analytics/abandonment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      checkoutSessionId,
+      licenseTier,
+      reason,
+      customReason,
+    }),
+  })
+}
+
+async function createCheckoutSession(
+  workspaceId: string,
+  beatId: string,
+  licenseTier: string
+): Promise<{ url: string }> {
+  const response = await fetch('/api/stripe/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      workspaceId,
+      itemType: 'track',
+      itemId: beatId,
+      licenseTier,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null)
+    const detail = typeof errorPayload?.error === 'string' 
+      ? errorPayload.error 
+      : `Checkout failed: ${response.status}`
+    throw new Error(detail)
+  }
+
+  const { url } = await response.json()
+
+  if (!url) {
+    throw new Error('No checkout URL received')
+  }
+
+  return { url }
+}
+
 export function CheckoutModal({
   isOpen,
   onClose,
@@ -42,35 +118,8 @@ export function CheckoutModal({
 
   const selectedLicense = licenseTiers.find((t) => t.id === selectedLicenseId)
 
-  const trackFunnelEvent = async (step: string, amountCents?: number) => {
-    try {
-      await fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'checkout_funnel',
-          workspaceId,
-          trackId: beat.id,
-          step,
-          amountCents,
-        }),
-      })
-    } catch (e) {
-      console.error('Failed to track funnel event:', e)
-    }
-  }
-
   const handleAbandonmentSubmit = async (data: { reason: string; customReason?: string }) => {
-    await fetch('/api/analytics/abandonment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        checkoutSessionId: beat.id,
-        licenseTier: selectedLicense?.id,
-        reason: data.reason,
-        customReason: data.customReason,
-      }),
-    })
+    await submitAbandonmentSurvey(beat.id, selectedLicense?.id, data.reason, data.customReason)
   }
 
   const handleClose = () => {
@@ -83,43 +132,24 @@ export function CheckoutModal({
     if (!selectedLicense) return
 
     setCheckoutError(null)
-    await trackFunnelEvent('select_license', selectedLicense.price * 100)
+    await trackFunnelEvent('select_license', workspaceId, beat.id, selectedLicense.price * 100)
     setIsProcessing(true)
 
     try {
-      await trackFunnelEvent('begin_payment')
+      await trackFunnelEvent('begin_payment', workspaceId, beat.id)
       
-      // Map license tier ID: 'exclusive' → 'unlimited' for API compatibility
       const licenseTier = selectedLicense.id === 'exclusive' ? 'unlimited' : selectedLicense.id
+      const { url } = await createCheckoutSession(workspaceId, beat.id, licenseTier)
 
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId,
-          itemType: 'track',
-          itemId: beat.id,
-          licenseTier,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorPayload = await response.json().catch(() => null)
-        const detail = typeof errorPayload?.error === 'string' ? errorPayload.error : `Checkout failed: ${response.status}`
-        throw new Error(detail)
-      }
-
-      const { url } = await response.json()
-
-      if (!url) {
-        throw new Error('No checkout URL received')
-      }
-
-      await trackFunnelEvent('view_checkout')
+      await trackFunnelEvent('view_checkout', workspaceId, beat.id)
       globalThis.location.href = url
     } catch (error) {
       console.error('Checkout error:', error)
-      setCheckoutError(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.')
+      setCheckoutError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to start checkout. Please try again.'
+      )
     } finally {
       setIsProcessing(false)
     }
@@ -130,7 +160,6 @@ export function CheckoutModal({
       <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - button for a11y (closes modal on click) */}
           <motion.button
             type="button"
             aria-label="Close modal"
@@ -142,7 +171,6 @@ export function CheckoutModal({
             exit={{ opacity: 0 }}
           />
 
-          {/* Modal */}
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <motion.div
@@ -153,7 +181,6 @@ export function CheckoutModal({
                 transition={{ type: 'spring', duration: 0.4 }}
               >
                 <DribbbleCard className="relative p-6 md:p-8">
-                  {/* Close Button */}
                   <button
                     onClick={handleClose}
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card hover:bg-border flex items-center justify-center transition-colors"
@@ -162,7 +189,6 @@ export function CheckoutModal({
                     <X className="w-4 h-4" />
                   </button>
 
-                  {/* Header */}
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent to-accent-2 flex items-center justify-center">
@@ -179,15 +205,11 @@ export function CheckoutModal({
                     </div>
                   </div>
 
-                  {/* Beat Info */}
                   <DribbbleCard padding="sm" className="mb-6 border border-border">
                     <div className="flex items-center gap-4">
-                      {/* Cover Art */}
                       <div className="w-16 h-16 rounded-lg bg-linear-to-br from-accent/20 to-accent-2/10 flex items-center justify-center shrink-0">
                         <span className="text-2xl">🎵</span>
                       </div>
-
-                      {/* Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-lg truncate">{beat.title}</h3>
                         <p className="text-sm text-muted">by {beat.producer}</p>
@@ -209,7 +231,6 @@ export function CheckoutModal({
                     </div>
                   </DribbbleCard>
 
-                  {/* License Selection */}
                   <div className="mb-6">
                     <h3 className="text-sm font-semibold uppercase tracking-wide text-muted mb-3">
                       Choose License
@@ -221,7 +242,6 @@ export function CheckoutModal({
                     />
                   </div>
 
-                  {/* Total */}
                   {selectedLicense && (
                     <div className="mb-6 p-4 rounded-xl bg-accent/5 border border-accent/20">
                       <div className="flex items-center justify-between">
@@ -238,7 +258,6 @@ export function CheckoutModal({
                     </div>
                   )}
 
-                  {/* Actions */}
                   <div className="space-y-3">
                     {checkoutError && (
                       <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -267,18 +286,16 @@ export function CheckoutModal({
                       Cancel
                     </button>
                     <p className="text-center text-xs text-muted">
-                      Checkout usually takes less than 60 seconds.
+                      {CHECKOUT_TIMEOUT_MESSAGE}
                     </p>
                   </div>
 
-                  {/* Security Notice & Trust Badges */}
                   <div className="mt-6 pt-4 border-t border-border space-y-4">
                     <p className="text-xs text-muted text-center flex items-center justify-center gap-2">
                       <Lock className="w-3 h-3" />
                       Secured by Stripe. Your payment information is never stored.
                     </p>
 
-                    {/* Trust Badges - Consistent branding */}
                     <TrustBadges
                       badges={DEFAULT_TRUST_BADGES}
                       size="sm"

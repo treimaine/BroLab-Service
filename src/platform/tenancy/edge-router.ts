@@ -4,25 +4,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
-// ============ CONSTANTS ============
-
-/**
- * Hub domain (main platform domain)
- */
 const HUB_DOMAIN = 'brolabentertainment.com'
 
-/**
- * Vercel preview/production domains (treated as hub)
- */
-const VERCEL_DOMAINS = [
+const VERCEL_DOMAINS = new Set([
   'brolab-service.vercel.app',
-  'brolab-service-git-main-treimaines-projects.vercel.app',
-]
+  'brolab-service-git-main-treiguas-projects.vercel.app',
+])
 
-/**
- * Reserved subdomains that should redirect to hub or return 404
- * These are NOT tenant slugs
- */
 const RESERVED_SUBDOMAINS = new Set([
   'www',
   'app',
@@ -35,44 +23,23 @@ const RESERVED_SUBDOMAINS = new Set([
   'sign-up',
 ])
 
-// ============ HOSTNAME NORMALIZATION ============
-
-/**
- * Normalize hostname
- * - Convert to lowercase
- * - Strip port (for localhost/preview deployments)
- * 
- * Edge-safe: No Node.js APIs used
- */
 export function normalizeHostname(hostname: string): string {
   return hostname.split(':')[0].toLowerCase()
 }
 
-// ============ DOMAIN DETECTION ============
-
-/**
- * Check if hostname is the hub domain
- */
 function isHubDomain(hostname: string): boolean {
   return (
     hostname === HUB_DOMAIN ||
     hostname === `www.${HUB_DOMAIN}` ||
-    VERCEL_DOMAINS.includes(hostname) ||
+    VERCEL_DOMAINS.has(hostname) ||
     hostname.endsWith('.vercel.app') // Allow all Vercel preview deployments
   )
 }
 
-/**
- * Check if hostname is localhost (development)
- */
 function isLocalhost(hostname: string): boolean {
   return hostname === 'localhost' || hostname === '127.0.0.1'
 }
 
-/**
- * Check if hostname is a subdomain of localhost (development)
- * Returns the subdomain slug if true, null otherwise
- */
 function extractLocalhostSubdomain(hostname: string): string | null {
   // Match patterns like: www.localhost, testslug.localhost, etc.
   if (hostname.endsWith('.localhost')) {
@@ -82,10 +49,6 @@ function extractLocalhostSubdomain(hostname: string): string | null {
   return null
 }
 
-/**
- * Check if hostname is a subdomain of the hub
- * Returns the subdomain slug if true, null otherwise
- */
 function extractSubdomain(hostname: string): string | null {
   if (!hostname.endsWith(`.${HUB_DOMAIN}`)) {
     return null
@@ -95,22 +58,10 @@ function extractSubdomain(hostname: string): string | null {
   return subdomain
 }
 
-/**
- * Check if subdomain is reserved
- */
 function isReservedSubdomain(subdomain: string): boolean {
   return RESERVED_SUBDOMAINS.has(subdomain)
 }
 
-// ============ CUSTOM DOMAIN RESOLUTION ============
-
-/**
- * Resolve custom domain to workspace slug via Convex HTTP endpoint
- * Edge-safe: Uses fetch API (available in Edge runtime)
- * 
- * @param hostname - Normalized hostname
- * @returns Workspace slug if domain is verified, null otherwise
- */
 async function resolveCustomDomain(hostname: string): Promise<string | null> {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
   
@@ -139,23 +90,6 @@ async function resolveCustomDomain(hostname: string): Promise<string | null> {
   }
 }
 
-// ============ MAIN TENANCY RESOLVER ============
-
-/**
- * Resolve tenancy from request and route accordingly
- * 
- * Edge-safe: No Node.js-specific APIs (fs, path, etc.)
- * 
- * Flow:
- * 1. Hub domain → NextResponse.next() (serve hub routes)
- * 2. Localhost → NextResponse.next() (serve hub routes in dev)
- * 3. Subdomain → Extract slug, check reserved, rewrite to /_t/[slug]
- * 4. Custom domain → Query Convex, rewrite to /_t/[slug] if verified
- * 5. Unknown domain → 404
- * 
- * @param request - Next.js request object
- * @returns NextResponse (next, rewrite, or redirect)
- */
 export async function resolveTenancy(request: NextRequest): Promise<NextResponse> {
   const rawHost = request.headers.get('host') || ''
   const hostname = normalizeHostname(rawHost)

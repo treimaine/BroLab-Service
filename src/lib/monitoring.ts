@@ -1,29 +1,17 @@
-/**
- * Production Monitoring & Observability
- * Structured logging, metrics, and alerting for Stripe checkout and webhooks
- */
-
 import type {
-  CheckoutAttemptParams,
-  CheckoutFailureParams,
-  CheckoutSuccessParams,
-  DeliveryCompletionParams,
-  HealthStatus,
-  MonitoringEvent,
-  OrderCreationParams,
-  WebhookFailureParams,
-  WebhookReceivedParams,
-  WebhookSuccessParams
+    CheckoutAttemptParams,
+    CheckoutFailureParams,
+    CheckoutSuccessParams,
+    DeliveryCompletionParams,
+    HealthStatus,
+    MonitoringEvent,
+    OrderCreationParams,
+    WebhookFailureParams,
+    WebhookReceivedParams,
+    WebhookSuccessParams
 } from '@/shared/types/monitoring';
 import { SITE_CONFIG } from './env';
 
-// ============================================================================
-// Structured Logging
-// ============================================================================
-
-/**
- * Log structured monitoring event
- */
 export function logMonitoringEvent(event: MonitoringEvent): void {
   const logEntry = {
     ...event,
@@ -46,9 +34,6 @@ export function logMonitoringEvent(event: MonitoringEvent): void {
   }
 }
 
-/**
- * Log checkout session creation attempt
- */
 export function logCheckoutAttempt(params: CheckoutAttemptParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -67,9 +52,6 @@ export function logCheckoutAttempt(params: CheckoutAttemptParams): void {
   });
 }
 
-/**
- * Log checkout session creation success
- */
 export function logCheckoutSuccess(params: CheckoutSuccessParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -90,9 +72,6 @@ export function logCheckoutSuccess(params: CheckoutSuccessParams): void {
   });
 }
 
-/**
- * Log checkout failure
- */
 export function logCheckoutFailure(params: CheckoutFailureParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -115,9 +94,6 @@ export function logCheckoutFailure(params: CheckoutFailureParams): void {
   });
 }
 
-/**
- * Log webhook event received
- */
 export function logWebhookReceived(params: WebhookReceivedParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -133,9 +109,6 @@ export function logWebhookReceived(params: WebhookReceivedParams): void {
   });
 }
 
-/**
- * Log webhook processing success
- */
 export function logWebhookSuccess(params: WebhookSuccessParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -153,9 +126,6 @@ export function logWebhookSuccess(params: WebhookSuccessParams): void {
   });
 }
 
-/**
- * Log webhook processing failure
- */
 export function logWebhookFailure(params: WebhookFailureParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -176,9 +146,6 @@ export function logWebhookFailure(params: WebhookFailureParams): void {
   });
 }
 
-/**
- * Log webhook duplicate detected
- */
 export function logWebhookDuplicate(eventId: string, eventType: string): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -193,9 +160,6 @@ export function logWebhookDuplicate(eventId: string, eventType: string): void {
   });
 }
 
-/**
- * Log signature verification failure
- */
 export function logSignatureVerificationFailure(reason: string): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -210,9 +174,6 @@ export function logSignatureVerificationFailure(reason: string): void {
   });
 }
 
-/**
- * Log order creation success
- */
 export function logOrderCreation(params: OrderCreationParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -231,9 +192,6 @@ export function logOrderCreation(params: OrderCreationParams): void {
   });
 }
 
-/**
- * Log delivery completion
- */
 export function logDeliveryCompletion(params: DeliveryCompletionParams): void {
   logMonitoringEvent({
     timestamp: Date.now(),
@@ -250,14 +208,6 @@ export function logDeliveryCompletion(params: DeliveryCompletionParams): void {
   });
 }
 
-// ============================================================================
-// Monitoring Service Integration
-// ============================================================================
-
-/**
- * Send monitoring event to external service
- * Integrates with DataDog, New Relic, or custom endpoint
- */
 async function sendToMonitoringService(logEntry: unknown): Promise<void> {
   const endpoint = process.env.MONITORING_ENDPOINT;
   const apiKey = process.env.MONITORING_API_KEY;
@@ -283,14 +233,6 @@ async function sendToMonitoringService(logEntry: unknown): Promise<void> {
   }
 }
 
-// ============================================================================
-// Health Check Helpers
-// ============================================================================
-
-/**
- * Generate current health metrics (in-memory from logs)
- * For production, integrate with time-series database
- */
 export function getCheckoutHealthStatus(): HealthStatus {
   // This is a simplified in-memory implementation
   // In production, query metrics from database/monitoring service

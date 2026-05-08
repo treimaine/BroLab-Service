@@ -1,0 +1,1836 @@
+================================================================================
+CLEAN CODE AUDIT REPORT
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total files with violations: 164
+Total violations: 577
+
+By Severity:
+  ERROR: 0
+  INFO: 254
+  WARNING: 323
+
+By Type:
+  SECTION_DIVIDER: 198
+  LONG_FUNCTION: 153
+  EXCESSIVE_JSDOC: 116
+  MAGIC_NUMBER: 54
+  OBVIOUS_JSX_COMMENT: 52
+  OBVIOUS_COMMENT: 4
+
+================================================================================
+
+DETAILED VIOLATIONS
+--------------------------------------------------------------------------------
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\.paperclip\scripts\get-metrics.js (1 violations)
+--------------------------------------------------------------------------------
+  Line 5: [WARNING] LONG_FUNCTION
+    Function is 61 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\.paperclip\scripts\get-signups.js (1 violations)
+--------------------------------------------------------------------------------
+  Line 5: [WARNING] LONG_FUNCTION
+    Function is 38 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\beats\[id]\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 181: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\beats\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 183: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\contact\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 186: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\layout.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] LONG_FUNCTION
+    Function is 43 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\page.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 142: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 363: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(_t)\[workspaceSlug]\services\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 152: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\(marketing)\about\AboutPageClient.tsx (6 violations)
+--------------------------------------------------------------------------------
+  Line 23: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 66: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 68: [WARNING] LONG_FUNCTION
+    Function is 50 lines long (max 30 recommended)
+  Line 150: [WARNING] LONG_FUNCTION
+    Function is 53 lines long (max 30 recommended)
+  Line 204: [WARNING] LONG_FUNCTION
+    Function is 47 lines long (max 30 recommended)
+  Line 252: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\(marketing)\layout.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 9: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\(marketing)\loading.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 40: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\(marketing)\privacy\page.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 62: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 80: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\(marketing)\terms\page.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 62: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 83: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 215: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\onboarding\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 33: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\sign-in\[[...sign-in]]\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\sign-up\[[...sign-up]]\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 23 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\domains\StudioDomainsClient.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 47: [WARNING] LONG_FUNCTION
+    Function is 362 lines long (max 30 recommended)
+  Line 362: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\domains\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\services\StudioServicesClient.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 28: [WARNING] LONG_FUNCTION
+    Function is 103 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\services\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\tracks\StudioTracksClient.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 15 lines long (max 10 recommended)
+  Line 34: [WARNING] LONG_FUNCTION
+    Function is 247 lines long (max 30 recommended)
+  Line 66: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 73: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\(hub)\studio\tracks\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\admin\failed-transactions\create-ticket\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] LONG_FUNCTION
+    Function is 108 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\admin\failed-transactions\retry\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 10: [WARNING] LONG_FUNCTION
+    Function is 71 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\analytics\track\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 8: [WARNING] LONG_FUNCTION
+    Function is 38 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\monitoring\metrics\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 38: [WARNING] LONG_FUNCTION
+    Function is 39 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\stripe\checkout\route.ts (16 violations)
+--------------------------------------------------------------------------------
+  Line 34: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 36: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 63: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 65: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 101: [WARNING] LONG_FUNCTION
+    Function is 42 lines long (max 30 recommended)
+  Line 227: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 229: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 234: [WARNING] LONG_FUNCTION
+    Function is 40 lines long (max 30 recommended)
+  Line 312: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 314: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 385: [WARNING] LONG_FUNCTION
+    Function is 69 lines long (max 30 recommended)
+  Line 491: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 493: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 574: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 576: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 578: [WARNING] LONG_FUNCTION
+    Function is 70 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\stripe\connect\callback\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 22: [WARNING] LONG_FUNCTION
+    Function is 113 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\stripe\connect\login-link\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 23: [WARNING] LONG_FUNCTION
+    Function is 37 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\stripe\connect\route.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 12: [WARNING] LONG_FUNCTION
+    Function is 44 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\api\stripe\webhook\route.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 15: [WARNING] LONG_FUNCTION
+    Function is 136 lines long (max 30 recommended)
+  Line 63: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\layout.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 59: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 112: [INFO] OBVIOUS_COMMENT
+    Obvious comment that should be removed
+  Line 116: [INFO] OBVIOUS_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\app\tenant-demo\page.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 118: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\_generated\dataModel.d.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 35: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\_generated\server.d.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 64: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 85: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\_generated\server.js (2 violations)
+--------------------------------------------------------------------------------
+  Line 61: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 82: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\http.ts (11 violations)
+--------------------------------------------------------------------------------
+  Line 626: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 628: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 695: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 697: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 842: [WARNING] LONG_FUNCTION
+    Function is 62 lines long (max 30 recommended)
+  Line 1091: [WARNING] LONG_FUNCTION
+    Function is 71 lines long (max 30 recommended)
+  Line 1165: [WARNING] LONG_FUNCTION
+    Function is 54 lines long (max 30 recommended)
+  Line 1319: [WARNING] LONG_FUNCTION
+    Function is 34 lines long (max 30 recommended)
+  Line 1355: [WARNING] LONG_FUNCTION
+    Function is 60 lines long (max 30 recommended)
+  Line 1426: [WARNING] LONG_FUNCTION
+    Function is 86 lines long (max 30 recommended)
+  Line 1543: [WARNING] LONG_FUNCTION
+    Function is 88 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\analytics.ts (9 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 18: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 74: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 153: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 206: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 249: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 298: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 368: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 404: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\beats.ts (14 violations)
+--------------------------------------------------------------------------------
+  Line 15: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 17: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 30: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 32: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 34: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 116: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 344: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 433: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 596: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 598: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 600: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 690: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 851: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 853: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\earnings.ts (7 violations)
+--------------------------------------------------------------------------------
+  Line 15: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 17: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 270: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 272: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 456: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 458: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 468: [WARNING] LONG_FUNCTION
+    Function is 51 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\failedTransactions.ts (5 violations)
+--------------------------------------------------------------------------------
+  Line 133: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 157: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 171: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 262: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 266: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\marketplace.ts (3 violations)
+--------------------------------------------------------------------------------
+  Line 14: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 16: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 18: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\retryScheduler.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 22: [WARNING] LONG_FUNCTION
+    Function is 113 lines long (max 30 recommended)
+  Line 136: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\modules\services.ts (10 violations)
+--------------------------------------------------------------------------------
+  Line 14: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 16: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 96: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 98: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 304: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 306: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 348: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 350: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 389: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 391: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\auditLogs.ts (6 violations)
+--------------------------------------------------------------------------------
+  Line 9: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 31: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 33: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 68: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 146: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 148: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\billing\clerkBillingSync.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 16: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\billing\plans.ts (8 violations)
+--------------------------------------------------------------------------------
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 14: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 97: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 99: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 145: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 147: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 191: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 193: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\domains.ts (5 violations)
+--------------------------------------------------------------------------------
+  Line 11: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 15: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 60: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 149: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 377: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\emailEvents.ts (4 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 20: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 71: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 99: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\email\actions.ts (7 violations)
+--------------------------------------------------------------------------------
+  Line 126: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 135: [WARNING] LONG_FUNCTION
+    Function is 44 lines long (max 30 recommended)
+  Line 207: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 362: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 371: [WARNING] LONG_FUNCTION
+    Function is 55 lines long (max 30 recommended)
+  Line 530: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 539: [WARNING] LONG_FUNCTION
+    Function is 46 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\entitlements.example.ts (7 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 17: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 73: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 105: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 142: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 179: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 228: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\entitlements.ts (12 violations)
+--------------------------------------------------------------------------------
+  Line 13: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 15: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 42: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 44: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 46: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 94: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 139: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 19 lines long (max 10 recommended)
+  Line 158: [WARNING] LONG_FUNCTION
+    Function is 74 lines long (max 30 recommended)
+  Line 238: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 240: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 258: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 20 lines long (max 10 recommended)
+  Line 319: [WARNING] LONG_FUNCTION
+    Function is 42 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\events.ts (5 violations)
+--------------------------------------------------------------------------------
+  Line 9: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 31: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 59: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 147: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 149: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\jobs.ts (15 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 21 lines long (max 10 recommended)
+  Line 27: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 77: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 90: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 92: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 20 lines long (max 10 recommended)
+  Line 135: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 187: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 219: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+  Line 259: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 304: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 342: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 344: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+  Line 396: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+  Line 448: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+  Line 513: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\monitoring.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 10: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\storage.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\users.ts (4 violations)
+--------------------------------------------------------------------------------
+  Line 9: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 13: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 41: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 209: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\platform\workspaces.ts (5 violations)
+--------------------------------------------------------------------------------
+  Line 10: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 15: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 89: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 179: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 292: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\convex\schema.ts (8 violations)
+--------------------------------------------------------------------------------
+  Line 9: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 103: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 202: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 247: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 255: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 344: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 375: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 407: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\middleware.ts (7 violations)
+--------------------------------------------------------------------------------
+  Line 5: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 15 lines long (max 10 recommended)
+  Line 66: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 183: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 203: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 214: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 222: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 245: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\playwright.config.ts (4 violations)
+--------------------------------------------------------------------------------
+  Line 17: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 21: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 27: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 64: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\admin\FailedTransactionsDashboard.test.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 22: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 42: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\admin\FailedTransactionsDashboard.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 39: [WARNING] LONG_FUNCTION
+    Function is 418 lines long (max 30 recommended)
+  Line 178: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 419: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\artist\MyPurchasesClient.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 66: [WARNING] LONG_FUNCTION
+    Function is 189 lines long (max 30 recommended)
+  Line 93: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\audio\EnhancedGlobalAudioPlayer.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+  Line 24: [WARNING] LONG_FUNCTION
+    Function is 211 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\audio\PlayerBar.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 25: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 28 lines long (max 10 recommended)
+  Line 53: [WARNING] LONG_FUNCTION
+    Function is 213 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\audio\index.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\beats\WaveformVisualizer.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 14: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 26: [WARNING] LONG_FUNCTION
+    Function is 90 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\CheckoutAbandonmentSurvey.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 35: [WARNING] LONG_FUNCTION
+    Function is 128 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\CheckoutCancel.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 18: [WARNING] LONG_FUNCTION
+    Function is 154 lines long (max 30 recommended)
+  Line 58: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 98: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\CheckoutModal.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 105: [WARNING] LONG_FUNCTION
+    Function is 218 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\CheckoutSuccess.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 31: [WARNING] LONG_FUNCTION
+    Function is 305 lines long (max 30 recommended)
+  Line 57: [WARNING] LONG_FUNCTION
+    Function is 44 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\InstantDelivery.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 15: [WARNING] LONG_FUNCTION
+    Function is 105 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\checkout\LicenseSelector.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 22: [WARNING] LONG_FUNCTION
+    Function is 91 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\AboutPageClient.tsx (6 violations)
+--------------------------------------------------------------------------------
+  Line 23: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 66: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 68: [WARNING] LONG_FUNCTION
+    Function is 50 lines long (max 30 recommended)
+  Line 150: [WARNING] LONG_FUNCTION
+    Function is 53 lines long (max 30 recommended)
+  Line 204: [WARNING] LONG_FUNCTION
+    Function is 47 lines long (max 30 recommended)
+  Line 252: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\ArtistDashboard.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 25: [WARNING] LONG_FUNCTION
+    Function is 65 lines long (max 30 recommended)
+  Line 91: [WARNING] LONG_FUNCTION
+    Function is 226 lines long (max 30 recommended)
+  Line 318: [WARNING] LONG_FUNCTION
+    Function is 39 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\ArtistHeader.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 15: [WARNING] LONG_FUNCTION
+    Function is 41 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\AuthNav.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 25: [WARNING] LONG_FUNCTION
+    Function is 77 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\BillingManagement.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 34: [WARNING] LONG_FUNCTION
+    Function is 330 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\ContactPageClient.tsx (7 violations)
+--------------------------------------------------------------------------------
+  Line 25: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 36: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 50: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 52: [WARNING] LONG_FUNCTION
+    Function is 149 lines long (max 30 recommended)
+  Line 202: [WARNING] LONG_FUNCTION
+    Function is 55 lines long (max 30 recommended)
+  Line 279: [WARNING] LONG_FUNCTION
+    Function is 40 lines long (max 30 recommended)
+  Line 320: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\CreateWorkspaceClient.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 45: [WARNING] LONG_FUNCTION
+    Function is 149 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\CreatorStatsCounter.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 38: [WARNING] LONG_FUNCTION
+    Function is 78 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\CreatorStory.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 65: [WARNING] LONG_FUNCTION
+    Function is 52 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\FAQSection.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 41: [WARNING] LONG_FUNCTION
+    Function is 50 lines long (max 30 recommended)
+  Line 92: [WARNING] LONG_FUNCTION
+    Function is 31 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\Footer.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 9: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 19 lines long (max 10 recommended)
+  Line 28: [WARNING] LONG_FUNCTION
+    Function is 176 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\Header.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 20: [WARNING] LONG_FUNCTION
+    Function is 41 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\HeroSection.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 64: [WARNING] LONG_FUNCTION
+    Function is 93 lines long (max 30 recommended)
+  Line 93: [WARNING] LONG_FUNCTION
+    Function is 93 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\InterviewManagementClient.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 64: [WARNING] LONG_FUNCTION
+    Function is 112 lines long (max 30 recommended)
+  Line 177: [WARNING] LONG_FUNCTION
+    Function is 139 lines long (max 30 recommended)
+  Line 207: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\LandingSections.tsx (8 violations)
+--------------------------------------------------------------------------------
+  Line 93: [WARNING] LONG_FUNCTION
+    Function is 39 lines long (max 30 recommended)
+  Line 157: [WARNING] LONG_FUNCTION
+    Function is 41 lines long (max 30 recommended)
+  Line 199: [WARNING] LONG_FUNCTION
+    Function is 60 lines long (max 30 recommended)
+  Line 260: [WARNING] LONG_FUNCTION
+    Function is 103 lines long (max 30 recommended)
+  Line 364: [WARNING] LONG_FUNCTION
+    Function is 136 lines long (max 30 recommended)
+  Line 501: [WARNING] LONG_FUNCTION
+    Function is 59 lines long (max 30 recommended)
+  Line 561: [WARNING] LONG_FUNCTION
+    Function is 56 lines long (max 30 recommended)
+  Line 618: [WARNING] LONG_FUNCTION
+    Function is 31 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\MarketingHeader.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 17: [WARNING] LONG_FUNCTION
+    Function is 80 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\MetricsClient.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 23: [WARNING] LONG_FUNCTION
+    Function is 56 lines long (max 30 recommended)
+  Line 103: [WARNING] LONG_FUNCTION
+    Function is 347 lines long (max 30 recommended)
+  Line 154: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 432: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\OnboardingClient.tsx (12 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 83: [WARNING] LONG_FUNCTION
+    Function is 50 lines long (max 30 recommended)
+  Line 190: [WARNING] LONG_FUNCTION
+    Function is 77 lines long (max 30 recommended)
+  Line 270: [WARNING] LONG_FUNCTION
+    Function is 108 lines long (max 30 recommended)
+  Line 381: [WARNING] LONG_FUNCTION
+    Function is 71 lines long (max 30 recommended)
+  Line 455: [WARNING] LONG_FUNCTION
+    Function is 53 lines long (max 30 recommended)
+  Line 511: [WARNING] LONG_FUNCTION
+    Function is 263 lines long (max 30 recommended)
+  Line 568: [WARNING] LONG_FUNCTION
+    Function is 33 lines long (max 30 recommended)
+  Line 602: [WARNING] LONG_FUNCTION
+    Function is 36 lines long (max 30 recommended)
+  Line 648: [WARNING] LONG_FUNCTION
+    Function is 34 lines long (max 30 recommended)
+  Line 699: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 716: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\PostSignupSurvey.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 38: [WARNING] LONG_FUNCTION
+    Function is 147 lines long (max 30 recommended)
+  Line 94: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 116: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\PricingPageClient.tsx (8 violations)
+--------------------------------------------------------------------------------
+  Line 29: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 92: [WARNING] LONG_FUNCTION
+    Function is 53 lines long (max 30 recommended)
+  Line 189: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 213: [WARNING] LONG_FUNCTION
+    Function is 88 lines long (max 30 recommended)
+  Line 325: [WARNING] LONG_FUNCTION
+    Function is 43 lines long (max 30 recommended)
+  Line 369: [WARNING] LONG_FUNCTION
+    Function is 31 lines long (max 30 recommended)
+  Line 429: [WARNING] LONG_FUNCTION
+    Function is 46 lines long (max 30 recommended)
+  Line 476: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\PrivacyPageClient.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 30: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\ServicePromoSection.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 51: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 53: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\StatsBanner.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 17: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 40: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 72: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\StudioDashboard.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 105: [WARNING] LONG_FUNCTION
+    Function is 283 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\StudioHeader.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 19: [WARNING] LONG_FUNCTION
+    Function is 41 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\hub\TermsPageClient.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 33: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 160: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\interviews\InterviewRequestForm.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 20: [WARNING] LONG_FUNCTION
+    Function is 246 lines long (max 30 recommended)
+  Line 34: [WARNING] LONG_FUNCTION
+    Function is 31 lines long (max 30 recommended)
+  Line 141: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\interviews\InterviewsPageClient.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] LONG_FUNCTION
+    Function is 92 lines long (max 30 recommended)
+  Line 22: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 106: [INFO] OBVIOUS_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\monitoring\StripeMonitoringDashboard.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 27: [WARNING] LONG_FUNCTION
+    Function is 263 lines long (max 30 recommended)
+  Line 31: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\studio\HealthDashboard.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] LONG_FUNCTION
+    Function is 135 lines long (max 30 recommended)
+  Line 208: [WARNING] LONG_FUNCTION
+    Function is 34 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\tenant\MobileNav.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 35: [WARNING] LONG_FUNCTION
+    Function is 85 lines long (max 30 recommended)
+  Line 82: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 87: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\components\tenant\TenantLayout.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 69: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 80: [WARNING] LONG_FUNCTION
+    Function is 166 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\hooks\useExitIntent.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 11: [WARNING] LONG_FUNCTION
+    Function is 46 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\lib\env.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 207: [WARNING] LONG_FUNCTION
+    Function is 75 lines long (max 30 recommended)
+  Line 227: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\beats\components\ProcessingStatusBadge.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 26: [WARNING] LONG_FUNCTION
+    Function is 52 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\beats\components\TrackList.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 28: [WARNING] LONG_FUNCTION
+    Function is 92 lines long (max 30 recommended)
+  Line 41: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 44: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\beats\components\TrackListItem.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 46: [WARNING] LONG_FUNCTION
+    Function is 123 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\beats\components\TrackUploadForm.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 14 lines long (max 10 recommended)
+  Line 32: [WARNING] LONG_FUNCTION
+    Function is 349 lines long (max 30 recommended)
+  Line 81: [WARNING] LONG_FUNCTION
+    Function is 77 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\services\components\ServiceCard.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 39: [WARNING] LONG_FUNCTION
+    Function is 118 lines long (max 30 recommended)
+  Line 73: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 124: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\services\components\ServiceForm.tsx (5 violations)
+--------------------------------------------------------------------------------
+  Line 23: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 133 lines long (max 10 recommended)
+  Line 39: [WARNING] LONG_FUNCTION
+    Function is 323 lines long (max 30 recommended)
+  Line 96: [WARNING] LONG_FUNCTION
+    Function is 49 lines long (max 30 recommended)
+  Line 155: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 320: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\modules\services\components\ServiceList.tsx (5 violations)
+--------------------------------------------------------------------------------
+  Line 25: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 61 lines long (max 10 recommended)
+  Line 41: [WARNING] LONG_FUNCTION
+    Function is 149 lines long (max 30 recommended)
+  Line 58: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 61: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 85: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\i18n\useTranslation.ts (2 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 20: [WARNING] LONG_FUNCTION
+    Function is 32 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\tenancy\WorkspaceContext.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 38: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+  Line 55: [WARNING] LONG_FUNCTION
+    Function is 37 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\tenancy\WorkspaceErrorBoundary.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 8: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 21: [WARNING] LONG_FUNCTION
+    Function is 59 lines long (max 30 recommended)
+  Line 71: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\tenancy\edge-router.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 93: [WARNING] LONG_FUNCTION
+    Function is 59 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\BackgroundMusicPattern.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 27: [WARNING] LONG_FUNCTION
+    Function is 34 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\CardSurface.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 28 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\ChromeSurface.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+  Line 57: [WARNING] LONG_FUNCTION
+    Function is 52 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\ConstellationDots.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 9: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 20 lines long (max 10 recommended)
+  Line 13: [WARNING] LONG_FUNCTION
+    Function is 38 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\ConstellationInfo.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 21: [WARNING] LONG_FUNCTION
+    Function is 52 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\CyanBlob.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 11: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 22 lines long (max 10 recommended)
+  Line 15: [WARNING] LONG_FUNCTION
+    Function is 33 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\DribbbleCard.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 30: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 45 lines long (max 10 recommended)
+  Line 97: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassChip.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 19 lines long (max 10 recommended)
+  Line 39: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 51 lines long (max 10 recommended)
+  Line 89: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 95: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassFooter.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 17 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassHeader.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 5: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 28 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassSkeletonCard.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 38: [WARNING] LONG_FUNCTION
+    Function is 58 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassSkeletonPulse.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 30: [WARNING] LONG_FUNCTION
+    Function is 33 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassSurface.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 4: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 26 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\GlassToggle.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 10: [WARNING] LONG_FUNCTION
+    Function is 32 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\IconRail.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 27: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 26 lines long (max 10 recommended)
+  Line 31: [WARNING] LONG_FUNCTION
+    Function is 102 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\InfoModule.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 21: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+  Line 28: [WARNING] LONG_FUNCTION
+    Function is 84 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\MarketingPageShell.tsx (8 violations)
+--------------------------------------------------------------------------------
+  Line 17: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 20 lines long (max 10 recommended)
+  Line 38: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 82: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 90: [WARNING] LONG_FUNCTION
+    Function is 170 lines long (max 30 recommended)
+  Line 264: [WARNING] LONG_FUNCTION
+    Function is 67 lines long (max 30 recommended)
+  Line 332: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 334: [WARNING] LONG_FUNCTION
+    Function is 59 lines long (max 30 recommended)
+  Line 362: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\MarketingSection.tsx (6 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 18: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 41: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 63: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 76: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 78: [WARNING] LONG_FUNCTION
+    Function is 38 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\MicroInfoModule.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 25: [WARNING] LONG_FUNCTION
+    Function is 32 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\MicroModule.tsx (6 violations)
+--------------------------------------------------------------------------------
+  Line 27: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 21 lines long (max 10 recommended)
+  Line 31: [WARNING] LONG_FUNCTION
+    Function is 51 lines long (max 30 recommended)
+  Line 47: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 101: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 21 lines long (max 10 recommended)
+  Line 105: [WARNING] LONG_FUNCTION
+    Function is 62 lines long (max 30 recommended)
+  Line 121: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\OrganicBlob.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 8: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 19: [WARNING] LONG_FUNCTION
+    Function is 32 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\OutlineStackTitle.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 24: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 87 lines long (max 10 recommended)
+  Line 59: [WARNING] LONG_FUNCTION
+    Function is 61 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\PillCTA.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 36: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 85 lines long (max 10 recommended)
+  Line 144: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 150: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\PixelTitle.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 10: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 14: [WARNING] LONG_FUNCTION
+    Function is 53 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\RoleCTACard.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 15: [WARNING] LONG_FUNCTION
+    Function is 33 lines long (max 30 recommended)
+  Line 24: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 29: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\SectionHeader.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 28: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+  Line 32: [WARNING] LONG_FUNCTION
+    Function is 44 lines long (max 30 recommended)
+  Line 43: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\ThemeToggle.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 7: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\TopMinimalBar.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 11: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 51: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 28 lines long (max 10 recommended)
+  Line 55: [WARNING] LONG_FUNCTION
+    Function is 118 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\TrustChip.tsx (4 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 18 lines long (max 10 recommended)
+  Line 32: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 21 lines long (max 10 recommended)
+  Line 52: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+  Line 58: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\WavyBackground.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 20: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 20 lines long (max 10 recommended)
+  Line 30: [WARNING] LONG_FUNCTION
+    Function is 60 lines long (max 30 recommended)
+  Line 83: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\WavyLines.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 8: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 16 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\NowPlayingChip.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 7: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 70: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 84 lines long (max 10 recommended)
+  Line 71: [WARNING] LONG_FUNCTION
+    Function is 39 lines long (max 30 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\PlayerPillButton.tsx (3 violations)
+--------------------------------------------------------------------------------
+  Line 7: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 32: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 74 lines long (max 10 recommended)
+  Line 120: [INFO] OBVIOUS_JSX_COMMENT
+    Obvious comment that should be removed
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\ProgressRail.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 39: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 169 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\VolumePill.tsx (2 violations)
+--------------------------------------------------------------------------------
+  Line 7: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+  Line 38: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 169 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\WaveformPlaceholder.tsx (1 violations)
+--------------------------------------------------------------------------------
+  Line 6: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\audio\index.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 13 lines long (max 10 recommended)
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\dribbble\motion.ts (26 violations)
+--------------------------------------------------------------------------------
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 14: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 40: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 42: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 82: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 84: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 106: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 108: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 138: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 140: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 157: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 159: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 180: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 182: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 201: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 203: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 249: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 251: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 275: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 277: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 305: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 307: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 321: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 323: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 336: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 338: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\platform\ui\index.ts (6 violations)
+--------------------------------------------------------------------------------
+  Line 12: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 14: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 96: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 98: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 105: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 107: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\src\shared\types\monitoring.ts (8 violations)
+--------------------------------------------------------------------------------
+  Line 6: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 8: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 25: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 27: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 50: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 52: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 83: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 85: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\auth\sign-in.spec.ts (18 violations)
+--------------------------------------------------------------------------------
+  Line 43: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 54: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 74: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 81: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 86: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 91: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 103: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 110: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 115: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 123: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 148: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 156: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 160: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 168: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 175: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 180: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 185: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 194: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\e2e\checkout-flow.spec.ts (4 violations)
+--------------------------------------------------------------------------------
+  Line 3: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 17: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 46: [INFO] OBVIOUS_COMMENT
+    Obvious comment that should be removed
+  Line 57: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\unit\api\stripe-webhook-route.test.ts (1 violations)
+--------------------------------------------------------------------------------
+  Line 29: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\tests\unit\lib\format.test.ts (10 violations)
+--------------------------------------------------------------------------------
+  Line 13: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 14: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 45: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 77: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 78: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 79: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 83: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 84: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 88: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 92: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+
+
+C:\Users\TREIGUA\Desktop\WEBSITE\BroLab MVP\worker\index.ts (26 violations)
+--------------------------------------------------------------------------------
+  Line 1: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 21 lines long (max 10 recommended)
+  Line 36: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 38: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 42: [WARNING] MAGIC_NUMBER
+    Magic number should be extracted to named constant
+  Line 50: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 52: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 56: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 58: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 165: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 167: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 169: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 11 lines long (max 10 recommended)
+  Line 180: [WARNING] LONG_FUNCTION
+    Function is 48 lines long (max 30 recommended)
+  Line 252: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 254: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 256: [WARNING] LONG_FUNCTION
+    Function is 40 lines long (max 30 recommended)
+  Line 489: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 501: [WARNING] LONG_FUNCTION
+    Function is 78 lines long (max 30 recommended)
+  Line 580: [WARNING] EXCESSIVE_JSDOC
+    JSDoc comment is 12 lines long (max 10 recommended)
+  Line 592: [WARNING] LONG_FUNCTION
+    Function is 83 lines long (max 30 recommended)
+  Line 683: [WARNING] LONG_FUNCTION
+    Function is 68 lines long (max 30 recommended)
+  Line 752: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 754: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 759: [WARNING] LONG_FUNCTION
+    Function is 46 lines long (max 30 recommended)
+  Line 809: [WARNING] LONG_FUNCTION
+    Function is 36 lines long (max 30 recommended)
+  Line 846: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment
+  Line 848: [INFO] SECTION_DIVIDER
+    Unnecessary section divider comment

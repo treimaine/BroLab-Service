@@ -1,13 +1,4 @@
-/**
- * License Terms Module
- *
- * Exports license tier definitions and helper functions for the BroLab Entertainment platform.
- * These terms are snapshotted at purchase time to ensure immutability of purchased licenses.
- */
-
 import licenseTermsJson from "./license_terms.v1.1-2026-01.json";
-
-// ============ Types ============
 
 export const LICENSE_TIERS = ["basic", "premium", "unlimited"] as const;
 export type LicenseTier = (typeof LICENSE_TIERS)[number];
@@ -45,15 +36,8 @@ export interface LicenseSnapshot {
   publishingSplit: PublishingSplit;
 }
 
-// ============ Constants ============
-
-/** Current version of license terms - used for snapshot versioning */
 export const LICENSE_TERMS_VERSION = "v1.1-2026-01";
-
-/** Raw JSON data for advanced use cases */
 export const LICENSE_TERMS_RAW = licenseTermsJson;
-
-/** License terms by tier - normalized TypeScript structure */
 export const LICENSE_TERMS_BY_TIER: Record<LicenseTier, LicenseTerms> = {
   basic: {
     title: "Basic License",
@@ -111,40 +95,24 @@ export const LICENSE_TERMS_BY_TIER: Record<LicenseTier, LicenseTerms> = {
   },
 };
 
-/** Prohibited uses common to all license tiers */
 export const PROHIBITED_USES: string[] =
   licenseTermsJson.global.common_terms.prohibited_uses;
 
-/** Credit line template */
 export const CREDIT_LINE_TEMPLATE: string =
   licenseTermsJson.global.common_terms.credit.credit_line_template;
 
-// ============ Helper Functions ============
-
-/**
- * Get license terms for a specific tier
- */
 export function getLicenseTerms(tier: LicenseTier): LicenseTerms {
   return LICENSE_TERMS_BY_TIER[tier];
 }
 
-/**
- * Check if a tier includes stems
- */
 export function tierIncludesStems(tier: LicenseTier): boolean {
   return LICENSE_TERMS_BY_TIER[tier].includesStems;
 }
 
-/**
- * Check if a tier allows sync licensing (TV/Film/Ads/Games)
- */
 export function tierAllowsSync(tier: LicenseTier): boolean {
   return LICENSE_TERMS_BY_TIER[tier].rights.syncAllowed;
 }
 
-/**
- * Get the streaming cap for a tier (-1 means unlimited)
- */
 export function getStreamingCap(tier: LicenseTier): number {
   return LICENSE_TERMS_BY_TIER[tier].rights.audioStreamingCap;
 }

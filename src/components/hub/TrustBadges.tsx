@@ -4,10 +4,6 @@ import { DribbbleCard, DribbbleSectionEnter, DribbbleStaggerItem } from '@/platf
 import { CheckCircle, CreditCard, Eye, Lock, MessageCircle, Shield, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export interface Badge {
   id: string
   label?: string
@@ -25,13 +21,6 @@ interface TrustBadgesProps {
   className?: string
 }
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-/**
- * Get category-specific styles using CSS variables
- */
 const getCategoryStyles = (category?: Badge['category']) => {
   switch (category) {
     case 'payment':
@@ -59,14 +48,6 @@ const getCategoryStyles = (category?: Badge['category']) => {
   }
 }
 
-// ============================================================================
-// DEFAULT BADGES
-// ============================================================================
-
-/**
- * Simple trust badges for checkout/footer
- * Uses Lucide icons (design system compliant)
- */
 export const DEFAULT_TRUST_BADGES: Badge[] = [
   {
     id: 'ssl',
@@ -88,9 +69,6 @@ export const DEFAULT_TRUST_BADGES: Badge[] = [
   }
 ]
 
-/**
- * Enhanced trust badges with categories and Lucide icons
- */
 export const ENHANCED_TRUST_BADGES: Badge[] = [
   {
     id: 'stripe',
@@ -129,23 +107,6 @@ export const ENHANCED_TRUST_BADGES: Badge[] = [
   },
 ]
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
-
-/**
- * TrustBadges Component
- *
- * Displays security and trust verification badges
- * Reassures users about payment safety and data protection
- *
- * Features:
- * - Two variants: simple (minimal) and enhanced (Dribbble design system)
- * - Lucide icons (no emojis)
- * - CSS variables for theming
- * - Dribbble components (DribbbleCard, animations)
- * - Responsive layout
- */
 export const TrustBadges: React.FC<TrustBadgesProps> = ({
   badges,
   layout = 'row',
@@ -158,7 +119,6 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
   const isGrid = layout === 'grid'
   const isEnhanced = variant === 'enhanced'
 
-  // Simple variant (minimal design for footer/checkout)
   if (!isEnhanced) {
     return (
       <div
@@ -174,10 +134,7 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
               className="flex items-center gap-2 opacity-75 hover:opacity-100 transition-opacity"
               title={badge.description}
             >
-              {/* Icon */}
               <Icon className={`shrink-0 text-muted ${isSm ? 'w-4 h-4' : 'w-5 h-5'}`} />
-
-              {/* Label */}
               <span className={`text-muted ${isSm ? 'text-xs' : 'text-sm'} font-medium`}>
                 {badge.label || badge.title}
               </span>
@@ -188,7 +145,6 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
     )
   }
 
-  // Enhanced variant (Dribbble design system)
   return (
     <DribbbleSectionEnter stagger>
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 ${className}`}>
@@ -211,17 +167,12 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
                   aria-label={`${badge.title || badge.label}: ${badge.description}`}
                 >
                   <div className="flex flex-col items-center gap-3">
-                    {/* Icon */}
                     <div className={`transition-all duration-300 ${styles.text}`}>
                       <Icon className="w-8 h-8 md:w-10 md:h-10" />
                     </div>
-
-                    {/* Title */}
                     <h3 className="font-semibold text-text text-sm md:text-base text-center">
                       {badge.title || badge.label}
                     </h3>
-
-                    {/* Description (visible on hover) */}
                     <p
                       className={`text-xs md:text-sm text-muted text-center transition-all duration-300 ${
                         hoveredId === badge.id
@@ -242,20 +193,10 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
   )
 }
 
-// ============================================================================
-// SECTION COMPONENTS
-// ============================================================================
-
 interface TrustFooterProps {
   readonly className?: string
 }
 
-/**
- * TrustFooter Component
- *
- * Display trust badges in footer context
- * Minimal, subtle design suitable for page footers
- */
 export const TrustFooter: React.FC<TrustFooterProps> = ({ className = '' }) => {
   return (
     <div className={`w-full py-6 px-4 border-t border-[rgba(var(--border),0.3)] ${className}`}>
@@ -275,13 +216,6 @@ interface TrustSectionProps {
   readonly className?: string
 }
 
-/**
- * TrustSection Component
- *
- * Full section with enhanced trust badges
- * Includes heading, badges grid, and trust message
- * Uses Dribbble design system
- */
 export const TrustSection: React.FC<TrustSectionProps> = ({
   title = 'Your Trust Matters',
   subtitle = 'Built with the highest security and compliance standards',
@@ -293,7 +227,6 @@ export const TrustSection: React.FC<TrustSectionProps> = ({
       aria-label="Trust and security badges"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Heading */}
         <div className="text-center mb-10 md:mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-text mb-3 md:mb-4">
             {title}
@@ -303,13 +236,11 @@ export const TrustSection: React.FC<TrustSectionProps> = ({
           </p>
         </div>
 
-        {/* Badges Grid */}
         <TrustBadges
           badges={ENHANCED_TRUST_BADGES}
           variant="enhanced"
         />
 
-        {/* Trust Message */}
         <div className="mt-12 md:mt-16">
           <DribbbleCard glow padding="lg" className="text-center">
             <p className="text-text text-base md:text-lg">

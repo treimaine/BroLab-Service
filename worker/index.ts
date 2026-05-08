@@ -33,10 +33,6 @@ import { promises as fs } from "node:fs";
 import { hostname, tmpdir } from "node:os";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
-
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
 const WORKER_ID = process.env.WORKER_ID || `worker-${hostname()}`;
 const POLL_INTERVAL_MS = Number.parseInt(process.env.POLL_INTERVAL_MS || "5000", 10);
@@ -47,17 +43,8 @@ if (!CONVEX_URL) {
   process.exit(1);
 }
 
-// ============================================================================
-// CONVEX CLIENT
-// ============================================================================
-
 const convex = new ConvexHttpClient(CONVEX_URL);
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
-// Branded types for Convex IDs - provides type safety and semantic meaning
 type ConvexId<T extends string = string> = string & { readonly __brand: T };
 
 // Helper function to create branded IDs (use when receiving IDs from Convex)
@@ -162,21 +149,6 @@ interface RawJobData {
   updatedAt: number;
 }
 
-// ============================================================================
-// FFMPEG UTILITIES
-// ============================================================================
-
-/**
- * Extract preview from audio file using ffmpeg
- * 
- * Extracts first 30 seconds (or full length if shorter) as MP3.
- * 
- * @param inputPath - Path to input audio file
- * @param outputPath - Path to output MP3 file
- * @param durationSec - Duration to extract (default: 30)
- * @returns Promise that resolves when extraction is complete
- * @throws Error if ffmpeg fails
- */
 async function extractPreview(
   inputPath: string,
   outputPath: string,
@@ -230,11 +202,6 @@ async function extractPreview(
   });
 }
 
-/**
- * Check if ffmpeg is installed
- * 
- * @returns Promise that resolves to true if ffmpeg is available
- */
 async function checkFfmpegInstalled(): Promise<boolean> {
   return new Promise((resolve) => {
     const ffmpeg = spawn("ffmpeg", ["-version"]);
@@ -249,191 +216,239 @@ async function checkFfmpegInstalled(): Promise<boolean> {
   });
 }
 
-// ============================================================================
-// JOB PROCESSING
-// ============================================================================
-
-/**
- * Generate license PDF using pdf-lib
- * 
- * Creates a professional license document with all terms and conditions.
- * 
- * @param licenseData - License data fetched from Convex
- * @param outputPath - Path to save the generated PDF
- */
 async function generateLicensePdf(
   licenseData: LicenseDataForPdf,
   outputPath: string
 ): Promise<void> {
-  // Create a new PDF document
   const pdfDoc = await PDFDocument.create();
-  
-  // Add a page (A4 format: 595 x 842 points)
   const page = pdfDoc.addPage([595, 842]);
   const { height } = page.getSize();
   
-  // Embed fonts
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   
-  // Define colors
   const black = rgb(0, 0, 0);
   const gray = rgb(0.4, 0.4, 0.4);
   
-  // Define margins and positions
   const margin = 50;
-  let yPosition = height - margin;
   const lineHeight = 20;
   const sectionSpacing = 30;
   
-  // Helper function to add text
-  const addText = (text: string, fontSize: number, font: typeof regularFont, color = black) => {
-    page.drawText(text, {
-      x: margin,
-      y: yPosition,
-      size: fontSize,
-      font,
-      color,
-    });
-    yPosition -= lineHeight;
+  const context: PdfContext = {
+    page,
+    margin,
+    yPosition: height - margin,
+    lineHeight,
+    sectionSpacing,
+    boldFont,
+    regularFont,
+    black,
+    gray,
   };
+
+  addPdfHeader(context, licenseData);
+  addPartiesSection(context, licenseData);
+  addTrackInfoSection(context, licenseData);
+  addLicenseTierSection(context, licenseData);
+  addRightsSection(context, licenseData);
+  addPublishingSplitSection(context, licenseData);
+  addCreditSection(context, licenseData);
+  addProhibitedUsesSection(context, licenseData);
+  addPdfFooter(context, licenseData);
   
-  // Helper function to add section header
-  const addSectionHeader = (title: string) => {
-    yPosition -= sectionSpacing;
-    page.drawText(title, {
-      x: margin,
-      y: yPosition,
-      size: 14,
-      font: boldFont,
-      color: black,
-    });
-    yPosition -= lineHeight;
-  };
-  
-  // Helper function to format cap value
-  const formatCap = (cap: number): string => {
-    if (cap === -1) return "Unlimited";
-    if (cap === 0) return "Not included";
-    return cap.toLocaleString();
-  };
-  
-  // Helper function to format currency
-  const formatCurrency = (amountCents: number, currency: string): string => {
-    const amount = amountCents / 100;
-    return `${currency.toUpperCase()} ${amount.toFixed(2)}`;
-  };
-  
-  // Helper function to format date
-  const formatDate = (timestamp: number): string => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-  
-  // ============ TITLE ============
-  page.drawText("BEAT LICENSE AGREEMENT", {
-    x: margin,
-    y: yPosition,
-    size: 18,
-    font: boldFont,
-    color: black,
-  });
-  yPosition -= lineHeight * 1.5;
-  
-  addText(`License ID: ${licenseData.license._id}`, 10, regularFont, gray);
-  addText(`Issue Date: ${formatDate(licenseData.license.createdAt)}`, 10, regularFont, gray);
-  addText(`Terms Version: ${licenseData.license.termsVersion}`, 10, regularFont, gray);
-  
-  // ============ PARTIES ============
-  addSectionHeader("PARTIES");
-  addText(`Licensor: ${licenseData.workspace.name}`, 11, regularFont);
-  addText(`Licensee: ${licenseData.license.buyerEmail || "Buyer"}`, 11, regularFont);
-  
-  // ============ TRACK INFO ============
-  addSectionHeader("TRACK INFORMATION");
-  addText(`Title: ${licenseData.track.title}`, 11, regularFont);
-  if (licenseData.track.bpm) {
-    addText(`BPM: ${licenseData.track.bpm}`, 11, regularFont);
-  }
-  if (licenseData.track.key) {
-    addText(`Key: ${licenseData.track.key}`, 11, regularFont);
-  }
-  addText(`Purchase Amount: ${formatCurrency(licenseData.order.amountCents, licenseData.order.currency)}`, 11, regularFont);
-  addText(`Purchase Date: ${formatDate(licenseData.order.createdAt)}`, 11, regularFont);
-  
-  // ============ LICENSE TIER ============
-  addSectionHeader("LICENSE TIER");
-  const tierName = licenseData.license.tierKey.charAt(0).toUpperCase() + licenseData.license.tierKey.slice(1);
-  addText(`Tier: ${tierName} License`, 11, boldFont);
-  addText(`Stems Included: ${licenseData.license.includesStems ? "Yes" : "No"}`, 11, regularFont);
-  
-  // ============ RIGHTS & CAPS ============
-  addSectionHeader("USAGE RIGHTS AND LIMITATIONS");
-  const rights = licenseData.license.rightsSnapshot;
-  addText(`Commercial Use: ${rights.commercialUse ? "Allowed" : "Not Allowed"}`, 11, regularFont);
-  addText(`Audio Streaming: ${formatCap(rights.audioStreamingCap)} streams`, 11, regularFont);
-  addText(`Music Videos: ${formatCap(rights.musicVideosCap)} videos`, 11, regularFont);
-  addText(`Live Performances: ${formatCap(rights.livePerformanceCap)} performances`, 11, regularFont);
-  addText(`Radio Broadcasts: ${formatCap(rights.radioBroadcastCap)} broadcasts`, 11, regularFont);
-  addText(`Sync Licensing (TV/Film/Ads/Games): ${rights.syncAllowed ? "Allowed" : "Not Allowed"}`, 11, regularFont);
-  
-  // ============ PUBLISHING SPLIT ============
-  if (licenseData.license.publishingEnabled) {
-    addSectionHeader("PUBLISHING SPLIT");
-    addText(`Licensor Writer Share: ${licenseData.license.licensorWriterSharePercent || 50}%`, 11, regularFont);
-    addText(`Licensee Writer Share: ${licenseData.license.licenseeWriterSharePercent || 50}%`, 11, regularFont);
-    addText(`Licensor Publisher Share: ${licenseData.license.licensorPublisherSharePercent || 50}%`, 11, regularFont);
-    addText(`Licensee Publisher Share: ${licenseData.license.licenseePublisherSharePercent || 50}%`, 11, regularFont);
-  }
-  
-  // ============ CREDIT LINE ============
-  addSectionHeader("CREDIT REQUIREMENT");
-  addText(licenseData.license.creditLineSnapshot, 11, regularFont);
-  
-  // ============ PROHIBITED USES ============
-  addSectionHeader("PROHIBITED USES");
-  for (const prohibition of licenseData.license.prohibitedUsesSnapshot) {
-    addText(`• ${prohibition}`, 11, regularFont);
-  }
-  
-  // ============ FOOTER ============
-  yPosition = margin + 40;
-  page.drawText("This is a legally binding agreement. By using this beat, you agree to all terms above.", {
-    x: margin,
-    y: yPosition,
-    size: 9,
-    font: regularFont,
-    color: gray,
-  });
-  yPosition -= 15;
-  page.drawText(`Generated by BroLab Entertainment (${licenseData.workspace.slug}.brolabentertainment.com)`, {
-    x: margin,
-    y: yPosition,
-    size: 9,
-    font: regularFont,
-    color: gray,
-  });
-  
-  // Save the PDF
   const pdfBytes = await pdfDoc.save();
   await fs.writeFile(outputPath, pdfBytes);
 }
 
-/**
- * Process a license PDF generation job
- * 
- * 1. Fetch license + track + workspace data from Convex
- * 2. Generate PDF using pdf-lib
- * 3. Upload PDF to Convex Storage
- * 4. Update licenseDocuments with storage ID
- * 5. Update purchaseEntitlements with PDF storage ID
- * 
- * @param job - Job to process
- * @throws Error if processing fails
- */
+function addPdfHeader(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  const { page, margin, boldFont, regularFont, black, gray, lineHeight } = context;
+  
+  page.drawText("BEAT LICENSE AGREEMENT", {
+    x: margin,
+    y: context.yPosition,
+    size: 18,
+    font: boldFont,
+    color: black,
+  });
+  context.yPosition -= lineHeight * 1.5;
+  
+  addText(context, `License ID: ${licenseData.license._id}`, 10, regularFont, gray);
+  addText(context, `Issue Date: ${formatDate(licenseData.license.createdAt)}`, 10, regularFont, gray);
+  addText(context, `Terms Version: ${licenseData.license.termsVersion}`, 10, regularFont, gray);
+}
+
+function addPartiesSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "PARTIES");
+  addText(context, `Licensor: ${licenseData.workspace.name}`, 11, context.regularFont);
+  addText(context, `Licensee: ${licenseData.license.buyerEmail || "Buyer"}`, 11, context.regularFont);
+}
+
+function addTrackInfoSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "TRACK INFORMATION");
+  addText(context, `Title: ${licenseData.track.title}`, 11, context.regularFont);
+  
+  if (licenseData.track.bpm) {
+    addText(context, `BPM: ${licenseData.track.bpm}`, 11, context.regularFont);
+  }
+  if (licenseData.track.key) {
+    addText(context, `Key: ${licenseData.track.key}`, 11, context.regularFont);
+  }
+  
+  addText(context, `Purchase Amount: ${formatCurrency(licenseData.order.amountCents, licenseData.order.currency)}`, 11, context.regularFont);
+  addText(context, `Purchase Date: ${formatDate(licenseData.order.createdAt)}`, 11, context.regularFont);
+}
+
+function addLicenseTierSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "LICENSE TIER");
+  const tierName = licenseData.license.tierKey.charAt(0).toUpperCase() + licenseData.license.tierKey.slice(1);
+  addText(context, `Tier: ${tierName} License`, 11, context.boldFont);
+  addText(context, `Stems Included: ${licenseData.license.includesStems ? "Yes" : "No"}`, 11, context.regularFont);
+}
+
+function addRightsSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "USAGE RIGHTS AND LIMITATIONS");
+  const rights = licenseData.license.rightsSnapshot;
+  
+  addText(context, `Commercial Use: ${rights.commercialUse ? "Allowed" : "Not Allowed"}`, 11, context.regularFont);
+  addText(context, `Audio Streaming: ${formatCap(rights.audioStreamingCap)} streams`, 11, context.regularFont);
+  addText(context, `Music Videos: ${formatCap(rights.musicVideosCap)} videos`, 11, context.regularFont);
+  addText(context, `Live Performances: ${formatCap(rights.livePerformanceCap)} performances`, 11, context.regularFont);
+  addText(context, `Radio Broadcasts: ${formatCap(rights.radioBroadcastCap)} broadcasts`, 11, context.regularFont);
+  addText(context, `Sync Licensing (TV/Film/Ads/Games): ${rights.syncAllowed ? "Allowed" : "Not Allowed"}`, 11, context.regularFont);
+}
+
+function addPublishingSplitSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  if (!licenseData.license.publishingEnabled) {
+    return;
+  }
+  
+  addSectionHeader(context, "PUBLISHING SPLIT");
+  addText(context, `Licensor Writer Share: ${licenseData.license.licensorWriterSharePercent || 50}%`, 11, context.regularFont);
+  addText(context, `Licensee Writer Share: ${licenseData.license.licenseeWriterSharePercent || 50}%`, 11, context.regularFont);
+  addText(context, `Licensor Publisher Share: ${licenseData.license.licensorPublisherSharePercent || 50}%`, 11, context.regularFont);
+  addText(context, `Licensee Publisher Share: ${licenseData.license.licenseePublisherSharePercent || 50}%`, 11, context.regularFont);
+}
+
+function addCreditSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "CREDIT REQUIREMENT");
+  addText(context, licenseData.license.creditLineSnapshot, 11, context.regularFont);
+}
+
+function addProhibitedUsesSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  addSectionHeader(context, "PROHIBITED USES");
+  for (const prohibition of licenseData.license.prohibitedUsesSnapshot) {
+    addText(context, `• ${prohibition}`, 11, context.regularFont);
+  }
+}
+
+function addPdfFooter(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  const { page, margin, regularFont, gray } = context;
+  
+  context.yPosition = margin + 40;
+  page.drawText("This is a legally binding agreement. By using this beat, you agree to all terms above.", {
+    x: margin,
+    y: context.yPosition,
+    size: 9,
+    font: regularFont,
+    color: gray,
+  });
+  context.yPosition -= 15;
+  page.drawText(`Generated by BroLab Entertainment (${licenseData.workspace.slug}.brolabentertainment.com)`, {
+    x: margin,
+    y: context.yPosition,
+    size: 9,
+    font: regularFont,
+    color: gray,
+  });
+}
+
+interface PdfContext {
+  page: ReturnType<PDFDocument['addPage']>;
+  margin: number;
+  yPosition: number;
+  lineHeight: number;
+  sectionSpacing: number;
+  boldFont: ReturnType<PDFDocument['embedFont']> extends Promise<infer T> ? T : never;
+  regularFont: ReturnType<PDFDocument['embedFont']> extends Promise<infer T> ? T : never;
+  black: ReturnType<typeof rgb>;
+  gray: ReturnType<typeof rgb>;
+}
+
+function addText(
+  context: PdfContext,
+  text: string,
+  fontSize: number,
+  font: PdfContext['regularFont'],
+  color = context.black
+): void {
+  context.page.drawText(text, {
+    x: context.margin,
+    y: context.yPosition,
+    size: fontSize,
+    font,
+    color,
+  });
+  context.yPosition -= context.lineHeight;
+}
+
+function addSectionHeader(context: PdfContext, title: string): void {
+  context.yPosition -= context.sectionSpacing;
+  context.page.drawText(title, {
+    x: context.margin,
+    y: context.yPosition,
+    size: 14,
+    font: context.boldFont,
+    color: context.black,
+  });
+  context.yPosition -= context.lineHeight;
+}
+
+function formatCap(cap: number): string {
+  if (cap === -1) return "Unlimited";
+  if (cap === 0) return "Not included";
+  return cap.toLocaleString();
+}
+
+function formatCurrency(amountCents: number, currency: string): string {
+  const amount = amountCents / 100;
+  return `${currency.toUpperCase()} ${amount.toFixed(2)}`;
+}
+
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 async function processLicensePdfGenerationJob(job: Job): Promise<void> {
   const payload = job.payload as LicensePdfGenerationPayload;
   const { licenseId, documentId } = payload;
@@ -513,18 +528,6 @@ async function processLicensePdfGenerationJob(job: Job): Promise<void> {
   }
 }
 
-/**
- * Process a preview generation job
- * 
- * 1. Download full audio file from Convex Storage
- * 2. Extract 30-second preview using ffmpeg
- * 3. Upload preview to Convex Storage
- * 4. Update track with preview storage ID
- * 5. Record "preview_generated" event
- * 
- * @param job - Job to process
- * @throws Error if processing fails
- */
 async function processPreviewGenerationJob(job: Job): Promise<void> {
   const payload = job.payload as PreviewGenerationPayload;
   const { trackId, fullStorageId } = payload;
@@ -609,13 +612,6 @@ async function processPreviewGenerationJob(job: Job): Promise<void> {
   }
 }
 
-/**
- * Process a single job
- * 
- * Handles job locking, processing, completion, and failure.
- * 
- * @param job - Job to process
- */
 async function processJob(job: Job): Promise<void> {
   console.log(`\n[job ${job._id}] Starting job processing (type: ${job.type}, attempt: ${job.attempts + 1})`);
 
@@ -685,13 +681,6 @@ async function processJob(job: Job): Promise<void> {
   }
 }
 
-// ============================================================================
-// WORKER MAIN LOOP
-// ============================================================================
-
-/**
- * Poll for pending jobs and process them
- */
 async function pollAndProcessJobs(): Promise<void> {
   try {
     // Query for next pending job (any type)
@@ -739,9 +728,6 @@ async function pollAndProcessJobs(): Promise<void> {
   }
 }
 
-/**
- * Main worker function
- */
 async function main() {
   console.log("=".repeat(80));
   console.log("BroLab Entertainment Job Worker");
@@ -779,11 +765,6 @@ async function main() {
   }, POLL_INTERVAL_MS);
 }
 
-// ============================================================================
-// ENTRY POINT
-// ============================================================================
-
-// Handle graceful shutdown
 process.on("SIGINT", () => {
   console.log("\n\n[worker] Received SIGINT, shutting down gracefully...");
   process.exit(0);
@@ -794,7 +775,6 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-// Start the worker
 try {
   await main();
 } catch (error) {

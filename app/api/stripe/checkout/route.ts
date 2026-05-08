@@ -14,11 +14,11 @@ import {
   logCheckoutSuccess,
 } from '@/lib/monitoring'
 import { auth } from '@clerk/nextjs/server'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { api } from 'convex/_generated/api'
-import { Id } from 'convex/_generated/dataModel'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
@@ -583,58 +583,37 @@ export async function POST(request: Request) {
   let itemId: string | undefined
 
   try {
-    // 0. Check idempotency cache
     const idempotencyKey = request.headers.get('Idempotency-Key')
     const cachedResult = checkIdempotencyCache(idempotencyKey)
     if (cachedResult) {
       return NextResponse.json(cachedResult)
     }
 
-    // 1. Authenticate user
     const authenticatedUserId = await authenticateUser(request)
     if (!authenticatedUserId) {
-      logCheckoutFailure({
-        errorCode: 'UNAUTHORIZED',
-        errorMessage: 'User not authenticated',
-        duration: Date.now() - startTime,
-      })
-      return NextResponse.json(
-        { error: 'Unauthorized. Please sign in to make a purchase.' },
-        { status: 401 }
-      )
+      return handleAuthenticationFailure(startTime)
     }
     userId = authenticatedUserId
 
-    // 2. Parse and validate request
     const body: CheckoutRequest = await request.json()
     const validation = validateCheckoutRequest(body)
-
     if (!validation.valid) {
-      logCheckoutFailure({
-        userId,
-        errorCode: 'VALIDATION_FAILED',
-        errorMessage: validation.error || 'Invalid checkout request',
-        duration: Date.now() - startTime,
-      })
-      return NextResponse.json({ error: validation.error }, { status: 400 })
+      return handleValidationFailure(userId, validation.error, startTime)
     }
 
     workspaceId = body.workspaceId
     itemType = body.itemType
     itemId = body.itemId
 
-    // 3. Process checkout request (fetch workspace, validate, get item data)
     const isTestMode = !!request.headers.get('x-test-user-id')
     const result = await processCheckoutRequest(body, userId, isTestMode, startTime)
 
-    // If result is a NextResponse, it's an error response
     if (result instanceof NextResponse) {
       return result
     }
 
     const { workspace, itemData, metadata, successUrl, cancelUrl } = result
 
-    // 4. Create Stripe session
     const session = await createOrMockStripeSession(
       isTestMode,
       workspace,
@@ -644,7 +623,6 @@ export async function POST(request: Request) {
       cancelUrl
     )
 
-    // 5. Log success
     const duration = Date.now() - startTime
     logCheckoutSuccess({
       userId,
@@ -657,29 +635,61 @@ export async function POST(request: Request) {
       duration,
     })
 
-    // 6. Cache result
     cacheIdempotencyResult(idempotencyKey, session.url!, session.id)
 
-    // 7. Return session
     return NextResponse.json({
       url: session.url,
       sessionId: session.id,
     })
   } catch (error) {
-    const duration = Date.now() - startTime
-    console.error('Stripe checkout error:', error)
-
-    // Check if it's a Stripe error (has code property)
-    if (error && typeof error === 'object' && 'code' in error) {
-      return handleStripeError(error as Error & { code?: string }, userId, workspaceId, itemType, itemId, duration)
-    }
-
-    // Handle validation errors
-    if (error instanceof Error) {
-      return handleValidationError(error, userId, workspaceId, itemType, itemId, duration)
-    }
-
-    // Generic error
-    return handleGenericError(userId, workspaceId, itemType, itemId, duration)
+    return handlePostError(error, userId, workspaceId, itemType, itemId, startTime)
   }
+}
+
+function handleAuthenticationFailure(startTime: number): NextResponse {
+  logCheckoutFailure({
+    errorCode: 'UNAUTHORIZED',
+    errorMessage: 'User not authenticated',
+    duration: Date.now() - startTime,
+  })
+  return NextResponse.json(
+    { error: 'Unauthorized. Please sign in to make a purchase.' },
+    { status: 401 }
+  )
+}
+
+function handleValidationFailure(
+  userId: string,
+  error: string | undefined,
+  startTime: number
+): NextResponse {
+  logCheckoutFailure({
+    userId,
+    errorCode: 'VALIDATION_FAILED',
+    errorMessage: error || 'Invalid checkout request',
+    duration: Date.now() - startTime,
+  })
+  return NextResponse.json({ error }, { status: 400 })
+}
+
+function handlePostError(
+  error: unknown,
+  userId: string | undefined,
+  workspaceId: string | undefined,
+  itemType: ItemType | undefined,
+  itemId: string | undefined,
+  startTime: number
+): NextResponse {
+  const duration = Date.now() - startTime
+  console.error('Stripe checkout error:', error)
+
+  if (error && typeof error === 'object' && 'code' in error) {
+    return handleStripeError(error as Error & { code?: string }, userId, workspaceId, itemType, itemId, duration)
+  }
+
+  if (error instanceof Error) {
+    return handleValidationError(error, userId, workspaceId, itemType, itemId, duration)
+  }
+
+  return handleGenericError(userId, workspaceId, itemType, itemId, duration)
 }

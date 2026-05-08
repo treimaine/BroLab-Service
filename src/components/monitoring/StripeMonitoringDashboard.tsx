@@ -28,7 +28,7 @@ export function StripeMonitoringDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [refreshInterval, setRefreshInterval] = useState(POLL_INTERVAL_MS.SLOW);
 
   useEffect(() => {
     const fetchMetrics = async () => {

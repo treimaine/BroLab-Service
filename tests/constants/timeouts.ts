@@ -1,0 +1,16 @@
+export const TEST_TIMEOUT_MS = {
+  FAST: 5000,
+  NORMAL: 10000,
+  SLOW: 30000,
+  VERY_SLOW: 60000,
+} as const
+
+export const NAVIGATION_TIMEOUT_MS = 30000
+
+export const ELEMENT_WAIT_TIMEOUT_MS = 10000
+
+export const API_RESPONSE_TIMEOUT_MS = 15000
+
+export const ANIMATION_WAIT_MS = 500
+
+export const DEBOUNCE_WAIT_MS = 300

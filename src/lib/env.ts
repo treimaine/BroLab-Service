@@ -1,10 +1,3 @@
-/**
- * Environment Variables Configuration
- *
- * Centralized environment variable access with explicit runtime validation.
- * All environment variables should be accessed through this module.
- */
-
 type NodeEnv = 'development' | 'production' | 'test'
 
 interface RuntimeEnv {
@@ -345,9 +338,6 @@ export function validateEnv() {
   return getRuntimeEnv()
 }
 
-/**
- * Get Stripe Connect OAuth URL
- */
 export function getStripeConnectOAuthUrl(redirectUri: string): string {
   const params = new URLSearchParams({
     response_type: 'code',
@@ -359,16 +349,10 @@ export function getStripeConnectOAuthUrl(redirectUri: string): string {
   return `https://connect.stripe.com/oauth/authorize?${params.toString()}`
 }
 
-/**
- * Check if running in server context
- */
 export function isServer(): boolean {
   return globalThis.window === undefined
 }
 
-/**
- * Check if running in client context
- */
 export function isClient(): boolean {
   return globalThis.window !== undefined
 }

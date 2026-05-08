@@ -59,7 +59,7 @@ function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     setIsSubmitting(true)
     

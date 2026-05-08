@@ -2,17 +2,6 @@
 
 import { type Transition, type Variants } from 'framer-motion'
 
-/**
- * Dribbble Motion Language
- * 
- * Enhanced motion utilities following the Dribbble design language.
- * All animations include blur transitions and staggered reveals.
- */
-
-// ============================================================================
-// Page Enter (with blur)
-// ============================================================================
-
 export const dribbblePageEnter: Variants = {
   initial: {
     opacity: 0,
@@ -36,10 +25,6 @@ export const dribbblePageEnter: Variants = {
     },
   },
 }
-
-// ============================================================================
-// Stagger Container (enhanced)
-// ============================================================================
 
 export const dribbbleStaggerContainer: Variants = {
   initial: {},
@@ -79,10 +64,6 @@ export const dribbbleStaggerChild: Variants = {
   },
 }
 
-// ============================================================================
-// Scroll Reveal
-// ============================================================================
-
 export const dribbbleScrollReveal: Variants = {
   initial: {
     opacity: 0,
@@ -102,10 +83,6 @@ export const scrollRevealViewport = {
   once: true,
   margin: '-50px' as const,
 }
-
-// ============================================================================
-// Hover Effects
-// ============================================================================
 
 export const dribbbleHoverLift = {
   whileHover: {
@@ -135,10 +112,6 @@ export const dribbbleHoverScale = {
   },
 }
 
-// ============================================================================
-// Hero Float (enhanced)
-// ============================================================================
-
 export const dribbbleHeroFloat: Variants = {
   initial: {
     y: 0,
@@ -153,10 +126,6 @@ export const dribbbleHeroFloat: Variants = {
     },
   },
 }
-
-// ============================================================================
-// Blob Animation (for background elements)
-// ============================================================================
 
 export const dribbbleBlobFloat: Variants = {
   initial: {
@@ -177,10 +146,6 @@ export const dribbbleBlobFloat: Variants = {
   },
 }
 
-// ============================================================================
-// Card Enter (for grid items)
-// ============================================================================
-
 export const dribbbleCardEnter: Variants = {
   initial: {
     opacity: 0,
@@ -197,10 +162,6 @@ export const dribbbleCardEnter: Variants = {
     },
   },
 }
-
-// ============================================================================
-// Slide In (for sidebars, modals)
-// ============================================================================
 
 export const dribbbleSlideInLeft: Variants = {
   initial: {
@@ -246,10 +207,6 @@ export const dribbbleSlideInRight: Variants = {
   },
 }
 
-// ============================================================================
-// Fade Scale (for modals, overlays)
-// ============================================================================
-
 export const dribbbleFadeScale: Variants = {
   initial: {
     opacity: 0,
@@ -271,10 +228,6 @@ export const dribbbleFadeScale: Variants = {
     },
   },
 }
-
-// ============================================================================
-// PlayerBar Enter (with blur for premium feel)
-// ============================================================================
 
 export const dribbblePlayerBarEnter: Variants = {
   initial: {
@@ -302,10 +255,6 @@ export const dribbblePlayerBarEnter: Variants = {
   },
 }
 
-// ============================================================================
-// Reduced Motion Variants
-// ============================================================================
-
 export const dribbbleReducedMotion: Variants = {
   initial: { opacity: 0 },
   animate: { 
@@ -318,10 +267,6 @@ export const dribbbleReducedMotion: Variants = {
   },
 }
 
-// ============================================================================
-// Transition Presets
-// ============================================================================
-
 export const springTransition: Transition = {
   type: 'spring',
   stiffness: 400,
@@ -332,10 +277,6 @@ export const smoothTransition: Transition = {
   duration: 0.3,
   ease: [0.25, 0.1, 0.25, 1],
 }
-
-// ============================================================================
-// Helper: Get motion props based on reduced motion preference
-// ============================================================================
 
 export function getMotionProps(
   variants: Variants,
