@@ -20,6 +20,13 @@ import { useState } from 'react'
 import { ServiceCard } from './ServiceCard'
 import { ServiceForm } from './ServiceForm'
 
+// Message display timeouts in milliseconds
+const REQUEST_TIMEOUT_MS = {
+  SHORT: 2000,   // 2 seconds
+  NORMAL: 5000,  // 5 seconds
+  LONG: 10000,   // 10 seconds
+} as const;
+
 interface ServiceListProps {
   readonly workspaceId: Id<'workspaces'>
   /** When provided, only show services matching this status */

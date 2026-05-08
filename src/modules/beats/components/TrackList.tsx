@@ -20,6 +20,13 @@ import { Music } from 'lucide-react'
 import { useState } from 'react'
 import { TrackListItem } from './TrackListItem'
 
+// Message display timeouts in milliseconds
+const REQUEST_TIMEOUT_MS = {
+  SHORT: 2000,   // 2 seconds
+  NORMAL: 5000,  // 5 seconds
+  LONG: 10000,   // 10 seconds
+} as const;
+
 interface TrackListProps {
   readonly workspaceId: Id<'workspaces'>
   readonly status?: 'draft' | 'published'

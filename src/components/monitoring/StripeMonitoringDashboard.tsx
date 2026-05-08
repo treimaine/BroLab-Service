@@ -20,6 +20,13 @@ interface DashboardMetrics {
   timestamp: number;
 }
 
+// Polling intervals in milliseconds
+const POLL_INTERVAL_MS = {
+  FAST: 10000,   // 10 seconds
+  NORMAL: 30000, // 30 seconds
+  SLOW: 60000,   // 60 seconds
+} as const;
+
 /**
  * Stripe Production Monitoring Dashboard
  * Real-time visibility into checkout and webhook health
@@ -28,7 +35,7 @@ export function StripeMonitoringDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(POLL_INTERVAL_MS.SLOW);
+  const [refreshInterval, setRefreshInterval] = useState<number>(POLL_INTERVAL_MS.SLOW);
 
   useEffect(() => {
     const fetchMetrics = async () => {
