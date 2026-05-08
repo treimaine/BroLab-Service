@@ -15,9 +15,9 @@ const INTERSECTION_THRESHOLD = 0.3
 const EASING_POWER = 3
 
 const stats: StatItem[] = [
-  { id: 'creators', label: 'Active Creators', value: 2847, suffix: '+' },
-  { id: 'revenue', label: 'Monthly Revenue', value: 847, suffix: 'K+' },
-  { id: 'earnings', label: 'Avg Earnings', value: 2847, suffix: '/mo' },
+  { id: 'creators', label: 'Active Creators', value: 50, suffix: '+' },
+  { id: 'revenue', label: 'Monthly Revenue', value: 1, suffix: 'K+' },
+  { id: 'earnings', label: 'Avg Earnings', value: 200, suffix: '/mo' },
 ]
 
 const initialValues = {
