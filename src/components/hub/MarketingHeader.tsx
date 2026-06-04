@@ -84,7 +84,7 @@ export function MarketingHeader() {
             Sign In
           </Link>
           <Link href="/sign-up" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--bg))] rounded-full">
-            <PillCTA variant="primary" size="sm" className="group">
+            <PillCTA as="span" variant="primary" size="sm" className="group">
               <span>Get Started</span>
               <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
             </PillCTA>

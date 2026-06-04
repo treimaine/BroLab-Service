@@ -84,7 +84,7 @@ export default function TenantDemoPage() {
       navItems={navItems} 
       workspaceName="DEMO STUDIO"
       showPlayerBar={true}
-      secondaryAction={{ label: 'Back to Hub', href: '/' }}
+      secondaryAction={{ label: 'Dashboard', href: '/dashboard' }}
     >
       {/* HERO SECTION - ELECTRI-X STYLE */}
       <section className="relative min-h-[80vh] overflow-hidden bg-[rgb(var(--bg))]">

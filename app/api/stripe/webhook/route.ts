@@ -12,6 +12,15 @@ import { CONVEX_CONFIG } from '@/lib/env'
 import { NextResponse } from 'next/server'
 import { logWebhookReceived } from '@/lib/monitoring'
 
+function getConvexHttpUrl(): string {
+  const explicitSiteUrl = process.env.NEXT_PUBLIC_CONVEX_SITE_URL?.trim()
+  if (explicitSiteUrl) {
+    return explicitSiteUrl.replace(/\/$/, '')
+  }
+
+  return CONVEX_CONFIG.url.replace(/\.convex\.cloud\/?$/, '.convex.site')
+}
+
 export async function POST(request: Request) {
   const startTime = Date.now()
   try {
@@ -54,7 +63,7 @@ export async function POST(request: Request) {
     // - Order creation (Req 13.4)
     // - Booking creation for service purchases (Req 13.6)
     // - Entitlement creation for track purchases (Req 13.5)
-    const convexWebhookUrl = `${CONVEX_CONFIG.url}/api/stripe/webhook`
+    const convexWebhookUrl = `${getConvexHttpUrl()}/api/stripe/webhook`
 
     console.log('Forwarding webhook to Convex:', convexWebhookUrl)
 

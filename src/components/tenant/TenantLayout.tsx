@@ -15,6 +15,7 @@ import {
     type IconRailItem
 } from '@/platform/ui'
 
+import { useUser } from '@clerk/nextjs'
 import { PlayerBar } from '../audio'
 import { MobileNav, type MobileNavItem } from './MobileNav'
 
@@ -88,6 +89,7 @@ export function TenantLayout({
   topBarNavItems = [],
   secondaryAction,
 }: Readonly<TenantLayoutProps>) {
+  const { isSignedIn, user } = useUser()
   const [mounted, setMounted] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -173,6 +175,14 @@ export function TenantLayout({
 
   // Motion variants based on reduced motion preference
   const motionVariants = prefersReducedMotion ? dribbbleReducedMotion : dribbblePageEnter
+  const role = user?.unsafeMetadata?.role as string | undefined
+  const dashboardPath = role === 'artist' ? '/artist' : '/studio'
+  const resolvedSecondaryAction = secondaryAction?.href === '/dashboard'
+    ? {
+        ...secondaryAction,
+        href: isSignedIn ? dashboardPath : '/sign-in',
+      }
+    : secondaryAction
 
   // Prevent hydration mismatch
   if (!mounted) {
@@ -199,7 +209,7 @@ export function TenantLayout({
         brandHref={basePath || '/'}
         navItems={topBarNavItems}
         cta={topBarCta}
-        secondaryAction={secondaryAction}
+        secondaryAction={resolvedSecondaryAction}
         right={<ThemeToggle />}
         isScrolled={isScrolled}
         className="lg:pl-20" // Offset for IconRail on desktop

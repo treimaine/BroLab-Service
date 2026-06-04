@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import { type LucideIcon } from 'lucide-react'
-import { forwardRef, type ReactNode } from 'react'
+import { forwardRef, type ReactNode, type Ref } from 'react'
 
 /**
  * PillCTA - Dribbble-style pill button with gradient and glow
@@ -33,6 +33,8 @@ interface PillCTAProps {
   onClick?: () => void
   /** Button type */
   type?: 'button' | 'submit' | 'reset'
+  /** Render as a non-interactive element when wrapped by a Link */
+  as?: 'button' | 'span'
   /** Additional CSS classes */
   className?: string
 }
@@ -70,7 +72,7 @@ const iconSizes = {
   lg: 'w-6 h-6',
 }
 
-export const PillCTA = forwardRef<HTMLButtonElement, PillCTAProps>(
+export const PillCTA = forwardRef<HTMLButtonElement | HTMLSpanElement, PillCTAProps>(
   (
     {
       children,
@@ -83,6 +85,7 @@ export const PillCTA = forwardRef<HTMLButtonElement, PillCTAProps>(
       disabled,
       onClick,
       type = 'button',
+      as = 'button',
       className = '',
     },
     ref
@@ -98,25 +101,20 @@ export const PillCTA = forwardRef<HTMLButtonElement, PillCTAProps>(
           whileTap: { scale: 0.98, transition: { duration: 0.1 } },
         }
 
-    return (
-      <motion.button
-        ref={ref}
-        type={type}
-        onClick={onClick}
-        className={`
-          relative inline-flex items-center justify-center
-          rounded-full
-          transition-[background-color,color,box-shadow,transform] duration-200
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-          ${variantStyles[variant]}
-          ${sizeStyles[size]}
-          ${fullWidth ? 'w-full' : ''}
-          ${className}
-        `}
-        {...hoverLiftProps}
-        disabled={isDisabled}
-      >
+    const classNames = `
+      relative inline-flex items-center justify-center
+      rounded-full
+      transition-[background-color,color,box-shadow,transform] duration-200
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed
+      ${variantStyles[variant]}
+      ${sizeStyles[size]}
+      ${fullWidth ? 'w-full' : ''}
+      ${className}
+    `
+
+    const content = (
+      <>
         {/* Loading spinner */}
         {loading && (
           <svg
@@ -149,6 +147,32 @@ export const PillCTA = forwardRef<HTMLButtonElement, PillCTAProps>(
 
         {/* Icon after */}
         {IconAfter && !loading && <IconAfter className={iconSizes[size]} />}
+      </>
+    )
+
+    if (as === 'span') {
+      return (
+        <motion.span
+          ref={ref as Ref<HTMLSpanElement>}
+          className={classNames}
+          aria-disabled={isDisabled || undefined}
+          {...hoverLiftProps}
+        >
+          {content}
+        </motion.span>
+      )
+    }
+
+    return (
+      <motion.button
+        ref={ref as Ref<HTMLButtonElement>}
+        type={type}
+        onClick={onClick}
+        className={classNames}
+        {...hoverLiftProps}
+        disabled={isDisabled}
+      >
+        {content}
       </motion.button>
     )
   }

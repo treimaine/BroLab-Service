@@ -15,14 +15,13 @@
 
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
-import { ServicePromoSection } from '@/components/hub'
 import { useUser } from '@clerk/nextjs'
+import { api } from 'convex/_generated/api'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, CheckCircle2, CreditCard, ExternalLink, Globe, Loader2, Music, Receipt, Wrench } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
 
 const NAV_ITEMS = [
@@ -365,7 +364,8 @@ export function StudioDashboard() {
               ))}
             </div>
 
-            {/* Revenue Diversification Promo */}
+            {/* Revenue Diversification Promo - REMOVED: This section was appearing twice on the dashboard */}
+            {/* 
             <ServicePromoSection
               title="Expand Your Revenue"
               description="Offer production services alongside your beats to increase earnings and create more value for artists."
@@ -379,6 +379,7 @@ export function StudioDashboard() {
               ctaHref="/studio/services"
               variant="prominent"
             />
+            */}
           </div>
         </motion.div>
       </Authenticated>

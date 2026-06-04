@@ -267,7 +267,8 @@ function PlanCard({
         </div>
 
         <Link href="/sign-up" className="block mb-6">
-          <PillCTA 
+          <PillCTA
+            as="span"
             variant="primary"
             size="lg" 
             fullWidth
@@ -455,12 +456,12 @@ function FinalCTASection() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link href="/sign-up">
-                  <PillCTA variant="primary" size="lg" icon={Sparkles}>
+                  <PillCTA as="span" variant="primary" size="lg" icon={Sparkles}>
                     Start Free Trial
                   </PillCTA>
                 </Link>
                 <Link href="/contact">
-                  <PillCTA variant="secondary" size="lg">
+                  <PillCTA as="span" variant="secondary" size="lg">
                     Contact Sales
                   </PillCTA>
                 </Link>

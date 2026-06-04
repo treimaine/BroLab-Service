@@ -126,7 +126,7 @@ export function TopMinimalBar({
             {/* Primary CTA */}
             {cta && (
               <Link href={cta.href}>
-                <PillCTA size="sm" variant="primary">
+                <PillCTA as="span" size="sm" variant="primary">
                   {cta.label}
                 </PillCTA>
               </Link>

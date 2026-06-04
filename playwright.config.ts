@@ -56,10 +56,19 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+    // Production testing project (against live site)
+    {
+      name: 'production',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'https://brolabentertainment.com',
+      },
+    },
   ],
 
   // Web server configuration for running tests against dev server
-  webServer: {
+  // Only start server for non-production tests
+  webServer: process.env.PLAYWRIGHT_URL?.includes('brolabentertainment.com') ? undefined : {
     command: 'npx next dev --webpack',
     url: 'http://localhost:3000',
     timeout: 120000,

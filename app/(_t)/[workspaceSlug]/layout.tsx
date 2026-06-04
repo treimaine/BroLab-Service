@@ -47,7 +47,7 @@ function TenantLayoutInner({
       workspaceName={workspace?.name?.toUpperCase() ?? workspaceSlug.toUpperCase()}
       basePath={`/${workspaceSlug}`}
       showPlayerBar={true}
-      secondaryAction={{ label: 'Back to Hub', href: '/' }}
+      secondaryAction={{ label: 'Dashboard', href: '/dashboard' }}
     >
       {children}
     </TenantLayout>
