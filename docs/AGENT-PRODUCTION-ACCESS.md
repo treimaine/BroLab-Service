@@ -270,7 +270,7 @@ BroLab Entertainment has an active presence on X (formerly Twitter) with account
 ### X Account Information
 
 **Primary Accounts:**
-- **Main Account:** [@brolabent](https://twitter.com/brolabent)
+- **Main Account:** [@treigua](https://x.com/treigua)
 - **App Account:** [@brolabapp](https://x.com/brolabapp)
 
 **Website Integration:**
