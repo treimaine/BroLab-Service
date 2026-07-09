@@ -29,7 +29,7 @@ async function retryTransactionPayment(args: {
   try {
     const stripe = new (await import("stripe")).default(
       process.env.STRIPE_SECRET_KEY!,
-      { apiVersion: "2026-03-25.dahlia" }
+      { apiVersion: "2026-06-24.dahlia" }
     );
 
     // Retrieve the original payment intent to check if it can be retried

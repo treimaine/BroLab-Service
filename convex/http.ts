@@ -659,7 +659,7 @@ async function verifyStripeWebhook(body: string, signature: string): Promise<Str
 
   const stripe = new (await import("stripe")).default(
     process.env.STRIPE_SECRET_KEY!,
-    { apiVersion: "2026-03-25.dahlia" }
+    { apiVersion: "2026-06-24.dahlia" }
   );
 
   try {

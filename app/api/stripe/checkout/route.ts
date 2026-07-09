@@ -9,9 +9,9 @@
 
 import { CONVEX_CONFIG, SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
 import {
-  logCheckoutAttempt,
-  logCheckoutFailure,
-  logCheckoutSuccess,
+    logCheckoutAttempt,
+    logCheckoutFailure,
+    logCheckoutSuccess,
 } from '@/lib/monitoring'
 import { auth } from '@clerk/nextjs/server'
 import { api } from 'convex/_generated/api'
@@ -22,7 +22,7 @@ import Stripe from 'stripe'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
-  apiVersion: '2026-03-25.dahlia',
+  apiVersion: '2026-06-24.dahlia',
 })
 
 // Initialize Convex client for server-side queries

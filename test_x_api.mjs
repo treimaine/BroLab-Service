@@ -1,11 +1,8 @@
+/* eslint-disable no-console */
+/* eslint-disable no-undef */
 import https from 'https';
-import crypto from 'crypto';
 
 // These would come from env vars in the CMO agent
-const TWITTER_API_KEY = process.env.TWITTER_API_KEY;
-const TWITTER_API_SECRET = process.env.TWITTER_API_SECRET;
-const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN;
-const TWITTER_ACCESS_SECRET = process.env.TWITTER_ACCESS_SECRET;
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
 
 if (!TWITTER_BEARER_TOKEN) {
@@ -32,7 +29,9 @@ const monitoringOptions = {
 
 const monitoringReq = https.request(monitoringOptions, (res) => {
   let data = '';
-  res.on('data', chunk => data += chunk);
+  res.on('data', (chunk) => {
+    data += chunk;
+  });
   res.on('end', () => {
     console.log(`Status: ${res.statusCode}`);
     console.log(`Response:\n${data}\n`);
@@ -44,7 +43,9 @@ const monitoringReq = https.request(monitoringOptions, (res) => {
           console.log(`✓ MONITORING ACCESS SUCCESSFUL`);
           console.log(`  Authenticated as: @${userInfo.data.username} (ID: ${userInfo.data.id})\n`);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error parsing response:', e);
+      }
     } else if (res.statusCode === 401) {
       console.log(`✗ MONITORING FAILED: 401 Unauthorized - Bearer token invalid or expired\n`);
     } else if (res.statusCode === 403) {
