@@ -342,6 +342,47 @@ Configurer les variables dans :
 
 ---
 
+## 📦 Package Updates
+
+**Dernière analyse:** 9 Juillet 2026
+
+26 packages ont des mises à jour disponibles. Pour effectuer les mises à jour de manière sécurisée :
+
+### Documentation Complète
+
+- 📖 **[UPDATE-INDEX.md](docs/UPDATE-INDEX.md)** - Point d'entrée et navigation
+- 📄 **[UPDATE-README.md](docs/UPDATE-README.md)** - Guide complet (30 min)
+- 📊 **[UPDATE-SUMMARY.md](docs/UPDATE-SUMMARY.md)** - Résumé rapide (5 min)
+- 🎨 **[UPDATE-VISUAL-GUIDE.md](docs/UPDATE-VISUAL-GUIDE.md)** - Graphiques et diagrammes
+
+### Quick Start
+
+```bash
+# 1. Lire le résumé
+cat docs/UPDATE-SUMMARY.md
+
+# 2. Exécuter les vérifications
+./scripts/check-updates.sh
+
+# 3. Suivre le guide
+# Voir docs/UPDATE-README.md pour les instructions détaillées
+```
+
+### Scripts Automatisés
+
+- `scripts/check-updates.sh` - Vérifications pré-update et métriques baseline
+- `scripts/compare-metrics.sh` - Comparaison métriques avant/après
+
+### Plan de Mise à Jour
+
+- **Phase 1 (Aujourd'hui):** 13 packages production (2-3h)
+- **Phase 2 (Cette semaine):** 12 packages dev (1-2h)
+- **Phase 3 (Plus tard):** TypeScript 7.0.2 (à faire dans une branche séparée)
+
+**Statut:** ⏸️ En attente d'exécution - Documentation complète disponible
+
+---
+
 ## 📁 Structure du Projet
 
 ```
