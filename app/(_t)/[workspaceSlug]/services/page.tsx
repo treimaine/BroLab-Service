@@ -58,7 +58,7 @@ export default function ServicesListPage() {
             <DribbbleSectionEnter>
               <div className="flex items-center gap-4 mb-4">
                 <span className="text-xs font-bold text-accent uppercase tracking-widest">02</span>
-                <div className="h-px w-16 bg-[rgba(var(--border),0.5)]" />
+                <div className="h-px w-16 bg-[rgb(var(--border)/0.5)]" />
               </div>
               <h1 className="text-4xl lg:text-5xl font-black text-text mb-2 tracking-tight">SERVICES</h1>
               <p className="text-muted text-lg">
@@ -98,7 +98,7 @@ export default function ServicesListPage() {
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                               index === 0
                                 ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
-                                : 'bg-[rgba(var(--accent),0.15)]'
+                                : 'bg-[rgb(var(--accent)/0.15)]'
                             }`}>
                               <Headphones className={`w-7 h-7 ${index === 0 ? 'text-white' : 'text-accent'}`} />
                             </div>

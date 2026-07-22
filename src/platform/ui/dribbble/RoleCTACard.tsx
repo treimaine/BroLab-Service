@@ -22,7 +22,7 @@ export function RoleCTACard({
   return (
     <DribbbleCard hoverLift padding="lg" className="h-full flex flex-col">
       {/* Icon */}
-      <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center mb-4">
+      <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-4">
         <Icon className="w-7 h-7 text-accent" />
       </div>
       

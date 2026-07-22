@@ -164,7 +164,7 @@ export default function ServiceDetailPage() {
                     </PillCTA>
 
                     <div className="space-y-3 pt-4">
-                      <div className="h-px bg-[rgba(var(--border),0.5)]" />
+                      <div className="h-px bg-[rgb(var(--border)/0.5)]" />
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted">Delivery Time</span>
                         <span className="text-text font-medium">{service.turnaround}</span>
@@ -180,7 +180,7 @@ export default function ServiceDetailPage() {
 
                   {/* Payments Not Configured Warning */}
                   {!isPaymentsConfigured && (
-                    <DribbbleCard padding="lg" className="border-2 border-[rgba(var(--accent),0.3)]">
+                    <DribbbleCard padding="lg" className="border-2 border-[rgb(var(--accent)/0.3)]">
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <div>
@@ -194,7 +194,7 @@ export default function ServiceDetailPage() {
                     </DribbbleCard>
                   )}
 
-                  <div className="p-4 bg-[rgba(var(--accent),0.05)] border border-[rgba(var(--accent),0.2)] rounded-xl">
+                  <div className="p-4 bg-[rgb(var(--accent)/0.05)] border border-[rgb(var(--accent)/0.2)] rounded-xl">
                     <p className="text-sm text-muted text-center">
                       Have questions?{' '}
                       <Link href={`/${workspaceSlug}/contact`} className="text-accent hover:underline">

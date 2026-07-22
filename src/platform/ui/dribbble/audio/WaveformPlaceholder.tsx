@@ -111,7 +111,7 @@ export const WaveformPlaceholder = forwardRef<HTMLDivElement, WaveformPlaceholde
         case 'accent':
           return 'rgb(var(--accent))'
         case 'muted':
-          return 'rgba(var(--muted), 0.5)'
+          return 'rgb(var(--muted)/0.5)'
         case 'gradient':
         default:
           // Return a gradient ID reference

@@ -59,7 +59,7 @@ export const StatsBanner: React.FC<StatsBannerProps> = ({
             className={`rounded-xl p-4 sm:p-6 text-center transition-all ${
               item.highlight
                 ? 'bg-gradient-to-br from-[rgb(var(--accent))]/20 to-[rgb(var(--accent))]/10 border border-[rgb(var(--accent))]/30'
-                : 'bg-[rgba(var(--bg-2),0.45)] border border-border'
+                : 'bg-[rgb(var(--bg-2)/0.45)] border border-border'
             }`}
           >
             {/* Number */}

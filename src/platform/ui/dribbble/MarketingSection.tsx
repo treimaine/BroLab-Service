@@ -56,8 +56,8 @@ const PADDING_CLASSES: Record<NonNullable<MarketingSectionProps['padding']>, str
 
 const BACKGROUND_CLASSES: Record<NonNullable<MarketingSectionProps['background']>, string> = {
   default: '',
-  muted: 'bg-[rgba(var(--bg-2),0.5)]',
-  accent: 'bg-[rgba(var(--accent),0.03)]',
+  muted: 'bg-[rgb(var(--bg-2)/0.5)]',
+  accent: 'bg-[rgb(var(--accent)/0.03)]',
 }
 
 // ============ Sub-components ============
@@ -67,7 +67,7 @@ const BACKGROUND_CLASSES: Record<NonNullable<MarketingSectionProps['background']
  */
 function EyebrowLabel({ text }: Readonly<{ text: string }>) {
   return (
-    <span className="inline-block px-4 py-1.5 text-xs font-bold text-accent uppercase tracking-widest bg-[rgba(var(--accent),0.1)] rounded-full mb-6">
+    <span className="inline-block px-4 py-1.5 text-xs font-bold text-accent uppercase tracking-widest bg-[rgb(var(--accent)/0.1)] rounded-full mb-6">
       {text}
     </span>
   )

@@ -90,7 +90,7 @@ const CardSurfaceComponent = forwardRef(
         ref={ref}
         className={cn(
           // Base glass styling with bg-2 tokens for theme coherence
-          'bg-[rgba(var(--bg-2),0.8)]',
+          'bg-[rgb(var(--bg-2)/0.8)]',
           blurStyles[blur],
           
           // Border

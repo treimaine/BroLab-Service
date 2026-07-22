@@ -197,17 +197,17 @@ export default function BeatDetailPage() {
                     <p className="text-muted mb-3">by {workspace?.name}</p>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
                       {track.bpm && (
-                        <span className="px-2 py-1 bg-[rgba(var(--accent),0.1)] text-accent rounded-md">
+                        <span className="px-2 py-1 bg-[rgb(var(--accent)/0.1)] text-accent rounded-md">
                           {track.bpm} BPM
                         </span>
                       )}
                       {track.key && (
-                        <span className="px-2 py-1 bg-[rgba(var(--accent),0.1)] text-accent rounded-md">
+                        <span className="px-2 py-1 bg-[rgb(var(--accent)/0.1)] text-accent rounded-md">
                           {track.key}
                         </span>
                       )}
                       {track.tags.map((tag) => (
-                        <span key={tag} className="px-2 py-1 bg-[rgba(var(--border),0.3)] text-muted rounded-md">
+                        <span key={tag} className="px-2 py-1 bg-[rgb(var(--border)/0.3)] text-muted rounded-md">
                           {tag}
                         </span>
                       ))}
@@ -228,8 +228,8 @@ export default function BeatDetailPage() {
                         onClick={() => setSelectedTier(tier)}
                         className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
                           selectedTier === tier
-                            ? 'border-accent bg-[rgba(var(--accent),0.08)]'
-                            : 'border-border/50 hover:border-[rgba(var(--accent),0.4)]'
+                            ? 'border-accent bg-[rgb(var(--accent)/0.08)]'
+                            : 'border-border/50 hover:border-[rgb(var(--accent)/0.4)]'
                         }`}
                       >
                         <div className="text-left">
@@ -325,7 +325,7 @@ export default function BeatDetailPage() {
 
                   {/* Payments Not Configured Warning */}
                   {!isPaymentsConfigured && (
-                    <DribbbleCard padding="lg" className="border-2 border-[rgba(var(--accent),0.3)]">
+                    <DribbbleCard padding="lg" className="border-2 border-[rgb(var(--accent)/0.3)]">
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <div>

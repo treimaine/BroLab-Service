@@ -75,12 +75,12 @@ export const GlassChip = forwardRef<HTMLButtonElement | HTMLDivElement, GlassChi
     const sharedClassName = `
       inline-flex items-center
       rounded-full
-      bg-[rgba(var(--bg-2),0.8)]
+      bg-[rgb(var(--bg-2)/0.8)]
       backdrop-blur-sm
-      border border-[rgba(var(--border),var(--border-alpha))]
+      border border-[rgb(var(--border)/var(--border-alpha))]
       transition-[background-color,box-shadow,transform] duration-200
       ${config.chip}
-      ${isInteractive ? 'cursor-pointer hover:bg-[rgba(var(--bg-2),0.9)] hover:shadow-[0_2px_12px_rgba(var(--accent),0.1)] active:scale-[0.98]' : ''}
+      ${isInteractive ? 'cursor-pointer hover:bg-[rgb(var(--bg-2)/0.9)] hover:shadow-[0_2px_12px_rgb(var(--accent)/0.1)] active:scale-[0.98]' : ''}
       ${className}
     `
 

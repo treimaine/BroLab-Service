@@ -71,7 +71,7 @@ function shouldRedirectUser(clerkRole: string | undefined, existingUser: unknown
 function getNodeStyle(isDone: boolean, isActive: boolean): string {
   if (isDone) return 'bg-[rgb(var(--accent))] text-white'
   if (isActive) return 'bg-[rgb(var(--accent))]/20 border-2 border-[rgb(var(--accent))] text-[rgb(var(--accent))]'
-  return 'bg-[rgba(var(--bg-2),0.6)] border border-border text-muted'
+  return 'bg-[rgb(var(--bg-2)/0.6)] border border-border text-muted'
 }
 
 function getLabelStyle(isDone: boolean, isActive: boolean): string {
@@ -215,7 +215,7 @@ function RoleStep({
           <div key={role} className="relative">
             {popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[rgb(var(--accent))] text-white shadow-[0_0_12px_rgba(var(--accent),0.5)]">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[rgb(var(--accent))] text-white shadow-[0_0_12px_rgb(var(--accent)/0.5)]">
                   <Sparkles className="w-2.5 h-2.5" />
                   Most Popular
                 </span>
@@ -224,7 +224,7 @@ function RoleStep({
             <DribbbleCard
               onClick={() => !isCreating && onRoleSelect(role)}
               className={`cursor-pointer transition-all duration-200 p-6 space-y-4 h-full ${
-                popular ? 'border border-[rgb(var(--accent))]/40 shadow-[0_0_20px_rgba(var(--accent),0.1)]' : ''
+                popular ? 'border border-[rgb(var(--accent))]/40 shadow-[0_0_20px_rgb(var(--accent)/0.1)]' : ''
               } ${selectedRole === role ? 'border-[rgb(var(--accent))]/60' : ''}`}
             >
               <div className="flex items-start justify-between">
@@ -316,7 +316,7 @@ function WorkspaceStep({
             value={workspaceName}
             onChange={(e) => setWorkspaceName(e.target.value)}
             placeholder="e.g. Metro Beats, Trap God Studio"
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-[rgb(var(--accent))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))]/20 transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.8)] border border-border focus:border-[rgb(var(--accent))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))]/20 transition-colors"
             autoFocus
           />
           <p className="text-xs text-muted">Make it memorable — this is your brand.</p>
@@ -326,7 +326,7 @@ function WorkspaceStep({
           <label htmlFor="workspace-slug" className="block text-sm font-semibold">
             Your URL
           </label>
-          <div className="flex items-center gap-0 rounded-xl border border-border focus-within:border-[rgb(var(--accent))] focus-within:ring-2 focus-within:ring-[rgb(var(--accent))]/20 transition-all overflow-hidden bg-[rgba(var(--bg-2),0.8)]">
+          <div className="flex items-center gap-0 rounded-xl border border-border focus-within:border-[rgb(var(--accent))] focus-within:ring-2 focus-within:ring-[rgb(var(--accent))]/20 transition-all overflow-hidden bg-[rgb(var(--bg-2)/0.8)]">
             <input
               id="workspace-slug"
               type="text"
@@ -335,7 +335,7 @@ function WorkspaceStep({
               placeholder="my-studio"
               className="flex-1 px-4 py-3 bg-transparent focus:outline-none text-sm"
             />
-            <span className="px-3 py-3 text-xs text-muted bg-[rgba(var(--bg-2),0.4)] border-l border-border whitespace-nowrap">
+            <span className="px-3 py-3 text-xs text-muted bg-[rgb(var(--bg-2)/0.4)] border-l border-border whitespace-nowrap">
               .brolabentertainment.com
             </span>
           </div>
@@ -433,7 +433,7 @@ function StripeStep({
         <div className="space-y-3 pt-1">
           <a
             href={createdWorkspaceId ? `/api/stripe/connect?workspaceId=${createdWorkspaceId}` : '#'}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200 cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgb(var(--accent)/0.3)] hover:shadow-[0_8px_24px_rgb(var(--accent)/0.4)] transition-shadow duration-200 cursor-pointer"
           >
             Connect Stripe Account
             <ExternalLink className="w-4 h-4" />
@@ -471,7 +471,7 @@ function CompleteStep({
       {/* Celebration icon */}
       <div className="flex justify-center">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shadow-[0_0_40px_rgba(var(--accent),0.4)]">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shadow-[0_0_40px_rgb(var(--accent)/0.4)]">
             <Check className="w-10 h-10 text-white" />
           </div>
           <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">

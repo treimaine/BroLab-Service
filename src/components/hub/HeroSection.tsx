@@ -8,13 +8,9 @@ import {
     OrganicBlob,
     OutlineStackTitle,
     PillCTA,
-    ThemeToggle,
-    TopMinimalBar,
     WavyLines
 } from '@/platform/ui'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { AuthNav } from './AuthNav'
 
 const PLATFORM_INFO: Array<{ text: string }> = [
   { text: 'Keep 100% of your revenue' },
@@ -23,13 +19,22 @@ const PLATFORM_INFO: Array<{ text: string }> = [
   { text: 'Your storefront, your brand' },
 ]
 
+/**
+ * The oversized pixel word carries the DIFFERENTIATOR, not the verb.
+ * It used to read "LAUNCH", which restated the <h1> word-for-word and spent the
+ * most valuable area of the page on zero information.
+ * Press Start 2P at hero size fits ~7 characters.
+ */
+const HERO_PIXEL_WORD = '0% FEES'
+
 const BackgroundPattern = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
     <div className="absolute inset-0 flex flex-col justify-center">
       {Array.from({ length: 8 }, (_, row) => (
-        <div 
+        <div
           key={`music-row-${row}`}
-          className="whitespace-nowrap text-[clamp(100px,18vw,220px)] font-black tracking-[0.15em] opacity-[0.025] text-white leading-[0.85]"
+          // Token-based: `text-white` was invisible on the light background
+          className="whitespace-nowrap text-[clamp(100px,18vw,220px)] font-black tracking-[0.15em] text-[rgb(var(--text)/0.016)] dark:text-[rgb(var(--text)/0.03)] leading-[0.85]"
           style={{ transform: `translateX(${(row % 2) * -120}px)` }}
         >
           MUSIC MUSIC MUSIC MUSIC
@@ -39,86 +44,45 @@ const BackgroundPattern = () => (
   </div>
 )
 
-const HeroTitle = ({ className }: { className?: string }) => (
+const HeroTitle = () => (
   <div className="relative z-20">
-    <OutlineStackTitle 
-      size="hero" 
+    <OutlineStackTitle
+      // `span`, not the default `h1` — the real <h1> is the sentence below.
+      as="span"
+      size="hero"
       layers={3}
       offset={2}
-      className={className}
+      className="block text-[clamp(40px,8vw,104px)] font-black tracking-[0.05em]"
       style={{
         fontFamily: '"Press Start 2P", monospace',
-        textShadow: '0 0 60px rgba(0,255,255,0.3), 0 0 120px rgba(0,255,255,0.15)',
+        textShadow: '0 0 60px rgb(var(--glow)/0.30), 0 0 120px rgb(var(--glow)/0.15)',
       }}
     >
-      LAUNCH
+      {HERO_PIXEL_WORD}
     </OutlineStackTitle>
-    
+
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
       <div className="absolute w-full h-[2px] bg-[rgb(var(--accent))] opacity-20" style={{ top: '35%' }} />
-      <div className="absolute w-full h-px bg-white opacity-10" style={{ top: '65%' }} />
+      <div className="absolute w-full h-px bg-[rgb(var(--text))] opacity-10" style={{ top: '65%' }} />
     </div>
-  </div>
-)
-
-const HeroCopy = () => (
-  <div className="space-y-6 max-w-2xl mx-auto">
-    <div className="text-xs font-bold text-accent uppercase tracking-widest">
-      FOR PRODUCERS & AUDIO ENGINEERS
-    </div>
-    
-    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text leading-tight">
-      Launch your store. Sell your music. Get paid directly.
-    </h1>
-    
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-      <Link href="/sign-up">
-        <PillCTA variant="primary" size="lg">
-          Start My Storefront
-        </PillCTA>
-      </Link>
-      <Link href="/tenant-demo">
-        <PillCTA variant="secondary" size="lg">
-          View Demo
-        </PillCTA>
-      </Link>
-    </div>
-    
-    <p className="text-xs text-muted">
-      No credit card • Cancel anytime
-    </p>
   </div>
 )
 
 export function HeroSection() {
-  const [mounted, setMounted] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[rgb(var(--bg))]">
+    <section className="relative overflow-hidden bg-[rgb(var(--bg))] pt-28 pb-16 lg:pt-32 lg:pb-24">
       <BackgroundPattern />
 
-      <div 
+      <div
         className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(var(--accent), 0.08) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.08) 0%, transparent 70%)' }}
         aria-hidden="true"
       />
 
       <WavyLines className="right-0 top-0 w-[180px] h-full" />
 
-      <div 
-        className="absolute right-[15%] top-0 bottom-0 w-px hidden lg:block"
+      <div
+        className="absolute right-[15%] top-0 bottom-0 w-px hidden lg:block pointer-events-none"
         style={{
           backgroundImage: 'repeating-linear-gradient(to bottom, rgb(var(--accent)) 0px, rgb(var(--accent)) 4px, transparent 4px, transparent 14px)',
           opacity: 0.4,
@@ -128,56 +92,65 @@ export function HeroSection() {
 
       <ConstellationDots className="top-[10%] right-[20%] w-[150px] h-[150px] hidden lg:block" />
 
-      <TopMinimalBar
-        brand={
-          <span className="text-sm font-medium text-muted uppercase tracking-[0.4em] hover:text-text transition-colors">
-            BROLAB
-          </span>
-        }
-        brandHref="/"
-        right={
-          <div className="flex items-center gap-4">
-            {mounted && <ThemeToggle />}
-            <AuthNav ctaLabel="Start Free" />
-          </div>
-        }
-        isScrolled={isScrolled}
-      />
+      <div className="absolute bottom-0 right-[5%] hidden lg:block z-0 pointer-events-none" aria-hidden="true">
+        <OrganicBlob className="w-[180px] h-[140px]" />
+      </div>
 
-      <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-screen flex items-center">
-        <div className="w-full">
-          <div className="relative min-h-[75vh] flex flex-col justify-center">
-            
-            <div className="hidden lg:block">
-              <div className="space-y-12 text-center">
-                <HeroTitle className="text-[clamp(56px,9vw,120px)] font-black tracking-[0.05em]" />
-                <HeroCopy />
+      <div className="relative z-10 container mx-auto px-4 lg:px-8">
+        {/*
+          Grid, not absolute positioning: the info module used to be `absolute`
+          and overlapped the <h1> between ~1280px and ~1500px, clipping
+          "Sell your music". In flow it can never collide.
+        */}
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-12 items-center">
+
+          <div className="space-y-10 text-center xl:text-left">
+            <HeroTitle />
+
+            <div className="space-y-6 max-w-2xl mx-auto xl:mx-0">
+              <p className="text-xs font-bold text-accent uppercase tracking-widest">
+                For producers &amp; audio engineers
+              </p>
+
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text leading-tight text-balance">
+                Launch your store. Sell your music. Get paid directly.
+              </h1>
+
+              <p className="text-base text-muted max-w-xl mx-auto xl:mx-0">
+                Beats and mixing services on one storefront under your own brand.
+                You keep <span className="text-text font-semibold">100%</span> of every sale —
+                we never take a commission.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center xl:justify-start">
+                <Link href="/sign-up">
+                  <PillCTA variant="primary" size="lg">
+                    Start My Storefront
+                  </PillCTA>
+                </Link>
+                <Link href="/tenant-demo">
+                  <PillCTA variant="secondary" size="lg">
+                    View Demo
+                  </PillCTA>
+                </Link>
               </div>
-            </div>
-            
-            <div className="lg:hidden space-y-12">
-              <div className="text-center">
-                <HeroTitle className="text-[clamp(40px,10vw,100px)] font-black tracking-[0.05em]" />
-              </div>
-              <div className="text-center">
-                <HeroCopy />
-              </div>
+
+              <p className="text-xs text-muted">
+                No credit card • Cancel anytime
+              </p>
             </div>
 
-            <div className="absolute bottom-12 left-0 z-30 flex items-end gap-5">
+            {/* In flow — used to be absolute and covered the reassurance line on mobile */}
+            <div className="flex items-end gap-5 justify-center xl:justify-start pt-4">
               <EditionBadge title="BROLAB" subtitle="Edition" />
               <CyanOrb size={70} className="hidden sm:block" />
             </div>
-
-            <div className="absolute top-1/2 -translate-y-1/2 right-0 xl:right-[5%] hidden xl:block z-30">
-              <MicroInfoModule items={PLATFORM_INFO} />
-            </div>
-
-            <div className="absolute bottom-0 right-[5%] hidden lg:block z-20 pointer-events-none">
-              <OrganicBlob className="w-[180px] h-[140px]" />
-            </div>
-
           </div>
+
+          <div className="hidden xl:block">
+            <MicroInfoModule items={PLATFORM_INFO} />
+          </div>
+
         </div>
       </div>
     </section>

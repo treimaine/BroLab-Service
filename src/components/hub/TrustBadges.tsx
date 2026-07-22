@@ -27,22 +27,22 @@ const getCategoryStyles = (category?: Badge['category']) => {
       return {
         border: 'border-accent/30 hover:border-accent/60',
         bg: 'bg-linear-to-br from-accent/10 to-transparent',
-        shadow: 'hover:shadow-lg hover:shadow-[rgba(var(--accent),0.3)]',
+        shadow: 'hover:shadow-lg hover:shadow-[rgb(var(--accent)/0.3)]',
         text: 'text-accent'
       }
     case 'compliance':
       return {
         border: 'border-accent-2/30 hover:border-accent-2/60',
         bg: 'bg-linear-to-br from-accent-2/10 to-transparent',
-        shadow: 'hover:shadow-lg hover:shadow-[rgba(var(--accent-2),0.3)]',
+        shadow: 'hover:shadow-lg hover:shadow-[rgb(var(--accent-2)/0.3)]',
         text: 'text-accent-2'
       }
     case 'support':
     default:
       return {
-        border: 'border-[rgba(var(--border),0.6)] hover:border-accent/60',
-        bg: 'bg-linear-to-br from-[rgba(var(--card),0.4)] to-transparent',
-        shadow: 'hover:shadow-lg hover:shadow-[rgba(var(--accent),0.2)]',
+        border: 'border-[rgb(var(--border)/0.6)] hover:border-accent/60',
+        bg: 'bg-linear-to-br from-[rgb(var(--card)/0.4)] to-transparent',
+        shadow: 'hover:shadow-lg hover:shadow-[rgb(var(--accent)/0.2)]',
         text: 'text-accent'
       }
   }
@@ -199,7 +199,7 @@ interface TrustFooterProps {
 
 export const TrustFooter: React.FC<TrustFooterProps> = ({ className = '' }) => {
   return (
-    <div className={`w-full py-6 px-4 border-t border-[rgba(var(--border),0.3)] ${className}`}>
+    <div className={`w-full py-6 px-4 border-t border-[rgb(var(--border)/0.3)] ${className}`}>
       <TrustBadges
         badges={DEFAULT_TRUST_BADGES}
         size="sm"

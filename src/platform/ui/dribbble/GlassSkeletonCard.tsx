@@ -45,9 +45,9 @@ export function GlassSkeletonCard({
       className={`
         block
         rounded-2xl
-        bg-[rgba(var(--bg-2),0.8)]
+        bg-[rgb(var(--bg-2)/0.8)]
         backdrop-blur-sm
-        border border-[rgba(var(--border),var(--border-alpha))]
+        border border-[rgb(var(--border)/var(--border-alpha))]
         p-6
         ${className}
       `.trim().replaceAll(/\s+/g, ' ')}
@@ -58,7 +58,7 @@ export function GlassSkeletonCard({
         <div
           className="
             w-full h-48 mb-4 rounded-xl
-            bg-[rgba(var(--border),0.2)]
+            bg-[rgb(var(--border)/0.2)]
             animate-pulse
             motion-reduce:animate-none
           "
@@ -77,7 +77,7 @@ export function GlassSkeletonCard({
               key={`skeleton-row-${i}`}
               className={`
                 h-4 rounded-lg
-                bg-[rgba(var(--border),0.2)]
+                bg-[rgb(var(--border)/0.2)]
                 animate-pulse
                 motion-reduce:animate-none
                 ${widthClass}

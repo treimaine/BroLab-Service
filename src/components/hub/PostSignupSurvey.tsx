@@ -94,7 +94,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Re
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[rgba(var(--bg),0.5)] transition-colors cursor-pointer"
+            className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[rgb(var(--bg)/0.5)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4 text-muted" />
           </button>
@@ -105,7 +105,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Re
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="w-14 h-14 rounded-full bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(var(--accent),0.3)]">
+              <div className="w-14 h-14 rounded-full bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center mx-auto shadow-[0_0_30px_rgb(var(--accent)/0.3)]">
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
               <h3 className="text-xl font-bold">Thanks for the feedback!</h3>
@@ -138,7 +138,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Re
                     className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer ${
                       selected === value
                         ? 'bg-[rgb(var(--accent))]/15 border-2 border-[rgb(var(--accent))] text-[rgb(var(--accent))]'
-                        : 'bg-[rgba(var(--bg),0.5)] border border-border hover:border-[rgb(var(--accent))]/30 text-text'
+                        : 'bg-[rgb(var(--bg)/0.5)] border border-border hover:border-[rgb(var(--accent))]/30 text-text'
                     }`}
                   >
                     {label}
@@ -153,7 +153,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Re
                   value={customAnswer}
                   onChange={(e) => setCustomAnswer(e.target.value)}
                   placeholder="Tell us more..."
-                  className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg),0.8)] border border-border focus:border-[rgb(var(--accent))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))]/20 transition-colors text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg)/0.8)] border border-border focus:border-[rgb(var(--accent))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))]/20 transition-colors text-sm"
                 />
               )}
 
@@ -161,7 +161,7 @@ export function PostSignupSurvey({ clerkUserId, workspaceId, role, onClose }: Re
               <button
                 onClick={handleSubmit}
                 disabled={!selected || isSubmitting}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgb(var(--accent)/0.3)] hover:shadow-[0_8px_24px_rgb(var(--accent)/0.4)] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

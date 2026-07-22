@@ -26,42 +26,12 @@ interface CreatorStoriesProps {
   readonly className?: string
 }
 
-export const MOCK_CREATOR_STORIES: CreatorStoryData[] = [
-  {
-    id: '1',
-    name: 'Alex Rivers',
-    role: 'Multi-Platinum Producer',
-    niche: 'Hip-Hop/Trap',
-    avatar: 'AR',
-    monthlyEarnings: 3400,
-    earnings: '$3,400/month',
-    quote: "BroLab changed everything for me. I launched my store in 10 minutes and sold my first exclusive beat the next day with 0% commission.",
-    profileUrl: '#',
-  },
-  {
-    id: '2',
-    name: 'Sarah Chen',
-    role: 'Mixing Engineer',
-    niche: 'Electronic/Ambient',
-    avatar: 'SC',
-    monthlyEarnings: 2100,
-    earnings: '$2,100/month',
-    quote: "The automated licensing and Stripe integration are seamless. I can focus on mixing while the platform handles the business.",
-    profileUrl: '#',
-  },
-  {
-    id: '3',
-    name: 'Marcus J',
-    role: 'Independent Artist',
-    niche: 'R&B/Soul',
-    avatar: 'MJ',
-    monthlyEarnings: 5200,
-    earnings: '$5,200/month',
-    quote: "As an artist, I love the clean interface and the high-quality previews. Finding the right beat has never been this professional.",
-    profileUrl: '#',
-  },
-]
-
+/**
+ * NOTE: MOCK_CREATOR_STORIES was removed. It held three fabricated creators
+ * with invented monthly earnings, and was rendered on /onboarding under the
+ * heading "Real creators, real earnings". Only pass this component quotes from
+ * real, consenting creators.
+ */
 export function CreatorStories({
   stories,
   title,

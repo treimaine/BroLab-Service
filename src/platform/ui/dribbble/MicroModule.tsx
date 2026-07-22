@@ -47,7 +47,7 @@ export function MicroModule({
       {/* Header with icon and label */}
       <div className="flex items-center gap-2 mb-2">
         {Icon && (
-          <div className="w-8 h-8 rounded-lg bg-[rgba(var(--accent),0.1)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-[rgb(var(--accent)/0.1)] flex items-center justify-center">
             <Icon className="w-4 h-4 text-accent" />
           </div>
         )}
@@ -128,7 +128,7 @@ export function MicroModuleList({
         {displayItems.map((item, index) => {
           const Icon = item.icon
           const content = (
-            <div className="flex items-center justify-between px-4 py-2.5 hover:bg-[rgba(var(--bg-2),0.5)] transition-colors">
+            <div className="flex items-center justify-between px-4 py-2.5 hover:bg-[rgb(var(--bg-2)/0.5)] transition-colors">
               <div className="flex items-center gap-2">
                 {Icon && <Icon className="w-4 h-4 text-muted" />}
                 <span className="text-sm text-text">{item.label}</span>

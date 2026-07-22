@@ -47,7 +47,7 @@ export default function ContactPage() {
             <DribbbleSectionEnter>
               <div className="flex items-center gap-4 mb-4">
                 <span className="text-xs font-bold text-accent uppercase tracking-widest">03</span>
-                <div className="h-px w-16 bg-[rgba(var(--border),0.5)]" />
+                <div className="h-px w-16 bg-[rgb(var(--border)/0.5)]" />
               </div>
               <h1 className="text-4xl lg:text-5xl font-black text-text mb-2 tracking-tight">GET IN TOUCH</h1>
               <p className="text-muted text-lg">
@@ -78,7 +78,7 @@ export default function ContactPage() {
 
                   <DribbbleCard padding="lg" hoverLift>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center shrink-0">
                         <Phone className="w-6 h-6 text-accent" />
                       </div>
                       <div>
@@ -90,7 +90,7 @@ export default function ContactPage() {
 
                   <DribbbleCard padding="lg" hoverLift>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center shrink-0">
                         <MapPin className="w-6 h-6 text-accent" />
                       </div>
                       <div>
@@ -100,7 +100,7 @@ export default function ContactPage() {
                     </div>
                   </DribbbleCard>
 
-                  <div className="p-4 rounded-xl border border-[rgba(var(--accent),0.2)] bg-[rgba(var(--accent),0.05)]">
+                  <div className="p-4 rounded-xl border border-[rgb(var(--accent)/0.2)] bg-[rgb(var(--accent)/0.05)]">
                     <p className="text-xs text-muted uppercase tracking-widest mb-1">Response Time</p>
                     <p className="text-sm font-bold text-text">Usually within 24 hours</p>
                   </div>
@@ -111,7 +111,7 @@ export default function ContactPage() {
                   <DribbbleCard glow padding="lg">
                     <div className="flex items-center gap-4 mb-6">
                       <span className="text-xs font-bold text-accent uppercase tracking-widest">SEND A MESSAGE</span>
-                      <div className="h-px flex-1 bg-[rgba(var(--border),0.5)]" />
+                      <div className="h-px flex-1 bg-[rgb(var(--border)/0.5)]" />
                     </div>
                     <form className="space-y-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -123,7 +123,7 @@ export default function ContactPage() {
                             type="text"
                             id="name"
                             name="name"
-                            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
                             placeholder="Your name"
                           />
                         </div>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                             type="email"
                             id="email"
                             name="email"
-                            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
                             placeholder="your@email.com"
                           />
                         </div>
@@ -148,7 +148,7 @@ export default function ContactPage() {
                         <select
                           id="subject"
                           name="subject"
-                          className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.5)] border border-border/50 text-text focus:outline-none focus:border-accent/50 transition-colors cursor-pointer"
+                          className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.5)] border border-border/50 text-text focus:outline-none focus:border-accent/50 transition-colors cursor-pointer"
                         >
                           <option>General Inquiry</option>
                           <option>Beat Licensing</option>
@@ -166,7 +166,7 @@ export default function ContactPage() {
                           id="message"
                           name="message"
                           rows={6}
-                          className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
+                          className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.5)] border border-border/50 text-text placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
                           placeholder="Tell us about your project..."
                         />
                       </div>

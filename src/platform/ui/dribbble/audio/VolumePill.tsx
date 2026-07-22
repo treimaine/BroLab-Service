@@ -222,7 +222,7 @@ export const VolumePill = forwardRef<HTMLFieldSetElement, VolumePillProps>(
                 : `
                   text-[rgb(var(--text))]
                   hover:text-[rgb(var(--accent))]
-                  hover:bg-[rgba(var(--accent),0.1)]
+                  hover:bg-[rgb(var(--accent)/0.1)]
                 `
             }
           `}
@@ -285,7 +285,7 @@ export const VolumePill = forwardRef<HTMLFieldSetElement, VolumePillProps>(
               <div
                 className={`
                   absolute inset-x-0 rounded-full
-                  bg-[rgba(var(--border),0.2)]
+                  bg-[rgb(var(--border)/0.2)]
                   ${sizeConfig.sliderHeight}
                 `}
               />
@@ -301,8 +301,8 @@ export const VolumePill = forwardRef<HTMLFieldSetElement, VolumePillProps>(
                 initial={false}
                 animate={{
                   boxShadow: isHovering || isDragging
-                    ? '0 0 8px rgba(var(--accent), 0.4)'
-                    : '0 0 0px rgba(var(--accent), 0)',
+                    ? '0 0 8px rgb(var(--accent)/0.4)'
+                    : '0 0 0px rgb(var(--accent)/0)',
                 }}
                 transition={{ duration: 0.2 }}
               />
@@ -339,7 +339,7 @@ export const VolumePill = forwardRef<HTMLFieldSetElement, VolumePillProps>(
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
-              background: 'radial-gradient(circle at 30% 50%, rgba(var(--glow), 0.1) 0%, transparent 60%)',
+              background: 'radial-gradient(circle at 30% 50%, rgb(var(--glow)/0.1) 0%, transparent 60%)',
             }}
           />
         )}

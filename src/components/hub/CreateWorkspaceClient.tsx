@@ -127,7 +127,7 @@ export function CreateWorkspaceClient() {
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 placeholder="My Studio"
-                className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
               />
               <p className="text-xs text-muted">This is the name of your storefront</p>
             </div>
@@ -144,7 +144,7 @@ export function CreateWorkspaceClient() {
                   value={workspaceSlug}
                   onChange={(e) => setWorkspaceSlug(e.target.value.toLowerCase())}
                   placeholder="my-studio"
-                  className="flex-1 px-4 py-3 rounded-xl bg-[rgba(var(--bg-2),0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-xl bg-[rgb(var(--bg-2)/0.8)] border border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
                 />
                 <span className="text-sm text-muted whitespace-nowrap">.brolabentertainment.com</span>
               </div>

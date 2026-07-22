@@ -60,7 +60,7 @@ export function WorkspaceErrorBoundary({ children }: Readonly<{ children: ReactN
     return (
       <div className="min-h-screen bg-[rgb(var(--bg))]">
         {/* Notice banner */}
-        <div className="bg-[rgba(var(--accent),0.1)] border-b border-[rgba(var(--accent),0.3)] px-4 py-3">
+        <div className="bg-[rgb(var(--accent)/0.1)] border-b border-[rgb(var(--accent)/0.3)] px-4 py-3">
           <div className="container mx-auto">
             <p className="text-sm text-center text-accent">
               This workspace is currently inactive. Some features may be limited.

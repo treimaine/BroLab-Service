@@ -203,7 +203,7 @@ function PricingToggle({
         leftLabel="Monthly" 
         rightLabel="Annual" 
       />
-      <span className="ml-2 px-3 py-1 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_2px_8px_rgba(var(--accent),0.3)]">
+      <span className="ml-2 px-3 py-1 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_2px_8px_rgb(var(--accent)/0.3)]">
         SAVE UP TO 70%
       </span>
     </div>
@@ -237,7 +237,7 @@ function PlanCard({
     <div className={isPro ? 'pt-4' : ''}>
       {isPro && (
         <div className="flex justify-center mb-[-14px] relative z-20">
-          <span className="px-4 py-1.5 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_4px_14px_rgba(var(--accent),0.4)]">
+          <span className="px-4 py-1.5 text-xs font-bold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] rounded-full shadow-[0_4px_14px_rgb(var(--accent)/0.4)]">
             MOST POPULAR
           </span>
         </div>
@@ -247,7 +247,7 @@ function PlanCard({
         glow={isPro} 
         hoverLift 
         padding="lg" 
-        className={`relative ${isPro ? 'border border-[rgba(var(--accent),0.3)] ring-1 ring-[rgba(var(--accent),0.2)]' : ''}`}
+        className={`relative ${isPro ? 'border border-[rgb(var(--accent)/0.3)] ring-1 ring-[rgb(var(--accent)/0.2)]' : ''}`}
       >
         <div className={`text-center mb-6 ${isPro ? 'pt-2' : ''}`}>
           <h3 className="text-2xl font-bold text-text mb-2">{uiConfig.name}</h3>
@@ -272,7 +272,7 @@ function PlanCard({
             variant="primary"
             size="lg" 
             fullWidth
-            className={isPro ? '' : 'bg-linear-to-r from-[rgba(var(--accent),0.15)] to-[rgba(var(--accent-2),0.15)] text-accent! border border-[rgba(var(--accent),0.3)]'}
+            className={isPro ? '' : 'bg-linear-to-r from-[rgb(var(--accent)/0.15)] to-[rgb(var(--accent-2)/0.15)] text-accent! border border-[rgb(var(--accent)/0.3)]'}
           >
             Get Started
           </PillCTA>
@@ -343,7 +343,7 @@ function FeatureTable({ featureComparison }: Readonly<{ featureComparison: Featu
         <tbody>
           {featureComparison.map((category) => (
             <React.Fragment key={category.category}>
-              <tr className="bg-[rgba(var(--bg-2),0.3)]">
+              <tr className="bg-[rgb(var(--bg-2)/0.3)]">
                 <td colSpan={3} className="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">
                   {category.category}
                 </td>
@@ -435,17 +435,17 @@ function FinalCTASection() {
           <DribbbleCard glow padding="lg" className="text-center relative overflow-hidden">
             <div 
               className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none" 
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
             <div 
               className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
             
             <div className="relative z-10">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center">
                 <Zap className="w-8 h-8 text-accent" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-text mb-4">

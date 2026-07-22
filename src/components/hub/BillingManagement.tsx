@@ -244,7 +244,7 @@ export function BillingManagement() {
                       </ul>
                       <a
                         href={`/api/stripe/connect?workspaceId=${data.workspaceId}`}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgba(var(--accent),0.3)] hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)] transition-shadow duration-200"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] shadow-[0_4px_14px_rgb(var(--accent)/0.3)] hover:shadow-[0_8px_24px_rgb(var(--accent)/0.4)] transition-shadow duration-200"
                       >
                         Connect Stripe Account
                         <ExternalLink className="w-4 h-4" />
@@ -279,7 +279,7 @@ export function BillingManagement() {
                           </span>
                         </div>
                         {data.planFeatures.maxPublishedTracks !== -1 && (
-                          <div className="w-full bg-[rgba(var(--border),0.3)] rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-[rgb(var(--border)/0.3)] rounded-full h-2 overflow-hidden">
                             <div
                               className="bg-accent h-full transition-all duration-300"
                               style={{
@@ -305,7 +305,7 @@ export function BillingManagement() {
                             {data.planFeatures.storageGb} GB
                           </span>
                         </div>
-                        <div className="w-full bg-[rgba(var(--border),0.3)] rounded-full h-2 overflow-hidden">
+                        <div className="w-full bg-[rgb(var(--border)/0.3)] rounded-full h-2 overflow-hidden">
                           <div
                             className="bg-accent h-full transition-all duration-300"
                             style={{
@@ -332,7 +332,7 @@ export function BillingManagement() {
                           </span>
                         </div>
                         {data.planFeatures.maxCustomDomains > 0 && (
-                          <div className="w-full bg-[rgba(var(--border),0.3)] rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-[rgb(var(--border)/0.3)] rounded-full h-2 overflow-hidden">
                             <div className="bg-accent h-full transition-all duration-300" style={{ width: '0%' }} />
                           </div>
                         )}

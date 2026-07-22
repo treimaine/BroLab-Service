@@ -43,20 +43,20 @@ const variantStyles = {
   primary: `
     bg-linear-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]
     text-white font-semibold
-    shadow-[0_4px_14px_rgba(var(--accent),0.3)]
-    hover:shadow-[0_8px_24px_rgba(var(--accent),0.4)]
+    shadow-[0_4px_14px_rgb(var(--accent)/0.3)]
+    hover:shadow-[0_8px_24px_rgb(var(--accent)/0.4)]
   `,
   secondary: `
     glass border border-border
     text-text font-medium
-    hover:border-[rgba(var(--accent),0.3)]
-    hover:shadow-[0_0_20px_rgba(var(--accent),0.15)]
+    hover:border-[rgb(var(--accent)/0.3)]
+    hover:shadow-[0_0_20px_rgb(var(--accent)/0.15)]
   `,
   ghost: `
     bg-transparent
     text-muted font-medium
     hover:text-text
-    hover:bg-[rgba(var(--bg-2),0.5)]
+    hover:bg-[rgb(var(--bg-2)/0.5)]
   `,
 }
 

@@ -33,7 +33,7 @@ export function CyanBlob({
         <path 
           d="M20 70C20 30 50 10 90 10C130 10 160 40 160 70C160 100 140 130 100 130C60 130 20 110 20 70Z"
           fill="url(#cyanGradient)"
-          className="drop-shadow-[0_0_40px_rgba(var(--accent),0.6)]"
+          className="drop-shadow-[0_0_40px_rgb(var(--accent)/0.6)]"
         />
         <defs>
           <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="100%" y2="100%">

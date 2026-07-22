@@ -34,9 +34,9 @@ export function GlassSkeletonPulse({
     <motion.div
       className={`
         rounded-xl
-        bg-[rgba(var(--bg-2),0.8)]
+        bg-[rgb(var(--bg-2)/0.8)]
         backdrop-blur-sm
-        border border-[rgba(var(--border),var(--border-alpha))]
+        border border-[rgb(var(--border)/var(--border-alpha))]
         ${className}
       `.trim().replaceAll(/\s+/g, ' ')}
       animate={{
@@ -50,9 +50,9 @@ export function GlassSkeletonPulse({
       style={{
         background: `linear-gradient(
           90deg,
-          rgba(var(--bg-2), 0.6) 0%,
-          rgba(var(--accent), 0.08) 50%,
-          rgba(var(--bg-2), 0.6) 100%
+          rgb(var(--bg-2)/0.6) 0%,
+          rgb(var(--accent)/0.08) 50%,
+          rgb(var(--bg-2)/0.6) 100%
         )`,
         backgroundSize: '200% 100%',
       }}

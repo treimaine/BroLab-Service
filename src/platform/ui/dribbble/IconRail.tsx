@@ -75,8 +75,8 @@ export function IconRail({ items, brand, className = '' }: Readonly<IconRailProp
                   w-12 h-12 rounded-xl
                   transition-colors duration-200
                   ${active 
-                    ? 'bg-[rgba(var(--accent),0.15)] text-accent' 
-                    : 'text-muted hover:text-text hover:bg-[rgba(var(--bg-2),0.5)]'
+                    ? 'bg-[rgb(var(--accent)/0.15)] text-accent' 
+                    : 'text-muted hover:text-text hover:bg-[rgb(var(--bg-2)/0.5)]'
                   }
                 `}
                 whileHover={{ scale: 1.05 }}
@@ -91,7 +91,7 @@ export function IconRail({ items, brand, className = '' }: Readonly<IconRailProp
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     style={{
-                      boxShadow: '0 0 20px rgba(var(--accent), 0.3)',
+                      boxShadow: '0 0 20px rgb(var(--accent)/0.3)',
                     }}
                   />
                 )}
@@ -113,7 +113,7 @@ export function IconRail({ items, brand, className = '' }: Readonly<IconRailProp
                 className="
                   absolute left-full ml-3 top-1/2 -translate-y-1/2
                   px-3 py-1.5 rounded-lg
-                  bg-[rgba(var(--bg-2),0.95)] border border-border
+                  bg-[rgb(var(--bg-2)/0.95)] border border-border
                   text-sm font-medium text-text
                   opacity-0 group-hover:opacity-100
                   pointer-events-none

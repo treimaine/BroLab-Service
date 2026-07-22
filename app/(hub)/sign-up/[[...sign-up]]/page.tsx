@@ -40,13 +40,13 @@ export default function SignUpPage() {
               Launch your storefront, sell beats or services, and get paid directly with Stripe.
             </p>
             <ul className="space-y-3 text-sm text-muted">
-              <li className="rounded-xl border border-border bg-[rgba(var(--bg-2),0.45)] px-4 py-3">
+              <li className="rounded-xl border border-border bg-[rgb(var(--bg-2)/0.45)] px-4 py-3">
                 0% commission on every sale
               </li>
-              <li className="rounded-xl border border-border bg-[rgba(var(--bg-2),0.45)] px-4 py-3">
+              <li className="rounded-xl border border-border bg-[rgb(var(--bg-2)/0.45)] px-4 py-3">
                 Instant license and delivery flow
               </li>
-              <li className="rounded-xl border border-border bg-[rgba(var(--bg-2),0.45)] px-4 py-3">
+              <li className="rounded-xl border border-border bg-[rgb(var(--bg-2)/0.45)] px-4 py-3">
                 Setup time: around 5 minutes
               </li>
             </ul>

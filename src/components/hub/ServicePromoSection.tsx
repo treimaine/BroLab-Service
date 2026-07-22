@@ -45,7 +45,7 @@ export const ServicePromoSection: React.FC<ServicePromoProps> = ({
         className={`rounded-2xl border border-border transition-all ${
           isProminent
             ? 'bg-gradient-to-br from-[rgb(var(--accent))]/20 to-[rgb(var(--accent))]/5 border-[rgb(var(--accent))]/30 p-8 sm:p-12'
-            : 'bg-[rgba(var(--bg-2),0.45)] border-border p-6 sm:p-8'
+            : 'bg-[rgb(var(--bg-2)/0.45)] border-border p-6 sm:p-8'
         }`}
       >
         {/* Content */}
@@ -97,7 +97,7 @@ export const ServicePromoSection: React.FC<ServicePromoProps> = ({
             className={`inline-block px-6 sm:px-8 py-3 rounded-lg font-semibold transition-all ${
               isProminent
                 ? 'bg-[rgb(var(--accent))] text-black hover:bg-[rgb(var(--accent))]/90 shadow-lg hover:shadow-xl'
-                : 'bg-[rgba(var(--accent),0.1)] text-[rgb(var(--accent))] hover:bg-[rgba(var(--accent),0.2)]'
+                : 'bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))] hover:bg-[rgb(var(--accent)/0.2)]'
             }`}
           >
             {ctaText} →
@@ -147,7 +147,7 @@ export const ServicePromoRow: React.FC<ServicePromoRowProps> = ({
       {items.map((item, idx) => (
         <div
           key={idx}
-          className="rounded-lg p-4 bg-[rgba(var(--bg-2),0.45)] border border-border hover:border-[rgb(var(--accent))]/30 transition-all"
+          className="rounded-lg p-4 bg-[rgb(var(--bg-2)/0.45)] border border-border hover:border-[rgb(var(--accent))]/30 transition-all"
         >
           <div className="text-2xl mb-2">{item.icon}</div>
           <h4 className="font-bold text-text text-sm mb-1">

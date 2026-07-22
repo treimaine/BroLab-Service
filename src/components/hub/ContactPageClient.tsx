@@ -80,7 +80,7 @@ function ContactForm() {
   if (isSubmitted) {
     return (
       <DribbbleCard padding="lg" glow className="text-center">
-        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center">
           <Send className="w-8 h-8 text-accent" />
         </div>
         <h3 className="text-xl font-bold text-text mb-2">Message Sent!</h3>
@@ -115,7 +115,7 @@ function ContactForm() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg),0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg)/0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
             placeholder="Your name"
           />
         </div>
@@ -132,7 +132,7 @@ function ContactForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg),0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg)/0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
             placeholder="you@example.com"
           />
         </div>
@@ -154,8 +154,8 @@ function ContactForm() {
                     flex flex-col items-center gap-2 p-4 rounded-xl border transition-all
                     focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-[rgb(var(--bg))]
                     ${isSelected
-                      ? 'bg-[rgba(var(--accent),0.15)] border-accent text-accent'
-                      : 'bg-[rgba(var(--bg),0.5)] border-border text-muted hover:border-accent/50 hover:text-text'
+                      ? 'bg-[rgb(var(--accent)/0.15)] border-accent text-accent'
+                      : 'bg-[rgb(var(--bg)/0.5)] border-border text-muted hover:border-accent/50 hover:text-text'
                     }
                   `}
                 >
@@ -179,7 +179,7 @@ function ContactForm() {
             onChange={handleChange}
             required
             rows={5}
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(var(--bg),0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl bg-[rgb(var(--bg)/0.5)] border border-border text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all resize-none"
             placeholder="How can we help you?"
           />
         </div>
@@ -209,7 +209,7 @@ function SupportInfoSection() {
             <DribbbleStaggerItem>
               <DribbbleCard padding="lg" hoverLift className="h-full">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-[rgb(var(--accent)/0.1)] flex items-center justify-center shrink-0">
                     <Mail className="w-6 h-6 text-accent" />
                   </div>
                   <div>
@@ -233,7 +233,7 @@ function SupportInfoSection() {
             <DribbbleStaggerItem>
               <DribbbleCard padding="lg" hoverLift className="h-full">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-[rgb(var(--accent)/0.1)] flex items-center justify-center shrink-0">
                     <Clock className="w-6 h-6 text-accent" />
                   </div>
                   <div>
@@ -257,7 +257,7 @@ function SupportInfoSection() {
 
 function ContactFormSection() {
   return (
-    <section className="py-16 px-4 bg-[rgba(var(--bg-2),0.3)]">
+    <section className="py-16 px-4 bg-[rgb(var(--bg-2)/0.3)]">
       <div className="container mx-auto max-w-2xl">
         <DribbbleSectionEnter>
           <SectionHeader
@@ -285,17 +285,17 @@ function FAQCTASection() {
             {/* Decorative glows */}
             <div
               className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
             <div
               className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
 
             <div className="relative z-10">
-              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center">
                 <MessageSquare className="w-7 h-7 text-accent" />
               </div>
               <h2 className="text-xl md:text-2xl font-bold text-text mb-3">

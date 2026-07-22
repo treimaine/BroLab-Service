@@ -11,9 +11,11 @@ import {
 } from '@/platform/ui'
 import {
   Award,
+  BarChart3,
   Check,
   CreditCard,
   DollarSign,
+  Globe,
   Headphones,
   Music,
   Shield,
@@ -32,11 +34,19 @@ const PLATFORM_INFO: Array<{ text: string }> = [
   { text: 'Your storefront, your brand' },
 ]
 
+/**
+ * Section surfaces alternate so the page reads as distinct bands.
+ * Every section previously used `--bg`, which made ~6900px of page with no
+ * vertical rhythm and no boundary between one idea and the next.
+ */
+const SURFACE_BASE = 'bg-[rgb(var(--bg))]'
+const SURFACE_ALT = 'bg-[rgb(var(--bg-2))]'
+
 const SectionHeader = ({ number, title }: { number: string; title: string }) => (
   <div className="flex items-center gap-4 mb-12">
     <span className="text-xs font-bold text-accent uppercase tracking-widest">{number}</span>
     <h2 className="text-sm font-bold text-muted uppercase tracking-widest">{title}</h2>
-    <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+    <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
   </div>
 )
 
@@ -49,14 +59,14 @@ const IconCard = ({
   title: string
   description: string 
 }) => (
-  <DribbbleCard hoverLift padding="md">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+  <DribbbleCard hoverLift padding="md" className="h-full">
+    <div className="flex items-start gap-3">
+      <div className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center shrink-0">
         <Icon className="w-5 h-5 text-accent" />
       </div>
-      <div>
-        <h4 className="text-sm font-bold text-text uppercase">{title}</h4>
-        <p className="text-xs text-muted">{description}</p>
+      <div className="min-w-0">
+        <h4 className="text-sm font-bold text-text">{title}</h4>
+        <p className="text-xs text-muted leading-relaxed mt-1">{description}</p>
       </div>
     </div>
   </DribbbleCard>
@@ -64,7 +74,7 @@ const IconCard = ({
 
 export function MobileInfoSection() {
   return (
-    <section className="px-4 py-12 lg:hidden bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-12 lg:hidden ${SURFACE_BASE}`}>
       <div className="container mx-auto max-w-md">
         <MicroInfoModule items={PLATFORM_INFO} className="mx-auto" />
       </div>
@@ -74,7 +84,7 @@ export function MobileInfoSection() {
 
 export function TrustRow() {
   return (
-    <section className="px-4 py-8 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-8 ${SURFACE_BASE}`}>
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-wrap justify-center gap-3 md:gap-4">
           <TrustChip icon={CreditCard} label="Get paid instantly" />
@@ -88,17 +98,26 @@ export function TrustRow() {
   )
 }
 
+/**
+ * Two paths, not three.
+ *
+ * Producers and engineers are the subscribing segments. An artist buying a beat
+ * generates no revenue for BroLab (0% commission), yet used to occupy a third of
+ * the above-the-fold CTA area with an identical filled button — three primaries
+ * means no primary. Artists now get a tertiary entry point that still feeds the
+ * demand side.
+ */
 export function CTASection() {
   return (
-    <section className="px-4 py-10 bg-[rgb(var(--bg))]">
-      <div className="container mx-auto max-w-6xl">
+    <section className={`px-4 py-12 ${SURFACE_BASE}`}>
+      <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter stagger>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <DribbbleStaggerItem>
               <RoleCTACard
                 icon={Music}
                 title="Start as Producer"
-                description="Sell beats & packs"
+                description="Sell beats with tiered licensing, from your own storefront."
                 href="/sign-up?role=producer"
                 variant="primary"
               />
@@ -107,85 +126,76 @@ export function CTASection() {
               <RoleCTACard
                 icon={Headphones}
                 title="Start as Engineer"
-                description="Book sessions & services"
+                description="Take mixing and mastering bookings with payment built in."
                 href="/sign-up?role=engineer"
-                variant="primary"
-              />
-            </DribbbleStaggerItem>
-            <DribbbleStaggerItem>
-              <RoleCTACard
-                icon={Users}
-                title="I'm an Artist"
-                description="Find beats & hire pros"
-                href="/sign-up?role=artist"
                 variant="primary"
               />
             </DribbbleStaggerItem>
           </div>
         </DribbbleSectionEnter>
+
+        <DribbbleSectionEnter>
+          <p className="text-center text-sm text-muted mt-8">
+            <Users className="w-4 h-4 inline-block mr-1.5 -mt-0.5" aria-hidden="true" />
+            Looking for beats or a mixing engineer?{' '}
+            <Link
+              href="/sign-up?role=artist"
+              className="text-accent font-medium underline underline-offset-4 hover:text-accent-2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Browse as an artist
+            </Link>
+          </p>
+        </DribbbleSectionEnter>
       </div>
     </section>
   )
 }
 
-export function StatsSection() {
-  const stats = [
-    { value: '0%', label: 'Commission on sales' },
-    { value: '$0.30', label: 'Per transaction (Stripe only)' },
-    { value: '3', label: 'License tiers per beat' },
-    { value: '∞', label: 'Tracks on PRO plan' },
-  ]
-
-  return (
-    <section className="px-4 py-10 bg-[rgb(var(--bg))]">
-      <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <DribbbleCard key={stat.label} padding="md" className="text-center">
-              <div className="text-3xl md:text-4xl font-black text-accent mb-1">{stat.value}</div>
-              <div className="text-xs text-muted uppercase tracking-wide">{stat.label}</div>
-            </DribbbleCard>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
+/**
+ * One capability section.
+ *
+ * This absorbs the former FeaturesSection, ComparisonSection and
+ * TestimonialSection, which all rendered the same IconCard with overlapping
+ * copy at three different points in the page and read as padding.
+ */
+const CAPABILITIES: ReadonlyArray<{ icon: LucideIcon; title: string; description: string }> = [
+  { icon: Headphones, title: 'Offer services', description: 'Mixing, mastering, vocal tuning and custom production, booked from the same page.' },
+  { icon: Sparkles, title: 'Automatic licenses', description: 'A PDF license is generated for every sale, with the terms snapshotted at purchase.' },
+  { icon: CreditCard, title: 'Direct payouts', description: 'Buyers pay into your own Stripe account. No middleman holding your money.' },
+  { icon: Globe, title: 'Your brand', description: 'A free subdomain on BASIC, up to two custom domains on PRO.' },
+  { icon: BarChart3, title: 'Know what sells', description: 'Track views, searches and earnings so you can price and promote deliberately.' },
+]
 
 export function FeaturesSection() {
   return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-14 ${SURFACE_BASE}`}>
       <div className="container mx-auto max-w-6xl">
         <DribbbleSectionEnter>
-          <SectionHeader number="01" title="WHAT WE OFFER" />
+          <SectionHeader number="01" title="WHAT YOU GET" />
         </DribbbleSectionEnter>
 
         <DribbbleSectionEnter stagger>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <DribbbleStaggerItem className="lg:col-span-7">
-              <DribbbleCard glow hoverLift padding="lg" className="h-full">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
-                    <Music className="w-8 h-8 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-text mb-2">SELL YOUR BEATS</h3>
-                    <p className="text-muted text-sm">Upload your productions, set tiered pricing, and let artists preview before they buy.</p>
-                  </div>
+            <DribbbleStaggerItem className="lg:col-span-5">
+              <DribbbleCard glow hoverLift padding="lg" className="h-full flex flex-col justify-center">
+                <div className="w-16 h-16 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-5">
+                  <Music className="w-8 h-8 text-accent" />
                 </div>
+                <h3 className="text-xl font-bold text-text mb-2">Sell your beats</h3>
+                <p className="text-muted text-sm leading-relaxed">
+                  Upload once and sell across three license tiers — Basic, Premium and
+                  Unlimited. A 30-second preview is generated automatically; the full files
+                  stay locked until someone pays.
+                </p>
               </DribbbleCard>
             </DribbbleStaggerItem>
 
-            <div className="lg:col-span-5 space-y-6">
-              <DribbbleStaggerItem>
-                <IconCard icon={Headphones} title="OFFER SERVICES" description="Mixing, mastering, vocal tuning" />
-              </DribbbleStaggerItem>
-              <DribbbleStaggerItem>
-                <IconCard icon={Sparkles} title="AUTO LICENSES" description="PDF generated for every sale" />
-              </DribbbleStaggerItem>
-              <DribbbleStaggerItem>
-                <IconCard icon={Users} title="DIRECT PAYMENTS" description="Straight to your Stripe" />
-              </DribbbleStaggerItem>
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
+              {CAPABILITIES.map((item) => (
+                <DribbbleStaggerItem key={item.title}>
+                  <IconCard icon={item.icon} title={item.title} description={item.description} />
+                </DribbbleStaggerItem>
+              ))}
             </div>
           </div>
         </DribbbleSectionEnter>
@@ -196,7 +206,7 @@ export function FeaturesSection() {
 
 export function HowItWorksSection() {
   return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-14 ${SURFACE_ALT}`}>
       <div className="container mx-auto max-w-6xl">
         <DribbbleSectionEnter>
           <SectionHeader number="02" title="HOW IT WORKS" />
@@ -210,7 +220,7 @@ export function HowItWorksSection() {
                   <span className="text-xs font-bold text-[rgb(var(--bg))]">01</span>
                 </div>
                 <div className="pt-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-4">
                     <Sparkles className="w-7 h-7 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text mb-3 uppercase tracking-wide">CREATE YOUR STOREFRONT</h3>
@@ -225,7 +235,7 @@ export function HowItWorksSection() {
                   <span className="text-xs font-bold text-[rgb(var(--bg))]">02</span>
                 </div>
                 <div className="pt-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-4">
                     <Music className="w-7 h-7 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text mb-3 uppercase tracking-wide">UPLOAD BEATS / SERVICES</h3>
@@ -240,7 +250,7 @@ export function HowItWorksSection() {
                   <span className="text-xs font-bold text-[rgb(var(--bg))]">03</span>
                 </div>
                 <div className="pt-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-4">
                     <DollarSign className="w-7 h-7 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text mb-3 uppercase tracking-wide">GET PAID + DELIVER LICENSES</h3>
@@ -249,110 +259,6 @@ export function HowItWorksSection() {
               </DribbbleCard>
             </DribbbleStaggerItem>
           </div>
-        </DribbbleSectionEnter>
-      </div>
-    </section>
-  )
-}
-
-export function ProductPreviewSection() {
-  return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
-      <div className="container mx-auto max-w-6xl">
-        <DribbbleSectionEnter>
-          <SectionHeader number="03" title="SEE IT IN ACTION" />
-        </DribbbleSectionEnter>
-
-        <DribbbleSectionEnter>
-          <DribbbleCard glow padding="lg" className="relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-6">
-                <h3 className="text-2xl md:text-3xl font-bold text-text uppercase tracking-wide">YOUR STOREFRONT, YOUR BRAND</h3>
-                <p className="text-muted text-sm leading-relaxed">Every creator gets a fully customizable storefront. Upload beats, list services, and let artists browse your catalog with a premium audio player experience.</p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/tenant-demo">
-                    <PillCTA variant="primary" size="lg" className="group">
-                      <span>View Demo Storefront</span>
-                      <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
-                    </PillCTA>
-                  </Link>
-                </div>
-              </div>
-
-              <div className="relative">
-                <DribbbleCard padding="none" hoverLift={false} className="overflow-hidden">
-                  {/* Browser chrome */}
-                  <div className="flex items-center gap-2 px-4 py-3 border-b border-border/30 bg-[rgba(var(--bg),0.95)]">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                      <div className="w-3 h-3 rounded-full bg-green-400/80" />
-                    </div>
-                    <div className="flex-1 mx-4">
-                      <div className="bg-[rgba(var(--bg),0.8)] border border-border/30 rounded-md px-3 py-1 text-xs text-muted text-center">
-                        drakebeats.brolabentertainment.com
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-5 space-y-4 bg-[rgba(var(--bg-2),0.4)]">
-                    {/* Storefront header */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-bold text-text uppercase tracking-widest">DrakeBeats</p>
-                        <p className="text-[10px] text-muted">Producer · Los Angeles</p>
-                      </div>
-                      <div className="text-[10px] font-bold text-accent uppercase tracking-wider border border-accent/30 rounded-full px-2 py-0.5">
-                        247 beats
-                      </div>
-                    </div>
-
-                    {/* Beat cards grid */}
-                    <div className="grid grid-cols-2 gap-2.5">
-                      {[
-                        { name: 'Dark Trap 808', genre: 'Trap', price: '$29.99', color: 'from-purple-500/40 to-cyan-500/20' },
-                        { name: 'Summer Vibes', genre: 'R&B', price: '$24.99', color: 'from-orange-500/40 to-pink-500/20' },
-                        { name: 'Drill Season', genre: 'Drill', price: '$34.99', color: 'from-cyan-500/40 to-blue-500/20' },
-                        { name: 'Melodic Wave', genre: 'Pop', price: '$19.99', color: 'from-green-500/40 to-teal-500/20' },
-                      ].map((beat) => (
-                        <div key={beat.name} className="rounded-lg bg-[rgba(var(--card),0.6)] border border-border/20 p-2.5 space-y-2 cursor-pointer hover:border-accent/40 transition-colors">
-                          <div className={`aspect-square rounded-md bg-linear-to-br ${beat.color} flex items-center justify-center`}>
-                            <div className="w-0 h-0 border-l-8 border-l-white/70 border-y-[5px] border-y-transparent ml-0.5" />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold text-text truncate">{beat.name}</p>
-                            <div className="flex items-center justify-between mt-0.5">
-                              <span className="text-[9px] text-muted">{beat.genre}</span>
-                              <span className="text-[10px] font-bold text-accent">{beat.price}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Player bar */}
-                    <div className="flex items-center gap-3 p-2.5 rounded-lg bg-[rgba(var(--accent),0.12)] border border-[rgba(var(--accent),0.2)]">
-                      <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center shrink-0">
-                        <div className="w-0 h-0 border-l-[6px] border-l-[rgb(var(--bg))] border-y-4 border-y-transparent ml-0.5" />
-                      </div>
-                      <div className="flex-1 space-y-1 min-w-0">
-                        <p className="text-[10px] font-bold text-text truncate">Dark Trap 808</p>
-                        <div className="h-1 rounded-full bg-[rgba(var(--text),0.1)]">
-                          <div className="w-2/5 h-full rounded-full bg-accent" />
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-muted shrink-0">0:47 / 1:30</div>
-                    </div>
-                  </div>
-                </DribbbleCard>
-
-                <div
-                  className="absolute -inset-4 -z-10 rounded-2xl pointer-events-none"
-                  style={{ background: 'radial-gradient(circle at center, rgba(var(--accent),0.12) 0%, transparent 70%)' }}
-                />
-              </div>
-            </div>
-          </DribbbleCard>
         </DribbbleSectionEnter>
       </div>
     </section>
@@ -402,7 +308,7 @@ export function PricingSection() {
   ]
 
   return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-14 ${SURFACE_ALT}`}>
       <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter>
           <SectionHeader number="04" title="PRICING" />
@@ -414,7 +320,7 @@ export function PricingSection() {
             <p className="text-muted text-sm mb-6">No hidden fees. No commission on sales. Cancel anytime.</p>
 
             {/* Toggle */}
-            <div className="inline-flex items-center gap-3 bg-[rgba(var(--bg-2),0.6)] border border-border/30 rounded-full p-1">
+            <div className="inline-flex items-center gap-3 bg-[rgb(var(--bg-2)/0.6)] border border-border/30 rounded-full p-1">
               <button
                 onClick={() => setAnnual(false)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all cursor-pointer ${
@@ -430,7 +336,7 @@ export function PricingSection() {
                 }`}
               >
                 Annual{' '}
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${annual ? 'bg-[rgb(var(--bg))]/30 text-[rgb(var(--bg))]' : 'bg-[rgba(var(--accent),0.15)] text-accent'}`}>
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${annual ? 'bg-[rgb(var(--bg))]/30 text-[rgb(var(--bg))]' : 'bg-[rgb(var(--accent)/0.15)] text-accent'}`}>
                   up to -70%
                 </span>
               </button>
@@ -481,7 +387,7 @@ export function PricingSection() {
                     </ul>
 
                     <Link href={plan.href} className="block w-full">
-                      <PillCTA variant="primary" size="md" className={`w-full justify-center ${plan.popular ? '' : 'bg-none bg-transparent border border-[rgba(var(--accent),0.4)] text-accent hover:bg-[rgba(var(--accent),0.08)] shadow-none hover:shadow-none'}`}>
+                      <PillCTA variant="primary" size="md" className={`w-full justify-center ${plan.popular ? '' : 'bg-none bg-transparent border border-[rgb(var(--accent)/0.4)] text-accent hover:bg-[rgb(var(--accent)/0.08)] shadow-none hover:shadow-none'}`}>
                         {plan.cta}
                       </PillCTA>
                     </Link>
@@ -496,70 +402,60 @@ export function PricingSection() {
   )
 }
 
-export function ComparisonSection() {
-  const ownershipStack = [
-    { icon: Music, title: 'Your catalog', description: 'Sell beats and creative services from the same storefront.' },
-    { icon: CreditCard, title: 'Your payments', description: 'Connect your own Stripe account and receive payouts directly.' },
-    { icon: Shield, title: 'Your licenses', description: 'Deliver a professional PDF license automatically after purchase.' },
-  ]
+/**
+ * Replaces the former "TestimonialSection", which contained no testimonials and
+ * simply restated HowItWorksSection.
+ *
+ * BroLab has no citable beta creators yet, so this section handles the real
+ * objections a creator with an existing catalogue raises instead of inventing
+ * social proof.
+ */
+const OBJECTIONS: ReadonlyArray<{ icon: LucideIcon; question: string; answer: string }> = [
+  {
+    icon: Shield,
+    question: 'What happens to my catalog if I leave?',
+    answer:
+      'Your audio files and your customer list are yours. Nothing is locked to BroLab, and cancelling never deletes the licenses your buyers already hold.',
+  },
+  {
+    icon: DollarSign,
+    question: 'When do I actually get the money?',
+    answer:
+      'Buyers pay into your own Stripe account, so payouts follow your Stripe schedule — typically two days. BroLab is never in the middle of the transaction.',
+  },
+  {
+    icon: Zap,
+    question: 'How long does setup really take?',
+    answer:
+      'Connect Stripe, pick your subdomain, upload a first track. The storefront is live immediately — no review queue and no approval step.',
+  },
+  {
+    icon: Award,
+    question: 'Why is there no commission?',
+    answer:
+      'The subscription is the business model. We make the same money whether you sell one beat or a thousand, so there is nothing to gain from taking a cut.',
+  },
+]
 
+export function ObjectionsSection() {
   return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-14 ${SURFACE_BASE}`}>
       <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter>
-          <SectionHeader number="05" title="WHY BROLAB" />
-        </DribbbleSectionEnter>
-
-        <DribbbleSectionEnter>
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-text mb-2">Own the path from catalog to payout</h2>
-            <p className="text-muted text-sm">BroLab brings the storefront, checkout and licensing workflow under your brand.</p>
-          </div>
-        </DribbbleSectionEnter>
-
-        <DribbbleSectionEnter>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {ownershipStack.map((item) => (
-              <IconCard key={item.title} icon={item.icon} title={item.title} description={item.description} />
-            ))}
-          </div>
-        </DribbbleSectionEnter>
-      </div>
-    </section>
-  )
-}
-
-export function TestimonialSection() {
-  const launchSteps = [
-    {
-      icon: Music,
-      title: 'Add your offer',
-      description: 'Upload a beat or list a mixing, mastering or custom-production service.'
-    },
-    {
-      icon: Sparkles,
-      title: 'Publish your store',
-      description: 'Choose your branding and share one storefront link with your audience.'
-    },
-    {
-      icon: DollarSign,
-      title: 'Make the sale',
-      description: 'Your customer checks out, receives their files and license, and you get paid through Stripe.'
-    }
-  ]
-
-  return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
-      <div className="container mx-auto max-w-6xl">
-        <DribbbleSectionEnter>
-          <SectionHeader number="06" title="YOUR FIRST SALE FLOW" />
+          <SectionHeader number="05" title="STRAIGHT ANSWERS" />
         </DribbbleSectionEnter>
 
         <DribbbleSectionEnter stagger>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {launchSteps.map((step) => (
-              <DribbbleStaggerItem key={step.title}>
-                <IconCard icon={step.icon} title={step.title} description={step.description} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {OBJECTIONS.map((item) => (
+              <DribbbleStaggerItem key={item.question}>
+                <DribbbleCard hoverLift padding="lg" className="h-full">
+                  <div className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center mb-4">
+                    <item.icon className="w-5 h-5 text-accent" />
+                  </div>
+                  <h3 className="text-base font-bold text-text mb-2">{item.question}</h3>
+                  <p className="text-sm text-muted leading-relaxed">{item.answer}</p>
+                </DribbbleCard>
               </DribbbleStaggerItem>
             ))}
           </div>
@@ -571,17 +467,17 @@ export function TestimonialSection() {
 
 export function FinalCTASection() {
   return (
-    <section className="px-4 py-14 bg-[rgb(var(--bg))]">
+    <section className={`px-4 py-14 ${SURFACE_BASE}`}>
       <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter>
           <DribbbleCard glow padding="lg" className="text-center relative overflow-hidden">
             <div 
               className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none" 
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
             />
             <div 
               className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
             />
             <div className="relative z-10">
               <span className="text-xs font-bold text-accent uppercase tracking-widest mb-4 block">GET STARTED</span>

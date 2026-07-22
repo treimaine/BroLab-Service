@@ -46,29 +46,40 @@
 :root {
   color-scheme: light;
 
+  /*
+    Light theme.
+    The page background is deliberately the DARKEST light surface and cards sit
+    ABOVE it in pure white. Previously --bg (247 250 255) and --card
+    (236 245 255) were ~3% apart, so cards were indistinguishable from the page
+    even once their background rendered.
+  */
+
   /* Background tokens */
-  --bg: 247 250 255;
-  --bg-2: 236 245 255;
-  --card: 255 255 255;
+  --bg: 238 243 250;
+  --bg-2: 228 236 247;
 
   /* Border tokens */
   --border: 15 23 42;
-  --border-alpha: 0.12;
+  --border-alpha: 0.14;
 
   /* Text tokens */
   --text: 7 16 34;
-  --muted: 71 85 105;
+  --muted: 62 76 96;
 
-  /* Accent tokens (cyan theme) */
-  --accent: 8 145 178;
-  --accent-2: 6 182 212;
+  /* Accent tokens (cyan theme) — darkened for AA contrast on light surfaces */
+  --accent: 7 122 150;
+  --accent-2: 6 148 172;
 
   /* Glow tokens */
   --glow: 8 145 178;
-  --glow-alpha: 0.22;
+  --glow-alpha: 0.18;
 
-  /* Card tokens */
-  --card: 236 245 255;
+  /* Card tokens — cards read as raised white surfaces */
+  --card: 255 255 255;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 2px 4px rgb(15 23 42 / 0.06), 0 16px 40px rgb(15 23 42 / 0.10);
 }
 
 .dark {
@@ -97,6 +108,10 @@
 
   /* Card tokens */
   --card: 10 16 32;
+
+  /* Elevation — depth comes from a light rim rather than a cast shadow */
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-card-hover: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 16px 40px rgb(0 0 0 / 0.45);
 }
 
 /* --------------------------------------------
@@ -130,39 +145,53 @@ body {
 /* 23.6: Radial gradient background */
 .bg-app {
   background:
-    radial-gradient(1200px 600px at 60% 20%, rgba(var(--accent), 0.16), transparent 60%),
-    radial-gradient(900px 500px at 20% 80%, rgba(var(--accent), 0.08), transparent 60%),
+    radial-gradient(1200px 600px at 60% 20%, rgb(var(--accent) / 0.16), transparent 60%),
+    radial-gradient(900px 500px at 20% 80%, rgb(var(--accent) / 0.08), transparent 60%),
     linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg-2)));
   min-height: 100vh;
 }
 
-/* 23.3: Glass morphism utility class 
-   Uses bg-2 tokens for theme coherence.
-   Creates subtle glass effect with low alpha. */
+/* 23.3: Glass morphism utility class
+   Card surface: sits ABOVE the page background (--card), not level with it.
+   Elevation carries the separation so cards stay legible in both themes. */
 .glass {
-  background: rgba(var(--bg-2), 0.6);
+  background: rgb(var(--card) / 0.72);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(var(--border), var(--border-alpha));
+  border: 1px solid rgb(var(--border) / var(--border-alpha));
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glass:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Glow cards keep their accent ring but still get elevation */
+.glow.glass:hover {
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.30),
+    0 0 40px rgb(var(--glow) / var(--glow-alpha)),
+    var(--shadow-card-hover);
 }
 
 /* 23.4: Glow effect utility class */
 .glow {
   box-shadow:
-    0 0 0 1px rgba(var(--accent), 0.20),
-    0 0 30px rgba(var(--glow), var(--glow-alpha));
+    0 0 0 1px rgb(var(--accent) / 0.20),
+    0 0 30px rgb(var(--glow) / var(--glow-alpha));
 }
 
 /* 23.5: Outline text utility class */
 .outline-word {
   color: transparent;
-  -webkit-text-stroke: 1px rgba(var(--text), 0.40);
+  -webkit-text-stroke: 1px rgb(var(--text) / 0.40);
 }
 
 /* 23.9: Signature outline hero word */
 .outline-hero {
   color: transparent;
-  -webkit-text-stroke: 2px rgba(var(--text), 0.40);
+  -webkit-text-stroke: 2px rgb(var(--text) / 0.40);
   font-size: clamp(48px, 12vw, 140px);
   font-weight: 900;
   line-height: 1;
@@ -198,18 +227,18 @@ body {
 
 /* Border utilities */
 .border-border {
-  border-color: rgba(var(--border), var(--border-alpha));
+  border-color: rgb(var(--border) / var(--border-alpha));
 }
 
 /* Glow utilities */
 .glow-accent {
-  box-shadow: 0 0 20px rgba(var(--accent), 0.3);
+  box-shadow: 0 0 20px rgb(var(--accent) / 0.3);
 }
 
 .glow-strong {
   box-shadow:
-    0 0 0 1px rgba(var(--accent), 0.30),
-    0 0 40px rgba(var(--glow), calc(var(--glow-alpha) * 1.5));
+    0 0 0 1px rgb(var(--accent) / 0.30),
+    0 0 40px rgb(var(--glow) / calc(var(--glow-alpha) * 1.5));
 }
 
 /* --------------------------------------------
@@ -298,7 +327,7 @@ body {
   color: rgb(var(--text));
   letter-spacing: -0.01em;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(var(--border), var(--border-alpha));
+  border-bottom: 1px solid rgb(var(--border) / var(--border-alpha));
 }
 
 .prose-marketing h3 {
@@ -387,7 +416,7 @@ body {
   margin: 1.5rem 0;
   padding: 1rem 1.5rem;
   border-left: 4px solid rgb(var(--accent));
-  background: rgba(var(--bg-2), 0.8);
+  background: rgb(var(--bg-2) / 0.8);
   border-radius: 0 8px 8px 0;
   font-style: italic;
   color: rgb(var(--muted));
@@ -402,7 +431,7 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.875em;
   padding: 0.2em 0.4em;
-  background: rgba(var(--bg-2), 0.8);
+  background: rgb(var(--bg-2) / 0.8);
   border-radius: 4px;
   color: rgb(var(--accent));
 }
@@ -411,10 +440,10 @@ body {
 .prose-marketing pre {
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
-  background: rgba(var(--bg-2), 0.8);
+  background: rgb(var(--bg-2) / 0.8);
   border-radius: 8px;
   overflow-x: auto;
-  border: 1px solid rgba(var(--border), var(--border-alpha));
+  border: 1px solid rgb(var(--border) / var(--border-alpha));
 }
 
 .prose-marketing pre code {
@@ -429,7 +458,7 @@ body {
 .prose-marketing hr {
   margin: 2.5rem 0;
   border: none;
-  border-top: 1px solid rgba(var(--border), var(--border-alpha));
+  border-top: 1px solid rgb(var(--border) / var(--border-alpha));
 }
 
 /* Tables */
@@ -444,13 +473,13 @@ body {
 .prose-marketing td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(var(--border), var(--border-alpha));
+  border-bottom: 1px solid rgb(var(--border) / var(--border-alpha));
 }
 
 .prose-marketing th {
   font-weight: 600;
   color: rgb(var(--text));
-  background: rgba(var(--bg-2), 0.8);
+  background: rgb(var(--bg-2) / 0.8);
 }
 
 .prose-marketing tr:last-child td {

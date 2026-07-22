@@ -32,8 +32,8 @@ export function CyanOrb({
         height: size,
         // Use box-shadow for glow instead of filter blur (GPU-friendly)
         boxShadow: `
-          0 0 ${size / 3}px rgba(var(--accent), 0.5),
-          0 0 ${size / 1.5}px rgba(var(--accent), 0.25)
+          0 0 ${size / 3}px rgb(var(--accent)/0.5),
+          0 0 ${size / 1.5}px rgb(var(--accent)/0.25)
         `,
       }}
     />

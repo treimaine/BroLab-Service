@@ -42,9 +42,9 @@ export const TrustChip = forwardRef<HTMLDivElement, TrustChipProps>(
           inline-flex items-center gap-2
           h-9 px-3
           rounded-full
-          bg-[rgba(var(--bg-2),0.6)]
+          bg-[rgb(var(--bg-2)/0.6)]
           backdrop-blur-sm
-          border border-[rgba(var(--border),var(--border-alpha))]
+          border border-[rgb(var(--border)/var(--border-alpha))]
           ${className}
         `}
         aria-label={ariaLabel ?? label}

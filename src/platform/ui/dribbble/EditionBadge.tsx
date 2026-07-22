@@ -24,7 +24,7 @@ export function EditionBadge({
       className={`
         inline-flex flex-col items-start
         px-5 py-3 rounded-2xl
-        glass border border-[rgba(var(--border),0.3)]
+        glass border border-[rgb(var(--border)/0.3)]
         ${className}
       `}
     >

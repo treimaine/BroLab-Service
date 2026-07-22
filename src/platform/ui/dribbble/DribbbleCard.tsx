@@ -82,9 +82,9 @@ export const DribbbleCard = forwardRef<HTMLDivElement, DribbbleCardProps>(
             "
             style={{
               background: `linear-gradient(135deg, 
-                rgba(var(--accent), 0.2) 0%, 
+                rgb(var(--accent)/0.2) 0%, 
                 transparent 50%, 
-                rgba(var(--accent-2), 0.2) 100%
+                rgb(var(--accent-2)/0.2) 100%
               )`,
               padding: '1px',
               mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',

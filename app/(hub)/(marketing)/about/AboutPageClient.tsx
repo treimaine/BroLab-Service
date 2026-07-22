@@ -82,7 +82,7 @@ function ProblemSolutionSection() {
             <DribbbleStaggerItem>
               <DribbbleCard padding="lg" className="h-full">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.1)] flex items-center justify-center">
                     <Users className="w-5 h-5 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text">Marketplaces</h3>
@@ -96,9 +96,9 @@ function ProblemSolutionSection() {
             
             {/* Solution */}
             <DribbbleStaggerItem>
-              <DribbbleCard padding="lg" glow className="h-full border border-[rgba(var(--accent),0.2)]">
+              <DribbbleCard padding="lg" glow className="h-full border border-[rgb(var(--accent)/0.2)]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center">
                     <Globe className="w-5 h-5 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text">Your Brand</h3>
@@ -118,7 +118,7 @@ function ProblemSolutionSection() {
 
 function WhatWeEnableSection() {
   return (
-    <section className="py-16 px-4 bg-[rgba(var(--bg-2),0.3)]">
+    <section className="py-16 px-4 bg-[rgb(var(--bg-2)/0.3)]">
       <div className="container mx-auto max-w-5xl">
         <DribbbleSectionEnter>
           <SectionHeader 
@@ -132,7 +132,7 @@ function WhatWeEnableSection() {
             {WHAT_WE_ENABLE.map((item) => (
               <DribbbleStaggerItem key={item.title}>
                 <DribbbleCard padding="lg" hoverLift className="h-full text-center">
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[rgba(var(--accent),0.1)] flex items-center justify-center">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[rgb(var(--accent)/0.1)] flex items-center justify-center">
                     <item.icon className="w-7 h-7 text-accent" />
                   </div>
                   <h3 className="text-lg font-bold text-text mb-2">{item.title}</h3>
@@ -164,13 +164,13 @@ function RoadmapSection() {
               {ROADMAP_ITEMS.map((item) => (
                 <div 
                   key={item.title}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(var(--bg),0.5)] border border-border/50"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-[rgb(var(--bg)/0.5)] border border-border/50"
                 >
                   <div className={`
                     shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
                     ${item.status === 'live' 
-                      ? 'bg-[rgba(var(--accent),0.15)] text-accent' 
-                      : 'bg-[rgba(var(--muted),0.1)] text-muted'
+                      ? 'bg-[rgb(var(--accent)/0.15)] text-accent' 
+                      : 'bg-[rgb(var(--muted)/0.1)] text-muted'
                     }
                   `}>
                     {item.status === 'live' ? '✓' : '→'}
@@ -179,12 +179,12 @@ function RoadmapSection() {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-bold text-text">{item.title}</h4>
                       {item.status === 'live' && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold text-accent bg-[rgba(var(--accent),0.1)] rounded-full uppercase">
+                        <span className="px-2 py-0.5 text-[10px] font-bold text-accent bg-[rgb(var(--accent)/0.1)] rounded-full uppercase">
                           Live
                         </span>
                       )}
                       {item.status === 'coming' && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold text-muted bg-[rgba(var(--muted),0.1)] rounded-full uppercase">
+                        <span className="px-2 py-0.5 text-[10px] font-bold text-muted bg-[rgb(var(--muted)/0.1)] rounded-full uppercase">
                           Coming Soon
                         </span>
                       )}
@@ -210,17 +210,17 @@ function FinalCTASection() {
             {/* Decorative glows */}
             <div 
               className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none" 
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
             <div 
               className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
               aria-hidden="true"
             />
             
             <div className="relative z-10">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center">
                 <Zap className="w-8 h-8 text-accent" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-text mb-4">

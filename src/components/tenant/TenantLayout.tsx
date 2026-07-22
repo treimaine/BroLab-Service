@@ -212,6 +212,8 @@ export function TenantLayout({
         secondaryAction={resolvedSecondaryAction}
         right={<ThemeToggle />}
         isScrolled={isScrolled}
+        // IconRail takes over the left side at `lg`, so keep the hamburger until then
+        navBreakpoint="lg"
         className="lg:pl-20" // Offset for IconRail on desktop
       />
 

@@ -72,9 +72,9 @@ export function ChromeSurface({
   }[blur]
 
   const borderClass = {
-    top: 'border-t border-[rgba(var(--border),var(--border-alpha))]',
-    bottom: 'border-b border-[rgba(var(--border),var(--border-alpha))]',
-    all: 'border border-[rgba(var(--border),var(--border-alpha))]',
+    top: 'border-t border-[rgb(var(--border)/var(--border-alpha))]',
+    bottom: 'border-b border-[rgb(var(--border)/var(--border-alpha))]',
+    all: 'border border-[rgb(var(--border)/var(--border-alpha))]',
     none: '',
   }[border]
 

@@ -101,7 +101,7 @@ export default {
 ## 3. Stripe Configuration ✅
 
 ### Platform Account (Clerk Billing)
-- **Secret Key**: `sk_test_51Sxm03EQlVQTGQYd...`
+- **Secret Key**: `<REDACTED>`
 - **Publishable Key**: `pk_test_51Sxm03EQlVQTGQYd...`
 - **Webhook Secret**: `whsec_...` (stored in Vercel env vars)
 

@@ -121,7 +121,7 @@ function MarketingHero({
       <div 
         className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(var(--accent), 0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgb(var(--accent)/0.08) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
@@ -130,7 +130,7 @@ function MarketingHero({
       <div 
         className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(var(--accent-2), 0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgb(var(--accent-2)/0.04) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
@@ -168,7 +168,7 @@ function MarketingHero({
               <DribbbleSectionEnter>
                 {/* Eyebrow */}
                 {eyebrow && (
-                  <span className="inline-block px-4 py-1.5 text-xs font-bold text-accent uppercase tracking-widest bg-[rgba(var(--accent),0.1)] rounded-full mb-6 w-fit mx-auto lg:mx-0">
+                  <span className="inline-block px-4 py-1.5 text-xs font-bold text-accent uppercase tracking-widest bg-[rgb(var(--accent)/0.1)] rounded-full mb-6 w-fit mx-auto lg:mx-0">
                     {eyebrow}
                   </span>
                 )}
@@ -182,7 +182,7 @@ function MarketingHero({
                     className="text-[clamp(40px,10vw,100px)] font-black tracking-[0.02em]"
                     style={{
                       fontFamily: '"Press Start 2P", system-ui, sans-serif',
-                      textShadow: '0 0 40px rgba(var(--accent),0.25), 0 0 80px rgba(var(--accent),0.15)',
+                      textShadow: '0 0 40px rgb(var(--accent)/0.25), 0 0 80px rgb(var(--accent)/0.15)',
                     }}
                   >
                     {heroWord}

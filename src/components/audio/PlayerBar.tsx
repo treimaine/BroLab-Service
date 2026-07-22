@@ -120,7 +120,7 @@ export function PlayerBar({
           "
           style={{
             boxShadow: hasTrack 
-              ? '0 -4px 30px rgba(var(--accent), 0.1), 0 0 0 1px rgba(var(--border), 0.05)'
+              ? '0 -4px 30px rgb(var(--accent)/0.1), 0 0 0 1px rgb(var(--border)/0.05)'
               : '0 -2px 20px rgba(0, 0, 0, 0.1)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
@@ -147,7 +147,7 @@ export function PlayerBar({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               style={{
-                background: 'radial-gradient(ellipse 50% 100% at 20% 100%, rgba(var(--glow), 0.08) 0%, transparent 60%)',
+                background: 'radial-gradient(ellipse 50% 100% at 20% 100%, rgb(var(--glow)/0.08) 0%, transparent 60%)',
               }}
             />
           )}

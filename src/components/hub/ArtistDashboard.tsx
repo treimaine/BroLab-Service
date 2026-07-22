@@ -109,7 +109,7 @@ function ArtistDashboardContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <DribbbleCard padding="md" glow>
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-[rgba(var(--accent),0.1)]">
+            <div className="p-3 rounded-full bg-[rgb(var(--accent)/0.1)]">
               <Music className="w-6 h-6 text-accent" />
             </div>
             <div>
@@ -121,7 +121,7 @@ function ArtistDashboardContent() {
 
         <DribbbleCard padding="md" glow>
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-[rgba(var(--accent),0.1)]">
+            <div className="p-3 rounded-full bg-[rgb(var(--accent)/0.1)]">
               <Package className="w-6 h-6 text-accent" />
             </div>
             <div>
@@ -133,7 +133,7 @@ function ArtistDashboardContent() {
 
         <DribbbleCard padding="md" glow>
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-[rgba(var(--accent),0.1)]">
+            <div className="p-3 rounded-full bg-[rgb(var(--accent)/0.1)]">
               <Clock className="w-6 h-6 text-accent" />
             </div>
             <div>
@@ -194,7 +194,7 @@ function ArtistDashboardContent() {
                       <a
                         href={track.licensePdfUrl}
                         download
-                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgba(var(--accent),0.1)] transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgb(var(--accent)/0.1)] transition-colors"
                       >
                         <FileText className="w-4 h-4" />
                         Download License PDF
@@ -204,7 +204,7 @@ function ArtistDashboardContent() {
                       <a
                         href={track.stemsUrl}
                         download
-                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgba(var(--accent),0.1)] transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 border border-border rounded-full hover:bg-[rgb(var(--accent)/0.1)] transition-colors"
                       >
                         <Download className="w-4 h-4" />
                         Download Stems

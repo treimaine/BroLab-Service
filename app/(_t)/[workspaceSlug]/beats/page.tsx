@@ -98,7 +98,7 @@ export default function BeatsListPage() {
             <DribbbleSectionEnter>
               <div className="flex items-center gap-4 mb-4">
                 <span className="text-xs font-bold text-accent uppercase tracking-widest">01</span>
-                <div className="h-px w-16 bg-[rgba(var(--border),0.5)]" />
+                <div className="h-px w-16 bg-[rgb(var(--border)/0.5)]" />
               </div>
               <h1 className="text-4xl lg:text-5xl font-black text-text mb-2 tracking-tight">ALL BEATS</h1>
               <p className="text-muted">{beatCountLabel}</p>
@@ -153,7 +153,7 @@ export default function BeatsListPage() {
                               </div>
                               {track.tags.length > 0 && (
                                 <div className="mb-3">
-                                  <span className="inline-block px-2 py-1 text-xs bg-[rgba(var(--accent),0.1)] text-accent rounded-md">
+                                  <span className="inline-block px-2 py-1 text-xs bg-[rgb(var(--accent)/0.1)] text-accent rounded-md">
                                     {track.tags[0]}
                                   </span>
                                 </div>

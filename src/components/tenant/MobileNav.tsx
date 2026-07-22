@@ -73,7 +73,7 @@ export function MobileNav({
                   rounded-2xl transition-colors duration-200
                   ${isActive
                     ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] text-white'
-                    : 'text-[rgb(var(--muted))] hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--bg-2),0.5)]'
+                    : 'text-[rgb(var(--muted))] hover:text-[rgb(var(--text))] hover:bg-[rgb(var(--bg-2)/0.5)]'
                   }
                 `}
                 whileHover={dribbbleHoverLift.whileHover}
@@ -95,7 +95,7 @@ export function MobileNav({
                     className="absolute inset-0 rounded-2xl pointer-events-none"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    style={{ boxShadow: '0 0 20px rgba(var(--accent), 0.4)' }}
+                    style={{ boxShadow: '0 0 20px rgb(var(--accent)/0.4)' }}
                   />
                 )}
               </motion.div>

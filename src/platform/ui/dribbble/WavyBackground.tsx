@@ -42,17 +42,17 @@ export function WavyBackground({
           {/* Primary blob - top right */}
           <div 
             className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] rounded-full blur-[120px]"
-            style={{ background: 'rgba(var(--accent), 0.12)' }}
+            style={{ background: 'rgb(var(--accent)/0.12)' }}
           />
           {/* Secondary blob - bottom left */}
           <div 
             className="absolute -bottom-1/4 -left-1/4 w-[500px] h-[500px] rounded-full blur-[100px]"
-            style={{ background: 'rgba(var(--accent-2), 0.08)' }}
+            style={{ background: 'rgb(var(--accent-2)/0.08)' }}
           />
           {/* Tertiary blob - center */}
           <div 
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[80px]"
-            style={{ background: 'rgba(var(--accent), 0.06)' }}
+            style={{ background: 'rgb(var(--accent)/0.06)' }}
           />
         </div>
       )}

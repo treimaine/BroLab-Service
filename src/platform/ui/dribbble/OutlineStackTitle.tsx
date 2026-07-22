@@ -83,7 +83,7 @@ export function OutlineStackTitle({
           className="absolute inset-0 select-none"
           style={{
             transform: `translate(${-layerOffset}px, ${-layerOffset}px)`,
-            WebkitTextStroke: `${config.strokeWidth}px rgba(var(--text), ${opacity})`,
+            WebkitTextStroke: `${config.strokeWidth}px rgb(var(--text)/${opacity})`,
             color: 'transparent',
           }}
           aria-hidden="true"

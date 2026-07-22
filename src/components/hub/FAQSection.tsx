@@ -34,7 +34,7 @@ const SectionHeader = ({ number, title }: { number: string; title: string }) => 
   <div className="flex items-center gap-4 mb-12">
     <span className="text-xs font-bold text-accent uppercase tracking-widest">{number}</span>
     <h2 className="text-sm font-bold text-muted uppercase tracking-widest">{title}</h2>
-    <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+    <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
   </div>
 )
 
@@ -57,7 +57,7 @@ const FAQItem = ({
     >
       <button
         onClick={onToggle}
-        className="w-full px-6 py-5 flex items-center justify-between text-left transition-colors hover:bg-[rgba(var(--accent),0.03)]"
+        className="w-full px-6 py-5 flex items-center justify-between text-left transition-colors hover:bg-[rgb(var(--accent)/0.03)]"
         aria-expanded={isOpen}
         aria-controls={`${faqId}-answer`}
       >
@@ -97,7 +97,7 @@ export function FAQSection() {
   }
 
   return (
-    <section className="px-4 py-24 bg-[rgb(var(--bg))]">
+    <section className="px-4 py-24 bg-[rgb(var(--bg-2))]">
       <div className="container mx-auto max-w-4xl">
         <DribbbleSectionEnter>
           <SectionHeader number="07" title="FAQ" />

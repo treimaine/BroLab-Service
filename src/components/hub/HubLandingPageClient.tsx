@@ -1,19 +1,25 @@
-import { CreatorStatsCounter } from '@/components/hub'
+import { CommissionCalculator } from '@/components/hub/CommissionCalculator'
 import { FAQSection } from '@/components/hub/FAQSection'
 import { HeroSection } from '@/components/hub/HeroSection'
+import { StorefrontDemoSection } from '@/components/hub/StorefrontDemoSection'
 import {
   CTASection,
-  ComparisonSection,
   FeaturesSection,
   FinalCTASection,
   HowItWorksSection,
   MobileInfoSection,
+  ObjectionsSection,
   PricingSection,
-  ProductPreviewSection,
-  TestimonialSection,
   TrustRow
 } from '@/components/hub/LandingSections'
 
+/**
+ * Landing page composition.
+ *
+ * Sections alternate between --bg and --bg-2 so the page reads as distinct
+ * bands rather than one continuous flat surface. Keep that alternation intact
+ * when inserting a section.
+ */
 export default function HubLandingPageClient() {
   return (
     <main>
@@ -21,13 +27,12 @@ export default function HubLandingPageClient() {
       <TrustRow />
       <MobileInfoSection />
       <CTASection />
-      <CreatorStatsCounter />
+      <CommissionCalculator />
       <FeaturesSection />
       <HowItWorksSection />
-      <ProductPreviewSection />
+      <StorefrontDemoSection />
       <PricingSection />
-      <ComparisonSection />
-      <TestimonialSection />
+      <ObjectionsSection />
       <FAQSection />
       <FinalCTASection />
     </main>

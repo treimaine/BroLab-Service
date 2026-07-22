@@ -97,7 +97,7 @@ export const dribbbleHoverLift = {
 
 export const dribbbleHoverGlow = {
   whileHover: {
-    boxShadow: '0 0 30px rgba(var(--accent), 0.3)',
+    boxShadow: '0 0 30px rgb(var(--accent)/0.3)',
     transition: { duration: 0.2 },
   },
 }

@@ -10,13 +10,13 @@
 
 export { BillingManagement } from './BillingManagement'
 export { Footer } from './Footer'
-export { Header } from './Header'
+export { SiteHeader } from './SiteHeader'
+export { StorefrontDemoSection } from './StorefrontDemoSection'
 export { StatsBanner } from './StatsBanner'
 
 // Social Proof & Trust Components
-export { CreatorStatsCounter } from './CreatorStatsCounter'
-export { CreatorStories, CreatorStory, MOCK_CREATOR_STORIES } from './CreatorStory'
-export { Phase2ASection, SocialProofSection } from './SocialProofSection'
+export { CommissionCalculator } from './CommissionCalculator'
+export { CreatorStories, CreatorStory } from './CreatorStory'
 export { DEFAULT_TRUST_BADGES, ENHANCED_TRUST_BADGES, TrustBadges, TrustFooter, TrustSection } from './TrustBadges'
 
 // Other Components

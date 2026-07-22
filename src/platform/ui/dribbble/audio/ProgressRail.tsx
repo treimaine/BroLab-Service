@@ -238,7 +238,7 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
           <div
             className={`
               absolute inset-x-0 rounded-full
-              bg-[rgba(var(--border),0.15)]
+              bg-[rgb(var(--border)/0.15)]
               ${sizeConfig.track}
             `}
           />
@@ -248,7 +248,7 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
             <div
               className={`
                 absolute left-0 rounded-full
-                bg-[rgba(var(--border),0.25)]
+                bg-[rgb(var(--border)/0.25)]
                 ${sizeConfig.track}
               `}
               style={{ width: `${clampedBuffered * 100}%` }}
@@ -266,8 +266,8 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
             initial={false}
             animate={{
               boxShadow: isHovering || isDragging
-                ? '0 0 12px rgba(var(--accent), 0.5)'
-                : '0 0 0px rgba(var(--accent), 0)',
+                ? '0 0 12px rgb(var(--accent)/0.5)'
+                : '0 0 0px rgb(var(--accent)/0)',
             }}
             transition={{ duration: 0.2 }}
           />
@@ -310,8 +310,8 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
               className="
                 absolute -top-8 px-2 py-1
                 text-xs font-medium
-                bg-[rgba(var(--bg-2),0.95)] backdrop-blur-sm
-                border border-[rgba(var(--border),var(--border-alpha))]
+                bg-[rgb(var(--bg-2)/0.95)] backdrop-blur-sm
+                border border-[rgb(var(--border)/var(--border-alpha))]
                 rounded-md shadow-lg
                 pointer-events-none
                 whitespace-nowrap
@@ -338,7 +338,7 @@ export const ProgressRail = forwardRef<HTMLFieldSetElement, ProgressRailProps>(
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
-              background: `radial-gradient(ellipse 100% 200% at ${clampedValue * 100}% 50%, rgba(var(--glow), 0.15) 0%, transparent 50%)`,
+              background: `radial-gradient(ellipse 100% 200% at ${clampedValue * 100}% 50%, rgb(var(--glow)/0.15) 0%, transparent 50%)`,
             }}
           />
         )}

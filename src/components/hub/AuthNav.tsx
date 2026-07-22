@@ -11,6 +11,13 @@ interface AuthNavProps {
    * @default "Explore"
    */
   readonly ctaLabel?: string
+  /**
+   * Where this instance is rendered.
+   * 'bar'  — inside the header row; secondary links collapse under `sm`.
+   * 'menu' — inside the mobile menu panel; everything stays visible and stacks.
+   * @default "bar"
+   */
+  readonly variant?: 'bar' | 'menu'
 }
 
 /**
@@ -22,9 +29,13 @@ interface AuthNavProps {
  * 
  * Uses Clerk for auth state and follows ELECTRI-X design language.
  */
-export function AuthNav({ ctaLabel = 'Explore' }: AuthNavProps) {
+export function AuthNav({ ctaLabel = 'Explore', variant = 'bar' }: AuthNavProps) {
   const { isSignedIn, user, isLoaded } = useUser()
   const [mounted, setMounted] = useState(false)
+  const inMenu = variant === 'menu'
+  // In the header row the secondary link is dropped on narrow screens (it lives
+  // in the mobile menu instead); inside the menu it must always show.
+  const secondaryVisibility = inMenu ? 'block' : 'hidden sm:block'
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -46,7 +57,7 @@ export function AuthNav({ ctaLabel = 'Explore' }: AuthNavProps) {
     const dashboardPath = role === 'artist' ? '/artist' : '/studio'
 
     return (
-      <div className="flex items-center gap-6">
+      <div className={`flex items-center gap-6 ${inMenu ? 'justify-between py-2' : ''}`}>
         <Link
           href={dashboardPath}
           className="text-sm font-medium text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded px-2 py-1"
@@ -80,18 +91,23 @@ export function AuthNav({ ctaLabel = 'Explore' }: AuthNavProps) {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className={`flex items-center gap-4 ${inMenu ? 'flex-col items-stretch gap-3 pt-2' : ''}`}>
       <Link
         href="/sign-in"
-        className="hidden sm:block text-sm font-medium text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded px-2 py-1"
+        className={`${secondaryVisibility} text-sm font-medium text-muted hover:text-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded px-2 py-1 ${inMenu ? 'py-3 min-h-[44px] text-base' : ''}`}
       >
         Sign In
       </Link>
-      <Link 
-        href="/sign-up" 
+      <Link
+        href="/sign-up"
         className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-full"
       >
-        <PillCTA as="span" variant="primary" size="sm" className="group">
+        <PillCTA
+          as="span"
+          variant="primary"
+          size={inMenu ? 'md' : 'sm'}
+          className={`group whitespace-nowrap ${inMenu ? 'w-full justify-center' : ''}`}
+        >
           <span>{ctaLabel}</span>
           <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
         </PillCTA>

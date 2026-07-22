@@ -132,9 +132,9 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         className={`
           relative inline-flex items-center
           rounded-full
-          bg-[rgba(var(--bg-2),0.8)]
+          bg-[rgb(var(--bg-2)/0.8)]
           backdrop-blur-md
-          border border-[rgba(var(--border),var(--border-alpha))]
+          border border-[rgb(var(--border)/var(--border-alpha))]
           transition-[background-color,box-shadow,transform] duration-200
           ${config.chip}
           ${onClick ? 'cursor-pointer' : ''}
@@ -146,7 +146,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         aria-label={label}
         whileHover={onClick ? { 
           y: -2,
-          boxShadow: '0 4px 20px rgba(var(--accent), 0.15)',
+          boxShadow: '0 4px 20px rgb(var(--accent)/0.15)',
         } : undefined}
         whileTap={onClick ? { scale: 0.98 } : undefined}
       >
@@ -154,7 +154,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         <span
           className="absolute inset-0 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
           style={{
-            background: 'radial-gradient(circle at 30% 50%, rgba(var(--glow), 0.1) 0%, transparent 60%)',
+            background: 'radial-gradient(circle at 30% 50%, rgb(var(--glow)/0.1) 0%, transparent 60%)',
           }}
           aria-hidden="true"
         />
@@ -162,7 +162,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
         {/* Cover art or icon */}
         {coverUrl ? (
           <div 
-            className={`${config.cover} rounded-full overflow-hidden shrink-0 bg-[rgba(var(--border),0.1)] relative`}
+            className={`${config.cover} rounded-full overflow-hidden shrink-0 bg-[rgb(var(--border)/0.1)] relative`}
           >
             {/* Using img for dynamic external URLs (Convex storage) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -174,7 +174,7 @@ export const NowPlayingChip = forwardRef<HTMLDivElement, NowPlayingChipProps>(
           </div>
         ) : (
           <div 
-            className={`${config.cover} rounded-full flex items-center justify-center shrink-0 bg-[rgba(var(--accent),0.1)]`}
+            className={`${config.cover} rounded-full flex items-center justify-center shrink-0 bg-[rgb(var(--accent)/0.1)]`}
           >
             <Music className={`${config.icon} text-[rgb(var(--accent))]`} />
           </div>

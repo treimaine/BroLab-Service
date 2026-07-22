@@ -98,7 +98,7 @@ function getStatusTone(status: 'healthy' | 'warning' | 'idle') {
   if (status === 'warning') {
     return 'border-yellow-500/30 bg-yellow-500/5 text-yellow-400'
   }
-  return 'border-border bg-[rgba(var(--bg-2),0.45)] text-muted'
+  return 'border-border bg-[rgb(var(--bg-2)/0.45)] text-muted'
 }
 
 export function StudioDashboard() {
@@ -235,7 +235,7 @@ export function StudioDashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-2xl border border-border bg-[rgba(var(--bg-2),0.45)] p-4">
+                    <div className="rounded-2xl border border-border bg-[rgb(var(--bg-2)/0.45)] p-4">
                       <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
                         Stripe connection events
                       </p>
@@ -245,7 +245,7 @@ export function StudioDashboard() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-[rgba(var(--bg-2),0.45)] p-4">
+                    <div className="rounded-2xl border border-border bg-[rgb(var(--bg-2)/0.45)] p-4">
                       <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
                         Latest lifecycle event
                       </p>
@@ -277,7 +277,7 @@ export function StudioDashboard() {
                       recentEvents.map((event) => (
                         <div
                           key={event._id}
-                          className="rounded-2xl border border-border bg-[rgba(var(--bg-2),0.45)] px-4 py-3"
+                          className="rounded-2xl border border-border bg-[rgb(var(--bg-2)/0.45)] px-4 py-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>

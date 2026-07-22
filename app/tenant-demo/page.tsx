@@ -99,7 +99,7 @@ export default function TenantDemoPage() {
         </div>
 
         {/* Radial glow */}
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(var(--accent), 0.08) 0%, transparent 70%)' }} aria-hidden="true" />
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.08) 0%, transparent 70%)' }} aria-hidden="true" />
 
         {/* Wavy Lines */}
         <WavyLines className="right-0 top-0 w-[150px] h-full" />
@@ -175,7 +175,7 @@ export default function TenantDemoPage() {
             <div className="flex items-center gap-4 mb-12">
               <span className="text-xs font-bold text-accent uppercase tracking-widest">01</span>
               <h2 className="text-sm font-bold text-muted uppercase tracking-widest">FEATURED BEATS</h2>
-              <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+              <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
             </div>
           </DribbbleSectionEnter>
 
@@ -200,7 +200,7 @@ export default function TenantDemoPage() {
                       </div>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {featuredBeats[0].tags.map((tag) => (
-                          <span key={tag} className="px-2 py-1 text-xs bg-[rgba(var(--accent),0.1)] text-accent rounded-md">{tag}</span>
+                          <span key={tag} className="px-2 py-1 text-xs bg-[rgb(var(--accent)/0.1)] text-accent rounded-md">{tag}</span>
                         ))}
                       </div>
                       <div className="flex items-center justify-between">
@@ -219,7 +219,7 @@ export default function TenantDemoPage() {
                       <div className="flex items-center gap-3">
                         <button 
                           onClick={() => handlePlayBeat(beat)}
-                          className="w-10 h-10 rounded-xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center hover:bg-[rgba(var(--accent),0.25)] transition-colors"
+                          className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center hover:bg-[rgb(var(--accent)/0.25)] transition-colors"
                           aria-label={`Play ${beat.title}`}
                         >
                           <Play className="w-4 h-4 text-accent ml-0.5" />
@@ -247,7 +247,7 @@ export default function TenantDemoPage() {
             <div className="flex items-center gap-4 mb-12">
               <span className="text-xs font-bold text-accent uppercase tracking-widest">02</span>
               <h2 className="text-sm font-bold text-muted uppercase tracking-widest">PROFESSIONAL SERVICES</h2>
-              <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+              <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
             </div>
           </DribbbleSectionEnter>
 
@@ -274,7 +274,7 @@ export default function TenantDemoPage() {
               <DribbbleStaggerItem>
                 <DribbbleCard hoverLift padding="lg" className="h-full">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[rgba(var(--accent),0.15)] flex items-center justify-center shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center shrink-0">
                       <Star className="w-7 h-7 text-accent" />
                     </div>
                     <div>
@@ -302,11 +302,11 @@ export default function TenantDemoPage() {
               {/* Decorative glows - using radial gradient instead of blur filter for performance */}
               <div 
                 className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none" 
-                style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
               />
               <div 
                 className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
               />
               <div className="relative z-10">
                 <span className="text-xs font-bold text-accent uppercase tracking-widest mb-4 block">GET STARTED</span>

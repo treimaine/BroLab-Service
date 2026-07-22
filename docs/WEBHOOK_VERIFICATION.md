@@ -16,9 +16,9 @@
 - **Environment Variables Set:**
   - `NEXT_PUBLIC_CONVEX_URL=https://cautious-retriever-22.convex.cloud`
   - `NEXT_PUBLIC_CONVEX_SITE_URL=https://cautious-retriever-22.convex.site`
-  - `STRIPE_CONNECT_CLIENT_ID=ca_TvdPhAH9azuNK8YhGCXJzJpqqQlYN5d4`
-  - `STRIPE_CONNECT_WEBHOOK_SECRET=whsec_vFPKPjg7uSf5nuwYyqR1HXjpYIlOWUot`
-  - `RESEND_API_KEY=re_6P4CuZhX_Ymtk9DvRdb3XSrk8Uwem4Ztv`
+  - `STRIPE_CONNECT_CLIENT_ID=ca_...`  # From Stripe Dashboard > Connect > Settings
+  - `STRIPE_CONNECT_WEBHOOK_SECRET=whsec_...`  # From Stripe Dashboard > Webhooks > Signing Secret
+  - `RESEND_API_KEY=re_...`  # From Resend Dashboard > API Keys
 
 ### 3. Next.js Deployment ✅
 - **Latest Deployment:** dpl_48uCxyvvFGgakiKHfxvfYQtDiX4i

@@ -122,7 +122,7 @@ export default function TenantHomePage() {
 
         <div
           className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(var(--accent), 0.08) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.08) 0%, transparent 70%)' }}
           aria-hidden="true"
         />
 
@@ -200,7 +200,7 @@ export default function TenantHomePage() {
             <div className="flex items-center gap-4 mb-12">
               <span className="text-xs font-bold text-accent uppercase tracking-widest">01</span>
               <h2 className="text-sm font-bold text-muted uppercase tracking-widest">LATEST DROPS</h2>
-              <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+              <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
             </div>
           </DribbbleSectionEnter>
 
@@ -274,7 +274,7 @@ export default function TenantHomePage() {
             <div className="flex items-center gap-4 mb-12">
               <span className="text-xs font-bold text-accent uppercase tracking-widest">02</span>
               <h2 className="text-sm font-bold text-muted uppercase tracking-widest">PROFESSIONAL SERVICES</h2>
-              <div className="h-px w-24 bg-[rgba(var(--border),0.5)]" />
+              <div className="h-px w-24 bg-[rgb(var(--border)/0.5)]" />
             </div>
           </DribbbleSectionEnter>
 
@@ -293,7 +293,7 @@ export default function TenantHomePage() {
                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                           index === 0
                             ? 'bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))]'
-                            : 'bg-[rgba(var(--accent),0.15)]'
+                            : 'bg-[rgb(var(--accent)/0.15)]'
                         }`}>
                           <Headphones className={`w-7 h-7 ${index === 0 ? 'text-white' : 'text-accent'}`} />
                         </div>
@@ -332,12 +332,12 @@ export default function TenantHomePage() {
             <DribbbleCard glow padding="lg" className="text-center relative overflow-hidden">
               <div
                 className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(var(--accent),0.15) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgb(var(--accent)/0.15) 0%, transparent 70%)' }}
                 aria-hidden="true"
               />
               <div
                 className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(var(--accent-2),0.15) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgb(var(--accent-2)/0.15) 0%, transparent 70%)' }}
                 aria-hidden="true"
               />
               <div className="relative z-10">

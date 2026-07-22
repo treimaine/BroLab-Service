@@ -1,33 +1,35 @@
 import { OnboardingClient } from '@/components/hub/OnboardingClient'
-import { CreatorStories } from '@/components/hub'
+import { CheckCircle2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-// Sample creator stories for onboarding motivation
-const ONBOARDING_STORIES = [
+/**
+ * What the creator gets once onboarding completes.
+ *
+ * This replaced a "Success Stories / Real creators, real earnings" panel that
+ * listed three invented producers with invented earnings figures ($5,400+,
+ * $3,200+, $8,100+). BroLab has no customers yet — the orders table is empty —
+ * so those endorsements were fabricated. Presenting invented testimonials as
+ * real is both a credibility risk and, in most jurisdictions, unlawful.
+ *
+ * Restore social proof here only with quotes from real, consenting creators.
+ */
+const SETUP_CHECKLIST = [
   {
-    id: '1',
-    name: 'Marcus J.',
-    niche: 'Hip-Hop Producer',
-    earnings: '$5,400+ in sales',
-    quote: 'Sold my first beat in 2 days. BroLab made it super easy to set up and start earning.',
-    profileUrl: '#'
+    title: 'Your storefront goes live immediately',
+    detail: 'No review queue, no approval step. Pick a subdomain and it works.',
   },
   {
-    id: '2',
-    name: 'Alex Chen',
-    niche: 'Beat Producer',
-    earnings: '$3,200+ in first month',
-    quote: 'Love that I keep 100% of revenue. No middleman, just direct to my bank account.',
-    profileUrl: '#'
+    title: 'Payouts land in your own Stripe account',
+    detail: 'BroLab is never in the middle of the transaction and takes 0% of your sales.',
   },
   {
-    id: '3',
-    name: 'Jordan Blake',
-    niche: 'Sound Designer',
-    earnings: '$8,100+ from services',
-    quote: 'Offering mixing services alongside beats tripled my monthly earnings.',
-    profileUrl: '#'
-  }
+    title: 'Licenses are issued for you',
+    detail: 'Every sale generates a PDF license with the terms snapshotted at purchase.',
+  },
+  {
+    title: 'Nothing is locked in',
+    detail: 'Your audio and your customer list stay yours. Cancel and keep them.',
+  },
 ]
 
 /**
@@ -44,8 +46,6 @@ const ONBOARDING_STORIES = [
  *
  * NO subscription step (Clerk Billing comes later)
  * NO Stripe Connect step (comes in Phase 9)
- *
- * CRO: Added creator success stories sidebar for trust building
  */
 export default function OnboardingPage(): ReactNode {
   return (
@@ -56,14 +56,24 @@ export default function OnboardingPage(): ReactNode {
           <OnboardingClient />
         </div>
 
-        {/* Right: Creator Success Stories (hidden on mobile) */}
+        {/* Right: What happens next (hidden on mobile) */}
         <aside className="hidden lg:block order-1 lg:order-2 pt-16">
-          <CreatorStories
-            stories={ONBOARDING_STORIES}
-            title="Success Stories"
-            subtitle="Real creators, real earnings"
-            maxStories={3}
-          />
+          <h2 className="text-lg font-bold text-text mb-1">What happens next</h2>
+          <p className="text-sm text-muted mb-6">
+            Setup takes about five minutes.
+          </p>
+
+          <ul className="space-y-4">
+            {SETUP_CHECKLIST.map((item) => (
+              <li key={item.title} className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-accent shrink-0 mt-0.5" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-semibold text-text">{item.title}</p>
+                  <p className="text-sm text-muted leading-relaxed mt-0.5">{item.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </aside>
       </div>
     </div>
