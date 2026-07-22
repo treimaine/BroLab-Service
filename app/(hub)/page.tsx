@@ -160,11 +160,6 @@ export default function HubLandingPage() {
             },
           },
         ],
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          ratingCount: '127',
-        },
         featureList: [
           'Direct Stripe payments with 0% platform fee',
           'Automatic 30-second preview generation',

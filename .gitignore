@@ -26,6 +26,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.firecrawl/
+.playwright-cli/
+output/playwright/
 
 # Local env files
 .env

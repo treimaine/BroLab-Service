@@ -1,4 +1,4 @@
-import { CreatorStatsCounter, CreatorStories, MOCK_CREATOR_STORIES } from '@/components/hub'
+import { CreatorStatsCounter } from '@/components/hub'
 import { FAQSection } from '@/components/hub/FAQSection'
 import { HeroSection } from '@/components/hub/HeroSection'
 import {
@@ -10,6 +10,7 @@ import {
   MobileInfoSection,
   PricingSection,
   ProductPreviewSection,
+  TestimonialSection,
   TrustRow
 } from '@/components/hub/LandingSections'
 
@@ -26,7 +27,7 @@ export default function HubLandingPageClient() {
       <ProductPreviewSection />
       <PricingSection />
       <ComparisonSection />
-      <CreatorStories stories={MOCK_CREATOR_STORIES} />
+      <TestimonialSection />
       <FAQSection />
       <FinalCTASection />
     </main>

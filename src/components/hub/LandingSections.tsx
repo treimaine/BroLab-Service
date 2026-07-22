@@ -16,11 +16,9 @@ import {
   DollarSign,
   Headphones,
   Music,
-  Quote,
   Shield,
   Sparkles,
   Users,
-  X,
   Zap,
   type LucideIcon
 } from 'lucide-react'
@@ -499,12 +497,10 @@ export function PricingSection() {
 }
 
 export function ComparisonSection() {
-  const criteria = [
-    { label: 'Commission on sales', brolab: '0%', beatstars: '10–30%', airbit: '15–30%', brolabWins: true },
-    { label: 'Custom storefront', brolab: 'Yes', beatstars: 'Limited', airbit: 'Limited', brolabWins: true },
-    { label: 'Direct payouts', brolab: 'Stripe direct', beatstars: 'Via platform', airbit: 'Via platform', brolabWins: true },
-    { label: 'Services + Beats', brolab: 'Yes', beatstars: 'Beats only', airbit: 'Beats only', brolabWins: true },
-    { label: 'Auto PDF licenses', brolab: 'Yes', beatstars: 'Templates', airbit: 'Templates', brolabWins: true },
+  const ownershipStack = [
+    { icon: Music, title: 'Your catalog', description: 'Sell beats and creative services from the same storefront.' },
+    { icon: CreditCard, title: 'Your payments', description: 'Connect your own Stripe account and receive payouts directly.' },
+    { icon: Shield, title: 'Your licenses', description: 'Deliver a professional PDF license automatically after purchase.' },
   ]
 
   return (
@@ -516,42 +512,17 @@ export function ComparisonSection() {
 
         <DribbbleSectionEnter>
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-text mb-2">BroLab vs the competition</h2>
-            <p className="text-muted text-sm">See why creators are switching from marketplace platforms.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-text mb-2">Own the path from catalog to payout</h2>
+            <p className="text-muted text-sm">BroLab brings the storefront, checkout and licensing workflow under your brand.</p>
           </div>
         </DribbbleSectionEnter>
 
         <DribbbleSectionEnter>
-          <DribbbleCard padding="none" className="overflow-hidden">
-            {/* Table header */}
-            <div className="grid grid-cols-4 text-[10px] font-black uppercase tracking-widest border-b border-border/30">
-              <div className="p-4 text-muted col-span-1">Criteria</div>
-              <div className="p-4 text-accent text-center bg-[rgba(var(--accent),0.06)]">BroLab</div>
-              <div className="p-4 text-muted text-center">BeatStars</div>
-              <div className="p-4 text-muted text-center">Airbit</div>
-            </div>
-
-            {criteria.map((row, i) => (
-              <div
-                key={row.label}
-                className={`grid grid-cols-4 text-sm border-b border-border/20 last:border-0 ${i % 2 === 0 ? '' : 'bg-[rgba(var(--bg-2),0.3)]'}`}
-              >
-                <div className="p-4 text-muted text-xs">{row.label}</div>
-                <div className="p-4 text-center bg-[rgba(var(--accent),0.04)] flex items-center justify-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span className="text-xs font-bold text-accent">{row.brolab}</span>
-                </div>
-                <div className="p-4 text-center flex items-center justify-center gap-1.5">
-                  <X className="w-3.5 h-3.5 text-muted/50 shrink-0" />
-                  <span className="text-xs text-muted">{row.beatstars}</span>
-                </div>
-                <div className="p-4 text-center flex items-center justify-center gap-1.5">
-                  <X className="w-3.5 h-3.5 text-muted/50 shrink-0" />
-                  <span className="text-xs text-muted">{row.airbit}</span>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {ownershipStack.map((item) => (
+              <IconCard key={item.title} icon={item.icon} title={item.title} description={item.description} />
             ))}
-          </DribbbleCard>
+          </div>
         </DribbbleSectionEnter>
       </div>
     </section>
@@ -559,24 +530,21 @@ export function ComparisonSection() {
 }
 
 export function TestimonialSection() {
-  const testimonials = [
+  const launchSteps = [
     {
-      quote: "BroLab changed everything for me. I launched my store in 10 minutes and sold my first exclusive beat the next day with 0% commission.",
-      author: "Alex Rivers",
-      role: "Multi-Platinum Producer",
-      avatar: "AR"
+      icon: Music,
+      title: 'Add your offer',
+      description: 'Upload a beat or list a mixing, mastering or custom-production service.'
     },
     {
-      quote: "The automated licensing and Stripe integration are seamless. I can focus on mixing while the platform handles the business.",
-      author: "Sarah Chen",
-      role: "Mixing Engineer",
-      avatar: "SC"
+      icon: Sparkles,
+      title: 'Publish your store',
+      description: 'Choose your branding and share one storefront link with your audience.'
     },
     {
-      quote: "As an artist, I love the clean interface and the high-quality previews. Finding the right beat has never been this professional.",
-      author: "Marcus J",
-      role: "Independent Artist",
-      avatar: "MJ"
+      icon: DollarSign,
+      title: 'Make the sale',
+      description: 'Your customer checks out, receives their files and license, and you get paid through Stripe.'
     }
   ]
 
@@ -584,28 +552,14 @@ export function TestimonialSection() {
     <section className="px-4 py-14 bg-[rgb(var(--bg))]">
       <div className="container mx-auto max-w-6xl">
         <DribbbleSectionEnter>
-          <SectionHeader number="06" title="HEAR FROM CREATORS" />
+          <SectionHeader number="06" title="YOUR FIRST SALE FLOW" />
         </DribbbleSectionEnter>
 
         <DribbbleSectionEnter stagger>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <DribbbleStaggerItem key={t.author}>
-                <DribbbleCard hoverLift padding="lg" className="h-full flex flex-col justify-between">
-                  <div>
-                    <Quote className="w-8 h-8 text-accent opacity-20 mb-4" />
-                    <p className="text-sm text-text leading-relaxed italic mb-6">"{t.quote}"</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent/20 to-accent-2/20 flex items-center justify-center text-xs font-bold text-accent">
-                      {t.avatar}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-text uppercase">{t.author}</p>
-                      <p className="text-[10px] text-muted">{t.role}</p>
-                    </div>
-                  </div>
-                </DribbbleCard>
+            {launchSteps.map((step) => (
+              <DribbbleStaggerItem key={step.title}>
+                <IconCard icon={step.icon} title={step.title} description={step.description} />
               </DribbbleStaggerItem>
             ))}
           </div>
@@ -633,7 +587,7 @@ export function FinalCTASection() {
               <span className="text-xs font-bold text-accent uppercase tracking-widest mb-4 block">GET STARTED</span>
               <h2 className="text-3xl md:text-4xl font-bold text-text mb-3">Launch your beat store in minutes.</h2>
               <p className="text-accent font-bold text-sm mb-2">Keep 100% of your revenue.</p>
-              <p className="text-muted text-sm mb-2">Join creators who are already growing their brand with BroLab.</p>
+              <p className="text-muted text-sm mb-2">Be among the first creators to shape BroLab with us.</p>
               <p className="text-muted text-xs mb-8">No credit card required. Setup in 5 minutes. Cancel anytime.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link href="/sign-up"><PillCTA variant="primary" size="lg">Start Free</PillCTA></Link>
