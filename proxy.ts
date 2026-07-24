@@ -1,5 +1,5 @@
 import { resolveTenancy } from '@/platform/tenancy/edge-router'
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 /**
@@ -18,22 +18,22 @@ import { NextResponse } from 'next/server'
  * 8. THEN tenancy resolution runs (hostname → workspace slug → rewrite to /_t/[slug])
  */
 
-// Define route matchers
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/pricing(.*)',
-  '/about(.*)',
-  '/contact(.*)',
-  '/privacy(.*)',
-  '/terms(.*)',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/api/webhooks(.*)', // Legacy webhook namespace
-  '/api/stripe/checkout(.*)', // Stripe checkout session creation
-  '/api/stripe/webhook(.*)', // Stripe webhook deliveries
-  '/api/clerk/webhook(.*)', // Clerk webhook deliveries
-  '/api/clerk/billing/webhook(.*)', // Clerk Billing webhook deliveries
-])
+const PUBLIC_ROUTE_PREFIXES = [
+  '/pricing',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/sign-in',
+  '/sign-up',
+] as const
+
+function isPublicRoute(pathname: string): boolean {
+  if (pathname === '/') return true
+  return PUBLIC_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  )
+}
 
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
@@ -192,7 +192,7 @@ export default clerkMiddleware(async (auth, req) => {
   const isStudioPath = pathname.startsWith('/studio')
   const isArtistPath = pathname.startsWith('/artist')
   const isOnboardingPath = pathname.startsWith('/onboarding')
-  const isPublicPath = isPublicRoute(req)
+  const isPublicPath = isPublicRoute(pathname)
 
   // API routes should never be rewritten by tenancy resolution.
   // Route handlers are responsible for their own auth/validation.

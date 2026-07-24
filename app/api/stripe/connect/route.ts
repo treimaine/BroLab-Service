@@ -5,7 +5,7 @@
  * Requirements: 27.1, 27.2
  */
 
-import { getStripeConnectOAuthUrl, SITE_CONFIG } from '@/lib/env'
+import { getAppOrigin, getStripeConnectOAuthUrl } from '@/lib/env'
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
@@ -32,8 +32,8 @@ export async function GET(request: Request) {
       )
     }
 
-    // Build redirect URI (callback endpoint)
-    const redirectUri = `${SITE_CONFIG.url}/api/stripe/connect/callback`
+    // Build redirect URI (callback endpoint) against the origin actually in use
+    const redirectUri = `${getAppOrigin(request)}/api/stripe/connect/callback`
 
     // Build OAuth URL with state parameter (contains workspaceId)
     const state = Buffer.from(

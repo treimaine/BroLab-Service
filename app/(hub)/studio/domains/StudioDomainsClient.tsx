@@ -13,6 +13,7 @@
  */
 
 import { StudioHeader } from '@/components/hub/StudioHeader'
+import { useSubscriptionSync } from '@/platform/billing'
 import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useUser } from '@clerk/nextjs'
@@ -51,6 +52,10 @@ export function StudioDomainsClient() {
   const [isAdding, setIsAdding] = useState(false)
   const [loadingDomainId, setLoadingDomainId] = useState<string | null>(null)
 
+  // Reconcile the Convex mirror with Clerk Billing before gating on it, so an
+  // active PRO plan is never shown the upgrade wall.
+  const { isSyncing } = useSubscriptionSync(Boolean(user?.id))
+
   const workspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
   const workspace = workspaces?.[0]
 
@@ -69,10 +74,12 @@ export function StudioDomainsClient() {
   const disconnectDomain = useMutation(api.platform.domains.disconnectDomain)
   const checkVerification = useMutation(api.platform.domains.checkDomainVerification)
 
-  const isPro = subscription?.planKey === 'pro' && subscription?.status === 'active'
-  const maxDomains = isPro ? 2 : 0
+  const isActive = subscription?.status === 'active'
+  const isPro = subscription?.planKey === 'pro' && isActive
+  // Limits come from the plan definition (server source of truth), not the UI.
+  const maxDomains = isActive ? (subscriptionData?.planFeatures?.maxCustomDomains ?? 0) : 0
   const usedDomains = domains?.length ?? 0
-  const canAddMore = isPro && usedDomains < maxDomains
+  const canAddMore = maxDomains > 0 && usedDomains < maxDomains
 
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault()
@@ -124,6 +131,17 @@ export function StudioDomainsClient() {
     }
   }
 
+  if (workspaces === undefined) {
+    return (
+      <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
+        <StudioHeader />
+        <main className="max-w-7xl mx-auto px-6 py-8 text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-[rgb(var(--accent))]" />
+        </main>
+      </div>
+    )
+  }
+
   if (!workspace) {
     return (
       <div className="min-h-screen bg-[rgb(var(--bg))] pt-24">
@@ -173,8 +191,18 @@ export function StudioDomainsClient() {
           )}
         </div>
 
+        {/* Subscription still being reconciled with Clerk — don't flash the gate */}
+        {!isPro && (isSyncing || subscriptionData === undefined) && (
+          <DribbbleCard padding="lg">
+            <div className="flex items-center gap-3 text-[rgb(var(--muted))]">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <p className="text-sm">Checking your plan…</p>
+            </div>
+          </DribbbleCard>
+        )}
+
         {/* PRO gate */}
-        {!isPro && (
+        {!isPro && !isSyncing && subscriptionData !== undefined && (
           <DribbbleCard padding="lg" className="border border-[rgb(var(--accent))]/20">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-xl bg-[rgb(var(--accent))]/10">

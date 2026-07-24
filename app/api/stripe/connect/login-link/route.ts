@@ -6,7 +6,7 @@
  * Requirements: 27.1, 27.2
  */
 
-import { SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
+import { getAppOrigin, STRIPE_CONFIG } from '@/lib/env'
 import { auth } from '@clerk/nextjs/server'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
@@ -46,8 +46,8 @@ export async function GET(request: Request) {
     // so the creator can complete their onboarding verification
     const accountLink = await stripe.accountLinks.create({
       account: workspace.stripeAccountId,
-      refresh_url: `${SITE_CONFIG.url}/studio/billing`,
-      return_url: `${SITE_CONFIG.url}/studio/billing?stripe_onboarding=complete`,
+      refresh_url: `${getAppOrigin(request)}/studio/billing`,
+      return_url: `${getAppOrigin(request)}/studio/billing?stripe_onboarding=complete`,
       type: 'account_onboarding',
     })
 

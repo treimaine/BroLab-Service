@@ -46,10 +46,17 @@ The worker reads from `.env.local` in the project root:
 ```env
 # Required
 NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+WORKER_SECRET=use-a-long-random-value
 
 # Optional
 WORKER_ID=worker-1                    # Defaults to hostname
 POLL_INTERVAL_MS=5000                 # Defaults to 5000 (5 seconds)
+```
+
+Configure the same secret on the target Convex deployment:
+
+```bash
+npx convex env set WORKER_SECRET "use-the-same-long-random-value"
 ```
 
 ## Usage

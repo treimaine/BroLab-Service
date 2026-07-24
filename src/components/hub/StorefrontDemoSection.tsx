@@ -34,7 +34,7 @@ const STEPS = [
     id: 'license',
     icon: FileText,
     label: 'Buy and get licensed',
-    description: 'They pick a license tier, pay straight into your Stripe, and the PDF license is issued instantly.',
+    description: 'They pick a license tier, pay straight into your Stripe, get the audio immediately, and receive the generated PDF in their dashboard.',
   },
 ] as const
 
@@ -305,7 +305,7 @@ export function StorefrontDemoSection() {
               </h3>
               <p className="text-muted">
                 This is the actual flow on a BroLab storefront — from landing on your page
-                to walking away with the files and a signed license.
+                to walking away with the files and a versioned license agreement.
               </p>
 
               <ul className="space-y-2">

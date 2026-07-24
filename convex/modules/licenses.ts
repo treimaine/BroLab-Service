@@ -2,18 +2,22 @@
 // Implements Requirement 29.6: License PDF generation
 
 import { v } from "convex/values";
-import { internalMutation, internalQuery } from "../_generated/server";
+import { internal } from "../_generated/api";
+import { mutation, query } from "../_generated/server";
+import { assertWorkerSecret } from "../lib/workerAuth";
 
 /**
  * Get license data for PDF generation
  * Called by worker to fetch all necessary data
  * Requirements: 29.6
  */
-export const getLicenseForPdf = internalQuery({
+export const getLicenseForPdf = query({
   args: {
     licenseId: v.id("licenses"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     // Fetch license record
     const license = await ctx.db.get(args.licenseId);
     if (!license) {
@@ -52,13 +56,15 @@ export const getLicenseForPdf = internalQuery({
  * Called by worker after successful PDF generation
  * Requirements: 29.6
  */
-export const completeLicensePdfGeneration = internalMutation({
+export const completeLicensePdfGeneration = mutation({
   args: {
     documentId: v.id("licenseDocuments"),
     storageId: v.id("_storage"),
     licenseId: v.id("licenses"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     // Update license document
     await ctx.db.patch(args.documentId, {
       storageId: args.storageId,
@@ -76,6 +82,24 @@ export const completeLicensePdfGeneration = internalMutation({
     await ctx.db.patch(license.entitlementId, {
       licensePdfStorageId: args.storageId,
     });
+
+    await ctx.db.patch(args.licenseId, { status: "active" });
+
+    if (license.buyerEmail) {
+      const track = await ctx.db.get(license.trackId);
+      if (track) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.platform.email.actions.sendLicenseReadyEmail,
+          {
+            licenseId: license._id,
+            buyerEmail: license.buyerEmail,
+            trackTitle: track.title,
+            licenseTier: license.tierKey,
+          }
+        );
+      }
+    }
 
     // Get license document to record event
     const document = await ctx.db.get(args.documentId);
@@ -102,12 +126,14 @@ export const completeLicensePdfGeneration = internalMutation({
  * Called by worker if PDF generation fails
  * Requirements: 29.6
  */
-export const failLicensePdfGeneration = internalMutation({
+export const failLicensePdfGeneration = mutation({
   args: {
     documentId: v.id("licenseDocuments"),
     error: v.string(),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     // Update license document
     await ctx.db.patch(args.documentId, {
       status: "failed",

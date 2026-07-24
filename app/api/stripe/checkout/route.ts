@@ -7,7 +7,7 @@
  * Requirements: 13.1, 13.2, 13.3, 13.7, 13.8
  */
 
-import { CONVEX_CONFIG, SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
+import { CONVEX_CONFIG, getAppOrigin, STRIPE_CONFIG } from '@/lib/env'
 import {
     logCheckoutAttempt,
     logCheckoutFailure,
@@ -343,14 +343,15 @@ async function fetchWorkspace(
 function buildCheckoutUrls(
   body: CheckoutRequest,
   workspace: WorkspaceData,
-  itemType: ItemType
+  itemType: ItemType,
+  origin: string
 ): { successUrl: string; cancelUrl: string } {
   const successUrl =
     body.successUrl ||
-    `${SITE_CONFIG.url}/_t/${workspace.slug}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
+    `${origin}/_t/${workspace.slug}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
   const cancelUrl =
     body.cancelUrl ||
-    `${SITE_CONFIG.url}/_t/${workspace.slug}/${itemType === 'track' ? 'beats' : 'services'}/${body.itemId}`
+    `${origin}/_t/${workspace.slug}/${itemType === 'track' ? 'beats' : 'services'}/${body.itemId}`
 
   return { successUrl, cancelUrl }
 }
@@ -386,7 +387,8 @@ async function processCheckoutRequest(
   body: CheckoutRequest,
   userId: string,
   isTestMode: boolean,
-  startTime: number
+  startTime: number,
+  origin: string
 ): Promise<{
   workspace: WorkspaceData
   itemData: ItemData
@@ -452,7 +454,7 @@ async function processCheckoutRequest(
 
   // Build metadata and URLs
   const metadata = buildMetadata(workspaceId, itemType, itemId, userId, licenseTier)
-  const { successUrl, cancelUrl } = buildCheckoutUrls(body, workspace, itemType)
+  const { successUrl, cancelUrl } = buildCheckoutUrls(body, workspace, itemType, origin)
 
   return { workspace, itemData, metadata, successUrl, cancelUrl }
 }
@@ -606,7 +608,7 @@ export async function POST(request: Request) {
     itemId = body.itemId
 
     const isTestMode = !!request.headers.get('x-test-user-id')
-    const result = await processCheckoutRequest(body, userId, isTestMode, startTime)
+    const result = await processCheckoutRequest(body, userId, isTestMode, startTime, getAppOrigin(request))
 
     if (result instanceof NextResponse) {
       return result

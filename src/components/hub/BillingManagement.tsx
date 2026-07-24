@@ -11,6 +11,7 @@
  * - Usage vs quota display
  */
 
+import { useSubscriptionSync } from '@/platform/billing'
 import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { PricingTable, useUser } from '@clerk/nextjs'
 import { SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
@@ -34,6 +35,10 @@ function getStatusBadgeStyles(status: 'active' | 'inactive' | 'canceled') {
 export function BillingManagement() {
   const { user } = useUser()
   const clerkUserId = user?.id
+
+  // Reconcile the Convex mirror with Clerk Billing before reading it, so an
+  // active Clerk plan is never displayed as "No Active Subscription".
+  const { isSyncing } = useSubscriptionSync(Boolean(clerkUserId))
 
   // Fetch subscription and usage data
   const data = useQuery(
@@ -151,6 +156,11 @@ export function BillingManagement() {
                         </p>
                         <SubscriptionDetailsButton />
                       </div>
+                    </div>
+                  ) : isSyncing ? (
+                    <div className="flex items-center gap-3 text-muted py-4">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="font-medium">Checking your subscription…</span>
                     </div>
                   ) : (
                     <div className="space-y-6">

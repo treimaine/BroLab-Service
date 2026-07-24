@@ -2,9 +2,7 @@ import { CONVEX_CONFIG } from '@/lib/env'
 import { auth } from '@clerk/nextjs/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
-import { internal } from 'convex/_generated/api'
-
-const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
+import { api } from 'convex/_generated/api'
 
 function toTitleCase(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
@@ -15,24 +13,26 @@ export async function GET(
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const authResult = await auth()
+    if (!authResult.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const convexToken = await authResult.getToken({ template: 'convex' })
+    if (!convexToken) {
+      return NextResponse.json({ error: 'Convex authentication unavailable' }, { status: 503 })
+    }
+    const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
+    convex.setAuth(convexToken)
 
     const { sessionId } = await params
     if (!sessionId) {
       return NextResponse.json({ error: 'Missing session id' }, { status: 400 })
     }
 
-    const purchase = await convex.query(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).modules.orders.getSessionPurchaseData,
-      {
-        stripeSessionId: sessionId,
-        buyerClerkUserId: userId,
-      }
-    )
+    const purchase = await convex.query(api.modules.orders.getMySessionPurchaseData, {
+      stripeSessionId: sessionId,
+    })
 
     if (!purchase) {
       return NextResponse.json(
@@ -60,6 +60,7 @@ export async function GET(
       currency: purchase.currency,
       downloadUrl: purchase.downloadUrl,
       licenseUrl: purchase.licenseUrl,
+      licenseStatus: purchase.licenseStatus,
       buyerEmail: purchase.buyerEmail,
       paidAt: formattedDate,
       price: purchase.amountCents / 100,

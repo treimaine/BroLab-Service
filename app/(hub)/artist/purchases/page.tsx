@@ -1,5 +1,5 @@
-import { MyPurchasesClient } from '@/components/artist/MyPurchasesClient'
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'My Purchases | BroLab Entertainment',
@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 }
 
 export default function MyPurchasesPage() {
-  return <MyPurchasesClient />
+  redirect('/artist')
 }

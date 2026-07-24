@@ -3,7 +3,8 @@
 
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
-import { internalMutation, internalQuery } from "../_generated/server";
+import { internalMutation, query } from "../_generated/server";
+import { createLicenseSnapshot } from "../../src/shared/licenses";
 
 /**
  * Create an order from Stripe checkout session
@@ -65,53 +66,37 @@ export const createPurchaseEntitlement = internalMutation({
     trackId: v.id("tracks"),
     orderId: v.id("orders"),
     licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
-    licenseTermsVersion: v.string(),
-    licenseTermsSnapshot: v.any(),
   },
   handler: async (ctx, args) => {
-    // Check if entitlement already exists (idempotency)
-    const existing = await ctx.db
-      .query("purchaseEntitlements")
-      .withIndex("by_buyer_track", (q) =>
-        q.eq("buyerClerkUserId", args.buyerClerkUserId).eq("trackId", args.trackId)
-      )
+    // A Stripe session/order creates exactly one license, while the same buyer
+    // can legitimately purchase the same track again or upgrade its tier.
+    const existingLicense = await ctx.db
+      .query("licenses")
+      .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
       .first();
 
-    if (existing) {
-      return existing._id;
+    if (existingLicense) {
+      return existingLicense.entitlementId;
     }
+
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace) throw new Error("Workspace not found");
+
+    const licenseTerms = createLicenseSnapshot(args.licenseTier, workspace.name);
 
     // Create entitlement
     const entitlementId = await ctx.db.insert("purchaseEntitlements", {
       workspaceId: args.workspaceId,
+      orderId: args.orderId,
       buyerClerkUserId: args.buyerClerkUserId,
       trackId: args.trackId,
       licenseTier: args.licenseTier,
-      licenseTermsVersion: args.licenseTermsVersion,
-      licenseTermsSnapshot: args.licenseTermsSnapshot,
+      licenseTermsVersion: licenseTerms.termsVersion,
+      licenseTermsSnapshot: licenseTerms,
       createdAt: Date.now(),
     });
 
     // Requirement 29.4: Create licenses table record with full snapshot
-    const licenseTerms = args.licenseTermsSnapshot as {
-      title: string;
-      includesStems: boolean;
-      rights: {
-        commercialUse: boolean;
-        audioStreamingCap: number;
-        musicVideosCap: number;
-        livePerformanceCap: number;
-        radioBroadcastCap: number;
-        syncAllowed: boolean;
-      };
-      publishingSplit: {
-        licensorWriterSharePercent: number;
-        licenseeWriterSharePercent: number;
-        licensorPublisherSharePercent: number;
-        licenseePublisherSharePercent: number;
-      };
-    };
-
     const licenseId = await ctx.db.insert("licenses", {
       workspaceId: args.workspaceId,
       orderId: args.orderId,
@@ -119,16 +104,12 @@ export const createPurchaseEntitlement = internalMutation({
       buyerEmail: args.buyerEmail,
       trackId: args.trackId,
       entitlementId,
-      termsVersion: args.licenseTermsVersion,
+      termsVersion: licenseTerms.termsVersion,
       tierKey: args.licenseTier,
       includesStems: licenseTerms.includesStems,
       rightsSnapshot: licenseTerms.rights,
-      prohibitedUsesSnapshot: [
-        "No resale or redistribution of the beat",
-        "No use in AI training datasets",
-        "No sublicensing to third parties",
-      ],
-      creditLineSnapshot: "Produced by [Producer Name]",
+      prohibitedUsesSnapshot: licenseTerms.prohibitedUses,
+      creditLineSnapshot: licenseTerms.creditLineTemplate,
       publishingEnabled: true,
       licensorWriterSharePercent: licenseTerms.publishingSplit.licensorWriterSharePercent,
       licenseeWriterSharePercent: licenseTerms.publishingSplit.licenseeWriterSharePercent,
@@ -262,18 +243,20 @@ export const markEventProcessed = internalMutation({
  * Get checkout session purchase details for success page rendering.
  * Server-only query used by the Next.js API route.
  */
-export const getSessionPurchaseData = internalQuery({
+export const getMySessionPurchaseData = query({
   args: {
     stripeSessionId: v.string(),
-    buyerClerkUserId: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
     const order = await ctx.db
       .query("orders")
       .withIndex("by_stripe_session", (q) => q.eq("stripeSessionId", args.stripeSessionId))
       .first();
 
-    if (!order || order.buyerClerkUserId !== args.buyerClerkUserId) {
+    if (!order || order.buyerClerkUserId !== identity.subject) {
       return null;
     }
 
@@ -284,12 +267,17 @@ export const getSessionPurchaseData = internalQuery({
       const track = await ctx.db.get(order.itemId as Id<"tracks">);
       if (!track) return null;
 
-      const entitlement = await ctx.db
-        .query("purchaseEntitlements")
-        .withIndex("by_buyer_track", (q) =>
-          q.eq("buyerClerkUserId", args.buyerClerkUserId).eq("trackId", track._id)
-        )
+      const license = await ctx.db
+        .query("licenses")
+        .withIndex("by_order", (q) => q.eq("orderId", order._id))
         .first();
+      const entitlement = license ? await ctx.db.get(license.entitlementId) : null;
+      const licenseDocument = license
+        ? await ctx.db
+            .query("licenseDocuments")
+            .withIndex("by_license", (q) => q.eq("licenseId", license._id))
+            .first()
+        : null;
 
       const downloadUrl = track.fullStorageId
         ? await ctx.storage.getUrl(track.fullStorageId)
@@ -309,6 +297,7 @@ export const getSessionPurchaseData = internalQuery({
         currency: order.currency,
         downloadUrl,
         licenseUrl,
+        licenseStatus: licenseDocument?.status ?? "pending",
         buyerEmail: order.buyerEmail,
         paidAt: order.createdAt,
       };
@@ -328,6 +317,7 @@ export const getSessionPurchaseData = internalQuery({
       currency: order.currency,
       downloadUrl: null,
       licenseUrl: null,
+      licenseStatus: null,
       buyerEmail: order.buyerEmail,
       paidAt: order.createdAt,
     };

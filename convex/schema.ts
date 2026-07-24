@@ -171,6 +171,7 @@ export default defineSchema({
 
   purchaseEntitlements: defineTable({
     workspaceId: v.id("workspaces"),
+    orderId: v.optional(v.id("orders")),
     buyerClerkUserId: v.string(),
     trackId: v.id("tracks"),
     // License information
@@ -182,7 +183,8 @@ export default defineSchema({
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"])
-    .index("by_buyer_track", ["buyerClerkUserId", "trackId"]),
+    .index("by_buyer_track", ["buyerClerkUserId", "trackId"])
+    .index("by_order", ["orderId"]),
 
   bookings: defineTable({
     workspaceId: v.id("workspaces"),
@@ -249,7 +251,16 @@ export default defineSchema({
   emailEvents: defineTable({
     provider: v.string(), // "resend"
     dedupeKey: v.string(), // Unique business key e.g. "stripe:evt_123:artist_purchase"
+    emailType: v.optional(v.string()),
+    recipient: v.optional(v.string()),
+    status: v.optional(
+      v.union(v.literal("sent"), v.literal("failed"))
+    ),
+    providerMessageId: v.optional(v.string()),
+    attempts: v.optional(v.number()),
+    lastError: v.optional(v.string()),
     createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
   }).index("by_dedupe", ["provider", "dedupeKey"]),
 
   // ============ ANALYTICS ============

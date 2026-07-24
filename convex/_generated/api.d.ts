@@ -9,6 +9,8 @@
  */
 
 import type * as http from "../http.js";
+import type * as lib_webhookSignatures from "../lib/webhookSignatures.js";
+import type * as lib_workerAuth from "../lib/workerAuth.js";
 import type * as modules_analytics from "../modules/analytics.js";
 import type * as modules_artist from "../modules/artist.js";
 import type * as modules_beats from "../modules/beats.js";
@@ -31,8 +33,8 @@ import type * as platform_billing_subscriptionQueries from "../platform/billing/
 import type * as platform_billing_testSubscription from "../platform/billing/testSubscription.js";
 import type * as platform_billing_webhooks from "../platform/billing/webhooks.js";
 import type * as platform_domains from "../platform/domains.js";
-import type * as platform_emailEvents from "../platform/emailEvents.js";
 import type * as platform_email_actions from "../platform/email/actions.js";
+import type * as platform_emailEvents from "../platform/emailEvents.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
 import type * as platform_jobs from "../platform/jobs.js";
@@ -50,6 +52,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   http: typeof http;
+  "lib/webhookSignatures": typeof lib_webhookSignatures;
+  "lib/workerAuth": typeof lib_workerAuth;
   "modules/analytics": typeof modules_analytics;
   "modules/artist": typeof modules_artist;
   "modules/beats": typeof modules_beats;
@@ -72,8 +76,8 @@ declare const fullApi: ApiFromModules<{
   "platform/billing/testSubscription": typeof platform_billing_testSubscription;
   "platform/billing/webhooks": typeof platform_billing_webhooks;
   "platform/domains": typeof platform_domains;
-  "platform/emailEvents": typeof platform_emailEvents;
   "platform/email/actions": typeof platform_email_actions;
+  "platform/emailEvents": typeof platform_emailEvents;
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;
   "platform/jobs": typeof platform_jobs;

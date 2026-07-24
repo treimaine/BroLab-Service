@@ -12,6 +12,7 @@
 
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { assertWorkerSecret } from "../lib/workerAuth";
 
 /**
  * Generate upload URL for file storage
@@ -22,8 +23,9 @@ import { mutation, query } from "../_generated/server";
  * @returns Upload URL
  */
 export const generateUploadUrl = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { workerSecret: v.string() },
+  handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -40,8 +42,10 @@ export const generateUploadUrl = mutation({
 export const getFileUrl = query({
   args: {
     storageId: v.id("_storage"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     return await ctx.storage.getUrl(args.storageId);
   },
 });

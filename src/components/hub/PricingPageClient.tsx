@@ -57,9 +57,8 @@ function formatFeatureValue(value: number): string {
 /**
  * Generate plan features list from Convex data
  */
-function getPlanFeaturesList(plan: 'basic' | 'pro', planData: PublicPlanInfo) {
+function getPlanFeaturesList(planData: PublicPlanInfo) {
   const features = planData.features
-  const isPro = plan === 'pro'
   
   return [
     { 
@@ -81,8 +80,8 @@ function getPlanFeaturesList(plan: 'basic' | 'pro', planData: PublicPlanInfo) {
     { label: 'License PDF generation', value: true, included: true },
     { label: 'Direct Stripe payments', value: true, included: true },
     { label: 'Service listings', value: true, included: true },
-    { label: 'Analytics dashboard', value: isPro ? 'Advanced' : 'Basic', included: true },
-    { label: 'Priority support', value: false, included: isPro },
+    { label: 'Sales dashboard', value: true, included: true },
+    { label: 'Email support', value: true, included: true },
   ]
 }
 
@@ -133,11 +132,10 @@ function getFeatureComparison(basicPlan: PublicPlanInfo, proPlan: PublicPlanInfo
       ]
     },
     { 
-      category: 'Support & Analytics', 
+      category: 'Support & Reporting',
       features: [
-        { name: 'Analytics dashboard', basic: 'Basic', pro: 'Advanced' },
+        { name: 'Sales dashboard', basic: true, pro: true },
         { name: 'Email support', basic: true, pro: true },
-        { name: 'Priority support', basic: false, pro: true },
       ]
     },
   ]
@@ -231,7 +229,7 @@ function PlanCard({
   const price = isAnnual ? planData.pricing.annual : planData.pricing.monthly
   const isPro = plan === 'pro'
   const savingsPercent = planData.annualSavings
-  const features = getPlanFeaturesList(plan, planData)
+  const features = getPlanFeaturesList(planData)
 
   return (
     <div className={isPro ? 'pt-4' : ''}>

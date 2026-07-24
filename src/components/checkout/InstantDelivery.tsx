@@ -10,11 +10,13 @@ import { useState } from 'react'
 interface InstantDeliveryProps {
   downloadUrl: string | null
   licenseUrl: string | null
+  licenseStatus?: 'pending' | 'generated' | 'failed' | null
 }
 
 export function InstantDelivery({
   downloadUrl,
   licenseUrl,
+  licenseStatus,
 }: Readonly<InstantDeliveryProps>) {
   const [downloadClicked, setDownloadClicked] = useState(false)
   const [licenseClicked, setLicenseClicked] = useState(false)
@@ -69,7 +71,7 @@ export function InstantDelivery({
         Instant delivery
       </h3>
       <p className="text-sm text-muted mb-6">
-        Your files and documents are available immediately.
+        Your audio is available now. The license PDF appears here as soon as generation finishes.
       </p>
 
       <div className="space-y-3">
@@ -103,7 +105,11 @@ export function InstantDelivery({
             className="w-full"
             disabled={!hasLicenseUrl || isDownloading !== null}
           >
-            {hasLicenseUrl ? getLicenseLabel() : 'Preparing your files... this usually takes a few seconds.'}
+            {hasLicenseUrl
+              ? getLicenseLabel()
+              : licenseStatus === 'failed'
+                ? 'License generation needs attention'
+                : 'Preparing your license PDF...'}
           </PillCTA>
         </button>
       </div>
@@ -111,7 +117,9 @@ export function InstantDelivery({
       {/* Fallback Message */}
       {(!hasDownloadUrl || !hasLicenseUrl) && (
         <p className="text-xs text-muted text-center mt-4">
-          Preparing your files... this usually takes a few seconds.
+          {licenseStatus === 'failed'
+            ? 'Your audio remains available. Contact support with your order number so we can regenerate the PDF.'
+            : 'You will also receive an email when the license PDF is ready.'}
         </p>
       )}
     </DribbbleCard>

@@ -16,6 +16,10 @@ import {
     logWebhookFailure,
     logWebhookSuccess,
 } from "./platform/monitoring";
+import {
+  verifyClerkWebhookSignature,
+  verifyStripeWebhookSignature,
+} from "./lib/webhookSignatures";
 
 // Stripe event types
 interface StripeCheckoutSession {
@@ -307,18 +311,68 @@ http.route({
   }),
 });
 
+/**
+ * Verify a Clerk webhook's Svix signature.
+ *
+ * This endpoint grants paid entitlements, so an unsigned request must never
+ * reach the handlers — otherwise anyone who knows the URL could grant
+ * themselves a PRO plan.
+ */
+async function verifyClerkWebhook(
+  rawBody: string,
+  request: Request
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const secret =
+    process.env.CLERK_WEBHOOK_SIGNING_SECRET ??
+    process.env.CLERK_WEBHOOK_SECRET;
+
+  if (!secret) {
+    return {
+      ok: false,
+      reason:
+        "CLERK_WEBHOOK_SIGNING_SECRET (or legacy CLERK_WEBHOOK_SECRET) is not set on this Convex deployment.",
+    };
+  }
+
+  const svixId = request.headers.get("svix-id");
+  const svixTimestamp = request.headers.get("svix-timestamp");
+  const svixSignature = request.headers.get("svix-signature");
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    return { ok: false, reason: "Missing svix signature headers" };
+  }
+
+  try {
+    return await verifyClerkWebhookSignature({
+      payload: rawBody,
+      secret,
+      svixId,
+      svixTimestamp,
+      svixSignature,
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Signature verification failed",
+    };
+  }
+}
+
 // Unified Clerk webhook handler (handles both standard and Billing events)
 const clerkWebhookHandler = httpAction(async (ctx, request) => {
   try {
     const rawBody = await request.text();
-    console.log("Clerk webhook received - raw body:", rawBody);
+
+    const verification = await verifyClerkWebhook(rawBody, request);
+    if (!verification.ok) {
+      console.error("Clerk webhook signature rejected:", verification.reason);
+      return jsonResponse({ error: "Invalid signature" }, 401);
+    }
 
     const body = parseWebhookBody(rawBody);
     if (!body) {
       return jsonResponse({ error: "Invalid JSON payload" }, 400);
     }
-
-    console.log("Clerk webhook parsed body:", JSON.stringify(body, null, 2));
 
     const { type, data, object: eventObject } = body as {
       type?: string;
@@ -657,17 +711,23 @@ async function verifyStripeWebhook(body: string, signature: string): Promise<Str
     }
   }
 
-  const stripe = new (await import("stripe")).default(
-    process.env.STRIPE_SECRET_KEY!,
-    { apiVersion: "2026-06-24.dahlia" }
-  );
+  const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error("STRIPE_CONNECT_WEBHOOK_SECRET is not set on this Convex deployment");
+    return null;
+  }
 
   try {
-    return stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_CONNECT_WEBHOOK_SECRET!
-    ) as StripeEvent;
+    const verification = await verifyStripeWebhookSignature({
+      payload: body,
+      secret: webhookSecret,
+      signatureHeader: signature,
+    });
+    if (!verification.ok) {
+      console.error("Webhook signature verification failed:", verification.reason);
+      return null;
+    }
+    return JSON.parse(body) as StripeEvent;
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
     return null;
@@ -1276,9 +1336,6 @@ async function createTrackEntitlement(
 ): Promise<void> {
   console.log("Creating purchase entitlement...");
   
-  const LICENSE_TERMS_VERSION = "v1.1-2026-01";
-  const licenseTermsSnapshot = getLicenseTerms(licenseTier);
-
   await ctx.runMutation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (internal as any).modules.orders.createPurchaseEntitlement,
@@ -1289,8 +1346,6 @@ async function createTrackEntitlement(
       trackId,
       orderId,
       licenseTier,
-      licenseTermsVersion: LICENSE_TERMS_VERSION,
-      licenseTermsSnapshot,
     }
   );
 
@@ -1349,68 +1404,6 @@ async function recordCheckoutSuccessEvent(ctx: GenericActionCtx<Record<string, n
   );
 
   console.log("Event recorded");
-}
-
-// Get license terms by tier
-function getLicenseTerms(licenseTier: string) {
-  const LICENSE_TERMS_BY_TIER = {
-    basic: {
-      title: "Basic License",
-      includesStems: false,
-      rights: {
-        commercialUse: true,
-        audioStreamingCap: 100000,
-        musicVideosCap: 1,
-        livePerformanceCap: 10,
-        radioBroadcastCap: 0,
-        syncAllowed: false,
-      },
-      publishingSplit: {
-        licensorWriterSharePercent: 50,
-        licenseeWriterSharePercent: 50,
-        licensorPublisherSharePercent: 50,
-        licenseePublisherSharePercent: 50,
-      },
-    },
-    premium: {
-      title: "Premium License",
-      includesStems: false,
-      rights: {
-        commercialUse: true,
-        audioStreamingCap: 500000,
-        musicVideosCap: 2,
-        livePerformanceCap: 25,
-        radioBroadcastCap: 10,
-        syncAllowed: false,
-      },
-      publishingSplit: {
-        licensorWriterSharePercent: 50,
-        licenseeWriterSharePercent: 50,
-        licensorPublisherSharePercent: 50,
-        licenseePublisherSharePercent: 50,
-      },
-    },
-    unlimited: {
-      title: "Unlimited License",
-      includesStems: true,
-      rights: {
-        commercialUse: true,
-        audioStreamingCap: -1,
-        musicVideosCap: -1,
-        livePerformanceCap: -1,
-        radioBroadcastCap: -1,
-        syncAllowed: true,
-      },
-      publishingSplit: {
-        licensorWriterSharePercent: 50,
-        licenseeWriterSharePercent: 50,
-        licensorPublisherSharePercent: 50,
-        licenseePublisherSharePercent: 50,
-      },
-    },
-  };
-
-  return LICENSE_TERMS_BY_TIER[licenseTier as keyof typeof LICENSE_TERMS_BY_TIER];
 }
 
 // Handle Clerk Billing events (subscription.* and subscriptionItem.*)

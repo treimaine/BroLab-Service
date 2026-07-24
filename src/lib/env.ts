@@ -338,6 +338,29 @@ export function validateEnv() {
   return getRuntimeEnv()
 }
 
+/**
+ * Resolve the origin to build absolute callback/redirect URLs against.
+ *
+ * NEXT_PUBLIC_SITE_URL is the canonical production origin, but in development
+ * the app runs on localhost — sending Stripe a production redirect_uri from a
+ * localhost session fails the OAuth handshake ("Invalid redirect URI"). In
+ * development we therefore trust the incoming request's own origin.
+ *
+ * Every origin used here must also be registered in the Stripe Connect
+ * application settings (Stripe Dashboard → Connect → Settings → Redirects).
+ */
+export function getAppOrigin(request?: Request): string {
+  if (ENV.isProduction || !request) {
+    return SITE_CONFIG.url
+  }
+
+  try {
+    return new URL(request.url).origin
+  } catch {
+    return SITE_CONFIG.url
+  }
+}
+
 export function getStripeConnectOAuthUrl(redirectUri: string): string {
   const params = new URLSearchParams({
     response_type: 'code',

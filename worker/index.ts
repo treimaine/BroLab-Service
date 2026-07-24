@@ -17,6 +17,7 @@
  * Environment Variables:
  * - NEXT_PUBLIC_CONVEX_URL: Convex deployment URL (required)
  * - WORKER_ID: Optional worker identifier (defaults to hostname)
+ * - WORKER_SECRET: Shared secret configured in both the worker and Convex (required)
  * - POLL_INTERVAL_MS: Optional polling interval in milliseconds (defaults to 5000)
  */
 
@@ -34,12 +35,18 @@ import { hostname, tmpdir } from "node:os";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
+const WORKER_SECRET = process.env.WORKER_SECRET;
 const WORKER_ID = process.env.WORKER_ID || `worker-${hostname()}`;
 const POLL_INTERVAL_MS = Number.parseInt(process.env.POLL_INTERVAL_MS || "5000", 10);
 const PREVIEW_DURATION_SEC = 30;
 
 if (!CONVEX_URL) {
   console.error("ERROR: NEXT_PUBLIC_CONVEX_URL environment variable is required");
+  process.exit(1);
+}
+
+if (!WORKER_SECRET) {
+  console.error("ERROR: WORKER_SECRET environment variable is required");
   process.exit(1);
 }
 
@@ -464,7 +471,7 @@ async function processLicensePdfGenerationJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Fetching license data...`);
     const licenseData = await convex.query(
       "modules/licenses:getLicenseForPdf" as never,
-      { licenseId } as never
+      { licenseId, workerSecret: WORKER_SECRET } as never
     ) as LicenseDataForPdf;
 
     if (!licenseData) {
@@ -486,7 +493,7 @@ async function processLicensePdfGenerationJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Uploading PDF to Convex Storage...`);
     const uploadUrl = await convex.mutation(
       "platform/storage:generateUploadUrl" as never,
-      {} as never
+      { workerSecret: WORKER_SECRET } as never
     );
     
     const uploadResponse = await fetch(uploadUrl, {
@@ -513,6 +520,7 @@ async function processLicensePdfGenerationJob(job: Job): Promise<void> {
         documentId, 
         storageId: pdfStorageId,
         licenseId,
+        workerSecret: WORKER_SECRET,
       } as never
     );
 
@@ -543,7 +551,7 @@ async function processPreviewGenerationJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Downloading full audio file...`);
     const fullAudioUrl = await convex.query(
       "platform/storage:getFileUrl" as never,
-      { storageId: fullStorageId } as never
+      { storageId: fullStorageId, workerSecret: WORKER_SECRET } as never
     );
 
     if (!fullAudioUrl) {
@@ -574,7 +582,7 @@ async function processPreviewGenerationJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Uploading preview to Convex Storage...`);
     const uploadUrl = await convex.mutation(
       "platform/storage:generateUploadUrl" as never,
-      {} as never
+      { workerSecret: WORKER_SECRET } as never
     );
     
     const uploadResponse = await fetch(uploadUrl, {
@@ -620,7 +628,7 @@ async function processJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Attempting to lock job...`);
     const locked = await convex.mutation(
       "platform/jobs:lockJob" as never,
-      { jobId: job._id, workerId: WORKER_ID } as never
+      { jobId: job._id, workerId: WORKER_ID, workerSecret: WORKER_SECRET } as never
     );
 
     if (!locked) {
@@ -643,7 +651,7 @@ async function processJob(job: Job): Promise<void> {
     console.log(`[job ${job._id}] Marking job as completed...`);
     await convex.mutation(
       "platform/jobs:completeJob" as never,
-      { jobId: job._id } as never
+      { jobId: job._id, workerSecret: WORKER_SECRET } as never
     );
 
     console.log(`[job ${job._id}] ✅ Job completed successfully`);
@@ -656,7 +664,7 @@ async function processJob(job: Job): Promise<void> {
       // Mark job as failed in Convex
       await convex.mutation(
         "platform/jobs:failJob" as never,
-        { jobId: job._id, error: errorMessage } as never
+        { jobId: job._id, error: errorMessage, workerSecret: WORKER_SECRET } as never
       );
 
       // Update entity processing status to failed
@@ -670,7 +678,7 @@ async function processJob(job: Job): Promise<void> {
         const payload = job.payload as LicensePdfGenerationPayload;
         await convex.mutation(
           "modules/licenses:failLicensePdfGeneration" as never,
-          { documentId: payload.documentId, error: errorMessage } as never
+          { documentId: payload.documentId, error: errorMessage, workerSecret: WORKER_SECRET } as never
         );
       }
 
@@ -686,7 +694,7 @@ async function pollAndProcessJobs(): Promise<void> {
     // Query for next pending job (any type)
     const rawJob = await convex.query(
       "platform/jobs:getNextPendingJob" as never,
-      {} as never
+      { workerSecret: WORKER_SECRET } as never
     ) as unknown;
 
     if (rawJob) {

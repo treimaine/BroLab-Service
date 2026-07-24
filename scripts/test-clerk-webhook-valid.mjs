@@ -1,141 +1,48 @@
 #!/usr/bin/env node
 
-/**
- * Test Clerk Webhook with Valid Payload
- * 
- * Envoie un payload session.created valide pour tester le webhook
- */
+import { createHmac, randomUUID } from 'node:crypto'
+import { Buffer } from 'node:buffer'
+import { config } from 'dotenv'
 
-const WEBHOOK_URL = 'https://famous-starling-265.convex.site/api/clerk/webhook'
+config({ path: '.env.local', quiet: true })
 
-async function testSessionCreated() {
-  console.log('🧪 Testing Clerk webhook with valid session.created payload...')
-  console.log(`📍 URL: ${WEBHOOK_URL}`)
-  
-  // Payload valide pour session.created (basé sur la doc Clerk)
-  const payload = {
-    type: 'session.created',
-    object: 'event',
-    data: {
-      id: 'sess_test123',
-      user_id: 'user_test123',
-      status: 'active',
-      created_at: Date.now(),
-      updated_at: Date.now(),
-      last_active_at: Date.now(),
-      expire_at: Date.now() + 86400000, // +24h
-      abandon_at: Date.now() + 604800000, // +7 days
-    }
-  }
-  
-  console.log('\n📦 Payload:')
-  console.log(JSON.stringify(payload, null, 2))
-  
-  try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    })
-    
-    console.log(`\n✅ Status: ${response.status}`)
-    
-    const data = await response.json()
-    console.log('📥 Response:')
-    console.log(JSON.stringify(data, null, 2))
-    
-    if (response.status === 200 && data.received && data.eventType === 'standard') {
-      console.log('\n✅ SUCCESS! Webhook is working correctly for standard events.')
-      return true
-    } else {
-      console.log('\n❌ FAILED! Unexpected response.')
-      return false
-    }
-  } catch (error) {
-    console.error(`\n❌ Error: ${error.message}`)
-    return false
-  }
+const webhookUrl = `${process.env.NEXT_PUBLIC_CONVEX_SITE_URL}/api/clerk/webhook`
+const signingSecret = process.env.CLERK_WEBHOOK_SECRET
+
+if (!process.env.NEXT_PUBLIC_CONVEX_SITE_URL || !signingSecret) {
+  throw new Error('NEXT_PUBLIC_CONVEX_SITE_URL and CLERK_WEBHOOK_SECRET are required')
 }
 
-async function testUserCreated() {
-  console.log('\n\n🧪 Testing Clerk webhook with valid user.created payload...')
-  console.log(`📍 URL: ${WEBHOOK_URL}`)
-  
-  // Payload valide pour user.created
-  const payload = {
-    type: 'user.created',
-    object: 'event',
-    data: {
-      id: 'user_test456',
-      email_addresses: [
-        {
-          id: 'email_test123',
-          email_address: 'test@example.com',
-          verification: {
-            status: 'verified'
-          }
-        }
-      ],
-      first_name: 'Test',
-      last_name: 'User',
-      created_at: Date.now(),
-      updated_at: Date.now(),
-    }
-  }
-  
-  console.log('\n📦 Payload:')
-  console.log(JSON.stringify(payload, null, 2))
-  
-  try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    })
-    
-    console.log(`\n✅ Status: ${response.status}`)
-    
-    const data = await response.json()
-    console.log('📥 Response:')
-    console.log(JSON.stringify(data, null, 2))
-    
-    if (response.status === 200 && data.received && data.eventType === 'standard') {
-      console.log('\n✅ SUCCESS! Webhook is working correctly for user events.')
-      return true
-    } else {
-      console.log('\n❌ FAILED! Unexpected response.')
-      return false
-    }
-  } catch (error) {
-    console.error(`\n❌ Error: ${error.message}`)
-    return false
-  }
-}
+const payload = JSON.stringify({
+  type: 'session.created',
+  object: 'event',
+  data: {
+    id: `sess_codex_${randomUUID()}`,
+    user_id: 'user_webhook_verification',
+    status: 'active',
+    created_at: Date.now(),
+  },
+})
+const svixId = `msg_${randomUUID()}`
+const svixTimestamp = String(Math.floor(Date.now() / 1000))
+const key = Buffer.from(signingSecret.replace(/^whsec_/, ''), 'base64')
+const signature = createHmac('sha256', key)
+  .update(`${svixId}.${svixTimestamp}.${payload}`)
+  .digest('base64')
 
-async function main() {
-  console.log('🚀 Testing Clerk Webhook Handler\n')
-  console.log('=' .repeat(60))
-  
-  const sessionOk = await testSessionCreated()
-  const userOk = await testUserCreated()
-  
-  console.log('\n' + '='.repeat(60))
-  console.log('\n📊 Summary:')
-  console.log(`  session.created: ${sessionOk ? '✅' : '❌'}`)
-  console.log(`  user.created: ${userOk ? '✅' : '❌'}`)
-  
-  if (sessionOk && userOk) {
-    console.log('\n✅ All tests passed! Webhook handler is working correctly.')
-    console.log('\n📝 Note: The Clerk Dashboard test may send invalid payloads.')
-    console.log('   Real webhooks from Clerk will work correctly.')
-  } else {
-    console.log('\n❌ Some tests failed. Check the webhook handler implementation.')
-    process.exit(1)
-  }
-}
+const response = await fetch(webhookUrl, {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'svix-id': svixId,
+    'svix-timestamp': svixTimestamp,
+    'svix-signature': `v1,${signature}`,
+  },
+  body: payload,
+})
+const responseBody = await response.json()
 
-main()
+console.log(`Clerk webhook response: ${response.status}`)
+console.log(JSON.stringify(responseBody, null, 2))
+
+if (!response.ok || responseBody.received !== true) process.exit(1)

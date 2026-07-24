@@ -15,7 +15,7 @@
 
 import { v } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
-import { mutation, query } from "../_generated/server";
+import { internalMutation, internalQuery } from "../_generated/server";
 
 // ============ HELPERS (for use inside other mutations/actions) ============
 
@@ -101,7 +101,7 @@ export async function withEmailIdempotency(
 /**
  * Check if an email event has already been sent (query for external callers).
  */
-export const check = query({
+export const check = internalQuery({
   args: {
     provider: v.string(),
     dedupeKey: v.string(),
@@ -113,7 +113,7 @@ export const check = query({
         q.eq("provider", args.provider).eq("dedupeKey", args.dedupeKey)
       )
       .first();
-    return existing !== null;
+    return existing !== null && existing.status !== "failed";
   },
 });
 
@@ -121,10 +121,13 @@ export const check = query({
  * Record that an email event has been sent (mutation for external callers).
  * Idempotent: safe to call multiple times for the same event.
  */
-export const record = mutation({
+export const recordSuccess = internalMutation({
   args: {
     provider: v.string(),
     dedupeKey: v.string(),
+    emailType: v.string(),
+    recipient: v.string(),
+    providerMessageId: v.string(),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -133,14 +136,78 @@ export const record = mutation({
         q.eq("provider", args.provider).eq("dedupeKey", args.dedupeKey)
       )
       .first();
-    if (existing) return { alreadyExists: true };
+    const now = Date.now();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        emailType: args.emailType,
+        recipient: args.recipient,
+        status: "sent",
+        providerMessageId: args.providerMessageId,
+        attempts: (existing.attempts ?? 0) + 1,
+        lastError: undefined,
+        updatedAt: now,
+      });
+      return { alreadyExists: true, id: existing._id };
+    }
 
     const id = await ctx.db.insert("emailEvents", {
       provider: args.provider,
       dedupeKey: args.dedupeKey,
-      createdAt: Date.now(),
+      emailType: args.emailType,
+      recipient: args.recipient,
+      status: "sent",
+      providerMessageId: args.providerMessageId,
+      attempts: 1,
+      createdAt: now,
+      updatedAt: now,
     });
 
     return { alreadyExists: false, id };
+  },
+});
+
+export const recordFailure = internalMutation({
+  args: {
+    provider: v.string(),
+    dedupeKey: v.string(),
+    emailType: v.string(),
+    recipient: v.string(),
+    error: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("emailEvents")
+      .withIndex("by_dedupe", (q) =>
+        q.eq("provider", args.provider).eq("dedupeKey", args.dedupeKey)
+      )
+      .first();
+
+    if (existing?.status === "sent") return { recorded: false };
+
+    const now = Date.now();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        emailType: args.emailType,
+        recipient: args.recipient,
+        status: "failed",
+        attempts: (existing.attempts ?? 0) + 1,
+        lastError: args.error.slice(0, 1000),
+        updatedAt: now,
+      });
+      return { recorded: true, id: existing._id };
+    }
+
+    const id = await ctx.db.insert("emailEvents", {
+      provider: args.provider,
+      dedupeKey: args.dedupeKey,
+      emailType: args.emailType,
+      recipient: args.recipient,
+      status: "failed",
+      attempts: 1,
+      lastError: args.error.slice(0, 1000),
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { recorded: true, id };
   },
 });

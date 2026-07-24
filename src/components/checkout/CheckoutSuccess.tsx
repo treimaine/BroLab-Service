@@ -21,6 +21,7 @@ interface PurchaseData {
   currency: string
   downloadUrl: string | null
   licenseUrl: string | null
+  licenseStatus: 'pending' | 'generated' | 'failed' | null
   buyerEmail: string | undefined
   paidAt: string
   orderId: string
@@ -60,7 +61,7 @@ export function CheckoutSuccess() {
         return
       }
 
-      for (let attempt = 0; attempt < 6; attempt += 1) {
+      for (let attempt = 0; attempt < 30; attempt += 1) {
         const response = await fetch(`/api/stripe/session/${sessionId}`, {
           cache: 'no-store',
         })
@@ -85,6 +86,7 @@ export function CheckoutSuccess() {
           currency: data.currency,
           downloadUrl: data.downloadUrl,
           licenseUrl: data.licenseUrl,
+          licenseStatus: data.licenseStatus,
           buyerEmail: data.buyerEmail,
           paidAt: data.paidAt,
           orderId: data.orderId,
@@ -92,8 +94,11 @@ export function CheckoutSuccess() {
           price: data.price,
         })
         setIsLoading(false)
-        await trackPurchaseComplete()
-        return
+        if (attempt === 0) await trackPurchaseComplete()
+
+        const isLicensePending = data.itemType === 'track' && data.licenseStatus === 'pending'
+        if (!isLicensePending) return
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       }
 
       setIsLoading(false)
@@ -183,7 +188,7 @@ export function CheckoutSuccess() {
             Payment successful
           </h1>
           <p className="text-base sm:text-lg text-muted mb-6">
-            Your order is confirmed and ready now.
+            Your order is confirmed. Your audio is ready and the license PDF is being generated.
           </p>
 
           {/* Utility Row */}
@@ -280,6 +285,7 @@ export function CheckoutSuccess() {
             <InstantDelivery
               downloadUrl={purchaseData.downloadUrl}
               licenseUrl={purchaseData.licenseUrl}
+              licenseStatus={purchaseData.licenseStatus}
             />
           </motion.div>
         )}

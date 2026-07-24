@@ -10,8 +10,91 @@
  */
 
 import { v } from "convex/values";
-import { api } from "../../_generated/api";
+import { internal } from "../../_generated/api";
+import type { ActionCtx } from "../../_generated/server";
 import { internalAction } from "../../_generated/server";
+
+interface TransactionalEmail {
+  dedupeKey: string;
+  emailType: string;
+  recipient: string;
+  from: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+async function sendTransactionalEmail(
+  ctx: ActionCtx,
+  email: TransactionalEmail
+): Promise<{ sent: boolean; dedupeKey: string; providerMessageId?: string }> {
+  const alreadySent = await ctx.runQuery(internal.platform.emailEvents.check, {
+    provider: "resend",
+    dedupeKey: email.dedupeKey,
+  });
+  if (alreadySent) return { sent: false, dedupeKey: email.dedupeKey };
+
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) throw new Error("RESEND_API_KEY not configured");
+
+  let lastError = "Unknown Resend delivery error";
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": email.dedupeKey,
+        },
+        body: JSON.stringify({
+          from: email.from,
+          to: [email.recipient],
+          subject: email.subject,
+          html: email.html,
+          text: email.text,
+        }),
+      });
+
+      if (response.ok) {
+        const responseBody = await response.json() as unknown;
+        const providerMessageId =
+          typeof responseBody === "object" && responseBody !== null &&
+          "id" in responseBody && typeof responseBody.id === "string"
+            ? responseBody.id
+            : "unknown";
+
+        await ctx.runMutation(internal.platform.emailEvents.recordSuccess, {
+          provider: "resend",
+          dedupeKey: email.dedupeKey,
+          emailType: email.emailType,
+          recipient: email.recipient,
+          providerMessageId,
+        });
+        return { sent: true, dedupeKey: email.dedupeKey, providerMessageId };
+      }
+
+      const errorBody = (await response.text()).slice(0, 1000);
+      lastError = `Resend API error ${response.status}: ${errorBody}`;
+      const isRetryable = response.status === 409 || response.status === 429 || response.status >= 500;
+      if (!isRetryable || attempt === 3) break;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      if (attempt === 3) break;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+  }
+
+  await ctx.runMutation(internal.platform.emailEvents.recordFailure, {
+    provider: "resend",
+    dedupeKey: email.dedupeKey,
+    emailType: email.emailType,
+    recipient: email.recipient,
+    error: lastError,
+  });
+  throw new Error(lastError);
+}
 
 /**
  * Send purchase confirmation email to the artist after a successful track checkout.
@@ -41,20 +124,6 @@ export const sendArtistPurchaseEmail = internalAction({
 
     // Requirement 30.7: Idempotency — skip if already sent
     const dedupeKey = `stripe:${stripeEventId}:artist_purchase`;
-    const alreadySent = await ctx.runQuery(
-      api.platform.emailEvents.check,
-      { provider: "resend", dedupeKey }
-    );
-
-    if (alreadySent) {
-      console.log("Artist purchase email already sent, skipping:", dedupeKey);
-      return { sent: false, reason: "already_sent" };
-    }
-
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://brolabentertainment.com";
     const brandName = process.env.BRAND_NAME || "BroLab Entertainment";
@@ -90,36 +159,18 @@ export const sendArtistPurchaseEmail = internalAction({
     });
 
     // Send via Resend HTTP API (no Node SDK — Convex actions use fetch)
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [buyerEmail],
-        subject,
-        html,
-        text,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(
-        `Resend API error ${response.status}: ${errorBody}`
-      );
-    }
-
-    // Requirement 30.7: Record send to prevent duplicates
-    await ctx.runMutation(api.platform.emailEvents.record, {
-      provider: "resend",
+    const result = await sendTransactionalEmail(ctx, {
       dedupeKey,
+      emailType: "artist_purchase",
+      recipient: buyerEmail,
+      from,
+      subject,
+      html,
+      text,
     });
 
-    console.log("Artist purchase email sent to:", buyerEmail, "dedupeKey:", dedupeKey);
-    return { sent: true, dedupeKey };
+    console.log("Artist purchase email handled for:", buyerEmail, "dedupeKey:", dedupeKey);
+    return result;
   },
 });
 
@@ -204,6 +255,40 @@ function escapeHtml(str: string): string {
     .replaceAll("'", "&#039;");
 }
 
+/** Notify the buyer only after the asynchronously generated PDF is available. */
+export const sendLicenseReadyEmail = internalAction({
+  args: {
+    licenseId: v.id("licenses"),
+    buyerEmail: v.string(),
+    trackTitle: v.string(),
+    licenseTier: v.union(
+      v.literal("basic"),
+      v.literal("premium"),
+      v.literal("unlimited")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://brolabentertainment.com";
+    const brandName = process.env.BRAND_NAME || "BroLab Entertainment";
+    const fromEmail = process.env.BRAND_EMAIL || "contact@brolabentertainment.com";
+    const dashboardUrl = `${siteUrl}/artist`;
+    const tierLabel = `${args.licenseTier.charAt(0).toUpperCase()}${args.licenseTier.slice(1)} License`;
+    const subject = `Your license is ready — ${args.trackTitle}`;
+    const html = `<!DOCTYPE html><html lang="en"><body style="margin:0;padding:32px;background:#0a0a0a;color:#e5e5e5;font-family:Arial,sans-serif"><div style="max-width:560px;margin:auto;background:#141414;border:1px solid #262626;border-radius:12px;padding:32px"><p style="color:#06b6d4;font-weight:700">${escapeHtml(brandName)}</p><h1 style="color:#f5f5f5">Your license is ready</h1><p>The PDF for <strong>${escapeHtml(args.trackTitle)}</strong> (${escapeHtml(tierLabel)}) has been generated and is available in your artist dashboard.</p><a href="${dashboardUrl}" style="display:block;margin-top:28px;padding:14px 24px;background:#06b6d4;color:#000;text-align:center;text-decoration:none;border-radius:8px;font-weight:700">Download files and license</a></div></body></html>`;
+    const text = `${brandName}\n\nYour license is ready\n\nThe PDF for ${args.trackTitle} (${tierLabel}) is available in your artist dashboard:\n${dashboardUrl}`;
+
+    return await sendTransactionalEmail(ctx, {
+      dedupeKey: `license:${args.licenseId}:ready`,
+      emailType: "license_ready",
+      recipient: args.buyerEmail,
+      from: `${brandName} <${fromEmail}>`,
+      subject,
+      html,
+      text,
+    });
+  },
+});
+
 /**
  * Send subscription status email to the provider after a Clerk Billing webhook event.
  *
@@ -242,20 +327,6 @@ export const sendProviderSubscriptionEmail = internalAction({
 
     // Idempotency check
     const dedupeKey = `clerk:${clerkEventId}:subscription_status`;
-    const alreadySent = await ctx.runQuery(
-      api.platform.emailEvents.check,
-      { provider: "resend", dedupeKey }
-    );
-
-    if (alreadySent) {
-      console.log("Subscription status email already sent, skipping:", dedupeKey);
-      return { sent: false, reason: "already_sent" };
-    }
-
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
 
     const clerkSecretKey = process.env.CLERK_SECRET_KEY;
     if (!clerkSecretKey) {
@@ -321,30 +392,14 @@ export const sendProviderSubscriptionEmail = internalAction({
     });
 
     // Send via Resend HTTP API
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [providerEmail],
-        subject,
-        html,
-        text,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`Resend API error ${response.status}: ${errorBody}`);
-    }
-
-    // Record send to prevent duplicates
-    await ctx.runMutation(api.platform.emailEvents.record, {
-      provider: "resend",
+    const result = await sendTransactionalEmail(ctx, {
       dedupeKey,
+      emailType: "subscription_status",
+      recipient: providerEmail,
+      from,
+      subject,
+      html,
+      text,
     });
 
     console.log(
@@ -355,7 +410,7 @@ export const sendProviderSubscriptionEmail = internalAction({
       "dedupeKey:",
       dedupeKey
     );
-    return { sent: true, dedupeKey };
+    return result;
   },
 });
 
@@ -474,20 +529,6 @@ export const sendBookingConfirmationEmail = internalAction({
 
     // Requirement 30.3: Idempotency — skip if already sent
     const dedupeKey = `stripe:${stripeEventId}:booking_confirm`;
-    const alreadySent = await ctx.runQuery(
-      api.platform.emailEvents.check,
-      { provider: "resend", dedupeKey }
-    );
-
-    if (alreadySent) {
-      console.log("Booking confirmation email already sent, skipping:", dedupeKey);
-      return { sent: false, reason: "already_sent" };
-    }
-
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://brolabentertainment.com";
     const brandName = process.env.BRAND_NAME || "BroLab Entertainment";
@@ -502,28 +543,18 @@ export const sendBookingConfirmationEmail = internalAction({
     const html = buildBookingEmailHtml({ serviceTitle, bookingStatus, dashboardUrl, brandName });
     const text = buildBookingEmailText({ serviceTitle, bookingStatus, dashboardUrl, brandName });
 
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to: [buyerEmail], subject, html, text }),
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`Resend API error ${response.status}: ${errorBody}`);
-    }
-
-    // Record send to prevent duplicates
-    await ctx.runMutation(api.platform.emailEvents.record, {
-      provider: "resend",
+    const result = await sendTransactionalEmail(ctx, {
       dedupeKey,
+      emailType: "booking_confirmation",
+      recipient: buyerEmail,
+      from,
+      subject,
+      html,
+      text,
     });
 
-    console.log("Booking confirmation email sent to:", buyerEmail, "dedupeKey:", dedupeKey);
-    return { sent: true, dedupeKey };
+    console.log("Booking confirmation email handled for:", buyerEmail, "dedupeKey:", dedupeKey);
+    return result;
   },
 });
 

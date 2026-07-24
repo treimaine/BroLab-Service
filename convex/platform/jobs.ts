@@ -23,6 +23,7 @@
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
+import { assertWorkerSecret } from "../lib/workerAuth";
 
 // ============ TYPES ============
 
@@ -154,8 +155,10 @@ export const lockJob = mutation({
   args: {
     jobId: v.id("jobs"),
     workerId: v.string(),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     const job = await ctx.db.get(args.jobId);
 
     if (!job) {
@@ -199,8 +202,10 @@ export const lockJob = mutation({
 export const completeJob = mutation({
   args: {
     jobId: v.id("jobs"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     const job = await ctx.db.get(args.jobId);
 
     if (!job) {
@@ -237,8 +242,10 @@ export const failJob = mutation({
   args: {
     jobId: v.id("jobs"),
     error: v.string(),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     const job = await ctx.db.get(args.jobId);
 
     if (!job) {
@@ -360,8 +367,10 @@ export const cancelJob = mutation({
 export const getNextPendingJob = query({
   args: {
     type: v.optional(v.string()),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     const jobsQuery = ctx.db
       .query("jobs")
       .withIndex("by_status_createdAt", (q) => q.eq("status", "pending"));

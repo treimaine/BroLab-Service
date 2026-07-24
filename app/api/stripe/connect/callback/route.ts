@@ -6,7 +6,7 @@
  * Requirements: 27.1, 27.2, 27.3, 27.5
  */
 
-import { SITE_CONFIG, STRIPE_CONFIG } from '@/lib/env'
+import { getAppOrigin, STRIPE_CONFIG } from '@/lib/env'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
@@ -20,6 +20,9 @@ const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
 export async function GET(request: Request) {
+  // Redirect back to the origin the callback was reached on (localhost in dev)
+  const origin = getAppOrigin(request)
+
   try {
     const { searchParams } = new URL(request.url)
     
@@ -33,14 +36,14 @@ export async function GET(request: Request) {
     if (error) {
       console.error('Stripe Connect OAuth error:', error, errorDescription)
       return NextResponse.redirect(
-        `${SITE_CONFIG.url}/studio?error=stripe_connect_failed&message=${encodeURIComponent(errorDescription || error)}`
+        `${origin}/studio?error=stripe_connect_failed&message=${encodeURIComponent(errorDescription || error)}`
       )
     }
 
     // Validate required parameters
     if (!code || !stateParam) {
       return NextResponse.redirect(
-        `${SITE_CONFIG.url}/studio?error=invalid_callback`
+        `${origin}/studio?error=invalid_callback`
       )
     }
 
@@ -50,7 +53,7 @@ export async function GET(request: Request) {
       state = JSON.parse(Buffer.from(stateParam, 'base64').toString('utf-8'))
     } catch {
       return NextResponse.redirect(
-        `${SITE_CONFIG.url}/studio?error=invalid_state`
+        `${origin}/studio?error=invalid_state`
       )
     }
 
@@ -58,7 +61,7 @@ export async function GET(request: Request) {
 
     if (!workspaceId || !userId) {
       return NextResponse.redirect(
-        `${SITE_CONFIG.url}/studio?error=missing_state_data`
+        `${origin}/studio?error=missing_state_data`
       )
     }
 
@@ -121,14 +124,14 @@ export async function GET(request: Request) {
 
     // Redirect to studio with success message
     return NextResponse.redirect(
-      `${SITE_CONFIG.url}/studio?success=stripe_connected&status=${paymentsStatus}`
+      `${origin}/studio?success=stripe_connected&status=${paymentsStatus}`
     )
   } catch (error) {
     console.error('Stripe Connect callback error:', error)
     
     // Redirect to studio with error
     return NextResponse.redirect(
-      `${SITE_CONFIG.url}/studio?error=stripe_connect_callback_failed`
+      `${origin}/studio?error=stripe_connect_callback_failed`
     )
   }
 }

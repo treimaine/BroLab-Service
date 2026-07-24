@@ -138,8 +138,7 @@ export function CheckoutModal({
     try {
       await trackFunnelEvent('begin_payment', workspaceId, beat.id)
       
-      const licenseTier = selectedLicense.id === 'exclusive' ? 'unlimited' : selectedLicense.id
-      const { url } = await createCheckoutSession(workspaceId, beat.id, licenseTier)
+      const { url } = await createCheckoutSession(workspaceId, beat.id, selectedLicense.id)
 
       await trackFunnelEvent('view_checkout', workspaceId, beat.id)
       globalThis.location.href = url

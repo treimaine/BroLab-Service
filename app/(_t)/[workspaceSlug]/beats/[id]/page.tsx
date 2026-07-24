@@ -1,6 +1,7 @@
 'use client'
 
 import { useWorkspace } from '@/components/tenant'
+import { formatCap, getLicenseTerms } from '@/shared/licenses'
 import {
     DribbbleCard,
     DribbbleSectionEnter,
@@ -126,9 +127,9 @@ export default function BeatDetailPage() {
     unlimited: 'Unlimited',
   }
   const tierDescriptions: Record<LicenseTier, string> = {
-    basic: 'MP3 + Basic License',
-    premium: 'WAV + Trackout + Premium License',
-    unlimited: 'WAV + Trackout + Unlimited License',
+    basic: `MP3 + WAV · ${formatCap(getLicenseTerms('basic').rights.audioStreamingCap)} streams`,
+    premium: `MP3 + WAV · ${formatCap(getLicenseTerms('premium').rights.audioStreamingCap)} streams`,
+    unlimited: 'MP3 + WAV + stems · Unlimited usage',
   }
 
   const handlePurchase = async () => {
@@ -141,11 +142,14 @@ export default function BeatDetailPage() {
         body: JSON.stringify({
           itemType: 'track',
           itemId: track._id,
-          tier: selectedTier,
+          licenseTier: selectedTier,
           workspaceId: workspace._id,
         }),
       })
       const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Unable to start checkout')
+      }
       if (data.url) {
         globalThis.location.href = data.url
       }

@@ -1,6 +1,7 @@
 'use client'
 
 import { DribbbleCard } from '@/platform/ui'
+import { formatCap, getLicenseTerms, getTypicalPriceUsd } from '@/shared/licenses'
 import { motion } from 'framer-motion'
 import { Check, Info } from 'lucide-react'
 
@@ -30,7 +31,7 @@ export function LicenseSelector({
         <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
         <p className="text-xs text-muted">
           Select a license tier based on your distribution needs. All licenses include
-          commercial rights and instant delivery.
+          commercial rights, immediate audio delivery, and an automatically generated PDF.
         </p>
       </div>
 
@@ -111,49 +112,48 @@ export function LicenseSelector({
   )
 }
 
-// Default license tiers (can be overridden by producer)
+// Contract-backed fallback tiers. Track-specific prices override these values.
 export const DEFAULT_LICENSE_TIERS: LicenseTier[] = [
   {
     id: 'basic',
     name: 'Basic License',
-    price: 24.99,
-    description: 'Perfect for non-profit or personal projects',
+    price: getTypicalPriceUsd('basic'),
+    description: 'Commercial release with defined usage limits',
     features: [
-      'MP3 format (320kbps)',
-      'Non-profit use only',
-      'Up to 5,000 streams',
-      'No music videos',
-      'Tagged version',
+      'MP3 + WAV files',
+      `Up to ${formatCap(getLicenseTerms('basic').rights.audioStreamingCap)} streams`,
+      '1 music video and 10 live performances',
+      'Commercial use included',
+      'Stems and sync rights not included',
     ],
   },
   {
     id: 'premium',
     name: 'Premium License',
-    price: 49.99,
+    price: getTypicalPriceUsd('premium'),
     description: 'For serious artists ready to distribute',
     popular: true,
     features: [
       'WAV + MP3 formats',
-      'Unlimited streams',
+      `Up to ${formatCap(getLicenseTerms('premium').rights.audioStreamingCap)} streams`,
       'Up to 2 music videos',
       'Commercial use',
-      'Untagged stems available',
-      'Priority support',
+      'Up to 10 radio broadcasts',
+      'Stems and sync rights not included',
     ],
   },
   {
-    id: 'exclusive',
-    name: 'Exclusive License',
-    price: 499.99,
-    description: 'Full ownership and exclusive rights',
+    id: 'unlimited',
+    name: 'Unlimited License',
+    price: getTypicalPriceUsd('unlimited'),
+    description: 'Maximum non-exclusive rights and all deliverables',
     features: [
-      'All file formats (WAV, MP3, stems)',
-      'Unlimited distribution',
+      'WAV + MP3 + stems',
+      'Unlimited audio streams',
       'Unlimited music videos',
-      'Commercial + broadcast rights',
-      'Beat removed from marketplace',
-      'Producer credit optional',
-      'Negotiable terms',
+      'Unlimited live and radio use',
+      'Sync rights included',
+      'Producer credit remains required',
     ],
   },
 ]
