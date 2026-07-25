@@ -7,7 +7,9 @@ vi.mock('@/lib/env', () => ({
 }))
 
 vi.mock('@/lib/monitoring', () => ({
+  logWebhookFailure: vi.fn(),
   logWebhookReceived: vi.fn(),
+  logWebhookSuccess: vi.fn(),
 }))
 
 describe('Stripe webhook route', () => {

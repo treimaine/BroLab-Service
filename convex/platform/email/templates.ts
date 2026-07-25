@@ -423,15 +423,15 @@ export function trialReminder(
     day1: {
       subject: `Your trial ends tomorrow`,
       heading: "Your trial ends tomorrow",
-      lead: `Tomorrow your ${p.planLabel} trial ends. If you do nothing, publishing and sales are paused — your storefront stays online but stops accepting orders. Continuing costs ${p.priceLabel}.`,
-      cta: "Keep my storefront active",
+      lead: `Tomorrow your ${p.planLabel} trial ends. If you do nothing, your catalog freezes — no new uploads, no publishing, no price changes. Anything already live keeps selling. Continuing costs ${p.priceLabel}.`,
+      cta: "Keep my catalog open",
       tone: "warning",
     },
     expired: {
-      subject: "Your storefront is paused",
+      subject: "Your catalog is frozen",
       heading: "Your trial has ended",
-      lead: `Your storefront is still online, but it can no longer take orders. Everything you uploaded is intact and comes straight back the moment you pick a plan — ${p.priceLabel}, 0% commission.`,
-      cta: "Reactivate my storefront",
+      lead: `Everything you published is still online and still selling — you just can't add to it or change it any more. Picking a plan unfreezes it immediately: ${p.priceLabel}, 0% commission.`,
+      cta: "Unfreeze my catalog",
       tone: "warning",
     },
   };

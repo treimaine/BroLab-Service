@@ -82,6 +82,26 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@RedmouEcom` | https://x.com/RedmouEcom/status/2080718478453903493 | https://x.com/Treigua/status/2081005297888329770 | French founder |
 | `@Proplace_co` | https://x.com/Proplace_co/status/2080654471906918519 | https://x.com/Treigua/status/2081005323465150882 | French founder |
 | `@remiecom` | https://x.com/remiecom/status/2080651604416516176 | https://x.com/Treigua/status/2081005344113725750 | French founder |
+| `@rumi_akari` | https://x.com/rumi_akari/status/2081051278613037192 | https://x.com/Treigua/status/2081065742946943179 | Producer/audio |
+| `@BENDYSTRAWIZARD` | https://x.com/BENDYSTRAWIZARD/status/2081046811058581952 | https://x.com/Treigua/status/2081065763457192135 | Producer/audio |
+| `@LibesonBeatz` | https://x.com/LibesonBeatz/status/2081044879774290129 | https://x.com/Treigua/status/2081065785191977415 | Producer/audio |
+| `@CantarisMusic` | https://x.com/CantarisMusic/status/2081044137089052760 | https://x.com/Treigua/status/2081065805148475694 | Producer/audio |
+| `@gwenarceta16` | https://x.com/gwenarceta16/status/2081054761068163423 | https://x.com/Treigua/status/2081065825327329405 | Producer/audio |
+| `@mroweezy` | https://x.com/mroweezy/status/2081058772470911472 | https://x.com/Treigua/status/2081065863059222576 | Artist/music business |
+| `@casspernyovest` | https://x.com/casspernyovest/status/2081058262909067293 | https://x.com/Treigua/status/2081065885255540844 | Artist/music business |
+| `@rnbmusic` | https://x.com/rnbmusic/status/2081056277195616594 | https://x.com/Treigua/status/2081065905824391478 | Artist/music business |
+| `@FearlessRecords` | https://x.com/FearlessRecords/status/2081054234238394461 | https://x.com/Treigua/status/2081065927836135793 | Artist/music business |
+| `@KNAC` | https://x.com/KNAC/status/2081052149962899569 | https://x.com/Treigua/status/2081065947348017455 | Artist/music business |
+| `@sankalpdomore` | https://x.com/sankalpdomore/status/2081054200340140045 | https://x.com/Treigua/status/2081065991094599948 | Product/founder |
+| `@UiHercules` | https://x.com/UiHercules/status/2081052267835248839 | https://x.com/Treigua/status/2081066014930874761 | Product/founder |
+| `@ahemdkhan_` | https://x.com/ahemdkhan_/status/2081051382803775748 | https://x.com/Treigua/status/2081066037412343821 | Product/founder |
+| `@zahragr8r` | https://x.com/zahragr8r/status/2081050255165194745 | https://x.com/Treigua/status/2081066061286318585 | Product/founder |
+| `@clawdreyai` | https://x.com/clawdreyai/status/2081048938514440644 | https://x.com/Treigua/status/2081066079355388200 | Product/founder |
+| `@britinogn` | https://x.com/britinogn/status/2081034382832263637 | https://x.com/Treigua/status/2081066118232351170 | Product/founder |
+| `@raphbuilds` | https://x.com/raphbuilds/status/2081058143325278324 | https://x.com/Treigua/status/2081066136825733480 | French founder |
+| `@minosdevs` | https://x.com/minosdevs/status/2081056262410694992 | https://x.com/Treigua/status/2081066156048224552 | French founder |
+| `@QuentinLecocq_` | https://x.com/QuentinLecocq_/status/2081052766827422203 | https://x.com/Treigua/status/2081066173794226310 | French founder |
+| `@nxth_de` | https://x.com/nxth_de/status/2081030103648113037 | https://x.com/Treigua/status/2081066192962220314 | French founder |
 
 ## Rules
 

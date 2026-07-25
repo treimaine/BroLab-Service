@@ -8,6 +8,10 @@
 import { v } from "convex/values";
 import type { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
+import {
+  paginationOptsValidator,
+  paginationResultValidator,
+} from "convex/server";
 
 const MARKETPLACE_SCAN_LIMIT = 200;
 const DEFAULT_RESULT_LIMIT = 60;
@@ -36,6 +40,12 @@ const marketplaceBeatValidator = v.object({
     name: v.string(),
     paymentsReady: v.boolean(),
   }),
+});
+
+const sitemapBeatValidator = v.object({
+  trackId: v.id("tracks"),
+  createdAt: v.number(),
+  workspaceSlug: v.string(),
 });
 
 export const getMarketplaceBeats = query({
@@ -153,6 +163,43 @@ export const getMarketplaceGenres = query({
     return Array.from(genres).sort((left, right) =>
       left.localeCompare(right),
     );
+  },
+});
+
+/**
+ * Lightweight paginated catalog feed for sitemap generation.
+ *
+ * Unlike getMarketplaceBeats, this does not resolve preview storage URLs and
+ * does not silently cap the sitemap at the first 100 tracks.
+ */
+export const getSitemapBeats = query({
+  args: { paginationOpts: paginationOptsValidator },
+  returns: paginationResultValidator(sitemapBeatValidator),
+  handler: async (ctx, args) => {
+    const page = await ctx.db
+      .query("tracks")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const sitemapRows = await Promise.all(
+      page.page.map(async (track) => {
+        const workspace = await ctx.db.get(track.workspaceId);
+        if (!workspace) return null;
+        return {
+          trackId: track._id,
+          createdAt: track.createdAt,
+          workspaceSlug: workspace.slug,
+        };
+      }),
+    );
+
+    return {
+      ...page,
+      page: sitemapRows.filter(
+        (row): row is NonNullable<typeof row> => row !== null,
+      ),
+    };
   },
 });
 

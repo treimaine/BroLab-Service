@@ -74,7 +74,24 @@ export interface LayoutParams {
   unsubscribeUrl?: string;
   /** Explains why this person is receiving the message (trust + spam signal). */
   footerNote?: string;
+  /**
+   * Drives the `lang` attribute and the chrome strings the shell owns.
+   * Defaults to English so existing callers keep their current output.
+   */
+  locale?: "en" | "fr";
 }
+
+/**
+ * Strings the layout renders itself, outside any template's body.
+ *
+ * The `lang` attribute matters beyond politeness: screen readers pronounce the
+ * footer with the wrong phonemes without it, and some clients offer to
+ * translate a message whose declared language contradicts its content.
+ */
+const LAYOUT_STRINGS = {
+  en: { unsubscribe: "Unsubscribe", unsubscribeSuffix: "from these emails." },
+  fr: { unsubscribe: "Se désabonner", unsubscribeSuffix: "de ces emails." },
+} as const;
 
 /**
  * Wrap body content in the standard shell.
@@ -87,12 +104,15 @@ export function renderEmailLayout(p: LayoutParams): string {
   const t = EMAIL_THEME;
   const year = new Date().getFullYear();
 
+  const locale = p.locale ?? "en";
+  const strings = LAYOUT_STRINGS[locale];
+
   const unsubscribeBlock = p.unsubscribeUrl
-    ? `<br /><a href="${p.unsubscribeUrl}" style="color:${t.faint};text-decoration:underline">Unsubscribe</a> from these emails.`
+    ? `<br /><a href="${p.unsubscribeUrl}" style="color:${t.faint};text-decoration:underline">${strings.unsubscribe}</a> ${strings.unsubscribeSuffix}`
     : "";
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${locale}">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -271,10 +291,14 @@ export function bulletList(items: string[]): string {
 }
 
 /** Plain-text signature appended to every text alternative. */
-export function textFooter(brand: EmailBrand, unsubscribeUrl?: string): string {
+export function textFooter(
+  brand: EmailBrand,
+  unsubscribeUrl?: string,
+  locale: "en" | "fr" = "en"
+): string {
   const lines = ["", "—", `${brand.brandName}`, brand.siteUrl];
   if (unsubscribeUrl) {
-    lines.push("", `Unsubscribe: ${unsubscribeUrl}`);
+    lines.push("", `${LAYOUT_STRINGS[locale].unsubscribe}: ${unsubscribeUrl}`);
   }
   return lines.join("\n");
 }

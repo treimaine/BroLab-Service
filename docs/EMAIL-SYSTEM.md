@@ -12,6 +12,10 @@ convex/platform/email/
   templates.ts        Pure render functions: params -> {subject, html, text}
   actions.ts          Core sender (retry, idempotency, suppression) + transactional sends
   lifecycle.ts        Welcome, trial ladder, abandonment recovery
+  dunning.ts          Failed-payment recovery sequence
+  winback.ts          Expired-trial and churn recovery sequences
+  i18n.ts             Recipient locale resolution and formatting
+  retentionTemplates.ts  EN/FR dunning and win-back templates
   sellerNotifications.ts  Sale alerts, weekly digest
   suppression.ts      Unsubscribe tokens, opt-out and bounce suppression
   unsubscribeActions.ts   Token verification (needs the action runtime for WebCrypto)
@@ -23,7 +27,7 @@ Templates are pure functions with no I/O, so they render outside Convex:
 npx tsx scripts/preview-emails.ts .email-preview
 ```
 
-Open `.email-preview/index.html` to review all 19 templates. Run this after any
+Open `.email-preview/index.html` to review all 43 templates. Run this after any
 copy or layout change.
 
 ## Catalogue
@@ -33,6 +37,10 @@ copy or layout change.
 | Welcome | Clerk `user.created` | lifecycle |
 | Activation nudge ×3 | +1h / +24h / +72h after workspace creation | lifecycle |
 | Trial reminder ×4 | Day 23, 27, 29, 31 of the 30-day trial | lifecycle |
+| Trial win-back ×3 | Day 7, 14 and 30 after trial expiry | lifecycle |
+| Failed-payment recovery ×4 | Day 0, 3, 7 and 12 after payment failure | transactional |
+| Cancellation survey | Clerk `subscriptionItem.canceled` | transactional |
+| Churn win-back ×3 | Day 30, 60 and 90 after cancellation | lifecycle |
 | Abandonment recovery | +4h after abandonment survey | lifecycle |
 | Weekly digest | Cron, Mondays 15:00 UTC | lifecycle |
 | Purchase confirmation | Stripe `checkout.session.completed` | transactional |
@@ -57,7 +65,8 @@ these are read inside Convex actions.
 | `CLERK_SECRET_KEY` | Resolving recipient email addresses | Yes |
 | `BRAND_EMAIL` | From address | Defaults to `contact@brolabentertainment.com` |
 | `BRAND_NAME` | From display name | Defaults to `BroLab Entertainment` |
-| `NEXT_PUBLIC_SITE_URL` | Link base | Defaults to production URL |
+| `NEXT_PUBLIC_SITE_URL` | Product CTA link base | Defaults to production URL |
+| `CONVEX_SITE_URL` | Convex HTTP endpoint base for unsubscribe links | Provided automatically by Convex |
 | `RESEND_WEBHOOK_SECRET` | Verifies bounce/complaint webhooks | Strongly recommended |
 
 Generate the unsubscribe secret once and never rotate it casually — rotating it
@@ -125,11 +134,11 @@ Every lifecycle email carries a footer link plus `List-Unsubscribe` and
 `List-Unsubscribe-Post` headers (RFC 8058). Gmail and Yahoo require one-click
 unsubscribe on bulk mail and penalise senders who omit it.
 
-Both endpoints are live:
+Both endpoints are served by the Convex HTTP deployment:
 
 ```
-GET  /api/email/unsubscribe?email=...&token=...   (footer link)
-POST /api/email/unsubscribe?email=...&token=...   (mail client one-click)
+GET  https://<deployment>.convex.site/api/email/unsubscribe?email=...&token=...
+POST https://<deployment>.convex.site/api/email/unsubscribe?email=...&token=...
 ```
 
 Tokens are HMAC-SHA256 over the lowercased address, so one recipient's link

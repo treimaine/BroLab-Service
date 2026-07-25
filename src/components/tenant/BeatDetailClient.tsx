@@ -41,6 +41,7 @@ export function BeatDetailClient() {
 
   const [selectedTier, setSelectedTier] = useState<LicenseTier>('basic')
   const [isPurchasing, setIsPurchasing] = useState(false)
+  const [purchaseError, setPurchaseError] = useState<string | null>(null)
 
   const track = useQuery(
     api.modules.beats.getPublishedTrack,
@@ -154,6 +155,7 @@ export function BeatDetailClient() {
   const handlePurchase = async () => {
     if (!isPaymentsConfigured || !workspace) return
     setIsPurchasing(true)
+    setPurchaseError(null)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -169,11 +171,16 @@ export function BeatDetailClient() {
       if (!res.ok) {
         throw new Error(data.message || data.error || 'Unable to start checkout')
       }
-      if (data.url) {
-        globalThis.location.href = data.url
+      if (typeof data.url !== 'string' || data.url.length === 0) {
+        throw new Error('Checkout did not return a payment URL')
       }
-    } catch {
-      // silently fail — user stays on page
+      globalThis.location.href = data.url
+    } catch (error) {
+      setPurchaseError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to start checkout. Please try again.'
+      )
     } finally {
       setIsPurchasing(false)
     }
@@ -295,6 +302,12 @@ export function BeatDetailClient() {
                     >
                       {buyLabel}
                     </PillCTA>
+
+                    {purchaseError && (
+                      <p role="alert" className="mb-4 text-sm text-danger">
+                        {purchaseError}
+                      </p>
+                    )}
                     
                     {/* Trust Badges */}
                     <div className="flex items-center justify-center gap-3 text-xs text-muted mb-4">

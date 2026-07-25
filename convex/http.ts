@@ -1680,6 +1680,58 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
     }
   }
 
+  /**
+   * Failed-payment recovery.
+   *
+   * Keyed off the raw Clerk event type rather than `systemStatus`, because our
+   * mapper collapses pastDue, incomplete, abandoned and ended all into
+   * "inactive" — only the raw type distinguishes a card that failed from a
+   * customer who left. `eventId` becomes the dunning cycle id, so a second
+   * failure months later opens a genuinely new sequence instead of being
+   * swallowed by the previous cycle's dedupe keys.
+   */
+  const isPaymentFailure =
+    type === "subscriptionItem.pastDue" || type === "subscriptionItem.incomplete";
+
+  if (eventId && isPaymentFailure) {
+    try {
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.dunning.scheduleDunningSequence,
+        { workspaceId, cycleId: eventId }
+      );
+    } catch (err: unknown) {
+      console.error("Failed to schedule dunning sequence:", err);
+    }
+  }
+
+  /**
+   * Cancellation: an immediate survey, then the 90-day win-back ladder. Both
+   * re-check live state before sending, so a plan switch that briefly looks
+   * like a cancellation never produces a "sorry to see you go" email.
+   */
+  if (eventId && type === "subscriptionItem.canceled") {
+    try {
+      await ctx.runAction(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.winback.sendCancellationSurvey,
+        { workspaceId, clerkEventId: eventId }
+      );
+    } catch (err: unknown) {
+      console.error("Failed to send cancellation survey:", err);
+    }
+
+    try {
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.winback.scheduleChurnWinback,
+        { workspaceId }
+      );
+    } catch (err: unknown) {
+      console.error("Failed to schedule churn winback:", err);
+    }
+  }
+
   // Requirement 30.4: Send subscription status email for active/canceled events.
   // Await the action so Convex keeps the execution alive until Resend responds.
   // Failures remain non-fatal for the webhook.

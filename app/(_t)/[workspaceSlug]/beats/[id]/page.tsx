@@ -3,6 +3,7 @@ import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
 /**
  * Beat detail route.
@@ -61,7 +62,7 @@ function buildDescription(beat: NonNullable<MarketplaceBeat>): string {
 export async function generateMetadata({
   params,
 }: Readonly<BeatPageProps>): Promise<Metadata> {
-  const { workspaceSlug, id } = await params
+  const { id } = await params
   const beat = await fetchBeat(id)
 
   if (!beat) {
@@ -73,7 +74,7 @@ export async function generateMetadata({
 
   const title = `${beat.title} — ${beat.workspace.name}`
   const description = buildDescription(beat)
-  const canonical = `${BASE_URL}/${workspaceSlug}/beats/${id}`
+  const canonical = `${BASE_URL}/${beat.workspace.slug}/beats/${id}`
 
   return {
     title,
@@ -151,7 +152,12 @@ export default async function BeatDetailPage({
 }: Readonly<BeatPageProps>) {
   const { workspaceSlug, id } = await params
   const beat = await fetchBeat(id)
-  const canonical = `${BASE_URL}/${workspaceSlug}/beats/${id}`
+
+  if (beat && beat.workspace.slug !== workspaceSlug) {
+    redirect(`/${beat.workspace.slug}/beats/${id}`)
+  }
+
+  const canonical = `${BASE_URL}/${beat?.workspace.slug ?? workspaceSlug}/beats/${id}`
 
   return (
     <>

@@ -83,8 +83,13 @@ export async function verifyUnsubscribeToken(
 
 /** Absolute one-click unsubscribe URL embedded in the footer and headers. */
 export async function buildUnsubscribeUrl(email: string): Promise<string> {
+  // This endpoint is registered by convex/http.ts, so links must target the
+  // Convex HTTP origin. The marketing site does not expose /api/email/unsubscribe.
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://brolabentertainment.com";
+    process.env.CONVEX_SITE_URL ||
+    process.env.NEXT_PUBLIC_CONVEX_SITE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://brolabentertainment.com";
   const token = await buildUnsubscribeToken(email);
   return `${siteUrl}/api/email/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`;
 }
@@ -109,6 +114,10 @@ export const checkEligibility = internalQuery({
     email: v.string(),
     category: v.union(v.literal("transactional"), v.literal("lifecycle")),
   },
+  returns: v.object({
+    allowed: v.boolean(),
+    reason: v.optional(v.string()),
+  }),
   handler: async (
     ctx,
     args
@@ -142,6 +151,7 @@ export const checkEligibility = internalQuery({
 
 export const recordUnsubscribe = internalMutation({
   args: { email: v.string() },
+  returns: v.object({ updated: v.boolean() }),
   handler: async (ctx, args) => {
     const email = args.email.trim().toLowerCase();
     const now = Date.now();
@@ -170,6 +180,10 @@ export const recordUnsubscribe = internalMutation({
 /** Re-enable lifecycle email — used by an in-app preferences toggle. */
 export const recordResubscribe = internalMutation({
   args: { email: v.string() },
+  returns: v.object({
+    updated: v.boolean(),
+    reason: v.optional(v.string()),
+  }),
   handler: async (ctx, args) => {
     const email = args.email.trim().toLowerCase();
     const now = Date.now();
@@ -211,6 +225,7 @@ export const recordSuppression = internalMutation({
     ),
     detail: v.optional(v.string()),
   },
+  returns: v.object({ suppressed: v.boolean() }),
   handler: async (ctx, args) => {
     const email = args.email.trim().toLowerCase();
     const now = Date.now();
@@ -244,8 +259,15 @@ export const recordSuppression = internalMutation({
 /** Deliverability health snapshot for the admin dashboard. */
 export const getSuppressionStats = internalQuery({
   args: {},
+  returns: v.object({
+    total: v.number(),
+    unsubscribed: v.number(),
+    hardBounces: v.number(),
+    complaints: v.number(),
+    truncated: v.boolean(),
+  }),
   handler: async (ctx) => {
-    const prefs = await ctx.db.query("emailPreferences").collect();
+    const prefs = await ctx.db.query("emailPreferences").take(10_000);
     return {
       total: prefs.length,
       unsubscribed: prefs.filter((p) => !p.marketingOptIn && !p.suppressedReason)
@@ -253,6 +275,7 @@ export const getSuppressionStats = internalQuery({
       hardBounces: prefs.filter((p) => p.suppressedReason === "hard_bounce")
         .length,
       complaints: prefs.filter((p) => p.suppressedReason === "complaint").length,
+      truncated: prefs.length === 10_000,
     };
   },
 });

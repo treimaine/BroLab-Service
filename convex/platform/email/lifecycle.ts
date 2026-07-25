@@ -27,6 +27,13 @@ import { resolveBrand } from "./theme";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+const sendResultValidator = v.object({
+  sent: v.boolean(),
+  dedupeKey: v.optional(v.string()),
+  providerMessageId: v.optional(v.string()),
+  reason: v.optional(v.string()),
+});
+
 function fromAddress(brandName: string): string {
   const fromEmail = process.env.BRAND_EMAIL || "contact@brolabentertainment.com";
   return `${brandName} <${fromEmail}>`;
@@ -44,6 +51,7 @@ function fromAddress(brandName: string): string {
  */
 export const sendWelcomeEmail = internalAction({
   args: { clerkUserId: v.string() },
+  returns: sendResultValidator,
   handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
     const email = await fetchClerkEmail(args.clerkUserId);
     if (!email) return { sent: false, reason: "no_email" };
@@ -95,6 +103,18 @@ type TrialState = {
 
 export const getTrialState = internalQuery({
   args: { workspaceId: v.id("workspaces") },
+  returns: v.object({
+    subscriptionStatus: v.union(
+      v.literal("active"),
+      v.literal("inactive"),
+      v.literal("canceled"),
+      v.null()
+    ),
+    planKey: v.union(v.literal("basic"), v.literal("pro"), v.null()),
+    clerkUserId: v.union(v.string(), v.null()),
+    publishedTracks: v.number(),
+    hasService: v.boolean(),
+  }),
   handler: async (ctx, args): Promise<TrialState> => {
     const workspace = await ctx.db.get(args.workspaceId);
     if (!workspace) {
@@ -144,6 +164,7 @@ export const scheduleTrialSequence = internalMutation({
     workspaceId: v.id("workspaces"),
     trialStartedAt: v.optional(v.number()),
   },
+  returns: v.object({ scheduled: v.number() }),
   handler: async (ctx, args) => {
     const start = args.trialStartedAt ?? Date.now();
     const trialEnd = start + PAID_PLAN_TRIAL_DAYS * DAY_MS;
@@ -155,6 +176,7 @@ export const scheduleTrialSequence = internalMutation({
       { stage: "expired", at: trialEnd + 1 * DAY_MS },
     ];
 
+    let scheduled = 0;
     for (const item of schedule) {
       const delay = item.at - Date.now();
       // Skip stages already in the past (e.g. a short or backdated trial).
@@ -165,9 +187,22 @@ export const scheduleTrialSequence = internalMutation({
         internal.platform.email.lifecycle.sendTrialReminder,
         { workspaceId: args.workspaceId, stage: item.stage }
       );
+      scheduled += 1;
     }
 
-    return { scheduled: schedule.length };
+    /**
+     * The ladder above stops one day after expiry. Everyone who ignored that
+     * last reminder used to fall off the map entirely, which is the largest
+     * silent leak in the funnel — they signed up, so intent was real. The
+     * win-back ladder picks them up at day 7, 14 and 30 and drops anyone who
+     * converts in the meantime.
+     */
+    await ctx.runMutation(
+      internal.platform.email.winback.scheduleTrialWinback,
+      { workspaceId: args.workspaceId, trialEndsAt: trialEnd }
+    );
+
+    return { scheduled };
   },
 });
 
@@ -181,6 +216,7 @@ export const sendTrialReminder = internalAction({
       v.literal("expired")
     ),
   },
+  returns: sendResultValidator,
   handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
     const state: TrialState = await ctx.runQuery(
       internal.platform.email.lifecycle.getTrialState,
@@ -247,6 +283,16 @@ export const sendTrialReminder = internalAction({
  */
 export const getAbandonmentContext = internalQuery({
   args: { abandonmentId: v.id("checkoutAbandonment") },
+  returns: v.union(
+    v.object({
+      clerkUserId: v.string(),
+      trackId: v.string(),
+      reason: v.string(),
+      workspaceId: v.union(v.id("workspaces"), v.null()),
+      trackTitle: v.string(),
+    }),
+    v.null()
+  ),
   handler: async (ctx, args) => {
     const record = await ctx.db.get(args.abandonmentId);
     if (!record || !record.clerkUserId || !record.trackId) return null;
@@ -254,7 +300,8 @@ export const getAbandonmentContext = internalQuery({
     const purchased = await ctx.db
       .query("orders")
       .withIndex("by_buyer", (q) => q.eq("buyerClerkUserId", record.clerkUserId!))
-      .collect();
+      .order("desc")
+      .take(1_000);
 
     if (purchased.some((o) => o.itemId === record.trackId)) return null;
 
@@ -277,6 +324,7 @@ export const getAbandonmentContext = internalQuery({
 /** Queued 4h after the survey — long enough to not feel like surveillance. */
 export const sendAbandonmentRecovery = internalAction({
   args: { abandonmentId: v.id("checkoutAbandonment") },
+  returns: sendResultValidator,
   handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
     const context = await ctx.runQuery(
       internal.platform.email.lifecycle.getAbandonmentContext,

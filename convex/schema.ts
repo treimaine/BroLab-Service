@@ -303,6 +303,12 @@ export default defineSchema({
     /** False once the recipient opts out of lifecycle/marketing email. */
     marketingOptIn: v.boolean(),
     /**
+     * Language every send to this address is rendered in. Absent means we have
+     * no signal yet and the send falls back to English — see
+     * convex/platform/email/i18n.ts for the full resolution order.
+     */
+    locale: v.optional(v.union(v.literal("en"), v.literal("fr"))),
+    /**
      * Set by the Resend webhook. Once suppressed, even transactional sends are
      * pointless for "hard_bounce" — the address does not exist.
      */

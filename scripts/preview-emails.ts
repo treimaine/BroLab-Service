@@ -11,6 +11,11 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  formatPlanPriceLabel,
+  type Locale,
+} from "../convex/platform/email/i18n";
+import * as retention from "../convex/platform/email/retentionTemplates";
 import * as templates from "../convex/platform/email/templates";
 import type { EmailBrand } from "../convex/platform/email/theme";
 
@@ -21,6 +26,11 @@ const brand: EmailBrand = {
 
 const unsubscribeUrl = `${brand.siteUrl}/api/email/unsubscribe?email=demo%40example.com&token=preview`;
 const base = { brand, unsubscribeUrl };
+
+/** Retention templates are bilingual — both languages get rendered. */
+const LOCALES: Locale[] = ["en", "fr"];
+const billingUrl = `${brand.siteUrl}/studio/billing`;
+const replyEmail = "contact@brolabentertainment.com";
 
 const samples: Array<{ name: string; email: templates.RenderedEmail }> = [
   {
@@ -165,6 +175,80 @@ const samples: Array<{ name: string; email: templates.RenderedEmail }> = [
       billingUrl: `${brand.siteUrl}/studio/billing`,
     }),
   },
+
+  // ---- Revenue protection, both locales ----
+
+  ...LOCALES.flatMap((locale) =>
+    (["first", "reminder", "urgent", "final"] as const).map((stage) => ({
+      name: `${locale}-dunning-${stage}`,
+      email: retention.paymentFailed({
+        ...base,
+        locale,
+        stage,
+        planLabel: "PRO",
+        priceLabel: formatPlanPriceLabel(29.99, locale),
+        billingUrl,
+      }),
+    }))
+  ),
+  ...LOCALES.map((locale) => ({
+    name: `${locale}-cancellation-survey`,
+    email: retention.cancellationSurvey({
+      ...base,
+      locale,
+      planLabel: "PRO",
+      surveyUrl: `mailto:${replyEmail}`,
+      reactivateUrl: billingUrl,
+    }),
+  })),
+  // publishedTracks splits the copy, so render both branches of the fork.
+  ...LOCALES.flatMap((locale) =>
+    (["feedback", "value", "final"] as const).map((stage) => ({
+      name: `${locale}-trial-winback-${stage}`,
+      email: retention.trialWinback({
+        ...base,
+        locale,
+        stage,
+        planLabel: "BASIC",
+        priceLabel: formatPlanPriceLabel(9.99, locale),
+        publishedTracks: stage === "feedback" ? 0 : 6,
+        billingUrl,
+        replyEmail,
+      }),
+    }))
+  ),
+  ...LOCALES.map((locale) => ({
+    name: `${locale}-trial-winback-feedback-engaged`,
+    email: retention.trialWinback({
+      ...base,
+      locale,
+      stage: "feedback" as const,
+      planLabel: "BASIC",
+      priceLabel: formatPlanPriceLabel(9.99, locale),
+      publishedTracks: 4,
+      billingUrl,
+      replyEmail,
+    }),
+  })),
+  ...LOCALES.flatMap((locale) =>
+    (["whatsNew", "addressed", "openDoor"] as const).map((stage) => ({
+      name: `${locale}-churn-winback-${stage}`,
+      email: retention.churnWinback({
+        ...base,
+        locale,
+        stage,
+        priceLabel: formatPlanPriceLabel(29.99, locale),
+        billingUrl,
+        changelogUrl: `${brand.siteUrl}/changelog`,
+        statedReason:
+          stage === "addressed"
+            ? locale === "fr"
+              ? "trop cher pour ce que je vends"
+              : "too expensive for what I sell"
+            : null,
+      }),
+    }))
+  ),
 ];
 
 const outDir = process.argv[2] ?? join(process.cwd(), ".email-preview");

@@ -4,6 +4,18 @@ import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://brolabentertainment.com'
 
+interface SitemapBeat {
+  trackId: string
+  createdAt: number
+  workspaceSlug: string
+}
+
+interface SitemapBeatPage {
+  page: SitemapBeat[]
+  continueCursor: string
+  isDone: boolean
+}
+
 /**
  * Revalidate hourly.
  *
@@ -38,12 +50,22 @@ async function getCatalogEntries(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const convex = new ConvexHttpClient(convexUrl)
-    const beats = await convex.query(api.modules.marketplace.getMarketplaceBeats, {
-      limit: 500,
-    })
+    const beats: SitemapBeat[] = []
+    let cursor: string | null = null
+    let isDone = false
+
+    while (!isDone) {
+      const result: SitemapBeatPage = await convex.query(
+        api.modules.marketplace.getSitemapBeats,
+        { paginationOpts: { cursor, numItems: 100 } }
+      )
+      beats.push(...result.page)
+      cursor = result.continueCursor
+      isDone = result.isDone
+    }
 
     const beatEntries: MetadataRoute.Sitemap = beats.map((beat) => ({
-      url: `${BASE_URL}/${beat.workspace.slug}/beats/${beat.trackId}`,
+      url: `${BASE_URL}/${beat.workspaceSlug}/beats/${beat.trackId}`,
       lastModified: new Date(beat.createdAt),
       changeFrequency: 'weekly',
       priority: 0.7,
@@ -52,9 +74,9 @@ async function getCatalogEntries(): Promise<MetadataRoute.Sitemap> {
     const storefrontEntries: MetadataRoute.Sitemap = Array.from(
       new Map(
         beats.map((beat) => [
-          beat.workspace.slug,
+          beat.workspaceSlug,
           {
-            url: `${BASE_URL}/${beat.workspace.slug}`,
+            url: `${BASE_URL}/${beat.workspaceSlug}`,
             lastModified: new Date(),
             changeFrequency: 'weekly' as const,
             priority: 0.8,
