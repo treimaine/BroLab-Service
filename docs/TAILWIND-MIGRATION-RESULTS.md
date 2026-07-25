@@ -33,8 +33,15 @@ The tool modified several files in `app/` directory:
 - `app/(_t)/[workspaceSlug]/page.tsx`
 - `app/(_t)/[workspaceSlug]/services/[id]/page.tsx`
 - `app/(_t)/[workspaceSlug]/services/page.tsx`
-- `app/(hub)/(marketing)/about/AboutPageClient.tsx`
+- `app/(hub)/(marketing)/about/AboutPageClient.tsx` — since moved to
+  `src/components/hub/AboutPageClient.tsx` (see note below)
 - `app/tenant-demo/page.tsx`
+
+> **Path note (2026-07-25):** `AboutPageClient.tsx` has since been relocated to
+> `src/components/hub/AboutPageClient.tsx` to satisfy the "`app/` holds routes
+> only" rule. The path above is kept as-is because it records where the file
+> was *at the time of this migration* — the migration tool never touched
+> `src/`, as stated below.
 
 ## What Was NOT Migrated
 
