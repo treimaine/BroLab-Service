@@ -15,6 +15,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
+import posthog from 'posthog-js'
 
 type LicenseTier = 'basic' | 'premium' | 'unlimited'
 
@@ -94,6 +95,12 @@ export default function BeatDetailPage() {
           bpm: track.bpm,
           trackKey: track.key,
         })
+        posthog.capture('beat_preview_played', {
+          track_id: track._id,
+          workspace_slug: workspaceSlug,
+          bpm: track.bpm,
+          track_key: track.key,
+        })
       }
       return
     }
@@ -105,11 +112,23 @@ export default function BeatDetailPage() {
       bpm: track.bpm,
       trackKey: track.key,
     })
+    posthog.capture('beat_preview_played', {
+      track_id: track._id,
+      workspace_slug: workspaceSlug,
+      bpm: track.bpm,
+      track_key: track.key,
+    })
   }
 
   const isPaymentsNotConfigured = !isPaymentsConfigured
   const handleBuyOrContact = () => {
     if (isPaymentsConfigured && !isPurchasing) {
+      posthog.capture('beat_purchase_initiated', {
+        track_id: track._id,
+        workspace_slug: workspaceSlug,
+        license_tier: selectedTier,
+        price_usd: tierPrices[selectedTier],
+      })
       handlePurchase()
     } else if (!isPaymentsConfigured) {
       globalThis.location.href = `/${workspaceSlug}/contact`
@@ -229,7 +248,15 @@ export default function BeatDetailPage() {
                     {(['basic', 'premium', 'unlimited'] as const).map((tier) => (
                       <button
                         key={tier}
-                        onClick={() => setSelectedTier(tier)}
+                        onClick={() => {
+                          setSelectedTier(tier)
+                          posthog.capture('license_tier_selected', {
+                            track_id: track._id,
+                            workspace_slug: workspaceSlug,
+                            license_tier: tier,
+                            price_usd: tierPrices[tier],
+                          })
+                        }}
                         className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
                           selectedTier === tier
                             ? 'border-accent bg-[rgb(var(--accent)/0.08)]'

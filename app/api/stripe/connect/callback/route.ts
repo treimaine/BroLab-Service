@@ -7,6 +7,7 @@
  */
 
 import { getAppOrigin, STRIPE_CONFIG } from '@/lib/env'
+import { getPostHogClient } from '@/lib/posthog-server'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
@@ -120,6 +121,21 @@ export async function GET(request: Request) {
           completedAt: new Date().toISOString(),
         },
       })
+    }
+
+    const phClient = getPostHogClient()
+    if (phClient) {
+      phClient.capture({
+        distinctId: userId,
+        event: 'stripe_connect_completed',
+        properties: {
+          workspace_id: workspaceId,
+          payments_status: paymentsStatus,
+          charges_enabled: account.charges_enabled,
+          payouts_enabled: account.payouts_enabled,
+        },
+      })
+      await phClient.flush()
     }
 
     // Redirect to studio with success message

@@ -35,6 +35,10 @@ export function getPostHogServer(): PostHog | null {
   return posthogInstance;
 }
 
+export function getPostHogClient(): PostHog | null {
+  return getPostHogServer();
+}
+
 export async function captureServerEvent(
   event: string,
   distinctId: string,

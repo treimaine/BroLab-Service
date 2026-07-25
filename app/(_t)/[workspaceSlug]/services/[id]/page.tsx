@@ -13,6 +13,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
+import posthog from 'posthog-js'
 
 /**
  * Service Detail Page
@@ -74,6 +75,11 @@ export default function ServiceDetailPage() {
   const handleBook = async () => {
     if (!isPaymentsConfigured || !workspace) return
     setIsPurchasing(true)
+    posthog.capture('service_booking_initiated', {
+      service_id: service._id,
+      workspace_slug: workspaceSlug,
+      price_usd: service.priceUSD,
+    })
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',

@@ -6,6 +6,7 @@
  */
 
 import { getAppOrigin, getStripeConnectOAuthUrl } from '@/lib/env'
+import { getPostHogClient } from '@/lib/posthog-server'
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
@@ -42,6 +43,16 @@ export async function GET(request: Request) {
 
     const oauthUrl = getStripeConnectOAuthUrl(redirectUri)
     const urlWithState = `${oauthUrl}&state=${encodeURIComponent(state)}`
+
+    const phClient = getPostHogClient()
+    if (phClient) {
+      phClient.capture({
+        distinctId: userId,
+        event: 'stripe_connect_initiated',
+        properties: { workspace_id: workspaceId },
+      })
+      await phClient.flush()
+    }
 
     // Redirect to Stripe Connect OAuth
     return NextResponse.redirect(urlWithState)
