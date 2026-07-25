@@ -5,7 +5,16 @@
  */
 
 import { v } from "convex/values";
+import { internal } from "../_generated/api";
 import { mutation, query } from "../_generated/server";
+
+/**
+ * Delay before the recovery email.
+ *
+ * Four hours: long enough that it does not read as surveillance of a session
+ * the buyer just left, short enough that the intent has not gone cold.
+ */
+const RECOVERY_DELAY_MS = 4 * 60 * 60 * 1000;
 
 export const submitAbandonment = mutation({
   args: {
@@ -28,6 +37,17 @@ export const submitAbandonment = mutation({
       checkoutSessionId: args.checkoutSessionId,
       createdAt: Date.now(),
     });
+
+    // Recovery is only possible when we know who left and what they left behind.
+    // The action re-checks at send time whether they have since purchased.
+    if (args.clerkUserId && args.trackId) {
+      await ctx.scheduler.runAfter(
+        RECOVERY_DELAY_MS,
+        internal.platform.email.lifecycle.sendAbandonmentRecovery,
+        { abandonmentId: id }
+      );
+    }
+
     return id;
   },
 });

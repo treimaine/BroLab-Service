@@ -169,7 +169,15 @@ export function logBookingCreation(params: {
  * Log email notification sent
  */
 export function logEmailNotification(params: {
-  type: 'purchase_confirmation' | 'booking_confirmation' | 'subscription_status';
+  type:
+    | 'purchase_confirmation'
+    | 'booking_confirmation'
+    | 'subscription_status'
+    | 'seller_sale_alert'
+    | 'welcome'
+    | 'trial_reminder'
+    | 'abandonment_recovery'
+    | 'weekly_digest';
   recipientEmail: string;
   success: boolean;
   error?: string;

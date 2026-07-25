@@ -290,6 +290,37 @@ export default defineSchema({
     updatedAt: v.optional(v.number()),
   }).index("by_dedupe", ["provider", "dedupeKey"]),
 
+  /**
+   * Per-recipient send eligibility.
+   *
+   * Holds both explicit opt-outs (user clicked unsubscribe) and provider-forced
+   * suppression (hard bounce or spam complaint reported by Resend). Suppressed
+   * addresses must never receive marketing/lifecycle mail again — continuing to
+   * send to a complainer is the fastest way to lose domain reputation.
+   */
+  emailPreferences: defineTable({
+    email: v.string(),
+    /** False once the recipient opts out of lifecycle/marketing email. */
+    marketingOptIn: v.boolean(),
+    /**
+     * Set by the Resend webhook. Once suppressed, even transactional sends are
+     * pointless for "hard_bounce" — the address does not exist.
+     */
+    suppressedReason: v.optional(
+      v.union(
+        v.literal("hard_bounce"),
+        v.literal("complaint"),
+        v.literal("manual")
+      )
+    ),
+    suppressedAt: v.optional(v.number()),
+    unsubscribedAt: v.optional(v.number()),
+    /** Last recorded bounce detail, for support triage. */
+    lastBounceDetail: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_email", ["email"]),
+
   // ============ ANALYTICS ============
 
   trackViews: defineTable({

@@ -89,3 +89,4 @@ worker/dist/
 /deployment_task.json
 /get-metrics.js
 /get-signups.js
+.email-preview/

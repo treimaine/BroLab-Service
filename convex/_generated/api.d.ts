@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as crons from "../crons.js";
 import type * as http from "../http.js";
 import type * as lib_webhookSignatures from "../lib/webhookSignatures.js";
 import type * as lib_workerAuth from "../lib/workerAuth.js";
@@ -38,6 +39,12 @@ import type * as platform_billing_webhooks from "../platform/billing/webhooks.js
 import type * as platform_domainVerification from "../platform/domainVerification.js";
 import type * as platform_domains from "../platform/domains.js";
 import type * as platform_email_actions from "../platform/email/actions.js";
+import type * as platform_email_lifecycle from "../platform/email/lifecycle.js";
+import type * as platform_email_sellerNotifications from "../platform/email/sellerNotifications.js";
+import type * as platform_email_suppression from "../platform/email/suppression.js";
+import type * as platform_email_templates from "../platform/email/templates.js";
+import type * as platform_email_theme from "../platform/email/theme.js";
+import type * as platform_email_unsubscribeActions from "../platform/email/unsubscribeActions.js";
 import type * as platform_emailEvents from "../platform/emailEvents.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
@@ -55,6 +62,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
   http: typeof http;
   "lib/webhookSignatures": typeof lib_webhookSignatures;
   "lib/workerAuth": typeof lib_workerAuth;
@@ -85,6 +93,12 @@ declare const fullApi: ApiFromModules<{
   "platform/domainVerification": typeof platform_domainVerification;
   "platform/domains": typeof platform_domains;
   "platform/email/actions": typeof platform_email_actions;
+  "platform/email/lifecycle": typeof platform_email_lifecycle;
+  "platform/email/sellerNotifications": typeof platform_email_sellerNotifications;
+  "platform/email/suppression": typeof platform_email_suppression;
+  "platform/email/templates": typeof platform_email_templates;
+  "platform/email/theme": typeof platform_email_theme;
+  "platform/email/unsubscribeActions": typeof platform_email_unsubscribeActions;
   "platform/emailEvents": typeof platform_emailEvents;
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;

@@ -678,8 +678,170 @@ http.route({
 });
 
 // ============================================================================
+// Email deliverability endpoints
+// ============================================================================
+
+/**
+ * One-click unsubscribe.
+ *
+ * Served over both GET (footer link) and POST (RFC 8058 List-Unsubscribe-Post,
+ * which Gmail and Yahoo call automatically when a recipient hits their native
+ * unsubscribe button). Both paths must work or bulk mail gets penalised.
+ */
+const unsubscribeHandler = httpAction(async (ctx, request) => {
+  const url = new URL(request.url);
+  const email = url.searchParams.get("email");
+  const token = url.searchParams.get("token");
+
+  if (!email || !token) {
+    return htmlResponse(
+      unsubscribePage("Invalid link", "This unsubscribe link is missing information."),
+      400
+    );
+  }
+
+  const valid = await ctx.runAction(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.email.unsubscribeActions.verifyAndUnsubscribe,
+    { email, token }
+  );
+
+  if (!valid?.ok) {
+    return htmlResponse(
+      unsubscribePage(
+        "Link not recognised",
+        "This unsubscribe link is invalid or has expired. Contact support and we will remove you manually."
+      ),
+      400
+    );
+  }
+
+  return htmlResponse(
+    unsubscribePage(
+      "You are unsubscribed",
+      `${email} will no longer receive product updates, reminders or digests. Receipts and license documents for purchases you make will still be delivered.`
+    ),
+    200
+  );
+});
+
+http.route({ path: "/api/email/unsubscribe", method: "GET", handler: unsubscribeHandler });
+http.route({ path: "/api/email/unsubscribe", method: "POST", handler: unsubscribeHandler });
+
+/**
+ * Resend event webhook — bounces and spam complaints.
+ *
+ * Not processing these is what silently destroys sender reputation: every
+ * repeat send to a dead mailbox or a complainer is counted against the domain.
+ */
+http.route({
+  path: "/api/email/resend-webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const rawBody = await request.text();
+
+      const secret = process.env.RESEND_WEBHOOK_SECRET;
+      if (secret) {
+        const svixId = request.headers.get("svix-id");
+        const svixTimestamp = request.headers.get("svix-timestamp");
+        const svixSignature = request.headers.get("svix-signature");
+
+        if (!svixId || !svixTimestamp || !svixSignature) {
+          return jsonResponse({ error: "Missing signature headers" }, 401);
+        }
+
+        // Resend signs with Svix, the same scheme Clerk uses.
+        const verification = await verifyClerkWebhookSignature({
+          payload: rawBody,
+          secret,
+          svixId,
+          svixTimestamp,
+          svixSignature,
+        });
+        if (!verification.ok) {
+          console.error("Resend webhook signature rejected");
+          return jsonResponse({ error: "Invalid signature" }, 401);
+        }
+      } else {
+        console.warn(
+          "RESEND_WEBHOOK_SECRET not set — bounce events are being accepted unverified"
+        );
+      }
+
+      const body = parseWebhookBody(rawBody);
+      if (!body) return jsonResponse({ error: "Invalid JSON" }, 400);
+
+      const eventType = body.type as string | undefined;
+      const data = body.data as Record<string, unknown> | undefined;
+      const recipients = (data?.to as string[] | undefined) ?? [];
+      const recipient = recipients[0];
+
+      if (!eventType || !recipient) {
+        return jsonResponse({ received: true, skipped: true }, 200);
+      }
+
+      // Soft bounces (mailbox full, temporary failure) are transient and must
+      // not suppress the address — only permanent failures and complaints do.
+      const bounceType = (
+        (data?.bounce as Record<string, unknown> | undefined)?.type ?? ""
+      ).toString().toLowerCase();
+
+      let reason: "hard_bounce" | "complaint" | null = null;
+      if (eventType === "email.complained") {
+        reason = "complaint";
+      } else if (eventType === "email.bounced" && bounceType !== "soft") {
+        reason = "hard_bounce";
+      }
+
+      if (!reason) {
+        return jsonResponse({ received: true, suppressed: false, eventType }, 200);
+      }
+
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.suppression.recordSuppression,
+        {
+          email: recipient,
+          reason,
+          detail: JSON.stringify(data?.bounce ?? {}).slice(0, 500),
+        }
+      );
+
+      console.log("Recipient suppressed:", recipient, "reason:", reason);
+      return jsonResponse({ received: true, suppressed: true, reason }, 200);
+    } catch (error) {
+      console.error("Resend webhook error:", error);
+      return jsonResponse({ error: "Webhook processing failed" }, 500);
+    }
+  }),
+});
+
+// ============================================================================
 // Helper Functions
 // ============================================================================
+
+function htmlResponse(html: string, status: number): Response {
+  return new Response(html, {
+    status,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
+
+/** Standalone confirmation page — styled to match the app's dark theme. */
+function unsubscribePage(heading: string, message: string): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://brolabentertainment.com";
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${heading}</title></head>
+<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EEF3FA;color:#071022;font-family:Inter,-apple-system,'Segoe UI',sans-serif;padding:24px;">
+<div style="max-width:460px;text-align:center;background:#FFFFFF;border:1px solid #D7E0EC;border-radius:14px;padding:40px 32px;box-shadow:0 8px 24px rgb(15 23 42 / 0.06);">
+<p style="margin:0 0 24px;color:#077A96;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">BroLab Entertainment</p>
+<h1 style="margin:0 0 12px;font-size:22px;">${heading}</h1>
+<p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:#3E4C60;">${message}</p>
+<a href="${siteUrl}" style="display:inline-block;padding:13px 26px;background:#077A96;color:#FFFFFF;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">Back to site</a>
+</div></body></html>`;
+}
 
 // JSON response helper
 function jsonResponse(data: unknown, status: number): Response {
@@ -941,6 +1103,26 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
       amountTotal,
       currency,
     });
+
+    // Notify the seller that they earned money. This is the strongest
+    // retention signal the product has, so it runs on every completed sale.
+    try {
+      await ctx.runAction(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.sellerNotifications.sendSaleAlert,
+        { workspaceId, orderId }
+      );
+    } catch (sellerEmailError) {
+      logEmailNotification({
+        type: "seller_sale_alert",
+        recipientEmail: "seller",
+        success: false,
+        error:
+          sellerEmailError instanceof Error
+            ? sellerEmailError.message
+            : String(sellerEmailError),
+      });
+    }
 
     await recordSuccessMetrics(ctx, {
       workspaceId,
@@ -1483,6 +1665,21 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
 
   console.log("Subscription synced:", { clerkUserId, planKey: resolvedPlan, status: systemStatus });
 
+  // Queue the trial reminder ladder the first time a plan goes active. The
+  // mutation is idempotent per stage via the emailEvents dedupeKey, so a
+  // repeated "active" event cannot produce duplicate reminders.
+  if (systemStatus === "active") {
+    try {
+      await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.lifecycle.scheduleTrialSequence,
+        { workspaceId }
+      );
+    } catch (err: unknown) {
+      console.error("Failed to schedule trial sequence:", err);
+    }
+  }
+
   // Requirement 30.4: Send subscription status email for active/canceled events.
   // Await the action so Convex keeps the execution alive until Resend responds.
   // Failures remain non-fatal for the webhook.
@@ -1567,6 +1764,19 @@ async function handleStandardEvent(
             eventType: "signup",
           }
         );
+
+        // Welcome email — the highest-intent moment in the funnel. Failure is
+        // non-fatal: a missed welcome must never fail user creation.
+        try {
+          await ctx.runAction(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (internal as any).platform.email.lifecycle.sendWelcomeEmail,
+            { clerkUserId: dataId }
+          );
+        } catch (err) {
+          console.error("Failed to send welcome email:", err);
+        }
+
         console.log("User upserted in Convex:", dataId);
       }
       break;

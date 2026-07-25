@@ -17,10 +17,15 @@ export type LicenseTier = 'basic' | 'premium' | 'unlimited';
 
 export type DeliveryType = 'download' | 'booking' | 'entitlement';
 
-export type EmailNotificationType = 
-  | 'purchase_confirmation' 
-  | 'booking_confirmation' 
-  | 'subscription_status';
+export type EmailNotificationType =
+  | 'purchase_confirmation'
+  | 'booking_confirmation'
+  | 'subscription_status'
+  | 'seller_sale_alert'
+  | 'welcome'
+  | 'trial_reminder'
+  | 'abandonment_recovery'
+  | 'weekly_digest';
 
 // ============================================================================
 // Event Interfaces
