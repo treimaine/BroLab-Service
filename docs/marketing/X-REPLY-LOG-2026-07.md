@@ -41,6 +41,21 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@totoche` | https://x.com/totoche/status/2080573256424153554 | https://x.com/Treigua/status/2080650850309906554 | French founder |
 | `@FuchsMorgan` | https://x.com/FuchsMorgan/status/2080556967408308573 | https://x.com/Treigua/status/2080650932484780391 | French founder |
 
+## 2026-07-25
+
+| Target account | Source post | Published reply | Pillar |
+|---|---|---|---|
+| `@ellipsi_music` | https://x.com/ellipsi_music/status/2080869408407449641 | https://x.com/Treigua/status/2080962171287089498 | Producer/audio |
+| `@KazTheBeatMaker` | https://x.com/KazTheBeatMaker/status/2080901807476523104 | https://x.com/Treigua/status/2080962239272464579 | Producer/audio |
+| `@NxTunes` | https://x.com/NxTunes/status/2080923742621106513 | https://x.com/Treigua/status/2080962309053174100 | Producer/audio |
+| `@Maliki_xo` | https://x.com/Maliki_xo/status/2080939023975981342 | https://x.com/Treigua/status/2080962354888462424 | Producer/audio |
+| `@ROGERvisionTV` | https://x.com/ROGERvisionTV/status/2080956221675155645 | https://x.com/Treigua/status/2080962404918165786 | Producer/audio |
+| `@SolarPhasing` | https://x.com/SolarPhasing/status/2080933270116536695 | https://x.com/Treigua/status/2080962457569251710 | Producer/audio |
+| `@dukekeats` | https://x.com/dukekeats/status/2080937173411332443 | https://x.com/Treigua/status/2080962511273169239 | Producer/audio |
+| `@TheAllergiesUK` | https://x.com/TheAllergiesUK/status/2080924059525578993 | https://x.com/Treigua/status/2080962568588341614 | Artist/music business |
+| `@kijana_misa` | https://x.com/kijana_misa/status/2080954100536025160 | https://x.com/Treigua/status/2080962625643356657 | Artist/music business |
+| `@molwantwa_sambo` | https://x.com/molwantwa_sambo/status/2080918252234883490 | https://x.com/Treigua/status/2080962689161965819 | Artist/music business |
+
 ## Rules
 
 - Never reply twice to the same source post.

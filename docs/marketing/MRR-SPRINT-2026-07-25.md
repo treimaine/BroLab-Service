@@ -1,5 +1,21 @@
 # BroLab MRR sprint — 25 to 31 July 2026
 
+## Verified production baseline
+
+Checked on 25 July 2026:
+
+- 0 registered users;
+- 0 workspaces;
+- 0 tracks, orders, or revenue;
+- 0 active or upcoming BASIC/PRO subscriptions;
+- 0 acquisition events in the deployed growth query;
+- the deployed growth query is the legacy shape and does not yet expose
+  diagnostic evidence or measurement coverage.
+
+This is a pre-launch baseline, not evidence that the offer, price, signup, or
+onboarding is underperforming. The immediate sequence is to deploy and verify
+the complete instrumentation, then generate qualified traffic.
+
 ## Target and sales math
 
 Production starts at **$0 MRR, 0 users, and 0 workspaces**.
@@ -99,11 +115,23 @@ One PRO trial start per day reaches roughly $210 of committed post-trial MRR aft
 
 ## Funnel diagnosis
 
-- Views but no CTA clicks: the offer or proof is weak.
-- CTA clicks but no signup: signup friction or price objection.
-- Signup but no workspace: onboarding clarity or slug friction.
-- Workspace but no subscription: checkout visibility or insufficient value.
-- Subscription but no Stripe: payout onboarding is the bottleneck.
-- Stripe but no first offer: activation clarity is the bottleneck.
+Treat each diagnosis as a hypothesis to test, not as a conclusion from a single
+number.
+
+| Observed evidence | Working hypothesis | Verify before changing |
+|---|---|---|
+| No landing sessions | Tracking is missing or qualified traffic has not started | Open production once with a test campaign and confirm the event appears |
+| Landing sessions, no CTA clicks | The promise, proof, or CTA visibility may be weak | Confirm click tracking and review the page recording |
+| CTA clicks, no signup views | The link or signup load path may be broken | Test the destination on mobile and desktop |
+| Signup views, no registered users | Account creation may be failing or too demanding | Review Clerk errors and completion events |
+| Users, no workspace | Role selection, naming, or slug creation may block onboarding | Reproduce onboarding and inspect workspace creation errors |
+| Workspace, no subscription | Plan value or checkout visibility may be insufficient | Confirm the paid-plan CTA and Clerk checkout work first |
+| Subscription, no active Stripe account | Stripe Connect onboarding is incomplete | Inspect account status and return URLs |
+| Active Stripe, no published offer | Upload or publishing lacks clarity | Observe the first-offer flow and its errors |
+
+The current growth report directly measures landing views, pricing views, CTA
+clicks, signup views, and subscription activations. Workspace creation, Stripe
+readiness, and first-offer publication must remain labelled as unmeasured until
+they are added to the same report.
 
 The self-serve system sends only the next unfinished step. Async help remains available by email, with PRO requests identified as priority.

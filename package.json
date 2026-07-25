@@ -11,7 +11,7 @@
     "lint:surfaces": "node scripts/lint-surfaces.mjs",
     "typecheck": "tsc --noEmit",
     "check-env": "node scripts/check-env.mjs",
-    "metrics:growth": "npx convex run modules/growth:getFunnel --prod",
+    "metrics:growth": "node scripts/report-growth.mjs",
     "metrics:mrr": "node scripts/report-mrr.mjs",
     "build:worker": "tsc -p worker/tsconfig.json",
     "worker": "node dist/worker/index.js",
