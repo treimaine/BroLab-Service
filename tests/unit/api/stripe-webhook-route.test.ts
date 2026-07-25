@@ -91,3 +91,47 @@ describe('Stripe webhook route', () => {
     )
   })
 })
+
+describe('Stripe Connect webhook route', () => {
+  it('reuses the canonical Stripe webhook proxy', async () => {
+    process.env.NEXT_PUBLIC_CONVEX_SITE_URL = 'https://convex.test'
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { POST } = await import(
+      '../../../app/api/stripe/connect-webhook/route'
+    )
+    const request = new Request(
+      'http://localhost:3000/api/stripe/connect-webhook',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': 't=123,v1=test',
+        },
+        body: JSON.stringify({
+          id: 'evt_connect_123',
+          type: 'checkout.session.completed',
+        }),
+      }
+    )
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://convex.test/api/stripe/webhook',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'stripe-signature': 't=123,v1=test',
+        }),
+      })
+    )
+  })
+})

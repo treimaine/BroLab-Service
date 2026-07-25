@@ -19,7 +19,8 @@ import { useUser } from '@clerk/nextjs'
 import { api } from 'convex/_generated/api'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, CheckCircle2, CreditCard, ExternalLink, Globe, Loader2, Music, Receipt, Wrench } from 'lucide-react'
+import { AlertTriangle, BarChart3, CheckCircle2, CreditCard, ExternalLink, Globe, Loader2, Music, Receipt, Wrench } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { StudioHeader } from './StudioHeader'
@@ -42,6 +43,12 @@ const NAV_ITEMS = [
     icon: CreditCard,
     label: 'Billing',
     description: 'Subscription & plan details',
+  },
+  {
+    href: '/studio/metrics',
+    icon: BarChart3,
+    label: 'Analytics',
+    description: 'Views, sales, revenue & conversion',
   },
   {
     href: '/studio/domains',
@@ -109,6 +116,51 @@ export function StudioDashboard() {
   const workspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
   const workspace = workspaces?.[0]
   const paymentsStatus = workspace?.paymentsStatus
+  const subscriptionData = useQuery(
+    api.platform.billing.subscriptionQueries.getSubscriptionByClerkUserId,
+    user?.id ? { clerkUserId: user.id } : 'skip'
+  )
+  const hasActiveSubscription = subscriptionData?.subscription?.status === 'active'
+  const hasPublishedOffer = (subscriptionData?.usage?.publishedTracksCount ?? 0) > 0
+  const activationSteps = workspace
+    ? [
+        {
+          label: 'Create storefront',
+          description: `${workspace.slug}.brolabentertainment.com is reserved`,
+          complete: true,
+          available: true,
+          href: '/studio',
+          cta: 'Done',
+        },
+        {
+          label: 'Start BASIC or PRO',
+          description: 'One free month, then your selected billing period',
+          complete: hasActiveSubscription,
+          available: true,
+          href: '/studio/billing',
+          cta: 'Start free month',
+        },
+        {
+          label: 'Connect Stripe',
+          description: 'Receive customer payments directly',
+          complete: paymentsStatus === 'active',
+          available: hasActiveSubscription,
+          href: workspace._id
+            ? `/api/stripe/connect?workspaceId=${workspace._id}`
+            : '/studio/billing',
+          cta: 'Connect',
+        },
+        {
+          label: 'Publish your first beat',
+          description: 'Give visitors something they can buy',
+          complete: hasPublishedOffer,
+          available: hasActiveSubscription && paymentsStatus === 'active',
+          href: '/studio/tracks',
+          cta: 'Add a beat',
+        },
+      ]
+    : []
+  const completedActivationSteps = activationSteps.filter((step) => step.complete).length
   const recentEvents = useQuery(
     api.platform.events.getEvents,
     workspace?._id ? { workspaceId: workspace._id, limit: 5 } : 'skip'
@@ -174,6 +226,88 @@ export function StudioDashboard() {
                 Manage your beats, services, billing, and domains from here.
               </p>
             </DribbbleCard>
+
+            {workspace && (
+              <DribbbleCard padding="lg" glow className="space-y-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))] mb-1">
+                      Self-serve launch
+                    </p>
+                    <h2 className="text-2xl font-bold uppercase tracking-wide">
+                      Your launch checklist
+                    </h2>
+                    <p className="text-sm text-muted mt-1">
+                      No onboarding call required. Complete these four steps to make your storefront sell-ready.
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/10 px-4 py-2 text-sm font-bold text-[rgb(var(--accent))]">
+                    {completedActivationSteps}/4 complete
+                  </span>
+                </div>
+
+                <div className="h-2 overflow-hidden rounded-full bg-[rgb(var(--border)/0.35)]">
+                  <div
+                    className="h-full rounded-full bg-[rgb(var(--accent))] transition-all"
+                    style={{ width: `${(completedActivationSteps / 4) * 100}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {activationSteps.map((step) => (
+                    <div
+                      key={step.label}
+                      className={`flex items-center gap-3 rounded-2xl border p-4 ${
+                        step.complete
+                          ? 'border-green-500/30 bg-green-500/5'
+                          : 'border-border bg-[rgb(var(--bg-2)/0.45)]'
+                      }`}
+                    >
+                      <CheckCircle2
+                        className={`h-5 w-5 shrink-0 ${
+                          step.complete ? 'text-green-400' : 'text-muted'
+                        }`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-text">{step.label}</p>
+                        <p className="text-xs text-muted mt-0.5">{step.description}</p>
+                      </div>
+                      {!step.complete && step.available && (
+                        <a
+                          href={step.href}
+                          className="shrink-0 rounded-full bg-[rgb(var(--accent))]/10 px-3 py-1.5 text-xs font-bold text-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/20"
+                        >
+                          {step.cta}
+                        </a>
+                      )}
+                      {!step.complete && !step.available && (
+                        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted">
+                          Next
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-muted">
+                    Automated email reminders point only to your next unfinished step.
+                  </p>
+                  <a
+                    href={`mailto:support@brolabentertainment.com?subject=${
+                      subscriptionData?.subscription?.planKey === 'pro'
+                        ? 'PRO%20priority%20support'
+                        : 'BroLab%20setup%20help'
+                    }`}
+                    className="font-semibold text-[rgb(var(--accent))] hover:underline"
+                  >
+                    {subscriptionData?.subscription?.planKey === 'pro'
+                      ? 'Priority support'
+                      : 'Get async help'}
+                  </a>
+                </div>
+              </DribbbleCard>
+            )}
 
             {workspace && (
               <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-4">
@@ -307,6 +441,23 @@ export function StudioDashboard() {
               </div>
             )}
 
+            {subscriptionData && !hasActiveSubscription && (
+              <div className="flex flex-col gap-4 rounded-2xl border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/5 p-5 sm:flex-row sm:items-center">
+                <div className="flex-1">
+                  <p className="font-bold text-text">Activate your storefront to publish and sell</p>
+                  <p className="text-sm text-muted mt-1">
+                    Your setup is saved. Start one free month of BASIC or PRO to unlock uploads, services, and storefront publishing.
+                  </p>
+                </div>
+                <Link
+                  href="/studio/billing"
+                  className="shrink-0 rounded-xl bg-[rgb(var(--accent))] px-5 py-2.5 text-sm font-bold text-[rgb(var(--bg))] transition-opacity hover:opacity-90"
+                >
+                  Start free month
+                </Link>
+              </div>
+            )}
+
             {/* Stripe Connect Banner */}
             {paymentsStatus === 'unconfigured' && (
               <div className="flex items-start gap-4 p-4 rounded-2xl border border-yellow-500/30 bg-yellow-500/5">
@@ -340,7 +491,7 @@ export function StudioDashboard() {
             )}
 
             {/* Nav Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {NAV_ITEMS.map(({ href, icon: Icon, label, description }) => (
                 <a key={href} href={href} className="group cursor-pointer">
                   <DribbbleCard

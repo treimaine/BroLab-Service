@@ -44,11 +44,46 @@ This review is based on the accounts visible in `@Treigua`'s Following list and 
 - Generic engagement questions without a defined audience or tension produced little useful signal on the profiles reviewed.
 - Large authority accounts are valuable listening sources but not always the best voice model. Relevance to BroLab matters more than follower count.
 
+## Discovery pool — refreshed July 24
+
+These accounts were found from fresh X conversations rather than the existing Following list. They should be monitored before following or replying repeatedly.
+
+### Producers, audio and music
+
+| Account | Current signal | Recommended angle |
+|---|---|---|
+| `@FreeMeNotAudio` | Practical audio-editing and mix-translation education with strong bookmark intent | Translation checks, monitoring constraints, beginner engineering workflows |
+| `@GbrlGmn` | Active audio engineer sharing project milestones | Production handoffs, crediting collaborators, audio/video delivery |
+| `@TrendCityShow` | Regular producer spotlights and music discovery | Producer discovery, feedback formats, artist-to-producer connections |
+| `@KanataOkajima` | Songwriter and producer connected to visible release campaigns | Collaboration process, songwriting systems, international release workflows |
+| `@AnneKTBeats` | Beatmaker documenting sold beats and catalog promotion | Beat catalog presentation, licensing clarity, repeatable storefront content |
+| `@AultmanFra6958` | Producer featured by an active music-media account | Creative intent, arrangement choices, producer discovery |
+
+### Builders and founders
+
+| Account | Current signal | Recommended angle |
+|---|---|---|
+| `@wamweaaa` | Product-first landing-page commentary | Product demos, activation, showing before telling |
+| `@beka_saparbek` | Consistent public install and revenue updates | Conversion between installs and revenue, milestone reporting |
+| `@JoyBoyBuild` | French vertical-SaaS founder sharing transaction volume | Vertical SaaS, starting before certainty, operational learning |
+| `@LucasFlandre` | French founder focused on getting signals while building | Validation loops, customer conversations, avoiding silent development |
+| `@ledevultime` | French developer discussing SaaS prospecting context | Warm versus cold intent, pain-led positioning, direct outreach |
+| `@Hyde_ai3` | AI-assisted architecture and developer workflows | Durable context for agents, architecture documentation, handoffs |
+| `@deepp2108` | Engineer returning to consistent build-in-public content | Compounding distribution, documenting technical decisions |
+| `@abdullahsynx` | Active founder/builder networking conversations | Concise BroLab positioning and founder-to-founder discovery |
+
+### Discovery filters
+
+- Prefer posts less than 24 hours old with a concrete claim, artifact, milestone or question.
+- Require a BroLab-relevant angle before drafting a reply.
+- Skip engagement bait, generic motivation, politics, controversy and posts where only a compliment is possible.
+- Maximum one reply per account per day and no repeated phrasing across accounts.
+- Treat discovery accounts as provisional until three useful posts have been observed.
+
 ## Daily engagement routine
 
-1. Read recent posts from two Tier 1 and two Tier 2 accounts.
-2. Prepare up to five replies that add a specific example, disagreement or useful question.
+1. Read recent posts from the priority tiers and the discovery pool.
+2. Prepare replies in five review batches, with each reply adding a specific example, disagreement or useful question.
 3. Prioritize mutual followers when relevance is equal.
 4. Quote-post only when BroLab can add a distinct producer or product-building perspective.
 5. Never tag an account merely to borrow its audience and never paste a BroLab link into an unrelated conversation.
-

@@ -80,8 +80,16 @@ function getPlanFeaturesList(planData: PublicPlanInfo) {
     { label: 'License PDF generation', value: true, included: true },
     { label: 'Direct Stripe payments', value: true, included: true },
     { label: 'Service listings', value: true, included: true },
-    { label: 'Sales dashboard', value: true, included: true },
-    { label: 'Email support', value: true, included: true },
+    {
+      label: features.analyticsLevel === 'advanced' ? 'Advanced analytics' : 'Basic analytics',
+      value: true,
+      included: true,
+    },
+    {
+      label: features.prioritySupport ? 'Priority email support' : 'Email support',
+      value: true,
+      included: true,
+    },
   ]
 }
 
@@ -134,8 +142,8 @@ function getFeatureComparison(basicPlan: PublicPlanInfo, proPlan: PublicPlanInfo
     { 
       category: 'Support & Reporting',
       features: [
-        { name: 'Sales dashboard', basic: true, pro: true },
-        { name: 'Email support', basic: true, pro: true },
+        { name: 'Analytics', basic: 'Basic', pro: 'Advanced' },
+        { name: 'Priority email support', basic: false, pro: true },
       ]
     },
   ]
@@ -168,7 +176,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Is there a free trial?',
-    answer: 'We don\'t offer a free trial, but you can start with the BASIC plan at just $9.99/month. Annual plans offer significant savings (50-70% off).',
+    answer: 'Yes. New BASIC and PRO subscriptions include one free month. Billing starts after the trial unless you cancel first.',
   },
   {
     question: 'What happens if I cancel?',
@@ -264,7 +272,11 @@ function PlanCard({
           )}
         </div>
 
-        <Link href="/sign-up" className="block mb-6">
+        <Link
+          href={`/sign-up?plan=${plan}&period=${isAnnual ? 'annual' : 'month'}&source=pricing`}
+          className="block mb-6"
+          data-growth-cta
+        >
           <PillCTA
             as="span"
             variant="primary"
@@ -272,7 +284,7 @@ function PlanCard({
             fullWidth
             className={isPro ? '' : 'bg-linear-to-r from-[rgb(var(--accent)/0.15)] to-[rgb(var(--accent-2)/0.15)] text-accent! border border-[rgb(var(--accent)/0.3)]'}
           >
-            Get Started
+            {isPro ? 'Start PRO free' : 'Start BASIC free'}
           </PillCTA>
         </Link>
 
@@ -419,8 +431,8 @@ function TrustBadges() {
   return (
     <div className="flex flex-wrap justify-center gap-6">
       <GlassChip icon={Lock} label="Powered by secure billing" />
-      <GlassChip icon={CreditCard} label="One-time purchases via Stripe" />
-      <GlassChip icon={Shield} label="14-day money-back guarantee" />
+      <GlassChip icon={CreditCard} label="Subscriptions secured by Clerk + Stripe" />
+      <GlassChip icon={Shield} label="1 month free on BASIC and PRO" />
     </div>
   )
 }
@@ -450,12 +462,15 @@ function FinalCTASection() {
                 Ready to launch your storefront?
               </h2>
               <p className="text-muted mb-8 max-w-md mx-auto">
-                Join creators who are already growing their brand with BroLab. Start selling in minutes.
+                Launch your storefront, connect Stripe, and start selling from one branded link.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link href="/sign-up">
+                <Link
+                  href="/sign-up?plan=pro&period=month&source=pricing"
+                  data-growth-cta
+                >
                   <PillCTA as="span" variant="primary" size="lg" icon={Sparkles}>
-                    Start Free Trial
+                    Start PRO free
                   </PillCTA>
                 </Link>
                 <Link href="/contact">
@@ -475,7 +490,7 @@ function FinalCTASection() {
 // ============ Main Page ============
 
 export default function PricingPageClient() {
-  const [isAnnual, setIsAnnual] = useState(true)
+  const [isAnnual, setIsAnnual] = useState(false)
   
   // Fetch plan data from Convex
   const plansData = useQuery(api.platform.billing.getPlansPublic)

@@ -188,13 +188,16 @@ export default function MarketplaceClient() {
               Ready to Sell Your Beats?
             </h2>
             <p className="text-lg text-muted mb-grid-4 max-w-2xl mx-auto">
-              Join producers earning 100% of their revenue. No middleman, no fees.
+              Keep 100% of your sales revenue. No middleman, no platform commission.
               Your fans pay directly to you via Stripe.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/sign-up?role=producer">
+              <Link
+                href="/sign-up?role=producer&plan=pro&period=month&source=landing"
+                data-growth-cta
+              >
                 <PillCTA size="lg" variant="primary">
-                  Start Free Storefront
+                  Start PRO Free
                 </PillCTA>
               </Link>
               <Link href="/pricing">
@@ -204,7 +207,7 @@ export default function MarketplaceClient() {
               </Link>
             </div>
             <p className="text-xs text-muted mt-grid-3">
-              No credit card required • Set up in 2 minutes
+              1 month free • Set up in minutes • Cancel anytime
             </p>
           </DribbbleCard>
         </div>

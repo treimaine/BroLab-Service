@@ -1,4 +1,5 @@
 import PricingPageClient from '@/components/hub/PricingPageClient'
+import { GrowthTracker } from '@/components/growth/GrowthTracker'
 import type { Metadata } from 'next'
 
 /**
@@ -69,7 +70,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Is there a free trial?',
-    answer: 'We don\'t offer a free trial, but you can start with the BASIC plan at just $9.99/month. Annual plans offer significant savings (50-70% off).',
+    answer: 'Yes. New BASIC and PRO subscriptions include one free month. Billing starts after the trial unless you cancel first.',
   },
   {
     question: 'What happens if I cancel?',
@@ -102,6 +103,7 @@ const faqSchema = {
 export default function PricingPage() {
   return (
     <>
+      <GrowthTracker viewEvent="pricing_view" />
       {/* FAQPage JSON-LD Schema */}
       <script
         type="application/ld+json"

@@ -29,20 +29,22 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 import { PostSignupSurvey } from './PostSignupSurvey'
+import { PaidPlanCheckout } from './PaidPlanCheckout'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
-type OnboardingStep = 'role' | 'workspace' | 'stripe' | 'complete'
+type OnboardingStep = 'role' | 'workspace' | 'plan' | 'stripe' | 'complete'
 
 // ─── Step config ────────────────────────────────────────────────────────────
 
 const PROVIDER_STEPS: { key: OnboardingStep; label: string }[] = [
   { key: 'role', label: 'Your Role' },
   { key: 'workspace', label: 'Storefront' },
+  { key: 'plan', label: 'Plan' },
   { key: 'stripe', label: 'Payments' },
 ]
 
@@ -200,7 +202,7 @@ function RoleStep({
     <div className="space-y-8">
       <div className="text-center space-y-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))]">
-          Step 1 of 3
+          Step 1 of 4
         </p>
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
           What best describes you?
@@ -292,7 +294,7 @@ function WorkspaceStep({
     <div className="space-y-8">
       <div className="text-center space-y-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))]">
-          Step 2 of 3
+          Step 2 of 4
         </p>
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
           Name your storefront
@@ -376,6 +378,59 @@ function WorkspaceStep({
   )
 }
 
+// ─── Step: Plan ───────────────────────────────────────────────────────────────
+
+function PlanStep({
+  intendedPlan,
+  intendedPeriod,
+  redirectUrl,
+}: Readonly<{
+  intendedPlan: 'basic' | 'pro'
+  intendedPeriod: 'month' | 'annual'
+  redirectUrl: string
+}>) {
+  const isPro = intendedPlan === 'pro'
+
+  return (
+    <div className="space-y-8">
+      <div className="text-center space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))]">
+          Step 3 of 4
+        </p>
+        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
+          Activate your storefront
+        </h1>
+        <p className="text-base text-muted max-w-lg mx-auto">
+          {isPro
+            ? 'PRO is the fastest path to a storefront you can grow: unlimited tracks, advanced analytics, and your own domain.'
+            : 'BASIC gives you everything required to launch your first storefront and make sales.'}
+        </p>
+      </div>
+
+      <DribbbleCard className="p-6 md:p-8 space-y-6">
+        <div className="rounded-xl border border-[rgb(var(--accent))]/25 bg-[rgb(var(--accent))]/5 p-4">
+          <p className="font-bold text-sm">
+            {isPro ? 'Recommended: PRO monthly at $29.99' : 'BASIC monthly at $9.99'}
+          </p>
+          <p className="text-xs text-muted mt-1">
+            Your first month is free. Cancel before the trial ends and you will not be charged.
+          </p>
+        </div>
+
+        <PaidPlanCheckout
+          highlightedPlan={intendedPlan}
+          period={intendedPeriod}
+          redirectUrl={redirectUrl}
+        />
+
+        <p className="text-center text-xs text-muted">
+          Your storefront is saved. Your BASIC or PRO tools unlock as soon as the free month starts.
+        </p>
+      </DribbbleCard>
+    </div>
+  )
+}
+
 // ─── Step: Stripe ─────────────────────────────────────────────────────────────
 
 function StripeStep({
@@ -389,7 +444,7 @@ function StripeStep({
     <div className="space-y-8">
       <div className="text-center space-y-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-[rgb(var(--accent))]">
-          Step 3 of 3 — Last step
+          Step 4 of 4 — Last step
         </p>
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
           Get paid directly
@@ -512,9 +567,19 @@ export function OnboardingClient() {
   const { isAuthenticated, isLoading } = useConvexAuth()
   const { user } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const intendedPlan = searchParams.get('plan') === 'basic' ? 'basic' : 'pro'
+  const intendedPeriod = searchParams.get('period') === 'annual' ? 'annual' : 'month'
+  const intendedRoleParam = searchParams.get('role')
+  const intendedRole =
+    intendedRoleParam === 'producer' || intendedRoleParam === 'engineer'
+      ? intendedRoleParam
+      : null
+  const requestedStep = searchParams.get('step')
+  const isResumeIntent = searchParams.get('resume') === '1'
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('role')
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(intendedRole)
   const [workspaceName, setWorkspaceName] = useState('')
   const [workspaceSlug, setWorkspaceSlug] = useState('')
   const [slugError, setSlugError] = useState<string | null>(null)
@@ -535,16 +600,32 @@ export function OnboardingClient() {
     api.platform.users.getUserByClerkId,
     user ? { clerkUserId: user.id } : 'skip'
   )
+  const existingWorkspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
+
+  useEffect(() => {
+    if (!isResumeIntent || !user || !existingUser || !existingWorkspaces?.[0]) return
+
+    const clerkRole = user.unsafeMetadata?.role as UserRole | undefined
+    if (clerkRole !== 'producer' && clerkRole !== 'engineer') return
+
+    isOnboardingActiveRef.current = true
+    setSelectedRole(clerkRole)
+    setCreatedWorkspaceId(existingWorkspaces[0]._id)
+    setWorkspaceName(existingWorkspaces[0].name)
+    setWorkspaceSlug(existingWorkspaces[0].slug)
+    setCurrentStep(requestedStep === 'plan' ? 'plan' : 'stripe')
+  }, [existingUser, existingWorkspaces, isResumeIntent, requestedStep, user])
 
   // Redirect if already onboarded (but not when showing survey)
   useEffect(() => {
     if (isLoading || !isAuthenticated || !user || showSurvey) return
+    if (isResumeIntent) return
     if (isOnboardingActiveRef.current) return
     const clerkRole = user.unsafeMetadata?.role as string | undefined
     if (shouldRedirectUser(clerkRole, existingUser)) {
       router.push(getRedirectPath(clerkRole!))
     }
-  }, [existingUser, user, router, isLoading, isAuthenticated, showSurvey])
+  }, [existingUser, user, router, isLoading, isAuthenticated, showSurvey, isResumeIntent])
 
   // Auto-generate slug from workspace name
   useEffect(() => {
@@ -627,7 +708,7 @@ export function OnboardingClient() {
         console.error('Failed to record workspace_created event:', err)
       }
 
-      setCurrentStep('stripe')
+      setCurrentStep('plan')
     } catch (error) {
       console.error('❌ Error creating workspace:', error)
       alert('Failed to create workspace. Please try again.')
@@ -639,6 +720,16 @@ export function OnboardingClient() {
   const handleSkipStripe = () => {
     setCurrentStep('complete')
     setShowSurvey(true)
+  }
+
+  const subscriptionRedirectParams = new URLSearchParams({
+    resume: '1',
+    step: 'stripe',
+    plan: intendedPlan,
+    period: intendedPeriod,
+  })
+  if (selectedRole === 'producer' || selectedRole === 'engineer') {
+    subscriptionRedirectParams.set('role', selectedRole)
   }
 
   const handleGoToDashboard = () => {
@@ -701,7 +792,7 @@ export function OnboardingClient() {
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="text-xl font-black tracking-tight">BROLAB</div>
             <div className="flex items-center gap-3">
-              <TrustChip icon={Users} label="Join 500+ creators" />
+              <TrustChip icon={Users} label="Founding creator access" />
             </div>
           </div>
         </ChromeSurface>
@@ -741,6 +832,13 @@ export function OnboardingClient() {
                     onWorkspaceCreate={handleWorkspaceCreate}
                     setWorkspaceName={setWorkspaceName}
                     setWorkspaceSlug={setWorkspaceSlug}
+                  />
+                )}
+                {currentStep === 'plan' && (
+                  <PlanStep
+                    intendedPlan={intendedPlan}
+                    intendedPeriod={intendedPeriod}
+                    redirectUrl={`/onboarding?${subscriptionRedirectParams.toString()}`}
                   />
                 )}
                 {currentStep === 'stripe' && (

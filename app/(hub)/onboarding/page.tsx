@@ -1,6 +1,6 @@
 import { OnboardingClient } from '@/components/hub/OnboardingClient'
 import { CheckCircle2 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 
 /**
  * What the creator gets once onboarding completes.
@@ -44,8 +44,7 @@ const SETUP_CHECKLIST = [
  * 4. Sync to Convex users table
  * 5. Redirect: providers → /studio, artists → /artist
  *
- * NO subscription step (Clerk Billing comes later)
- * NO Stripe Connect step (comes in Phase 9)
+ * Providers activate a Clerk Billing subscription before connecting Stripe.
  */
 export default function OnboardingPage(): ReactNode {
   return (
@@ -53,7 +52,9 @@ export default function OnboardingPage(): ReactNode {
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start max-w-7xl mx-auto px-4 py-8">
         {/* Left: Onboarding Flow */}
         <div className="order-2 lg:order-1">
-          <OnboardingClient />
+          <Suspense fallback={<div className="min-h-[480px]" />}>
+            <OnboardingClient />
+          </Suspense>
         </div>
 
         {/* Right: What happens next (hidden on mobile) */}

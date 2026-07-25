@@ -123,7 +123,8 @@ function isProviderRole(role: string | undefined): boolean {
 function handleOnboardingRedirect(
   role: string | undefined,
   req: Request,
-  isOnOnboardingPage: boolean
+  isOnOnboardingPage: boolean,
+  isResumingOnboarding: boolean
 ): NextResponse | null {
   // User has no role and not on onboarding page -> redirect to onboarding
   if (!role && !isOnOnboardingPage) {
@@ -131,7 +132,7 @@ function handleOnboardingRedirect(
   }
 
   // User has role and on onboarding page -> redirect to dashboard
-  if (role && isOnOnboardingPage) {
+  if (role && isOnOnboardingPage && !isResumingOnboarding) {
     const dashboardPath = getDashboardUrl(role)
     return NextResponse.redirect(new URL(dashboardPath, req.url))
   }
@@ -226,7 +227,8 @@ export default clerkMiddleware(async (auth, req) => {
   const onboardingRedirect = handleOnboardingRedirect(
     role,
     req,
-    isOnboardingPath
+    isOnboardingPath,
+    req.nextUrl.searchParams.get('resume') === '1'
   )
   if (onboardingRedirect) return applySecurityHeaders(onboardingRedirect, req, pathname)
 

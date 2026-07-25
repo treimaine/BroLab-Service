@@ -283,7 +283,7 @@ export function PricingSection() {
         'Auto PDF licenses',
         'Direct Stripe payouts',
       ],
-      cta: 'Start Free',
+      cta: 'Choose Basic',
       href: '/sign-up?plan=basic',
       popular: false,
     },
@@ -301,7 +301,7 @@ export function PricingSection() {
         'Automatic PDF licenses',
         'Direct Stripe payouts',
       ],
-      cta: 'Go Pro',
+      cta: 'Activate Pro',
       href: '/sign-up?plan=pro',
       popular: true,
     },
@@ -386,7 +386,11 @@ export function PricingSection() {
                       ))}
                     </ul>
 
-                    <Link href={plan.href} className="block w-full">
+                    <Link
+                      href={`${plan.href}&period=${annual ? 'annual' : 'month'}&source=landing`}
+                      className="block w-full"
+                      data-growth-cta
+                    >
                       <PillCTA variant="primary" size="md" className={`w-full justify-center ${plan.popular ? '' : 'bg-none bg-transparent border border-[rgb(var(--accent)/0.4)] text-accent hover:bg-[rgb(var(--accent)/0.08)] shadow-none hover:shadow-none'}`}>
                         {plan.cta}
                       </PillCTA>
@@ -484,9 +488,14 @@ export function FinalCTASection() {
               <h2 className="text-3xl md:text-4xl font-bold text-text mb-3">Launch your beat store in minutes.</h2>
               <p className="text-accent font-bold text-sm mb-2">Keep 100% of your revenue.</p>
               <p className="text-muted text-sm mb-2">Be among the first creators to shape BroLab with us.</p>
-              <p className="text-muted text-xs mb-8">No credit card required. Setup in 5 minutes. Cancel anytime.</p>
+              <p className="text-muted text-xs mb-8">1 month free. Setup in 5 minutes. Cancel anytime.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link href="/sign-up"><PillCTA variant="primary" size="lg">Start Free</PillCTA></Link>
+                <Link
+                  href="/sign-up?plan=pro&period=month&source=landing"
+                  data-growth-cta
+                >
+                  <PillCTA variant="primary" size="lg">Start PRO free</PillCTA>
+                </Link>
                 <Link href="/pricing"><PillCTA variant="secondary" size="lg">View Pricing</PillCTA></Link>
               </div>
             </div>

@@ -13,13 +13,14 @@
 
 import { useSubscriptionSync } from '@/platform/billing'
 import { DribbbleCard, PillCTA } from '@/platform/ui'
-import { PricingTable, useUser } from '@clerk/nextjs'
+import { useUser } from '@clerk/nextjs'
 import { SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AlertCircle, Check, CreditCard, Database, ExternalLink, Loader2, Music, X, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { api } from 'convex/_generated/api'
 import { StudioHeader } from './StudioHeader'
+import { PaidPlanCheckout } from './PaidPlanCheckout'
 
 // Helper function to get status badge styles
 function getStatusBadgeStyles(status: 'active' | 'inactive' | 'canceled') {
@@ -169,15 +170,12 @@ export function BillingManagement() {
                         <span className="font-medium">No Active Subscription</span>
                       </div>
                       <p className="text-muted mb-4">
-                        Subscribe to a plan to unlock all features and start selling your beats and services.
+                        Choose BASIC or PRO to unlock publishing and selling. Your first month is free and you can cancel before billing starts.
                       </p>
                       
-                      {/* Clerk Billing PricingTable Component */}
+                      {/* Exact BASIC/PRO Clerk checkouts; the free fallback is not offered here. */}
                       <div className="mt-6">
-                        <PricingTable 
-                          for="user"
-                          newSubscriptionRedirectUrl="/studio/billing"
-                        />
+                        <PaidPlanCheckout redirectUrl="/studio/billing" />
                       </div>
                     </div>
                   )}
@@ -349,15 +347,16 @@ export function BillingManagement() {
                       </div>
                     </div>
 
-                    {/* Upgrade CTA - Using Clerk PricingTable */}
+                    {/* Upgrade CTA linked directly to the environment's PRO plan id. */}
                     {data.subscription?.planKey === 'basic' && (
                       <div className="mt-6 pt-6 border-t border-border">
                         <p className="text-sm text-muted mb-4">
                           Need more? Upgrade to PRO for unlimited tracks, 50GB storage, and custom domains.
                         </p>
-                        <PricingTable 
-                          for="user"
-                          newSubscriptionRedirectUrl="/studio/billing"
+                        <PaidPlanCheckout
+                          proOnly
+                          highlightedPlan="pro"
+                          redirectUrl="/studio/billing"
                         />
                       </div>
                     )}

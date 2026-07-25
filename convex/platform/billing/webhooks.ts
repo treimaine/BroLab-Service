@@ -56,6 +56,16 @@ export const syncSubscription = internalMutation({
         updatedAt: now,
       });
     }
+
+    if (status === "active" && existing?.status !== "active") {
+      await ctx.db.insert("growthEvents", {
+        event: "subscription_activated",
+        path: "/onboarding",
+        clerkUserId,
+        plan: planKey,
+        createdAt: now,
+      });
+    }
     
     // Log event for observability
     await ctx.db.insert("events", {

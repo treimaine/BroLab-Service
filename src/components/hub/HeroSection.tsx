@@ -123,7 +123,10 @@ export function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center xl:justify-start">
-                <Link href="/sign-up">
+                <Link
+                  href="/sign-up?plan=pro&period=month&source=landing"
+                  data-growth-cta
+                >
                   <PillCTA variant="primary" size="lg">
                     Start My Storefront
                   </PillCTA>
@@ -136,7 +139,7 @@ export function HeroSection() {
               </div>
 
               <p className="text-xs text-muted">
-                No credit card • Cancel anytime
+                1 month free on BASIC and PRO • Cancel anytime
               </p>
             </div>
 

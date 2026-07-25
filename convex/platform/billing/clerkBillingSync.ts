@@ -14,7 +14,10 @@
 import { v } from "convex/values";
 import { internal } from "../../_generated/api";
 import { action, internalMutation } from "../../_generated/server";
-import type { PlanKey } from "./plans";
+import {
+  resolvePlanKeyFromClerkPlanId,
+  type PlanKey,
+} from "./plans";
 
 /**
  * How long a synced subscription is considered fresh (ms).
@@ -51,6 +54,9 @@ export function resolveClerkPlanKey(
   planId?: string,
   name?: string
 ): PlanKey | null {
+  const exactPlan = resolvePlanKeyFromClerkPlanId(planId);
+  if (exactPlan) return exactPlan;
+
   const haystack = `${slug ?? ""} ${planId ?? ""} ${name ?? ""}`.toLowerCase();
 
   if (haystack.includes("free")) return null;
@@ -66,6 +72,7 @@ export function resolveClerkPlanKey(
 function mapClerkStatus(status?: string): SyncStatus {
   switch ((status ?? "").toLowerCase()) {
     case "active":
+    case "trialing":
       return "active";
     case "canceled":
     case "cancelled":

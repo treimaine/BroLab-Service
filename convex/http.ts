@@ -1483,21 +1483,24 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
 
   console.log("Subscription synced:", { clerkUserId, planKey: resolvedPlan, status: systemStatus });
 
-  // Requirement 30.4: Send subscription status email for active/canceled events (fire-and-forget)
+  // Requirement 30.4: Send subscription status email for active/canceled events.
+  // Await the action so Convex keeps the execution alive until Resend responds.
+  // Failures remain non-fatal for the webhook.
   if (eventId && (systemStatus === "active" || systemStatus === "canceled")) {
-    ctx.runAction(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).platform.email.actions.sendProviderSubscriptionEmail,
-      {
-        clerkEventId: eventId,
-        clerkUserId,
-        planKey: resolvedPlan,
-        status: systemStatus,
-      }
-    ).catch((err: unknown) => {
-      // Email failure must NOT fail the webhook — log and continue
+    try {
+      await ctx.runAction(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).platform.email.actions.sendProviderSubscriptionEmail,
+        {
+          clerkEventId: eventId,
+          clerkUserId,
+          planKey: resolvedPlan,
+          status: systemStatus,
+        }
+      );
+    } catch (err: unknown) {
       console.error("Failed to send provider subscription email:", err);
-    });
+    }
   }
 
   return jsonResponse({ received: true, synced: true, eventType: "billing", planKey: resolvedPlan, status: systemStatus }, 200);
@@ -1655,30 +1658,25 @@ async function sendArtistPurchaseEmailNotification(
     licenseTier: string;
   }
 ): Promise<void> {
-  try {
-    // Fetch track title for the email
-    const track = await ctx.runQuery(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).modules.beats.getTrack,
-      { trackId: params.trackId }
-    );
+  // Fetch track title for the email
+  const track = await ctx.runQuery(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.beats.getTrack,
+    { trackId: params.trackId }
+  );
 
-    const trackTitle = track?.title ?? "Your Track";
+  const trackTitle = track?.title ?? "Your Track";
 
-    await ctx.runAction(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).platform.email.actions.sendArtistPurchaseEmail,
-      {
-        stripeEventId: params.stripeEventId,
-        buyerEmail: params.buyerEmail,
-        trackTitle,
-        licenseTier: params.licenseTier,
-      }
-    );
-  } catch (err) {
-    // Email failure must NOT fail the webhook — log and continue
-    console.error("Failed to send artist purchase email:", err);
-  }
+  await ctx.runAction(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.email.actions.sendArtistPurchaseEmail,
+    {
+      stripeEventId: params.stripeEventId,
+      buyerEmail: params.buyerEmail,
+      trackTitle,
+      licenseTier: params.licenseTier,
+    }
+  );
 }
 
 // Send booking confirmation email notification
@@ -1690,31 +1688,24 @@ async function sendBookingConfirmationEmailNotification(
     serviceId: string;
   }
 ): Promise<void> {
-  try {
-    const service = await ctx.runQuery(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).modules.services.getServiceById,
-      { serviceId: params.serviceId }
-    );
+  const service = await ctx.runQuery(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).modules.services.getServiceById,
+    { serviceId: params.serviceId }
+  );
 
-    const serviceTitle = service?.title ?? "Your Service";
+  const serviceTitle = service?.title ?? "Your Service";
 
-    ctx.runAction(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (internal as any).platform.email.actions.sendBookingConfirmationEmail,
-      {
-        stripeEventId: params.stripeEventId,
-        buyerEmail: params.buyerEmail,
-        serviceTitle,
-        bookingStatus: "pending",
-      }
-    ).catch((err: unknown) => {
-      // Email failure must NOT fail the webhook — log and continue
-      console.error("Failed to send booking confirmation email:", err);
-    });
-  } catch (err) {
-    console.error("Failed to send booking confirmation email notification:", err);
-  }
+  await ctx.runAction(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (internal as any).platform.email.actions.sendBookingConfirmationEmail,
+    {
+      stripeEventId: params.stripeEventId,
+      buyerEmail: params.buyerEmail,
+      serviceTitle,
+      bookingStatus: "pending",
+    }
+  );
 }
 
 // Onboarding Events Recording Endpoint (BRO-157)

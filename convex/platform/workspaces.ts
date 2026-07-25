@@ -3,6 +3,7 @@
 // Requirements: 4.1, 4.2, 4.3, 4.4
 
 import { v } from "convex/values";
+import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
 import { recordEventHelper } from "./events";
@@ -235,6 +236,24 @@ export const createWorkspace = mutation({
         source: "onboarding",
       },
     });
+
+    // Contextual, self-serve onboarding: each action checks the latest state
+    // and only sends the next unfinished step.
+    await ctx.scheduler.runAfter(
+      60 * 60 * 1000,
+      internal.platform.activationNudges.sendActivationNudge,
+      { workspaceId, sequence: 1 }
+    );
+    await ctx.scheduler.runAfter(
+      24 * 60 * 60 * 1000,
+      internal.platform.activationNudges.sendActivationNudge,
+      { workspaceId, sequence: 2 }
+    );
+    await ctx.scheduler.runAfter(
+      72 * 60 * 60 * 1000,
+      internal.platform.activationNudges.sendActivationNudge,
+      { workspaceId, sequence: 3 }
+    );
 
     return workspaceId;
   },

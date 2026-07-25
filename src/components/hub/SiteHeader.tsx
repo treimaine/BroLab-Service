@@ -20,7 +20,7 @@ const NAV_LINKS = [
   { href: '/contact', label: 'Contact' },
 ]
 
-export function SiteHeader({ ctaLabel = 'Start Free' }: Readonly<{ ctaLabel?: string }>) {
+export function SiteHeader({ ctaLabel = 'Start 1 month free' }: Readonly<{ ctaLabel?: string }>) {
   const [mounted, setMounted] = useState(false)
 
   // ThemeToggle reads the DOM theme, so it must not render during SSR

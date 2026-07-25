@@ -100,6 +100,29 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_event", ["provider", "eventId"]),
 
+  growthEvents: defineTable({
+    event: v.union(
+      v.literal("landing_view"),
+      v.literal("pricing_view"),
+      v.literal("cta_clicked"),
+      v.literal("signup_view"),
+      v.literal("subscription_activated")
+    ),
+    path: v.string(),
+    sessionId: v.optional(v.string()),
+    clerkUserId: v.optional(v.string()),
+    plan: v.optional(v.union(v.literal("basic"), v.literal("pro"))),
+    period: v.optional(v.union(v.literal("month"), v.literal("annual"))),
+    role: v.optional(
+      v.union(v.literal("producer"), v.literal("engineer"), v.literal("artist"))
+    ),
+    source: v.optional(v.string()),
+    campaign: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_event_and_createdAt", ["event", "createdAt"])
+    .index("by_createdAt", ["createdAt"]),
+
   // ============ MODULE TABLES ============
 
   tracks: defineTable({

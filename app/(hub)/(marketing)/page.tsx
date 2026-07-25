@@ -1,4 +1,5 @@
 import HubLandingPageClient from '@/components/hub/HubLandingPageClient'
+import { GrowthTracker } from '@/components/growth/GrowthTracker'
 import type { Metadata } from 'next'
 
 /**
@@ -66,7 +67,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Is there a free plan?',
-    answer: 'We offer a free trial to explore the platform. After that, BASIC starts at $9.99/month (or $59.99/year—50% off). PRO is $29.99/month (or $107.99/year—70% off) with unlimited tracks and custom domains.',
+    answer: 'Every account starts free for setup, then providers choose BASIC or PRO to publish and sell. New paid-plan subscriptions include one free month.',
   },
 ]
 
@@ -185,6 +186,7 @@ export default function HubLandingPage() {
 
   return (
     <>
+      <GrowthTracker viewEvent="landing_view" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(graphSchema) }}

@@ -37,6 +37,16 @@ export interface PlanFeatures {
    * Maximum number of custom domains allowed
    */
   maxCustomDomains: number;
+
+  /**
+   * Reporting depth exposed in the provider dashboard
+   */
+  analyticsLevel: "basic" | "advanced";
+
+  /**
+   * Whether support requests are routed as priority
+   */
+  prioritySupport: boolean;
 }
 
 /**
@@ -71,6 +81,10 @@ export interface PublicPlanInfo {
      * Maximum custom domains
      */
     maxCustomDomains: number;
+
+    analyticsLevel: "basic" | "advanced";
+
+    prioritySupport: boolean;
   };
   
   /**
@@ -92,6 +106,11 @@ export interface PublicPlanInfo {
    * Annual savings percentage (e.g., 50 for 50% off)
    */
   annualSavings: number;
+
+  /**
+   * Free trial configured in Clerk Billing for new paid subscriptions
+   */
+  trialDays: number;
 }
 
 // ============================================================================
@@ -103,6 +122,36 @@ export interface PublicPlanInfo {
  * Fixed at 30 seconds for MVP
  */
 export const PREVIEW_DURATION_SEC = 30;
+export const PAID_PLAN_TRIAL_DAYS = 30;
+
+/**
+ * Clerk plan ids are environment-specific. Keeping them here prevents an
+ * opaque cplan id from ever being mistaken for the wrong entitlement.
+ */
+export const CLERK_PLAN_IDS = {
+  development: {
+    basic: "cplan_38iViM4J5NFfkICiV6aY5jbWiqZ",
+    pro: "cplan_38iVwx1p1mXD9pObGXuRaZVRn0V",
+  },
+  production: {
+    basic: "cplan_3Ca0BuvMsMWAkdo9UZwXi6P2r5B",
+    pro: "cplan_3Ca0IiYfDoEuF7WvHdGBblhcCbB",
+  },
+} as const satisfies Record<
+  "development" | "production",
+  Record<PlanKey, string>
+>;
+
+export function resolvePlanKeyFromClerkPlanId(planId?: string): PlanKey | null {
+  if (!planId) return null;
+
+  for (const environment of Object.values(CLERK_PLAN_IDS)) {
+    if (environment.basic === planId) return "basic";
+    if (environment.pro === planId) return "pro";
+  }
+
+  return null;
+}
 
 /**
  * Plan features configuration
@@ -113,11 +162,15 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     maxPublishedTracks: 25,
     storageGb: 1,
     maxCustomDomains: 0,
+    analyticsLevel: "basic",
+    prioritySupport: false,
   },
   pro: {
     maxPublishedTracks: -1, // unlimited
     storageGb: 50,
     maxCustomDomains: 2,
+    analyticsLevel: "advanced",
+    prioritySupport: true,
   },
 };
 
@@ -222,16 +275,18 @@ export const getPlansPublic = query({
           maxPublishedTracks: features.maxPublishedTracks,
           storageGb: features.storageGb,
           maxCustomDomains: features.maxCustomDomains,
+          analyticsLevel: features.analyticsLevel,
+          prioritySupport: features.prioritySupport,
         },
         pricing: {
           monthly: pricing.monthly,
           annual: pricing.annual,
         },
         annualSavings,
+        trialDays: PAID_PLAN_TRIAL_DAYS,
       };
     });
     
     return plans;
   },
 });
-

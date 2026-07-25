@@ -99,7 +99,8 @@ export function AuthNav({ ctaLabel = 'Explore', variant = 'bar' }: AuthNavProps)
         Sign In
       </Link>
       <Link
-        href="/sign-up"
+        href="/sign-up?plan=pro&period=month&source=landing"
+        data-growth-cta
         className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-full"
       >
         <PillCTA

@@ -50,7 +50,10 @@ export function Footer() {
   const footerLinks = {
     product: [
       { href: '/pricing', label: 'Pricing' },
-      { href: '/sign-up', label: 'Get Started' },
+      {
+        href: '/sign-up?plan=pro&period=month&source=landing',
+        label: 'Start 1 month free',
+      },
     ],
     company: [
       { href: '/about', label: 'About' },

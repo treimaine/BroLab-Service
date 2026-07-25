@@ -24,7 +24,7 @@ interface TransactionalEmail {
   text: string;
 }
 
-async function sendTransactionalEmail(
+export async function sendTransactionalEmail(
   ctx: ActionCtx,
   email: TransactionalEmail
 ): Promise<{ sent: boolean; dedupeKey: string; providerMessageId?: string }> {
