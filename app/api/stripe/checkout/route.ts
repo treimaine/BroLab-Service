@@ -13,6 +13,7 @@ import {
     logCheckoutFailure,
     logCheckoutSuccess,
 } from '@/lib/monitoring'
+import { getPostHogClient } from '@/lib/posthog-server'
 import { auth } from '@clerk/nextjs/server'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
@@ -636,6 +637,24 @@ export async function POST(request: Request) {
       currency: itemData.currency,
       duration,
     })
+
+    const phClient = getPostHogClient()
+    if (phClient && userId) {
+      phClient.capture({
+        distinctId: userId,
+        event: 'checkout_session_created',
+        properties: {
+          item_type: itemType,
+          item_id: itemId,
+          workspace_id: workspaceId,
+          license_tier: body.licenseTier,
+          amount_cents: itemData.priceInCents,
+          currency: itemData.currency,
+          stripe_session_id: session.id,
+        },
+      })
+      await phClient.flush()
+    }
 
     cacheIdempotencyResult(idempotencyKey, session.url!, session.id)
 

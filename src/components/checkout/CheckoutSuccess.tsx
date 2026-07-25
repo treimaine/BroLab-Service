@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { InstantDelivery } from './InstantDelivery'
+import posthog from 'posthog-js'
 
 interface PurchaseData {
   itemType: 'track' | 'service'
@@ -94,7 +95,16 @@ export function CheckoutSuccess() {
           price: data.price,
         })
         setIsLoading(false)
-        if (attempt === 0) await trackPurchaseComplete()
+        if (attempt === 0) {
+          await trackPurchaseComplete()
+          posthog.capture('checkout_completed', {
+            order_id: data.orderId,
+            item_type: data.itemType,
+            license_type: data.licenseType,
+            amount_cents: data.amountCents,
+            currency: data.currency,
+          })
+        }
 
         const isLicensePending = data.itemType === 'track' && data.licenseStatus === 'pending'
         if (!isLicensePending) return

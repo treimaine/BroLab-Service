@@ -1,4 +1,5 @@
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { PostHogUserIdentifier } from "@/components/PostHogUserIdentifier";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { EnhancedGlobalAudioPlayer } from "@/components/audio/EnhancedGlobalAudioPlayer";
 import { SITE_CONFIG } from "@/lib/env";
@@ -173,6 +174,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning className={`${inter.variable} ${pressStart2P.variable}`}>
         <body className="font-sans antialiased" suppressHydrationWarning>
           <ConvexClientProvider>
+            <PostHogUserIdentifier />
             <ThemeProvider
               attribute="class"
               defaultTheme="light"
