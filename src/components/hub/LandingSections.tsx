@@ -118,7 +118,7 @@ export function CTASection() {
                 icon={Music}
                 title="Start as Producer"
                 description="Sell beats with tiered licensing, from your own storefront."
-                href="/sign-up?role=producer"
+                href="/sign-up?role=producer&plan=pro&period=month&source=landing"
                 variant="primary"
               />
             </DribbbleStaggerItem>
@@ -127,7 +127,7 @@ export function CTASection() {
                 icon={Headphones}
                 title="Start as Engineer"
                 description="Take mixing and mastering bookings with payment built in."
-                href="/sign-up?role=engineer"
+                href="/sign-up?role=engineer&plan=pro&period=month&source=landing"
                 variant="primary"
               />
             </DribbbleStaggerItem>
@@ -139,7 +139,8 @@ export function CTASection() {
             <Users className="w-4 h-4 inline-block mr-1.5 -mt-0.5" aria-hidden="true" />
             Looking for beats or a mixing engineer?{' '}
             <Link
-              href="/sign-up?role=artist"
+              href="/sign-up?role=artist&source=landing"
+              data-growth-cta
               className="text-accent font-medium underline underline-offset-4 hover:text-accent-2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               Browse as an artist

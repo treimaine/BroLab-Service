@@ -121,25 +121,31 @@ The BroLab Entertainment UI system follows a **single entry point architecture**
 │                                                                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │  App Routes (Direct Consumers)                                        │  │
-│  │  app/                                                                 │  │
-│  │    • (hub)/HubLandingPageClient.tsx                                   │  │
-│  │    • (hub)/(marketing)/pricing/PricingPageClient.tsx                  │  │
-│  │    • (hub)/(marketing)/about/AboutPageClient.tsx                      │  │
-│  │    • (hub)/(marketing)/contact/ContactPageClient.tsx                  │  │
+│  │  app/  — routes ONLY: pages, layouts, orchestrators                   │  │
+│  │    • (hub)/(marketing)/page.tsx                                       │  │
+│  │    • (hub)/(marketing)/about/page.tsx                                 │  │
+│  │    • (hub)/(marketing)/pricing/page.tsx                               │  │
+│  │    • (hub)/(marketing)/contact/page.tsx                               │  │
 │  │    • (hub)/(marketing)/layout.tsx                                     │  │
 │  │    • (hub)/(marketing)/loading.tsx                                    │  │
 │  │    • tenant-demo/page.tsx                                             │  │
 │  │                                                                        │  │
-│  │  All import from: '@/platform/ui'                                     │  │
+│  │  Routes hold metadata + JSON-LD and render a client component         │  │
+│  │  from src/. No reusable component may live under app/.                │  │
 │  └──────────────────────────────────────────────────────────────────────┘  │
 │                                                                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │  Wrapper Components (Composition Layer)                               │  │
 │  │  src/components/                                                      │  │
-│  │    • hub/Header.tsx                                                   │  │
+│  │    • hub/HubLandingPageClient.tsx                                     │  │
+│  │    • hub/AboutPageClient.tsx                                          │  │
+│  │    • hub/PricingPageClient.tsx                                        │  │
+│  │    • hub/ContactPageClient.tsx                                        │  │
+│  │    • hub/SiteHeader.tsx                                               │  │
+│  │    • hub/AuthNav.tsx                                                  │  │
 │  │    • hub/Footer.tsx                                                   │  │
 │  │    • tenant/TenantLayout.tsx                                          │  │
-│  │    • tenant/LeftRail.tsx                                              │  │
+│  │    • tenant/BeatDetailClient.tsx                                      │  │
 │  │    • tenant/MobileNav.tsx                                             │  │
 │  │    • audio/PlayerBar.tsx                                              │  │
 │  │                                                                        │  │

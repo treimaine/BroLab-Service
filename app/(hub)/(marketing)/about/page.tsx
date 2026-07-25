@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import AboutPageClient from './AboutPageClient'
+import AboutPageClient from '@/components/hub/AboutPageClient'
 
 const organizationSchema = {
   '@context': 'https://schema.org',

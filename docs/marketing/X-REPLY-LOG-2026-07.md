@@ -65,6 +65,23 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@virgilerietsch` | https://x.com/virgilerietsch/status/2080938274755854739 | https://x.com/Treigua/status/2080963393893077099 | French founder |
 | `@totoche` | https://x.com/totoche/status/2080946386938343815 | https://x.com/Treigua/status/2080963453942944052 | French founder |
 | `@StevePiermaria` | https://x.com/StevePiermaria/status/2080960408379068777 | https://x.com/Treigua/status/2080963517042061490 | French founder |
+| `@21PETERSSS` | https://x.com/21PETERSSS/status/2080953674449158359 | https://x.com/Treigua/status/2081004874729193837 | Producer/audio |
+| `@kmukai_music` | https://x.com/kmukai_music/status/2080860158021034214 | https://x.com/Treigua/status/2081004985559416976 | Producer/audio |
+| `@Mix_Magazine` | https://x.com/Mix_Magazine/status/2080763171267297505 | https://x.com/Treigua/status/2081005007650845039 | Producer/audio |
+| `@RnRNationlive` | https://x.com/RnRNationlive/status/2080976130538897572 | https://x.com/Treigua/status/2081005029599609322 | Producer/audio |
+| `@tedbradon` | https://x.com/tedbradon/status/2080980741823832136 | https://x.com/Treigua/status/2081005054841024834 | Artist/music business |
+| `@juliomirand67` | https://x.com/juliomirand67/status/2081000821240545733 | https://x.com/Treigua/status/2081005076148003203 | Artist/music business |
+| `@DeejeyNumber` | https://x.com/DeejeyNumber/status/2081000224776966384 | https://x.com/Treigua/status/2081005109413118135 | Artist/music business |
+| `@GidgetGImusic` | https://x.com/GidgetGImusic/status/2080996611077931446 | https://x.com/Treigua/status/2081005130275533267 | Artist/music business |
+| `@bgaudio_music` | https://x.com/bgaudio_music/status/2080983969298800706 | https://x.com/Treigua/status/2081005149263110502 | Artist/music business |
+| `@Razzshares` | https://x.com/Razzshares/status/2080993049325297842 | https://x.com/Treigua/status/2081005168208789807 | Product/founder |
+| `@BorhanCoder` | https://x.com/BorhanCoder/status/2080963474583388368 | https://x.com/Treigua/status/2081005187414540362 | Product/founder |
+| `@talwar_divyam` | https://x.com/talwar_divyam/status/2080999014749880407 | https://x.com/Treigua/status/2081005232931143753 | Product/founder |
+| `@base_designs` | https://x.com/base_designs/status/2080998523240157470 | https://x.com/Treigua/status/2081005251990114341 | Product/founder |
+| `@james_alleyy` | https://x.com/james_alleyy/status/2080718834562994403 | https://x.com/Treigua/status/2081005276463866084 | French founder |
+| `@RedmouEcom` | https://x.com/RedmouEcom/status/2080718478453903493 | https://x.com/Treigua/status/2081005297888329770 | French founder |
+| `@Proplace_co` | https://x.com/Proplace_co/status/2080654471906918519 | https://x.com/Treigua/status/2081005323465150882 | French founder |
+| `@remiecom` | https://x.com/remiecom/status/2080651604416516176 | https://x.com/Treigua/status/2081005344113725750 | French founder |
 
 ## Rules
 

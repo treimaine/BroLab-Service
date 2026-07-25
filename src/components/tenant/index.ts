@@ -6,6 +6,7 @@
  * for tenant pages accessed via subdomains or custom domains.
  */
 
+export { BeatDetailClient } from './BeatDetailClient';
 export { MobileNav, type MobileNavItem, type MobileNavProps } from './MobileNav';
 export { TenantLayout, type NavItem, type TenantLayoutProps } from './TenantLayout';
 

@@ -230,7 +230,10 @@ function FinalCTASection() {
                 Launch your storefront in minutes. Start selling beats and services on your own terms.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link href="/sign-up">
+                <Link
+                  href="/sign-up?plan=pro&period=month&source=about"
+                  data-growth-cta
+                >
                   <PillCTA variant="primary" size="lg" icon={Sparkles}>
                     Get Started
                   </PillCTA>

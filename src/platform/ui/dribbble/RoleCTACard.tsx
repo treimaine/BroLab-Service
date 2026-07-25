@@ -36,8 +36,12 @@ export function RoleCTACard({
         {description}
       </p>
       
-      {/* CTA Button */}
-      <a href={href} className="block">
+      {/*
+        data-growth-cta is set here rather than at each call site: every use of
+        this card is an acquisition CTA, and relying on callers to remember the
+        attribute is what left the role CTAs unmeasured.
+      */}
+      <a href={href} className="block" data-growth-cta>
         <PillCTA variant={variant} size="lg" icon={Icon} className="w-full">
           {title}
         </PillCTA>
