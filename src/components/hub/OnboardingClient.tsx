@@ -35,6 +35,7 @@ import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 import { PostSignupSurvey } from './PostSignupSurvey'
 import { PaidPlanCheckout } from './PaidPlanCheckout'
+import posthog from 'posthog-js'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
 type OnboardingStep = 'role' | 'workspace' | 'plan' | 'stripe' | 'complete'
@@ -656,6 +657,9 @@ export function OnboardingClient() {
       await user.reload()
       await createUser({ clerkUserId: user.id, role })
 
+      posthog.identify(user.id, { role })
+      posthog.capture('onboarding_role_selected', { role })
+
       // Track onboarding event: profile created
       try {
         await recordOnboardingMilestone({
@@ -674,6 +678,7 @@ export function OnboardingClient() {
       }
     } catch (error) {
       console.error('❌ Error creating user:', error)
+      posthog.captureException(error)
       alert('Failed to save role. Please try again.')
     } finally {
       setIsCreating(false)
@@ -693,6 +698,11 @@ export function OnboardingClient() {
       })
       setCreatedWorkspaceId(workspaceId)
 
+      posthog.capture('onboarding_workspace_created', {
+        workspace_slug: workspaceSlug,
+        role: selectedRole,
+      })
+
       // Track onboarding event: workspace created
       try {
         await recordOnboardingMilestone({
@@ -711,6 +721,7 @@ export function OnboardingClient() {
       setCurrentStep('plan')
     } catch (error) {
       console.error('❌ Error creating workspace:', error)
+      posthog.captureException(error)
       alert('Failed to create workspace. Please try again.')
     } finally {
       setIsCreating(false)
@@ -718,6 +729,7 @@ export function OnboardingClient() {
   }
 
   const handleSkipStripe = () => {
+    posthog.capture('onboarding_stripe_skipped', { role: selectedRole })
     setCurrentStep('complete')
     setShowSurvey(true)
   }
@@ -738,6 +750,8 @@ export function OnboardingClient() {
 
   const handleSurveyClose = async () => {
     setShowSurvey(false)
+
+    posthog.capture('onboarding_completed', { role: selectedRole })
 
     // Track onboarding_completed milestone
     if (user) {

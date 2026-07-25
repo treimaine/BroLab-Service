@@ -28,6 +28,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
+import posthog from 'posthog-js'
 
 type FilterStatus = 'all' | 'draft' | 'published'
 
@@ -59,9 +60,12 @@ export function StudioTracksClient() {
   )
 
   const handleUploadSuccess = (_trackId: Id<'tracks'>) => {
+    posthog.capture('track_uploaded', {
+      workspace_id: workspace?._id,
+    })
     setUploadSuccess('Track uploaded successfully!')
     setShowUploadModal(false)
-    
+
     // Clear success message after 5 seconds
     setTimeout(() => setUploadSuccess(null), 5000)
   }
