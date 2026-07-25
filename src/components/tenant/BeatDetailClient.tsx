@@ -1,11 +1,13 @@
 'use client'
 
 import { useWorkspace } from '@/components/tenant'
+import { StorefrontFooter } from '@/components/tenant/storefront'
 import { formatCap, getLicenseTerms } from '@/shared/licenses'
 import {
     DribbbleCard,
     DribbbleSectionEnter,
     PillCTA,
+    WaveformPlaceholder,
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { useQuery } from 'convex/react'
@@ -187,13 +189,14 @@ export function BeatDetailClient() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-[rgb(var(--bg))]">
       {/* Back Button */}
       <section className="px-4 lg:px-8 py-6">
         <div className="container mx-auto">
           <Link
             href={`/${workspaceSlug}/beats`}
-            className="inline-flex items-center gap-2 text-muted hover:text-text transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-text"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Beats</span>
@@ -202,12 +205,12 @@ export function BeatDetailClient() {
       </section>
 
       {/* Beat Details */}
-      <section className="px-4 lg:px-8 py-8">
+      <section className="px-4 pb-20 pt-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
           <DribbbleSectionEnter>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_0.8fr]">
               {/* Left Column - Track Info */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="space-y-8">
                 {/* Title + Play */}
                 <div className="flex items-start gap-6">
                   <button
@@ -223,8 +226,8 @@ export function BeatDetailClient() {
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-4xl font-bold text-text mb-2 truncate">{track.title}</h1>
-                    <p className="text-muted mb-3">by {workspace?.name}</p>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">Licensed by {workspace?.name}</p>
+                    <h1 className="text-4xl font-black tracking-tight text-text md:text-6xl">{track.title}</h1>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
                       {track.bpm && (
                         <span className="px-2 py-1 bg-[rgb(var(--accent)/0.1)] text-accent rounded-md">
@@ -247,6 +250,18 @@ export function BeatDetailClient() {
                     )}
                   </div>
                 </div>
+
+                <DribbbleCard glow padding="lg">
+                  <WaveformPlaceholder
+                    barCount={56}
+                    isPlaying={isTrackPlaying}
+                    size="lg"
+                    variant="gradient"
+                  />
+                  <p className="mt-3 text-xs text-muted">
+                    Use the global player to seek, pause, and control volume.
+                  </p>
+                </DribbbleCard>
 
                 {/* License Tier Selector */}
                 <DribbbleCard padding="lg">
@@ -284,7 +299,7 @@ export function BeatDetailClient() {
               </div>
 
               {/* Right Column - Purchase Card */}
-                <div className="lg:col-span-1">
+              <div>
                 <div className="sticky top-24 space-y-6">
                   <DribbbleCard glow padding="lg">
                     <div className="text-center mb-6">
@@ -379,5 +394,10 @@ export function BeatDetailClient() {
         </div>
       </section>
     </div>
+    <StorefrontFooter
+      workspaceName={workspace?.name ?? workspaceSlug}
+      basePath={`/${workspaceSlug}`}
+    />
+    </>
   )
 }

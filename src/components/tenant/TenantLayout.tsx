@@ -241,7 +241,7 @@ export function TenantLayout({
         className={`
           lg:pl-20 pt-16 min-h-screen overflow-x-hidden
           ${showPlayerBar 
-            ? 'pb-[calc(128px+env(safe-area-inset-bottom,0px))] lg:pb-16' 
+            ? 'pb-[calc(144px+env(safe-area-inset-bottom,0px))] lg:pb-20'
             : 'pb-[calc(64px+env(safe-area-inset-bottom,0px))] lg:pb-0'
           }
         `}

@@ -3,11 +3,9 @@
 import { TenantLayout, type NavItem } from '@/components/tenant'
 import {
   ConstellationDots,
-  CyanOrb,
   DribbbleCard,
   DribbbleSectionEnter,
   DribbbleStaggerItem,
-  EditionBadge,
   GlassFooter,
   MicroInfoModule,
   OrganicBlob,
@@ -16,17 +14,25 @@ import {
   WavyLines,
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
-import { Headphones, Mail, Music, Play, Star, Users } from 'lucide-react'
+import { DemoLicenseModal } from '@/components/tenant/DemoLicenseModal'
+import { demoBeats, type DemoBeat } from '@/components/tenant-demo/demo-data'
+import { Headphones, Mail, Music, Pause, Play, Star, Users } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+
+const featuredBeats = demoBeats
 
 export default function TenantDemoPage() {
-  // Get audio store actions for testing
   const play = useAudioStore((state) => state.play)
+  const pause = useAudioStore((state) => state.pause)
+  const currentTrack = useAudioStore((state) => state.currentTrack)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
+  const [selectedBeat, setSelectedBeat] = useState<DemoBeat | null>(null)
   
   const navItems: NavItem[] = [
-    { id: 'beats', icon: <Music className="w-5 h-5" />, label: 'Beats', href: '/tenant-demo', isActive: true },
-    { id: 'services', icon: <Headphones className="w-5 h-5" />, label: 'Services', href: '#services' },
-    { id: 'contact', icon: <Mail className="w-5 h-5" />, label: 'Contact', href: '#contact' },
+    { id: 'beats', icon: Music, label: 'Beats', href: '/tenant-demo/beats', isActive: true },
+    { id: 'services', icon: Headphones, label: 'Services', href: '/tenant-demo/services' },
+    { id: 'contact', icon: Mail, label: 'Contact', href: '/tenant-demo/contact' },
   ]
 
   const producerStats = [
@@ -36,58 +42,37 @@ export default function TenantDemoPage() {
     { text: '24h Delivery Guarantee' },
   ]
 
-  const featuredBeats = [
-    { 
-      id: 1, 
-      title: 'MIDNIGHT DRIVE', 
-      bpm: 140, 
-      key: 'Am', 
-      tags: ['Trap', 'Dark'], 
-      price: 29,
-      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-    },
-    { 
-      id: 2, 
-      title: 'NEON NIGHTS', 
-      bpm: 128, 
-      key: 'Fm', 
-      tags: ['Synthwave', 'Retro'], 
-      price: 35,
-      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-    },
-    { 
-      id: 3, 
-      title: 'URBAN PULSE', 
-      bpm: 85, 
-      key: 'Gm', 
-      tags: ['Hip-Hop', 'Modern'], 
-      price: 25,
-      previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
-    },
-  ]
-  
-  // Function to play any beat
-  const handlePlayBeat = (beat: typeof featuredBeats[0]) => {
+  const handlePlayBeat = (beat: DemoBeat) => {
+    const trackId = `demo-track-${beat.id}`
+    if (currentTrack?.id === trackId && isPlaying) {
+      pause()
+      return
+    }
+
     play({
-      id: `demo-track-${beat.id}`,
-      title: `${beat.title} - Preview`,
+      id: trackId,
+      title: beat.title,
       artistName: 'Demo Studio',
       previewUrl: beat.previewUrl,
       bpm: beat.bpm,
       trackKey: beat.key,
-      duration: 30,
+      duration: 24,
     })
   }
+
+  const isBeatPlaying = (beat: DemoBeat) =>
+    currentTrack?.id === `demo-track-${beat.id}` && isPlaying
 
   return (
     <TenantLayout 
       navItems={navItems} 
       workspaceName="DEMO STUDIO"
+      basePath="/tenant-demo"
       showPlayerBar={true}
       secondaryAction={{ label: 'Dashboard', href: '/dashboard' }}
     >
       {/* HERO SECTION - ELECTRI-X STYLE */}
-      <section className="relative min-h-[80vh] overflow-hidden bg-[rgb(var(--bg))]">
+      <section className="relative min-h-[560px] lg:min-h-[640px] overflow-hidden bg-[rgb(var(--bg))]">
         {/* Background Pattern - BEATS repeated */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute inset-0 flex flex-col justify-center">
@@ -111,9 +96,9 @@ export default function TenantDemoPage() {
         <ConstellationDots className="top-[15%] right-[18%] w-[120px] h-[120px] hidden lg:block" />
 
         {/* Main Content */}
-        <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-[80vh] flex items-center">
+        <div className="relative z-10 container mx-auto px-4 lg:px-8 min-h-[560px] lg:min-h-[640px] flex items-center">
           <div className="w-full">
-            <div className="relative min-h-[60vh] flex flex-col justify-center">
+            <div className="relative min-h-[500px] lg:min-h-[560px] flex flex-col justify-center">
               
               {/* Title */}
               <div className="relative z-20 mb-6">
@@ -136,17 +121,18 @@ export default function TenantDemoPage() {
                 </div>
               </div>
 
-              <p className="text-lg text-muted max-w-md mb-8 text-center lg:text-left mx-auto lg:mx-0">Premium beats and professional mixing services. Crafting sounds that define the future of music.</p>
+              <p className="text-lg text-muted max-w-md mb-3 text-center lg:text-left mx-auto lg:mx-0">Premium beats and professional mixing services. Crafting sounds that define the future of music.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent mb-8 text-center lg:text-left">
+                Play any track · 24-second instant preview
+              </p>
 
-              <div className="flex flex-wrap gap-4 justify-center">
-                <PillCTA variant="primary" size="lg" icon={Music}>Browse Beats</PillCTA>
-                <PillCTA variant="secondary" size="lg" icon={Headphones}>Book Service</PillCTA>
-              </div>
-
-              {/* Edition Badge + Orb */}
-              <div className="absolute bottom-8 left-0 z-30 flex items-end gap-4">
-                <EditionBadge title="DEMO" subtitle="Studio" />
-                <CyanOrb size={60} className="hidden sm:block" />
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                <Link href="/tenant-demo/beats">
+                  <PillCTA as="span" variant="primary" size="lg" icon={Music}>Browse Beats</PillCTA>
+                </Link>
+                <Link href="/tenant-demo/services">
+                  <PillCTA as="span" variant="secondary" size="lg" icon={Headphones}>Book Service</PillCTA>
+                </Link>
               </div>
 
               {/* Info Module */}
@@ -169,7 +155,7 @@ export default function TenantDemoPage() {
       </section>
 
       {/* FEATURED BEATS */}
-      <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
+      <section id="beats" className="scroll-mt-20 px-4 lg:px-8 py-16 lg:py-20 bg-[rgb(var(--bg))]">
         <div className="container mx-auto">
           <DribbbleSectionEnter>
             <div className="flex items-center gap-4 mb-12">
@@ -189,7 +175,11 @@ export default function TenantDemoPage() {
                       className="w-16 h-16 rounded-2xl bg-linear-to-br from-[rgb(var(--accent))] to-[rgb(var(--accent-2))] flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
                       aria-label={`Play ${featuredBeats[0].title}`}
                     >
-                      <Play className="w-8 h-8 text-white ml-1" />
+                      {isBeatPlaying(featuredBeats[0]) ? (
+                        <Pause className="w-8 h-8 text-white" />
+                      ) : (
+                        <Play className="w-8 h-8 text-white ml-1" />
+                      )}
                     </button>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-text mb-1">{featuredBeats[0].title}</h3>
@@ -205,7 +195,9 @@ export default function TenantDemoPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-text">${featuredBeats[0].price}</span>
-                        <PillCTA variant="primary" size="sm">License Now</PillCTA>
+                        <PillCTA variant="primary" size="sm" onClick={() => setSelectedBeat(featuredBeats[0])}>
+                          License Now
+                        </PillCTA>
                       </div>
                     </div>
                   </div>
@@ -222,13 +214,23 @@ export default function TenantDemoPage() {
                           className="w-10 h-10 rounded-xl bg-[rgb(var(--accent)/0.15)] flex items-center justify-center hover:bg-[rgb(var(--accent)/0.25)] transition-colors"
                           aria-label={`Play ${beat.title}`}
                         >
-                          <Play className="w-4 h-4 text-accent ml-0.5" />
+                          {isBeatPlaying(beat) ? (
+                            <Pause className="w-4 h-4 text-accent" />
+                          ) : (
+                            <Play className="w-4 h-4 text-accent ml-0.5" />
+                          )}
                         </button>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-bold text-text truncate">{beat.title}</h4>
+                          <h3 className="text-sm font-bold text-text truncate">{beat.title}</h3>
                           <p className="text-xs text-muted">{beat.bpm} BPM • {beat.key}</p>
                         </div>
-                        <span className="text-sm font-bold text-text">${beat.price}</span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBeat(beat)}
+                          className="rounded-full border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          ${beat.price} · License
+                        </button>
                       </div>
                     </DribbbleCard>
                   </DribbbleStaggerItem>
@@ -240,8 +242,7 @@ export default function TenantDemoPage() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" />
-      <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
+      <section id="services" className="scroll-mt-20 px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
         <div className="container mx-auto">
           <DribbbleSectionEnter>
             <div className="flex items-center gap-4 mb-12">
@@ -264,7 +265,9 @@ export default function TenantDemoPage() {
                       <p className="text-muted text-sm mb-4">Professional mixing and mastering services. Radio-ready sound guaranteed.</p>
                       <div className="flex items-center gap-4">
                         <span className="text-xl font-bold text-text">From $99</span>
-                        <PillCTA variant="ghost" size="sm">Learn More</PillCTA>
+                        <Link href="/tenant-demo/services/mixing-mastering">
+                          <PillCTA as="span" variant="ghost" size="sm">Learn More</PillCTA>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -282,7 +285,9 @@ export default function TenantDemoPage() {
                       <p className="text-muted text-sm mb-4">Exclusive beats tailored to your vision. Full commercial rights included.</p>
                       <div className="flex items-center gap-4">
                         <span className="text-xl font-bold text-text">From $299</span>
-                        <PillCTA variant="ghost" size="sm">Get Quote</PillCTA>
+                        <Link href="/tenant-demo/services/custom-production">
+                          <PillCTA as="span" variant="ghost" size="sm">Get Quote</PillCTA>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -294,8 +299,7 @@ export default function TenantDemoPage() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" />
-      <section className="px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
+      <section id="contact" className="scroll-mt-20 px-4 lg:px-8 py-20 bg-[rgb(var(--bg))]">
         <div className="container mx-auto max-w-4xl">
           <DribbbleSectionEnter>
             <DribbbleCard glow padding="lg" className="text-center relative overflow-hidden">
@@ -313,8 +317,12 @@ export default function TenantDemoPage() {
                 <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">READY TO CREATE?</h2>
                 <p className="text-muted text-sm mb-8 max-w-md mx-auto">Join thousands of artists who trust Demo Studio for their sound.</p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <PillCTA variant="primary" size="lg" icon={Music}>Browse All Beats</PillCTA>
-                  <PillCTA variant="secondary" size="lg" icon={Users}>Contact Producer</PillCTA>
+                  <Link href="/tenant-demo/beats">
+                    <PillCTA as="span" variant="primary" size="lg" icon={Music}>Browse All Beats</PillCTA>
+                  </Link>
+                  <Link href="/tenant-demo/contact">
+                    <PillCTA as="span" variant="secondary" size="lg" icon={Users}>Contact Producer</PillCTA>
+                  </Link>
                 </div>
               </div>
             </DribbbleCard>
@@ -334,13 +342,18 @@ export default function TenantDemoPage() {
             </div>
           </div>
           <nav className="flex gap-8 text-sm text-muted" aria-label="Footer navigation">
-            <Link href="/tenant-demo" className="hover:text-text transition-colors">Beats</Link>
-            <a href="#services" className="hover:text-text transition-colors">Services</a>
-            <a href="#contact" className="hover:text-text transition-colors">Contact</a>
+            <Link href="/tenant-demo/beats" className="hover:text-text transition-colors">Beats</Link>
+            <Link href="/tenant-demo/services" className="hover:text-text transition-colors">Services</Link>
+            <Link href="/tenant-demo/contact" className="hover:text-text transition-colors">Contact</Link>
           </nav>
           <p className="text-xs text-muted">© 2026 Demo Studio. All rights reserved.</p>
         </div>
       </GlassFooter>
+
+      <DemoLicenseModal
+        beat={selectedBeat}
+        onClose={() => setSelectedBeat(null)}
+      />
     </TenantLayout>
   )
 }

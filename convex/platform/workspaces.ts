@@ -13,6 +13,13 @@ import { recordEventHelper } from "./events";
 export type WorkspaceType = "producer" | "engineer";
 export type PaymentsStatus = "unconfigured" | "pending" | "active";
 
+const contactDetailsValidator = v.object({
+  email: v.optional(v.string()),
+  phone: v.optional(v.string()),
+  location: v.optional(v.string()),
+  responseTime: v.optional(v.string()),
+});
+
 // ============ SLUG VALIDATION ============
 
 /**
@@ -271,6 +278,55 @@ export const updateWorkspaceName = mutation({
     await ctx.db.patch(args.workspaceId, {
       name: args.name,
     });
+  },
+});
+
+/**
+ * Update the public contact details shown on a provider storefront.
+ * Ownership is derived from the authenticated identity, never from client input.
+ */
+export const updateContactDetails = mutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+    contact: contactDetailsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("You must be signed in to update contact details.");
+    }
+
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace || workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("You do not have access to this storefront.");
+    }
+
+    const contact = {
+      email: args.contact.email?.trim() || undefined,
+      phone: args.contact.phone?.trim() || undefined,
+      location: args.contact.location?.trim() || undefined,
+      responseTime: args.contact.responseTime?.trim() || undefined,
+    };
+
+    if (contact.email && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email) || contact.email.length > 254)) {
+      throw new Error("Enter a valid contact email address.");
+    }
+    if (contact.phone && contact.phone.length > 40) {
+      throw new Error("Phone number must be 40 characters or fewer.");
+    }
+    if (contact.location && contact.location.length > 120) {
+      throw new Error("Location must be 120 characters or fewer.");
+    }
+    if (contact.responseTime && contact.responseTime.length > 80) {
+      throw new Error("Response time must be 80 characters or fewer.");
+    }
+
+    const hasContactDetails = Object.values(contact).some(Boolean);
+    await ctx.db.patch(args.workspaceId, {
+      contact: hasContactDetails ? contact : undefined,
+    });
+
+    return null;
   },
 });
 

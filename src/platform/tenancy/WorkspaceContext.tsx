@@ -14,6 +14,12 @@ export interface Workspace {
   name: string
   type: 'producer' | 'engineer'
   ownerClerkUserId: string
+  contact?: {
+    email?: string
+    phone?: string
+    location?: string
+    responseTime?: string
+  }
   stripeAccountId?: string
   paymentsStatus: 'unconfigured' | 'pending' | 'active'
   createdAt: number

@@ -102,6 +102,15 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@minosdevs` | https://x.com/minosdevs/status/2081056262410694992 | https://x.com/Treigua/status/2081066156048224552 | French founder |
 | `@QuentinLecocq_` | https://x.com/QuentinLecocq_/status/2081052766827422203 | https://x.com/Treigua/status/2081066173794226310 | French founder |
 | `@nxth_de` | https://x.com/nxth_de/status/2081030103648113037 | https://x.com/Treigua/status/2081066192962220314 | French founder |
+| `@TheOngaku` | https://x.com/TheOngaku/status/2081091110496055511 | https://x.com/Treigua/status/2081098620376437137 | Music business |
+| `@rafnetuk` | https://x.com/rafnetuk/status/2081073331755757584 | https://x.com/Treigua/status/2081098914162258371 | Producer/audio |
+| `@LoFi_Bloom` | https://x.com/LoFi_Bloom/status/2080990463813967954 | https://x.com/Treigua/status/2081098958223347788 | Artist/music business |
+| `@saregamasouth` | https://x.com/saregamasouth/status/2081004455168975279 | https://x.com/Treigua/status/2081099032097628230 | Artist/music business |
+| `@AtomsNotBits` | https://x.com/AtomsNotBits/status/2081079971955753169 | https://x.com/Treigua/status/2081099163555496395 | Product/founder |
+| `@thisismcpeter` | https://x.com/thisismcpeter/status/2081089538705789261 | https://x.com/Treigua/status/2081099280203280543 | Creator/founder |
+| `@blue_ecom` | https://x.com/blue_ecom/status/2081074324820074615 | https://x.com/Treigua/status/2081099407823372540 | French founder |
+| `@niptechpodcast` | https://x.com/niptechpodcast/status/2081077865466953786 | https://x.com/Treigua/status/2081099523577745624 | French founder |
+| `@StefJambu` | https://x.com/StefJambu/status/2081079575195566385 | https://x.com/Treigua/status/2081099570784702695 | French founder |
 
 ## Rules
 

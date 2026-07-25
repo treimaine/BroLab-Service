@@ -19,7 +19,7 @@ import { useUser } from '@clerk/nextjs'
 import { api } from 'convex/_generated/api'
 import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { ArrowRight, BarChart3, Check, CheckCircle2, CreditCard, ExternalLink, Globe, Loader2, LockKeyhole, Music, Radio, Receipt, Wrench } from 'lucide-react'
+import { ArrowRight, BarChart3, Check, CheckCircle2, ContactRound, CreditCard, ExternalLink, Globe, Loader2, LockKeyhole, Music, Radio, Receipt, Wrench } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -37,6 +37,12 @@ const PRODUCER_NAV_ITEMS = [
     icon: Wrench,
     label: 'Services',
     description: 'Manage mixing, mastering & more',
+  },
+  {
+    href: '/studio/contact',
+    icon: ContactRound,
+    label: 'Contact',
+    description: 'Choose your public contact details',
   },
   {
     href: '/studio/billing',
@@ -521,7 +527,7 @@ export function StudioDashboard() {
                 </div>
                 <p className="hidden text-xs text-muted sm:block">Your studio tools, one click away.</p>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 {navigationItems.map(({ href, icon: Icon, label, description }) => (
                   <Link
                     key={href}

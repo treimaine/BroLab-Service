@@ -1,13 +1,14 @@
 'use client'
 
 import { useWorkspace } from '@/components/tenant'
+import { StorefrontFooter } from '@/components/tenant/storefront'
 import {
     DribbbleCard,
     DribbbleSectionEnter,
     PillCTA,
 } from '@/platform/ui'
 import { useQuery } from 'convex/react'
-import { AlertCircle, ArrowLeft, Check, Clock } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Check, Clock, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -69,11 +70,15 @@ export default function ServiceDetailPage() {
   const bookLabel = (() => {
     if (isPurchasing) return 'Redirecting...'
     if (isPaymentsConfigured) return 'Book Service'
-    return 'Unavailable'
+    return 'Discuss This Project'
   })()
 
   const handleBook = async () => {
-    if (!isPaymentsConfigured || !workspace) return
+    if (!workspace) return
+    if (!isPaymentsConfigured) {
+      globalThis.location.href = `/${workspaceSlug}/contact?subject=${encodeURIComponent(service.title)}`
+      return
+    }
     setIsPurchasing(true)
     posthog.capture('service_booking_initiated', {
       service_id: service._id,
@@ -102,13 +107,14 @@ export default function ServiceDetailPage() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-[rgb(var(--bg))]">
       {/* Back Button */}
       <section className="px-4 lg:px-8 py-6">
         <div className="container mx-auto">
           <Link
             href={`/${workspaceSlug}/services`}
-            className="inline-flex items-center gap-2 text-muted hover:text-text transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-text"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Services</span>
@@ -117,15 +123,15 @@ export default function ServiceDetailPage() {
       </section>
 
       {/* Service Details */}
-      <section className="px-4 lg:px-8 py-8">
+      <section className="px-4 pb-20 pt-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
           <DribbbleSectionEnter>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_0.8fr]">
               {/* Left Column - Main Info */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="space-y-8">
                 <div>
-                  <h1 className="text-4xl font-bold text-text mb-3">{service.title}</h1>
-                  <p className="text-muted mb-4">by {workspace?.name}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{workspace?.name} service</p>
+                  <h1 className="mt-3 text-4xl font-black tracking-tight text-text md:text-6xl">{service.title}</h1>
                   <div className="flex items-center gap-2 text-sm text-muted mb-6">
                     <Clock className="w-4 h-4" />
                     <span>{service.turnaround}</span>
@@ -147,7 +153,7 @@ export default function ServiceDetailPage() {
               </div>
 
               {/* Right Column - Booking Card */}
-              <div className="lg:col-span-1">
+              <div>
                 <div className="sticky top-24 space-y-6">
                   <DribbbleCard glow padding="lg">
                     <div className="text-center mb-6">
@@ -160,10 +166,11 @@ export default function ServiceDetailPage() {
                     </div>
 
                     <PillCTA
-                      variant="primary"
+                      variant={isPaymentsConfigured ? 'primary' : 'secondary'}
                       size="lg"
                       className="w-full mb-4"
-                      disabled={!isPaymentsConfigured || isPurchasing}
+                      disabled={isPurchasing}
+                      icon={isPaymentsConfigured ? undefined : MessageSquare}
                       onClick={handleBook}
                     >
                       {bookLabel}
@@ -192,8 +199,8 @@ export default function ServiceDetailPage() {
                         <div>
                           <h3 className="text-base font-bold text-text mb-2">Payments Not Configured</h3>
                           <p className="text-sm text-muted">
-                            This creator hasn&apos;t completed their payment setup yet.
-                            Bookings are currently unavailable.
+                            Online booking is not active yet. Use the button above to discuss
+                            the project directly with this creator.
                           </p>
                         </div>
                       </div>
@@ -215,5 +222,10 @@ export default function ServiceDetailPage() {
         </div>
       </section>
     </div>
+    <StorefrontFooter
+      workspaceName={workspace?.name ?? workspaceSlug}
+      basePath={`/${workspaceSlug}`}
+    />
+    </>
   )
 }

@@ -15,11 +15,18 @@ import {
 } from '@/platform/ui'
 import { useAudioStore } from '@/stores/audio-store'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Clock, Music } from 'lucide-react'
+import { AlertCircle, Clock, Loader2, Music, X } from 'lucide-react'
 
 export interface PlayerBarProps {
   /** Whether the player bar is visible */
   isVisible?: boolean
+}
+
+function formatPlaybackTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
 /**
@@ -65,12 +72,15 @@ export function PlayerBar({
   const duration = useAudioStore((state) => state.duration)
   const volume = useAudioStore((state) => state.volume)
   const isMuted = useAudioStore((state) => state.isMuted)
+  const isLoading = useAudioStore((state) => state.isLoading)
+  const error = useAudioStore((state) => state.error)
   
   // Get store actions
   const togglePlayPause = useAudioStore((state) => state.togglePlayPause)
   const seek = useAudioStore((state) => state.seek)
   const setVolume = useAudioStore((state) => state.setVolume)
   const toggleMute = useAudioStore((state) => state.toggleMute)
+  const reset = useAudioStore((state) => state.reset)
 
   const handlePlayPause = () => {
     togglePlayPause()
@@ -115,7 +125,7 @@ export function PlayerBar({
           key="player-bar"
           className="
             fixed bottom-grid-8 md:bottom-0 left-0 right-0 md:left-grid-10
-            h-[72px] md:h-grid-10
+            h-[80px] md:h-grid-10
             z-30
           "
           style={{
@@ -156,14 +166,20 @@ export function PlayerBar({
           <div className="h-full flex items-center gap-3 md:gap-4 px-4 md:px-6">
             
             {/* Play/Pause Button - Using PlayerPillButton with hover lift */}
-            <motion.div {...controlHoverProps}>
+            <motion.div className="relative" {...controlHoverProps}>
               <PlayerPillButton
                 isPlaying={isPlaying}
                 onClick={handlePlayPause}
-                disabled={!hasTrack}
+                disabled={!hasTrack || isLoading}
                 size="md"
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isLoading ? 'Loading preview' : isPlaying ? 'Pause' : 'Play'}
               />
+              {isLoading && (
+                <Loader2
+                  className="pointer-events-none absolute inset-0 m-auto h-4 w-4 animate-spin text-white"
+                  aria-hidden="true"
+                />
+              )}
             </motion.div>
 
             {/* Track Info Section - MicroModule pattern for compact layout */}
@@ -214,29 +230,44 @@ export function PlayerBar({
             {/* Waveform + Progress Section */}
             <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
               {/* Waveform Placeholder - Hidden on mobile for space */}
-              <div className="hidden md:block">
-                <WaveformPlaceholder
-                  barCount={48}
-                  isPlaying={isPlaying && hasTrack}
-                  size="sm"
-                  variant={hasTrack ? 'gradient' : 'muted'}
-                />
-              </div>
+              {error ? (
+                <div className="hidden items-center gap-2 text-xs font-medium text-red-500 md:flex" role="status">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{error}. Press play to retry.</span>
+                </div>
+              ) : (
+                <div className="hidden md:block">
+                  <WaveformPlaceholder
+                    barCount={48}
+                    isPlaying={isPlaying && hasTrack}
+                    size="sm"
+                    variant={hasTrack ? 'gradient' : 'muted'}
+                  />
+                </div>
+              )}
 
               {/* Progress Rail with subtle hover effect */}
               <motion.div
                 whileHover={prefersReducedMotion ? {} : { scale: 1.01 }}
                 transition={{ duration: 0.15 }}
               >
-                <ProgressRail
-                  value={hasTrack ? progress : 0}
-                  onSeek={handleSeek}
-                  disabled={!hasTrack}
-                  size="sm"
-                  showTooltip={hasTrack}
-                  duration={duration}
-                  aria-label="Playback progress"
-                />
+                <div className="flex items-center gap-2">
+                  <span className="hidden w-9 text-right text-[10px] tabular-nums text-muted md:block">
+                    {formatPlaybackTime(currentTime)}
+                  </span>
+                  <ProgressRail
+                    value={hasTrack ? progress : 0}
+                    onSeek={handleSeek}
+                    disabled={!hasTrack || Boolean(error)}
+                    size="sm"
+                    showTooltip={hasTrack}
+                    duration={duration}
+                    aria-label="Playback progress"
+                  />
+                  <span className="hidden w-9 text-[10px] tabular-nums text-muted md:block">
+                    {formatPlaybackTime(duration)}
+                  </span>
+                </div>
               </motion.div>
             </div>
 
@@ -256,6 +287,15 @@ export function PlayerBar({
                 aria-label="Volume control"
               />
             </motion.div>
+
+            <button
+              type="button"
+              onClick={reset}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-[rgb(var(--accent)/0.1)] hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label="Close audio player"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
           </ChromeSurface>
         </motion.div>

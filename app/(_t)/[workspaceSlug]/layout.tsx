@@ -24,8 +24,7 @@ function TenantLayoutInner({
       id: 'beats',
       icon: Music,
       label: 'Beats',
-      href: `/${workspaceSlug}`,
-      exact: true,
+      href: `/${workspaceSlug}/beats`,
     },
     {
       id: 'services',

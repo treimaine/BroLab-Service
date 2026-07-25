@@ -19,6 +19,12 @@ export default defineSchema({
     name: v.string(),
     type: v.union(v.literal("producer"), v.literal("engineer")),
     ownerClerkUserId: v.string(),
+    contact: v.optional(v.object({
+      email: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      location: v.optional(v.string()),
+      responseTime: v.optional(v.string()),
+    })),
     stripeAccountId: v.optional(v.string()),
     paymentsStatus: v.union(
       v.literal("unconfigured"),

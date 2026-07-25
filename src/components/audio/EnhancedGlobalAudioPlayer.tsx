@@ -62,6 +62,14 @@ export function EnhancedGlobalAudioPlayer() {
     if (!audio || !currentTrack) return
 
     if (isPlaying) {
+      if (
+        audio.ended ||
+        (Number.isFinite(audio.duration) && audio.currentTime >= audio.duration)
+      ) {
+        audio.currentTime = 0
+        updateTime(0)
+      }
+
       const playPromise = audio.play()
       
       // Handle play promise (required for autoplay policies)
@@ -75,7 +83,7 @@ export function EnhancedGlobalAudioPlayer() {
     } else {
       audio.pause()
     }
-  }, [isPlaying, currentTrack, setError, pause])
+  }, [isPlaying, currentTrack, setError, pause, updateTime])
 
   // Sync volume
   useEffect(() => {
@@ -147,6 +155,7 @@ export function EnhancedGlobalAudioPlayer() {
 
     // Ended - audio finished playing
     const handleEnded = () => {
+      audio.currentTime = 0
       pause()
       updateTime(0)
     }
