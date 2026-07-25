@@ -2,7 +2,7 @@
 
 import { CheckoutButton } from '@clerk/nextjs/experimental'
 import { Check, Sparkles } from 'lucide-react'
-import { CLERK_PLAN_IDS } from '../../../convex/platform/billing/plans'
+import { CLERK_PLAN_IDS } from '../../../shared/billing/plans'
 
 type PaidPlan = 'basic' | 'pro'
 type BillingPeriod = 'month' | 'annual'

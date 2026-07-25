@@ -80,10 +80,10 @@ export default function TenantHomePage() {
   const featuredServices = services?.slice(0, 2) ?? []
 
   const stats = [
-    { text: `${tracks?.length ?? 0}+ Premium Beats` },
+    { text: `${tracks?.length ?? 0} Published Beats` },
     { text: `${services?.length ?? 0} Services Available` },
-    { text: 'Professional Quality' },
-    { text: '24h Delivery' },
+    { text: 'Official License Included' },
+    { text: 'Secure Stripe Checkout' },
   ]
 
   const handlePlay = (track: typeof latestTracks[number]) => {

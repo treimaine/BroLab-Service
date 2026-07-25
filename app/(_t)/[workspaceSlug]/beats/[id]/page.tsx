@@ -269,16 +269,6 @@ export default function BeatDetailPage() {
                       {buyLabel}
                     </PillCTA>
                     
-                    {/* Social Proof - Trust Signals */}
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted mb-4">
-                      <div className="flex -space-x-2">
-                        <div className="w-6 h-6 rounded-full bg-accent/20 border-2 border-card" />
-                        <div className="w-6 h-6 rounded-full bg-accent/40 border-2 border-card" />
-                        <div className="w-6 h-6 rounded-full bg-accent/60 border-2 border-card" />
-                      </div>
-                      <span>12+ artists bought this month</span>
-                    </div>
-                    
                     {/* Trust Badges */}
                     <div className="flex items-center justify-center gap-3 text-xs text-muted mb-4">
                       <span className="flex items-center gap-1">

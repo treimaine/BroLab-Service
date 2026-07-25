@@ -10,7 +10,11 @@
 
 import { CONVEX_CONFIG } from '@/lib/env'
 import { NextResponse } from 'next/server'
-import { logWebhookReceived } from '@/lib/monitoring'
+import {
+  logWebhookFailure,
+  logWebhookReceived,
+  logWebhookSuccess,
+} from '@/lib/monitoring'
 
 function getConvexHttpUrl(): string {
   const explicitSiteUrl = process.env.NEXT_PUBLIC_CONVEX_SITE_URL?.trim()
@@ -23,6 +27,8 @@ function getConvexHttpUrl(): string {
 
 export async function POST(request: Request) {
   const startTime = Date.now()
+  let eventId = 'unknown'
+  let eventType = 'unknown'
   try {
     const body = await request.text()
     const signature = request.headers.get('stripe-signature')
@@ -40,8 +46,6 @@ export async function POST(request: Request) {
     }
 
     // Extract event ID from body for monitoring
-    let eventId = 'unknown'
-    let eventType = 'unknown'
     try {
       const bodyJson = JSON.parse(body)
       eventId = bodyJson.id || 'unknown'
@@ -126,6 +130,13 @@ export async function POST(request: Request) {
     // Acknowledging with 2xx here can drop paid events permanently.
     if (convexResponse.status >= 500) {
       console.warn(`[ALERT] Convex returned 5xx status: ${convexResponse.status}`)
+      logWebhookFailure({
+        eventId,
+        eventType,
+        errorCode: `CONVEX_${convexResponse.status}`,
+        errorMessage: 'Upstream webhook processing failed',
+        duration,
+      })
       return NextResponse.json(
         {
           error: 'Upstream webhook processing failed',
@@ -139,15 +150,39 @@ export async function POST(request: Request) {
     // For 4xx errors, return the error to Stripe so it doesn't retry
     if (convexResponse.status >= 400) {
       console.warn(`[ALERT] Convex returned 4xx status: ${convexResponse.status}`)
+      logWebhookFailure({
+        eventId,
+        eventType,
+        errorCode: `CONVEX_${convexResponse.status}`,
+        errorMessage: 'Webhook was rejected by upstream validation',
+        duration,
+      })
       return NextResponse.json(result, { status: convexResponse.status })
     }
 
     // For 2xx/3xx success, return the response as-is
+    logWebhookSuccess({
+      eventId,
+      eventType,
+      orderId: typeof result.orderId === 'string' ? result.orderId : undefined,
+      workspaceId: typeof result.workspaceId === 'string' ? result.workspaceId : undefined,
+      duration,
+    })
     return NextResponse.json(result, { status: convexResponse.status })
   } catch (error) {
     const duration = Date.now() - startTime
     console.error('Stripe webhook proxy error:', error)
     console.error(`[MONITORING] Webhook processing failed after ${duration}ms`)
+    logWebhookFailure({
+      eventId,
+      eventType,
+      errorCode: error instanceof Error && error.name === 'AbortError'
+        ? 'UPSTREAM_TIMEOUT'
+        : 'WEBHOOK_PROXY_ERROR',
+      errorMessage: error instanceof Error ? error.message : String(error),
+      duration,
+      stack: error instanceof Error ? error.stack : undefined,
+    })
     return NextResponse.json(
       {
         error: 'Webhook processing failed',

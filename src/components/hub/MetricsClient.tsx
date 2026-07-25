@@ -3,7 +3,13 @@
 import { DribbbleCard } from '@/platform/ui/dribbble/DribbbleCard'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { api } from 'convex/_generated/api'
-import { AuthLoading, Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import {
+  AuthLoading,
+  Authenticated,
+  Unauthenticated,
+  useConvexAuth,
+  useQuery,
+} from 'convex/react'
 import { motion } from 'framer-motion'
 import { ArrowRight, BarChart3, Eye, Loader2, Music, ShoppingCart, Sparkles, Users } from 'lucide-react'
 import Link from 'next/link'
@@ -35,7 +41,11 @@ function Metric({
 }
 
 export function MetricsClient() {
-  const analytics = useQuery(api.modules.providerAnalytics.getMyAnalytics)
+  const { isAuthenticated } = useConvexAuth()
+  const analytics = useQuery(
+    api.modules.providerAnalytics.getMyAnalytics,
+    isAuthenticated ? {} : 'skip'
+  )
 
   return (
     <>

@@ -34,6 +34,9 @@ export default defineSchema({
     workspaceId: v.id("workspaces"),
     hostname: v.string(), // Stored normalized (lowercase, no port)
     status: v.union(v.literal("pending"), v.literal("verified"), v.literal("failed")),
+    verificationCheckedAt: v.optional(v.number()),
+    verificationError: v.optional(v.string()),
+    verifiedAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
@@ -159,6 +162,7 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
+    .index("by_status", ["status"])
     .index("by_workspace_status", ["workspaceId", "status"]),
 
   services: defineTable({

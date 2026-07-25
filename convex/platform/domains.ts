@@ -4,7 +4,7 @@
 
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
-import { mutation, query } from "../_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { logAuditHelper } from "./auditLogs";
 import { assertEntitlement, assertQuota } from "./entitlements";
 
@@ -219,35 +219,6 @@ export const deleteDomain = mutation({
 });
 
 /**
- * Verify domain ownership
- * This would typically involve checking DNS records
- * For MVP, this is a placeholder that can be called manually
- */
-export const verifyDomain = mutation({
-  args: { domainId: v.id("domains") },
-  handler: async (ctx, args) => {
-    const domain = await ctx.db.get(args.domainId);
-
-    if (!domain) {
-      throw new Error("Domain not found");
-    }
-
-    // TODO: Implement actual DNS verification
-    // For MVP, we'll just mark as verified
-    // In production, this should:
-    // 1. Check for TXT record with verification token
-    // 2. Check for CNAME pointing to platform domain
-    // 3. Update status based on verification result
-
-    await ctx.db.patch(args.domainId, {
-      status: "verified",
-    });
-
-    return { success: true };
-  },
-});
-
-/**
  * Connect a custom domain (PRO only)
  * Checks entitlement (maxCustomDomains > 0) and quota before adding.
  * Creates audit log entry for domain_connect action.
@@ -339,38 +310,67 @@ export const disconnectDomain = mutation({
   },
 });
 
-/**
- * Check domain DNS verification status
- * For MVP: checks CNAME record pointing to brolabentertainment.com
- * Updates domain status to verified or failed.
- * Requirements: 1.3
- */
-export const checkDomainVerification = mutation({
+export const getDomainForVerification = internalQuery({
   args: {
     workspaceId: v.id("workspaces"),
     domainId: v.id("domains"),
-    actorClerkUserId: v.string(),
   },
+  returns: v.object({
+    hostname: v.string(),
+  }),
   handler: async (ctx, args) => {
-    await assertDomainOwnership(ctx, args.domainId, args.workspaceId);
-
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace || workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied");
+    }
     const domain = await ctx.db.get(args.domainId);
-    if (!domain) throw new Error("Domain not found");
+    if (!domain || domain.workspaceId !== args.workspaceId) {
+      throw new Error("Domain not found");
+    }
+    return { hostname: domain.hostname };
+  },
+});
 
-    // MVP: mark as verified (real DNS check would happen via external action)
-    // In production: call DNS lookup API to verify CNAME record
-    await ctx.db.patch(args.domainId, { status: "verified" });
-
+export const recordDomainVerification = internalMutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+    domainId: v.id("domains"),
+    verified: v.boolean(),
+    error: v.optional(v.string()),
+  },
+  returns: v.object({
+    status: v.union(v.literal("verified"), v.literal("failed")),
+  }),
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace || workspace.ownerClerkUserId !== identity.subject) {
+      throw new Error("Access denied");
+    }
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain || domain.workspaceId !== args.workspaceId) {
+      throw new Error("Domain not found");
+    }
+    const now = Date.now();
+    const status: "verified" | "failed" = args.verified ? "verified" : "failed";
+    await ctx.db.patch(args.domainId, {
+      status,
+      verificationCheckedAt: now,
+      verificationError: args.verified ? undefined : args.error,
+      verifiedAt: args.verified ? now : domain.verifiedAt,
+    });
     await logAuditHelper(ctx, {
       workspaceId: args.workspaceId,
-      actorClerkUserId: args.actorClerkUserId,
+      actorClerkUserId: identity.subject,
       action: "domain_verify",
       entityType: "domain",
       entityId: args.domainId,
-      meta: { hostname: domain.hostname },
+      meta: { hostname: domain.hostname, verified: args.verified, error: args.error },
     });
-
-    return { status: "verified" as DomainStatus };
+    return { status };
   },
 });
 

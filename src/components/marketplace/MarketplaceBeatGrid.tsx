@@ -1,241 +1,192 @@
 'use client'
 
-import { WaveformVisualizer } from '@/components/beats/WaveformVisualizer'
+import { useAudioStore } from '@/stores/audio-store'
 import {
   DribbbleCard,
   GlassSkeletonCard,
-  PillCTA,
   dribbbleStaggerChild,
   dribbbleStaggerContainer,
 } from '@/platform/ui'
 import { motion } from 'framer-motion'
-import { ExternalLink, Pause, Play, ShoppingCart } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowRight, Music, Pause, Play, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
 
-interface MarketplaceBeatGridProps {
-  searchQuery: string
-  selectedGenre: string | null
-  sortBy: 'newest' | 'price-low' | 'price-high'
+export interface MarketplaceBeat {
+  trackId: string
+  title: string
+  bpm: number | null
+  musicalKey: string | null
+  tags: string[]
+  priceUsdByTier: {
+    basic: number
+    premium: number
+    unlimited: number
+  }
+  previewUrl: string | null
+  previewDurationSec: number
+  createdAt: number
+  workspace: {
+    slug: string
+    name: string
+    paymentsReady: boolean
+  }
 }
 
-// Mock beat data (will be replaced with Convex query)
-const MOCK_BEATS = [
-  {
-    id: '1',
-    title: 'Midnight Dreams',
-    producer: 'BeatMaker Pro',
-    price: 29.99,
-    genre: 'Hip Hop',
-    bpm: 140,
-    createdAt: new Date('2026-04-01'),
-    coverUrl: null,
-  },
-  {
-    id: '2',
-    title: 'Summer Vibes',
-    producer: 'Producer X',
-    price: 39.99,
-    genre: 'Trap',
-    bpm: 160,
-    createdAt: new Date('2026-04-05'),
-    coverUrl: null,
-  },
-  {
-    id: '3',
-    title: 'City Lights',
-    producer: 'Metro Sound',
-    price: 24.99,
-    genre: 'R&B',
-    bpm: 85,
-    createdAt: new Date('2026-03-28'),
-    coverUrl: null,
-  },
-  {
-    id: '4',
-    title: 'Dark Energy',
-    producer: 'BeatMaker Pro',
-    price: 34.99,
-    genre: 'Drill',
-    bpm: 145,
-    createdAt: new Date('2026-04-03'),
-    coverUrl: null,
-  },
-  {
-    id: '5',
-    title: 'Smooth Operator',
-    producer: 'Smooth Beats',
-    price: 44.99,
-    genre: 'Pop',
-    bpm: 120,
-    createdAt: new Date('2026-04-02'),
-    coverUrl: null,
-  },
-  {
-    id: '6',
-    title: 'Lagos Nights',
-    producer: 'Afro Rhythms',
-    price: 49.99,
-    genre: 'Afrobeat',
-    bpm: 110,
-    createdAt: new Date('2026-04-04'),
-    coverUrl: null,
-  },
-]
+interface MarketplaceBeatGridProps {
+  beats: MarketplaceBeat[] | undefined
+  hasActiveFilters: boolean
+}
+
+const usdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 2,
+})
 
 export default function MarketplaceBeatGrid({
-  searchQuery,
-  selectedGenre,
-  sortBy,
+  beats,
+  hasActiveFilters,
 }: Readonly<MarketplaceBeatGridProps>) {
-  const [playingId, setPlayingId] = useState<string | null>(null)
-  const [isLoading] = useState(false)
+  const play = useAudioStore((state) => state.play)
+  const pause = useAudioStore((state) => state.pause)
+  const currentTrack = useAudioStore((state) => state.currentTrack)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
 
-  // Filter and sort beats
-  const filteredBeats = useMemo(() => {
-    let beats = [...MOCK_BEATS]
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      beats = beats.filter(
-        (beat) =>
-          beat.title.toLowerCase().includes(query) ||
-          beat.producer.toLowerCase().includes(query) ||
-          beat.genre.toLowerCase().includes(query)
-      )
-    }
-
-    // Filter by genre
-    if (selectedGenre) {
-      beats = beats.filter((beat) => beat.genre === selectedGenre)
-    }
-
-    // Sort beats
-    beats.sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return b.createdAt.getTime() - a.createdAt.getTime()
-        case 'price-low':
-          return a.price - b.price
-        case 'price-high':
-          return b.price - a.price
-        default:
-          return 0
-      }
-    })
-
-    return beats
-  }, [searchQuery, selectedGenre, sortBy])
-
-  const togglePlay = (beatId: string) => {
-    setPlayingId(playingId === beatId ? null : beatId)
-  }
-
-  if (isLoading) {
+  if (beats === undefined) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-grid-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <GlassSkeletonCard key={i} rows={5} hasImage />
+      <div className="grid grid-cols-1 gap-grid-3 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <GlassSkeletonCard key={item} rows={4} hasImage />
         ))}
       </div>
     )
   }
 
-  if (filteredBeats.length === 0) {
+  if (beats.length === 0) {
     return (
       <motion.div
-        className="text-center py-grid-10"
+        className="rounded-3xl border border-dashed border-border px-6 py-grid-10 text-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="text-6xl mb-grid-4">🎵</div>
-        <h3 className="text-2xl font-bold mb-grid-2">No beats found</h3>
-        <p className="text-muted">
-          Try adjusting your search or filter criteria
+        <Music className="mx-auto mb-grid-3 h-10 w-10 text-muted" />
+        <h3 className="mb-grid-2 text-2xl font-bold">
+          {hasActiveFilters ? 'No matching beats' : 'The catalog is warming up'}
+        </h3>
+        <p className="mx-auto max-w-md text-muted">
+          {hasActiveFilters
+            ? 'Try another title, producer, tag, or sort option.'
+            : 'Published beats from BroLab producers will appear here automatically.'}
         </p>
       </motion.div>
     )
   }
 
+  function handlePreview(beat: MarketplaceBeat) {
+    if (!beat.previewUrl) return
+
+    if (currentTrack?.id === beat.trackId && isPlaying) {
+      pause()
+      return
+    }
+
+    play({
+      id: beat.trackId,
+      title: beat.title,
+      artistName: beat.workspace.name,
+      previewUrl: beat.previewUrl,
+      bpm: beat.bpm ?? undefined,
+      trackKey: beat.musicalKey ?? undefined,
+      duration: beat.previewDurationSec,
+    })
+  }
+
   return (
     <motion.div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-grid-3"
+      className="grid grid-cols-1 gap-grid-3 md:grid-cols-2 lg:grid-cols-3"
       variants={dribbbleStaggerContainer}
       initial="initial"
       animate="animate"
     >
-      {filteredBeats.map((beat) => (
-        <motion.div key={beat.id} variants={dribbbleStaggerChild}>
-          <DribbbleCard className="group overflow-hidden hover:shadow-glow-strong transition-all">
-            {/* Beat Cover Art */}
-            <div className="relative aspect-square bg-linear-to-br from-accent/20 via-accent-2/10 to-transparent rounded-xl mb-grid-3 flex items-center justify-center overflow-hidden">
-              {/* Play/Pause Button */}
-              <button
-                onClick={() => togglePlay(beat.id)}
-                className="relative z-10 w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center hover:scale-110 transition-transform shadow-glow"
-                aria-label={playingId === beat.id ? 'Pause' : 'Play'}
-              >
-                {playingId === beat.id ? (
-                  <Pause className="w-6 h-6 text-white fill-white" />
-                ) : (
-                  <Play className="w-6 h-6 text-white fill-white ml-1" />
-                )}
-              </button>
+      {beats.map((beat) => {
+        const isCurrentBeat = currentTrack?.id === beat.trackId
+        const isBeatPlaying = isCurrentBeat && isPlaying
+        const primaryTag = beat.tags[0] ?? 'Beat'
 
-              {/* Genre Badge */}
-              <div className="absolute top-grid-2 left-grid-2">
-                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 text-xs font-medium text-text">
-                  {beat.genre}
-                </span>
-              </div>
+        return (
+          <motion.div key={beat.trackId} variants={dribbbleStaggerChild}>
+            <DribbbleCard className="group h-full overflow-hidden transition-all hover:shadow-glow-strong">
+              <div className="relative mb-grid-3 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-accent/20 via-accent-2/10 to-transparent">
+                <div className="absolute inset-0 opacity-50 [background-image:radial-gradient(circle_at_20%_25%,rgb(var(--accent)/0.25),transparent_30%),radial-gradient(circle_at_80%_75%,rgb(var(--accent-2)/0.2),transparent_28%)]" />
 
-              {/* BPM Badge */}
-              <div className="absolute top-grid-2 right-grid-2">
-                <span className="px-grid-2 py-grid-1 rounded-full bg-card/80 text-xs font-medium text-text">
-                  {beat.bpm} BPM
-                </span>
-              </div>
-
-              {/* Waveform visualization */}
-              <div className="absolute inset-0 opacity-30 p-4">
-                <WaveformVisualizer
-                  audioUrl={`/api/beats/${beat.id}/audio`}
-                  animated={playingId === beat.id}
-                  barCount={50}
-                />
-              </div>
-            </div>
-
-            {/* Beat Info */}
-            <div className="px-grid-2">
-              <h3 className="text-lg font-semibold text-text mb-grid-1 truncate">
-                {beat.title}
-              </h3>
-              <p className="text-sm text-muted mb-grid-3 flex items-center gap-grid-1">
-                <ExternalLink className="w-4 h-4" />
-                {beat.producer}
-              </p>
-
-              {/* Price and CTA */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-2xl font-bold text-accent">
-                    ${beat.price}
-                  </span>
-                </div>
-                <PillCTA
-                  size="sm"
-                  variant="secondary"
-                  className="flex items-center gap-grid-1"
+                <button
+                  type="button"
+                  onClick={() => handlePreview(beat)}
+                  disabled={!beat.previewUrl}
+                  className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-white shadow-glow transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-35"
+                  aria-label={
+                    beat.previewUrl
+                      ? isBeatPlaying
+                        ? `Pause ${beat.title}`
+                        : `Preview ${beat.title}`
+                      : `Preview unavailable for ${beat.title}`
+                  }
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  Buy
-                </PillCTA>
+                  {isBeatPlaying ? (
+                    <Pause className="h-6 w-6 fill-white" />
+                  ) : (
+                    <Play className="ml-1 h-6 w-6 fill-white" />
+                  )}
+                </button>
+
+                <span className="absolute left-grid-2 top-grid-2 rounded-full bg-card/85 px-grid-2 py-grid-1 text-xs font-medium text-text">
+                  {primaryTag}
+                </span>
+                {(beat.bpm || beat.musicalKey) && (
+                  <span className="absolute right-grid-2 top-grid-2 rounded-full bg-card/85 px-grid-2 py-grid-1 text-xs font-medium text-text">
+                    {[beat.bpm ? `${beat.bpm} BPM` : null, beat.musicalKey]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
+                )}
+                {!beat.previewUrl && (
+                  <span className="absolute bottom-grid-2 text-xs font-medium text-muted">
+                    Preview unavailable
+                  </span>
+                )}
               </div>
-            </div>
-          </DribbbleCard>
-        </motion.div>
-      ))}
+
+              <div className="px-grid-2 pb-grid-1">
+                <h3 className="mb-grid-1 truncate text-lg font-semibold text-text">
+                  {beat.title}
+                </h3>
+                <p className="mb-grid-3 truncate text-sm text-muted">
+                  by {beat.workspace.name}
+                </p>
+
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
+                      Licenses from
+                    </p>
+                    <p className="text-2xl font-bold text-accent">
+                      {usdFormatter.format(beat.priceUsdByTier.basic)}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/${beat.workspace.slug}/beats/${beat.trackId}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-bold text-text transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    {beat.workspace.paymentsReady && <ShieldCheck className="h-3.5 w-3.5" />}
+                    View
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </DribbbleCard>
+          </motion.div>
+        )
+      })}
     </motion.div>
   )
 }

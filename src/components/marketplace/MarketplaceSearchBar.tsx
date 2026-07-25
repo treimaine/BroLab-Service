@@ -26,31 +26,33 @@ export default function MarketplaceSearchBar({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
-      <DribbbleCard padding="sm" className="flex flex-col md:flex-row gap-grid-2">
-        {/* Search Input */}
-        <div className="relative flex-1">
-          <Search className="absolute left-grid-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search beats by title, producer, or vibe..."
-            className="w-full h-14 pl-12 pr-grid-3 bg-transparent border-0 rounded-2xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-          />
-        </div>
+      <DribbbleCard padding="sm">
+        <div className="flex flex-col gap-grid-2 md:flex-row">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-grid-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              aria-label="Search beats by title, producer, or tag"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search beats…"
+              className="h-14 w-full rounded-2xl border-0 bg-transparent pl-12 pr-grid-3 text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
 
-        {/* Sort Dropdown */}
-        <div className="relative">
-          <SlidersHorizontal className="absolute left-grid-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="h-14 pl-12 pr-grid-3 bg-transparent border-0 rounded-2xl text-text focus:outline-none focus:ring-2 focus:ring-accent transition-all appearance-none cursor-pointer min-w-[180px]"
-          >
-            <option value="newest">Newest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-          </select>
+          <div className="relative">
+            <SlidersHorizontal className="pointer-events-none absolute left-grid-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
+            <select
+              aria-label="Sort beats"
+              value={sortBy}
+              onChange={(e) => onSortChange(e.target.value as SortOption)}
+              className="h-14 min-w-[220px] cursor-pointer appearance-none rounded-2xl border-0 bg-transparent pl-12 pr-grid-3 text-text transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <option value="newest">Newest First</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
         </div>
       </DribbbleCard>
     </motion.div>

@@ -1,86 +1,86 @@
 'use client'
 
-import { StatsBanner } from '@/components/hub'
 import {
   DribbbleCard,
   OutlineStackTitle,
   PillCTA,
   dribbblePageEnter,
   dribbbleStaggerChild,
-  dribbbleStaggerContainer
+  dribbbleStaggerContainer,
 } from '@/platform/ui'
+import { useUser } from '@clerk/nextjs'
+import { useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
-import { TrendingUp } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Music, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useDeferredValue, useState } from 'react'
+import { api } from 'convex/_generated/api'
 import MarketplaceBeatGrid from './MarketplaceBeatGrid'
 import MarketplaceSearchBar from './MarketplaceSearchBar'
 
 export default function MarketplaceClient() {
+  const { isSignedIn } = useUser()
   const [searchQuery, setSearchQuery] = useState('')
+  const deferredSearchQuery = useDeferredValue(searchQuery)
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>('newest')
 
-  const genres = [
-    'All Beats',
-    'Hip Hop',
-    'Trap',
-    'R&B',
-    'Pop',
-    'Drill',
-    'Afrobeat',
-    'Electronic',
-    'Rock',
-  ]
+  const beats = useQuery(api.modules.marketplace.getMarketplaceBeats, {
+    searchQuery: deferredSearchQuery.trim() || undefined,
+    genre: selectedGenre ?? undefined,
+    sortBy,
+    limit: 60,
+  })
+  const marketplaceGenres = useQuery(api.modules.marketplace.getMarketplaceGenres)
+  const featuredProducers = useQuery(api.modules.marketplace.getFeaturedProducers, {
+    limit: 3,
+  })
+
+  const genres = ['All Beats', ...(marketplaceGenres ?? []).slice(0, 12)]
+  const hasActiveFilters =
+    deferredSearchQuery.trim().length > 0 || selectedGenre !== null
 
   return (
-    <motion.div
-      className="min-h-screen bg-bg text-text"
-      {...dribbblePageEnter}
-    >
-      {/* Hero Section */}
-      <section className="relative pt-grid-10 pb-grid-6 px-grid-3 overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
+    <motion.div className="min-h-screen bg-bg text-text" {...dribbblePageEnter}>
+      <section className="relative overflow-hidden px-grid-3 pb-grid-6 pt-grid-10">
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent" />
 
-        <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="container relative z-10 mx-auto max-w-7xl">
           <motion.div
-            className="text-center mb-grid-6"
+            className="mb-grid-6 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-xs font-bold text-accent uppercase tracking-widest mb-grid-2">
-              0% Commission • Instant Downloads • Secure Payments
+            <p className="mb-grid-2 text-xs font-bold uppercase tracking-widest text-accent">
+              Direct from BroLab producers
             </p>
-            <OutlineStackTitle
-              className="mb-grid-3"
-              size="display"
-            >
-              Find Your Perfect Beat
+            <OutlineStackTitle className="mb-grid-3" size="display">
+              Find Your Next Sound
             </OutlineStackTitle>
-            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-grid-4">
-              Browse thousands of premium beats from world-class producers. 
-              Buy instantly, download immediately, get your license automatically.
+            <p className="mx-auto mb-grid-4 max-w-2xl text-lg text-muted md:text-xl">
+              Preview published beats, compare license prices, and buy securely from each producer&apos;s storefront.
             </p>
-            {/* Social Proof Stats */}
-            <div className="flex items-center justify-center gap-6 mb-grid-4 text-sm">
-              <div className="flex items-center gap-2 text-muted">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span>500+ Active Beats</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span>50+ Producers</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted">
-                <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                <span>1K+ Downloads</span>
-              </div>
+
+            <div className="mb-grid-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-green-500" />
+                Live Convex catalog
+              </span>
+              <span className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-accent" />
+                Official licenses
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-yellow-500" />
+                Stripe checkout
+              </span>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/sign-up?role=artist">
+
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href={isSignedIn ? '/artist' : '/sign-up?role=artist'}>
                 <PillCTA variant="primary" size="lg">
-                  Create Free Account
+                  {isSignedIn ? 'Open My Library' : 'Create Free Account'}
                 </PillCTA>
               </Link>
               <Link href="#beats">
@@ -91,7 +91,6 @@ export default function MarketplaceClient() {
             </div>
           </motion.div>
 
-          {/* Search & Filter Bar */}
           <MarketplaceSearchBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -99,9 +98,8 @@ export default function MarketplaceClient() {
             onSortChange={setSortBy}
           />
 
-          {/* Genre Pills */}
           <motion.div
-            className="flex flex-wrap gap-grid-1 justify-center mb-grid-6"
+            className="mb-grid-6 flex flex-wrap justify-center gap-grid-1"
             variants={dribbbleStaggerContainer}
             initial="initial"
             animate="animate"
@@ -109,12 +107,13 @@ export default function MarketplaceClient() {
             {genres.map((genre) => (
               <motion.button
                 key={genre}
+                type="button"
                 variants={dribbbleStaggerChild}
                 onClick={() => setSelectedGenre(genre === 'All Beats' ? null : genre)}
-                className={`px-grid-3 py-grid-1 rounded-full text-sm font-medium transition-all ${
+                className={`rounded-full px-grid-3 py-grid-1 text-sm font-medium transition-all ${
                   (genre === 'All Beats' && !selectedGenre) || selectedGenre === genre
-                    ? 'bg-accent text-white shadow-glow'
-                    : 'bg-card/60 text-muted hover:text-accent hover:bg-accent/10'
+                    ? 'bg-[rgb(var(--accent))] text-[rgb(var(--bg))] shadow-glow'
+                    : 'bg-card/60 text-muted hover:bg-accent/10 hover:text-accent'
                 }`}
               >
                 {genre}
@@ -124,90 +123,95 @@ export default function MarketplaceClient() {
         </div>
       </section>
 
-      {/* Creator Stats Banner - Trust Building */}
-      <StatsBanner
-        title="Join Our Creator Community"
-        subtitle="See the success happening on BroLab right now"
-        stats={[
-          { stat: '2,000+', label: 'Active Creators', highlight: true },
-          { stat: '50K+', label: 'Beats Sold' },
-          { stat: '$500K+', label: 'Paid Out', highlight: true },
-          { stat: '100%', label: 'Creator Revenue' }
-        ]}
-        variant="prominent"
-        className="bg-linear-to-b from-accent/5 to-transparent"
-      />
-
-      {/* Marketplace Grid */}
       <section id="beats" className="px-grid-3 pb-grid-10">
         <div className="container mx-auto max-w-7xl">
-          <MarketplaceBeatGrid
-            searchQuery={searchQuery}
-            selectedGenre={selectedGenre}
-            sortBy={sortBy}
-          />
-        </div>
-      </section>
-
-      {/* Featured Producers Section */}
-      <section className="px-grid-3 pb-grid-10">
-        <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center gap-grid-2 mb-grid-4">
-            <TrendingUp className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl md:text-3xl font-bold">Featured Producers</h2>
+          <div className="mb-grid-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-muted">
+                Live catalog
+              </p>
+              <h2 className="text-2xl font-bold uppercase tracking-wide">Published beats</h2>
+            </div>
+            <p className="text-sm text-muted">
+              {beats === undefined
+                ? 'Loading current releases…'
+                : `${beats.length} ${beats.length === 1 ? 'result' : 'results'}`}
+            </p>
           </div>
-
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-grid-3"
-            variants={dribbbleStaggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: '-100px' }}
-          >
-            {[1, 2, 3].map((i) => (
-              <motion.div key={i} variants={dribbbleStaggerChild}>
-                <DribbbleCard className="p-grid-4 text-center">
-                  <div className="w-20 h-20 mx-auto mb-grid-3 rounded-full bg-linear-to-br from-accent/20 to-accent-2/20 flex items-center justify-center">
-                    <span className="text-3xl">🎵</span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-grid-1">Producer {i}</h3>
-                  <p className="text-sm text-muted mb-grid-3">50+ Premium Beats</p>
-                  <PillCTA size="sm" variant="secondary">View Profile</PillCTA>
-                </DribbbleCard>
-              </motion.div>
-            ))}
-          </motion.div>
+          <MarketplaceBeatGrid beats={beats} hasActiveFilters={hasActiveFilters} />
         </div>
       </section>
 
-      {/* CTA Section */}
+      {featuredProducers && featuredProducers.length > 0 && (
+        <section className="px-grid-3 pb-grid-10">
+          <div className="container mx-auto max-w-7xl">
+            <div className="mb-grid-4 flex items-center gap-grid-2">
+              <TrendingUp className="h-6 w-6 text-accent" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
+                  Most active
+                </p>
+                <h2 className="text-2xl font-bold">Featured Producers</h2>
+              </div>
+            </div>
+
+            <motion.div
+              className="grid grid-cols-1 gap-grid-3 md:grid-cols-3"
+              variants={dribbbleStaggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              {featuredProducers.map((producer) => (
+                <motion.div key={producer.id} variants={dribbbleStaggerChild}>
+                  <Link
+                    href={`/${producer.slug}`}
+                    className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <DribbbleCard className="h-full p-grid-4">
+                      <div className="flex items-center gap-4">
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-accent/20 to-accent-2/20 text-accent">
+                          <Music className="h-6 w-6" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate text-lg font-semibold">{producer.name}</h3>
+                          <p className="text-sm text-muted">
+                            {producer.trackCount} published {producer.trackCount === 1 ? 'beat' : 'beats'}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-1 group-hover:text-accent" />
+                      </div>
+                    </DribbbleCard>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
       <section className="px-grid-3 pb-grid-10">
         <div className="container mx-auto max-w-7xl">
-          <DribbbleCard className="p-grid-8 text-center bg-linear-to-br from-accent/10 to-accent-2/10 border-2 border-accent/30">
-            <h2 className="text-3xl md:text-4xl font-bold mb-grid-3">
+          <DribbbleCard className="border-2 border-accent/30 bg-linear-to-br from-accent/10 to-accent-2/10 p-grid-8 text-center">
+            <h2 className="mb-grid-3 text-3xl font-bold md:text-4xl">
               Ready to Sell Your Beats?
             </h2>
-            <p className="text-lg text-muted mb-grid-4 max-w-2xl mx-auto">
-              Keep 100% of your sales revenue. No middleman, no platform commission.
-              Your fans pay directly to you via Stripe.
+            <p className="mx-auto mb-grid-4 max-w-2xl text-lg text-muted">
+              Publish from your own storefront and receive customer payments through your connected Stripe account.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <Link
-                href="/sign-up?role=producer&plan=pro&period=month&source=landing"
+                href="/sign-up?role=producer&plan=pro&period=month&source=marketplace"
                 data-growth-cta
               >
-                <PillCTA size="lg" variant="primary">
-                  Start PRO Free
-                </PillCTA>
+                <PillCTA size="lg" variant="primary">Start PRO Free</PillCTA>
               </Link>
               <Link href="/pricing">
-                <PillCTA size="lg" variant="secondary">
-                  View Pricing
-                </PillCTA>
+                <PillCTA size="lg" variant="secondary">View Pricing</PillCTA>
               </Link>
             </div>
-            <p className="text-xs text-muted mt-grid-3">
-              1 month free • Set up in minutes • Cancel anytime
+            <p className="mt-grid-3 text-xs text-muted">
+              One month free · Publish in minutes · Cancel anytime
             </p>
           </DribbbleCard>
         </div>

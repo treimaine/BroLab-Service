@@ -3,7 +3,6 @@ import type {
     CheckoutFailureParams,
     CheckoutSuccessParams,
     DeliveryCompletionParams,
-    HealthStatus,
     MonitoringEvent,
     OrderCreationParams,
     WebhookFailureParams,
@@ -11,6 +10,8 @@ import type {
     WebhookSuccessParams
 } from '@/shared/types/monitoring';
 import { SITE_CONFIG } from './env';
+import { captureServerEvent } from './posthog-server';
+import { after } from 'next/server';
 
 export function logMonitoringEvent(event: MonitoringEvent): void {
   const logEntry = {
@@ -28,10 +29,19 @@ export function logMonitoringEvent(event: MonitoringEvent): void {
     console.log('[MONITORING-INFO]', JSON.stringify(logEntry));
   }
 
-  // In production, send to monitoring service (DataDog, New Relic, etc)
-  if (process.env.NODE_ENV === 'production') {
-    sendToMonitoringService(logEntry);
-  }
+  const distinctId = event.userId ?? event.workspaceId ?? `system:${event.service}`;
+  after(async () => {
+    try {
+      await captureServerEvent(event.eventType, distinctId, {
+        ...logEntry,
+        error: event.error
+          ? { code: event.error.code, message: event.error.message }
+          : undefined,
+      });
+    } catch (error) {
+      console.error('[POSTHOG-DELIVERY-ERROR]', error);
+    }
+  });
 }
 
 export function logCheckoutAttempt(params: CheckoutAttemptParams): void {
@@ -206,50 +216,4 @@ export function logDeliveryCompletion(params: DeliveryCompletionParams): void {
       deliveryType: params.deliveryType,
     },
   });
-}
-
-async function sendToMonitoringService(logEntry: unknown): Promise<void> {
-  const endpoint = process.env.MONITORING_ENDPOINT;
-  const apiKey = process.env.MONITORING_API_KEY;
-
-  if (!endpoint || !apiKey) {
-    return; // Silently fail if not configured
-  }
-
-  try {
-    await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(logEntry),
-    }).catch(() => {
-      // Silently fail if monitoring service is unavailable
-      // Don't let monitoring failures break the application
-    });
-  } catch {
-    // Ignore monitoring service errors
-  }
-}
-
-export function getCheckoutHealthStatus(): HealthStatus {
-  // This is a simplified in-memory implementation
-  // In production, query metrics from database/monitoring service
-  return {
-    status: 'healthy',
-    successRate: 0.95, // Placeholder - fetch from monitoring
-    lastError: undefined,
-  };
-}
-
-export function getWebhookHealthStatus(): HealthStatus {
-  // This is a simplified in-memory implementation
-  // In production, query metrics from database/monitoring service
-  return {
-    status: 'healthy',
-    processedCount: 0, // Placeholder - fetch from monitoring
-    failureRate: 0.02,
-    lastError: undefined,
-  };
 }

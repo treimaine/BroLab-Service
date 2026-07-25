@@ -17,7 +17,7 @@ import { useSubscriptionSync } from '@/platform/billing'
 import { DribbbleCard, PillCTA } from '@/platform/ui'
 import { dribbblePageEnter } from '@/platform/ui/dribbble/motion'
 import { useUser } from '@clerk/nextjs'
-import { useMutation, useQuery } from 'convex/react'
+import { useAction, useMutation, useQuery } from 'convex/react'
 import { motion } from 'framer-motion'
 import { AlertCircle, CheckCircle2, Clock, Globe, Plus, RefreshCw, Trash2, X } from 'lucide-react'
 import Link from 'next/link'
@@ -72,7 +72,7 @@ export function StudioDomainsClient() {
 
   const connectDomain = useMutation(api.platform.domains.connectDomain)
   const disconnectDomain = useMutation(api.platform.domains.disconnectDomain)
-  const checkVerification = useMutation(api.platform.domains.checkDomainVerification)
+  const checkVerification = useAction(api.platform.domainVerification.checkDomainVerification)
 
   const isActive = subscription?.status === 'active'
   const isPro = subscription?.planKey === 'pro' && isActive
@@ -122,7 +122,6 @@ export function StudioDomainsClient() {
       await checkVerification({
         workspaceId: workspace._id,
         domainId,
-        actorClerkUserId: user.id,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification check failed')
@@ -358,17 +357,24 @@ export function StudioDomainsClient() {
                             <span className="text-[rgb(var(--accent))]">brolabentertainment.com</span>
                           </div>
                           <p className="text-xs text-[rgb(var(--muted))]">
-                            DNS changes can take up to 48 hours to propagate. Click &quot;Check Verification&quot; once your DNS is configured.
+                            DNS changes can take time to propagate. The check reads public CNAME, A, and AAAA records.
                           </p>
                         </div>
                       )}
 
                       {/* Failed state instructions */}
                       {status === 'failed' && (
-                        <p className="mt-2 text-sm text-red-400">
-                          Verification failed. Ensure your CNAME record points to{' '}
-                          <span className="font-mono">brolabentertainment.com</span> and try again.
-                        </p>
+                        <div className="mt-2 text-sm text-red-400">
+                          <p>
+                            Verification failed. Point the domain to{' '}
+                            <span className="font-mono">brolabentertainment.com</span> and try again.
+                          </p>
+                          {domain.verificationError && (
+                            <p className="mt-1 text-xs text-[rgb(var(--muted))]">
+                              Last check: {domain.verificationError}
+                            </p>
+                          )}
+                        </div>
                       )}
 
                       {/* Verified state */}

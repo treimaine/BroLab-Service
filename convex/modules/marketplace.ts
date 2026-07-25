@@ -1,236 +1,246 @@
 /**
  * Marketplace Module - Cross-Workspace Beat Discovery
  *
- * Handles marketplace queries for discovering beats across ALL producers.
- * Provides search, filtering, and sorting capabilities.
- *
- * Requirements: BRO-84 (Beat Marketplace UI/UX)
+ * Public, bounded queries for discovering published beats across producers.
+ * Only storefront-safe fields are returned: private storage IDs never leave Convex.
  */
 
 import { v } from "convex/values";
 import type { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
 
-// ============================================================================
-// QUERIES
-// ============================================================================
+const MARKETPLACE_SCAN_LIMIT = 200;
+const DEFAULT_RESULT_LIMIT = 60;
+const MAX_RESULT_LIMIT = 100;
 
-/**
- * Get marketplace beats with search, filter, and sort
- *
- * Returns published beats from ALL workspaces for global discovery.
- * Supports text search, genre filtering, and multiple sort options.
- *
- * @param searchQuery - Optional text search across title and tags
- * @param genre - Optional genre filter
- * @param sortBy - Sort order: newest (default), price-low, price-high
- * @param limit - Maximum number of results (default: 50, max: 100)
- *
- * @returns Array of beat records with workspace info
- */
+const priceByTierValidator = v.object({
+  basic: v.number(),
+  premium: v.number(),
+  unlimited: v.number(),
+});
+
+const marketplaceBeatValidator = v.object({
+  trackId: v.id("tracks"),
+  title: v.string(),
+  bpm: v.union(v.number(), v.null()),
+  musicalKey: v.union(v.string(), v.null()),
+  tags: v.array(v.string()),
+  priceUsdByTier: priceByTierValidator,
+  priceEurByTier: v.union(priceByTierValidator, v.null()),
+  previewUrl: v.union(v.string(), v.null()),
+  previewDurationSec: v.number(),
+  createdAt: v.number(),
+  workspace: v.object({
+    id: v.id("workspaces"),
+    slug: v.string(),
+    name: v.string(),
+    paymentsReady: v.boolean(),
+  }),
+});
+
 export const getMarketplaceBeats = query({
   args: {
     searchQuery: v.optional(v.string()),
     genre: v.optional(v.string()),
-    sortBy: v.optional(v.union(
-      v.literal("newest"),
-      v.literal("price-low"),
-      v.literal("price-high")
-    )),
+    sortBy: v.optional(
+      v.union(
+        v.literal("newest"),
+        v.literal("price-low"),
+        v.literal("price-high"),
+      ),
+    ),
     limit: v.optional(v.number()),
   },
+  returns: v.array(marketplaceBeatValidator),
   handler: async (ctx, args) => {
-    const limit = Math.min(args.limit ?? 50, 100);
-    const sortBy = args.sortBy ?? "newest";
+    const resultLimit = Math.max(
+      1,
+      Math.min(Math.floor(args.limit ?? DEFAULT_RESULT_LIMIT), MAX_RESULT_LIMIT),
+    );
+    const normalizedSearch = args.searchQuery?.trim().toLocaleLowerCase() ?? "";
+    const normalizedGenre = args.genre?.trim().toLocaleLowerCase() ?? "";
 
-    // Query all published tracks
-    const tracksQuery = ctx.db
+    const publishedTracks = await ctx.db
       .query("tracks")
-      .withIndex("by_workspace_status")
-      .filter((q) => q.eq(q.field("status"), "published"));
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .order("desc")
+      .take(MARKETPLACE_SCAN_LIMIT);
 
-    // Collect all tracks (we'll filter and sort in memory)
-    let tracks = await tracksQuery.collect();
-
-    // Filter by genre if provided
-    if (args.genre) {
-      tracks = tracks.filter((track) =>
-        track.tags?.some((tag) =>
-          tag.toLowerCase() === args.genre!.toLowerCase()
-        )
-      );
-    }
-
-    // Filter by search query if provided
-    if (args.searchQuery) {
-      const query = args.searchQuery.toLowerCase();
-      tracks = tracks.filter((track) =>
-        track.title.toLowerCase().includes(query) ||
-        track.tags?.some((tag) => tag.toLowerCase().includes(query))
-      );
-    }
-
-    // Sort tracks
-    tracks.sort((a, b) => {
-      switch (sortBy) {
-        case "newest": {
-          return b.createdAt - a.createdAt;
-        }
-        case "price-low": {
-          // Get the minimum license price for each track
-          const priceA = a.priceEurByTier ? Math.min(...Object.values(a.priceEurByTier)) : 0;
-          const priceB = b.priceEurByTier ? Math.min(...Object.values(b.priceEurByTier)) : 0;
-          return priceA - priceB;
-        }
-        case "price-high": {
-          const maxPriceA = a.priceEurByTier ? Math.max(...Object.values(a.priceEurByTier)) : 0;
-          const maxPriceB = b.priceEurByTier ? Math.max(...Object.values(b.priceEurByTier)) : 0;
-          return maxPriceB - maxPriceA;
-        }
-        default:
-          return 0;
-      }
-    });
-
-    // Limit results
-    tracks = tracks.slice(0, limit);
-
-    // Enrich with workspace info
     const enrichedTracks = await Promise.all(
-      tracks.map(async (track) => {
+      publishedTracks.map(async (track) => {
         const workspace = await ctx.db.get(track.workspaceId);
+        if (!workspace) return null;
+
+        const previewUrl = track.previewStorageId
+          ? await ctx.storage.getUrl(track.previewStorageId)
+          : null;
+
         return {
-          ...track,
-          workspace: workspace ? {
+          trackId: track._id,
+          title: track.title,
+          bpm: track.bpm ?? null,
+          musicalKey: track.key ?? null,
+          tags: track.tags,
+          priceUsdByTier: track.priceUsdByTier,
+          priceEurByTier: track.priceEurByTier ?? null,
+          previewUrl,
+          previewDurationSec: track.previewDurationSec,
+          createdAt: track.createdAt,
+          workspace: {
             id: workspace._id,
             slug: workspace.slug,
             name: workspace.name,
-          } : null,
+            paymentsReady:
+              workspace.paymentsStatus === "active" &&
+              workspace.stripeAccountId !== undefined,
+          },
         };
-      })
+      }),
     );
 
-    return enrichedTracks;
-  },
-});
+    const visibleTracks = enrichedTracks.filter(
+      (track): track is NonNullable<typeof track> => track !== null,
+    );
 
-/**
- * Get unique genres from all marketplace beats
- *
- * Extracts and returns unique genre tags from all published tracks
- * for use in genre filter pills.
- *
- * @returns Array of unique genre strings
- */
-export const getMarketplaceGenres = query({
-  args: {},
-  handler: async (ctx) => {
-    // Query all published tracks
-    const tracks = await ctx.db
-      .query("tracks")
-      .withIndex("by_workspace_status")
-      .filter((q) => q.eq(q.field("status"), "published"))
-      .collect();
+    const filteredTracks = visibleTracks.filter((track) => {
+      const matchesGenre =
+        normalizedGenre.length === 0 ||
+        track.tags.some((tag) => tag.toLocaleLowerCase() === normalizedGenre);
 
-    // Extract unique genres from tags
-    const genresSet = new Set<string>();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        track.title.toLocaleLowerCase().includes(normalizedSearch) ||
+        track.workspace.name.toLocaleLowerCase().includes(normalizedSearch) ||
+        track.tags.some((tag) =>
+          tag.toLocaleLowerCase().includes(normalizedSearch),
+        );
 
-    tracks.forEach((track) => {
-      track.tags?.forEach((tag) => {
-        genresSet.add(tag);
-      });
+      return matchesGenre && matchesSearch;
     });
 
-    // Convert to sorted array
-    return Array.from(genresSet).sort((a, b) => a.localeCompare(b));
+    const sortBy = args.sortBy ?? "newest";
+    filteredTracks.sort((left, right) => {
+      if (sortBy === "price-low") {
+        return left.priceUsdByTier.basic - right.priceUsdByTier.basic;
+      }
+      if (sortBy === "price-high") {
+        return right.priceUsdByTier.basic - left.priceUsdByTier.basic;
+      }
+      return right.createdAt - left.createdAt;
+    });
+
+    return filteredTracks.slice(0, resultLimit);
   },
 });
 
-/**
- * Get featured producers for marketplace
- *
- * Returns top producers based on number of published beats
- * and recent activity.
- *
- * @param limit - Maximum number of producers (default: 6)
- * @returns Array of workspace info with track count
- */
+export const getMarketplaceGenres = query({
+  args: {},
+  returns: v.array(v.string()),
+  handler: async (ctx) => {
+    const tracks = await ctx.db
+      .query("tracks")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .take(MARKETPLACE_SCAN_LIMIT);
+
+    const genres = new Set<string>();
+    for (const track of tracks) {
+      for (const tag of track.tags) {
+        const normalizedTag = tag.trim();
+        if (normalizedTag) genres.add(normalizedTag);
+      }
+    }
+
+    return Array.from(genres).sort((left, right) =>
+      left.localeCompare(right),
+    );
+  },
+});
+
 export const getFeaturedProducers = query({
   args: {
     limit: v.optional(v.number()),
   },
+  returns: v.array(
+    v.object({
+      id: v.id("workspaces"),
+      slug: v.string(),
+      name: v.string(),
+      trackCount: v.number(),
+    }),
+  ),
   handler: async (ctx, args) => {
-    const limit = args.limit ?? 6;
-
-    // Get all published tracks
+    const resultLimit = Math.max(1, Math.min(Math.floor(args.limit ?? 3), 12));
     const tracks = await ctx.db
       .query("tracks")
-      .withIndex("by_workspace_status")
-      .filter((q) => q.eq(q.field("status"), "published"))
-      .collect();
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .take(MARKETPLACE_SCAN_LIMIT);
 
-    // Count tracks by workspace
-    const workspaceCounts = new Map<string, number>();
-
-    tracks.forEach((track) => {
-      const workspaceId = track.workspaceId;
+    const workspaceCounts = new Map<Id<"workspaces">, number>();
+    for (const track of tracks) {
       workspaceCounts.set(
-        workspaceId,
-        (workspaceCounts.get(workspaceId) ?? 0) + 1
+        track.workspaceId,
+        (workspaceCounts.get(track.workspaceId) ?? 0) + 1,
       );
-    });
+    }
 
-    // Sort workspaces by track count
-    const sortedWorkspaces = Array.from(workspaceCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, limit);
+    const rankedWorkspaces = Array.from(workspaceCounts.entries())
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, resultLimit);
 
-    // Fetch workspace details
     const producers = await Promise.all(
-      sortedWorkspaces.map(async ([workspaceId, trackCount]) => {
-        const workspace = await ctx.db.get(workspaceId as Id<"workspaces">);
-        return workspace ? {
+      rankedWorkspaces.map(async ([workspaceId, trackCount]) => {
+        const workspace = await ctx.db.get(workspaceId);
+        if (!workspace) return null;
+
+        return {
           id: workspace._id,
-          slug: workspace.slug ?? 'unknown',
-          name: workspace.name ?? 'Unknown Producer',
+          slug: workspace.slug,
+          name: workspace.name,
           trackCount,
-        } : null;
-      })
+        };
+      }),
     );
 
-    return producers.filter((p) => p !== null);
+    return producers.filter(
+      (producer): producer is NonNullable<typeof producer> => producer !== null,
+    );
   },
 });
 
-/**
- * Get marketplace beat by ID
- *
- * Returns a single beat with full details and workspace info.
- * Only returns published beats.
- *
- * @param trackId - Track ID
- * @returns Beat record with workspace info or null
- */
 export const getMarketplaceBeat = query({
   args: {
     trackId: v.id("tracks"),
   },
+  returns: v.union(marketplaceBeatValidator, v.null()),
   handler: async (ctx, args) => {
     const track = await ctx.db.get(args.trackId);
+    if (!track || track.status !== "published") return null;
 
-    if (track?.status !== "published") {
-      return null;
-    }
-
-    // Enrich with workspace info
     const workspace = await ctx.db.get(track.workspaceId);
+    if (!workspace) return null;
+
+    const previewUrl = track.previewStorageId
+      ? await ctx.storage.getUrl(track.previewStorageId)
+      : null;
 
     return {
-      ...track,
-      workspace: workspace && {
+      trackId: track._id,
+      title: track.title,
+      bpm: track.bpm ?? null,
+      musicalKey: track.key ?? null,
+      tags: track.tags,
+      priceUsdByTier: track.priceUsdByTier,
+      priceEurByTier: track.priceEurByTier ?? null,
+      previewUrl,
+      previewDurationSec: track.previewDurationSec,
+      createdAt: track.createdAt,
+      workspace: {
         id: workspace._id,
         slug: workspace.slug,
         name: workspace.name,
+        paymentsReady:
+          workspace.paymentsStatus === "active" &&
+          workspace.stripeAccountId !== undefined,
       },
     };
   },

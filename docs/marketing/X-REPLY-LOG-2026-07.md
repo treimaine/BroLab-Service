@@ -55,6 +55,16 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@TheAllergiesUK` | https://x.com/TheAllergiesUK/status/2080924059525578993 | https://x.com/Treigua/status/2080962568588341614 | Artist/music business |
 | `@kijana_misa` | https://x.com/kijana_misa/status/2080954100536025160 | https://x.com/Treigua/status/2080962625643356657 | Artist/music business |
 | `@molwantwa_sambo` | https://x.com/molwantwa_sambo/status/2080918252234883490 | https://x.com/Treigua/status/2080962689161965819 | Artist/music business |
+| `@WavesOnWaves3` | https://x.com/WavesOnWaves3/status/2080903947741544795 | https://x.com/Treigua/status/2080962754458902942 | Artist/music business |
+| `@artbymissfr` | https://x.com/artbymissfr/status/2080740288419491858 | https://x.com/Treigua/status/2080962878811574370 | French creator business |
+| `@Jeremieca` | https://x.com/Jeremieca/status/2080911920677204271 | https://x.com/Treigua/status/2080963001037828211 | Product/founder |
+| `@romanbuildsaas` | https://x.com/romanbuildsaas/status/2080957481887354968 | https://x.com/Treigua/status/2080963136241184945 | Product/founder |
+| `@bogdan_ai` | https://x.com/bogdan_ai/status/2080955204304769061 | https://x.com/Treigua/status/2080963197125656817 | Product/founder |
+| `@Aevmorfop` | https://x.com/Aevmorfop/status/2080957827758100879 | https://x.com/Treigua/status/2080963260841382325 | Product/founder |
+| `@rcmisk` | https://x.com/rcmisk/status/2080957489521054158 | https://x.com/Treigua/status/2080963316000694544 | Product/founder |
+| `@virgilerietsch` | https://x.com/virgilerietsch/status/2080938274755854739 | https://x.com/Treigua/status/2080963393893077099 | French founder |
+| `@totoche` | https://x.com/totoche/status/2080946386938343815 | https://x.com/Treigua/status/2080963453942944052 | French founder |
+| `@StevePiermaria` | https://x.com/StevePiermaria/status/2080960408379068777 | https://x.com/Treigua/status/2080963517042061490 | French founder |
 
 ## Rules
 

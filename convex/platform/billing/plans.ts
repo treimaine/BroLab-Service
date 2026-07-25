@@ -8,15 +8,18 @@
  */
 
 import { query } from "../../_generated/server";
+import {
+  CLERK_PLAN_IDS,
+  type PlanKey,
+  type PublicPlanInfo,
+} from "../../../shared/billing/plans";
+
+export { CLERK_PLAN_IDS };
+export type { PlanKey, PublicPlanInfo };
 
 // ============================================================================
 // TYPES
 // ============================================================================
-
-/**
- * Available subscription plan keys
- */
-export type PlanKey = "basic" | "pro";
 
 /**
  * Plan feature limits and entitlements
@@ -49,70 +52,6 @@ export interface PlanFeatures {
   prioritySupport: boolean;
 }
 
-/**
- * Public plan information for pricing UI
- */
-export interface PublicPlanInfo {
-  /**
-   * Plan identifier (e.g., "basic", "pro")
-   */
-  slug: PlanKey;
-  
-  /**
-   * Display name for the plan
-   */
-  name: string;
-  
-  /**
-   * Technical feature limits
-   */
-  features: {
-    /**
-     * Maximum published tracks (-1 = unlimited)
-     */
-    maxPublishedTracks: number;
-    
-    /**
-     * Storage limit in GB
-     */
-    storageGb: number;
-    
-    /**
-     * Maximum custom domains
-     */
-    maxCustomDomains: number;
-
-    analyticsLevel: "basic" | "advanced";
-
-    prioritySupport: boolean;
-  };
-  
-  /**
-   * Pricing information in USD
-   */
-  pricing: {
-    /**
-     * Monthly price in USD
-     */
-    monthly: number;
-    
-    /**
-     * Annual price in USD
-     */
-    annual: number;
-  };
-  
-  /**
-   * Annual savings percentage (e.g., 50 for 50% off)
-   */
-  annualSavings: number;
-
-  /**
-   * Free trial configured in Clerk Billing for new paid subscriptions
-   */
-  trialDays: number;
-}
-
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -123,24 +62,6 @@ export interface PublicPlanInfo {
  */
 export const PREVIEW_DURATION_SEC = 30;
 export const PAID_PLAN_TRIAL_DAYS = 30;
-
-/**
- * Clerk plan ids are environment-specific. Keeping them here prevents an
- * opaque cplan id from ever being mistaken for the wrong entitlement.
- */
-export const CLERK_PLAN_IDS = {
-  development: {
-    basic: "cplan_38iViM4J5NFfkICiV6aY5jbWiqZ",
-    pro: "cplan_38iVwx1p1mXD9pObGXuRaZVRn0V",
-  },
-  production: {
-    basic: "cplan_3Ca0BuvMsMWAkdo9UZwXi6P2r5B",
-    pro: "cplan_3Ca0IiYfDoEuF7WvHdGBblhcCbB",
-  },
-} as const satisfies Record<
-  "development" | "production",
-  Record<PlanKey, string>
->;
 
 export function resolvePlanKeyFromClerkPlanId(planId?: string): PlanKey | null {
   if (!planId) return null;

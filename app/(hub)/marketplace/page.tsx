@@ -3,11 +3,11 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Beat Marketplace | BroLab Entertainment',
-  description: 'Discover premium beats from top producers. Browse, preview, and purchase exclusive beats for your next hit.',
+  description: 'Discover published beats from BroLab producers. Preview tracks, compare licenses, and purchase from each producer storefront.',
   keywords: ['beat marketplace', 'buy beats online', 'producer beats', 'instrumental beats', 'music marketplace'],
   openGraph: {
     title: 'Beat Marketplace | BroLab Entertainment',
-    description: 'Discover premium beats from top producers worldwide.',
+    description: 'Preview published beats and compare licenses from BroLab producers.',
     url: '/marketplace',
     siteName: 'BroLab Entertainment',
     type: 'website',
