@@ -192,6 +192,7 @@ export default clerkMiddleware(async (auth, req) => {
   // Define explicitly which paths are protected
   const isStudioPath = pathname.startsWith('/studio')
   const isArtistPath = pathname.startsWith('/artist')
+  const isAdminPath = pathname.startsWith('/admin')
   const isOnboardingPath = pathname.startsWith('/onboarding')
   const isPublicPath = isPublicRoute(pathname)
 
@@ -203,8 +204,10 @@ export default clerkMiddleware(async (auth, req) => {
 
   // ============ STEP 2: AUTHENTICATION REDIRECTION ============
   if (!userId) {
-    if (isStudioPath || isArtistPath || isOnboardingPath) {
-      return applySecurityHeaders(NextResponse.redirect(new URL('/sign-in', req.url)), req, pathname)
+    if (isStudioPath || isArtistPath || isAdminPath || isOnboardingPath) {
+      const signInUrl = new URL('/sign-in', req.url)
+      signInUrl.searchParams.set('redirect_url', `${pathname}${req.nextUrl.search}`)
+      return applySecurityHeaders(NextResponse.redirect(signInUrl), req, pathname)
     }
     if (isAuthPath) {
       return applySecurityHeaders(NextResponse.next(), req, pathname)
@@ -218,6 +221,14 @@ export default clerkMiddleware(async (auth, req) => {
       return applySecurityHeaders(NextResponse.next(), req, pathname)
     }
     return applySecurityHeaders(await resolveTenancy(req), req, pathname)
+  }
+
+  // Admin pages perform their authorization with currentUser().publicMetadata
+  // on the server. Do not send admins through creator onboarding based on
+  // sessionClaims.unsafeMetadata, which is neither authoritative nor guaranteed
+  // to be present in a freshly issued Clerk session token.
+  if (isAdminPath) {
+    return applySecurityHeaders(NextResponse.next(), req, pathname)
   }
 
   // ============ STEP 4: ROLE-BASED PROTECTION ============
