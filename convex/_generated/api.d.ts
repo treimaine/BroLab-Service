@@ -19,6 +19,7 @@ import type * as modules_checkoutAbandonment from "../modules/checkoutAbandonmen
 import type * as modules_earnings from "../modules/earnings.js";
 import type * as modules_failedTransactions from "../modules/failedTransactions.js";
 import type * as modules_growth from "../modules/growth.js";
+import type * as modules_growthProspects from "../modules/growthProspects.js";
 import type * as modules_interviewRequests from "../modules/interviewRequests.js";
 import type * as modules_licenses from "../modules/licenses.js";
 import type * as modules_marketplace from "../modules/marketplace.js";
@@ -33,6 +34,7 @@ import type * as platform_auditLogs from "../platform/auditLogs.js";
 import type * as platform_billing from "../platform/billing.js";
 import type * as platform_billing_clerkBillingSync from "../platform/billing/clerkBillingSync.js";
 import type * as platform_billing_plans from "../platform/billing/plans.js";
+import type * as platform_billing_status from "../platform/billing/status.js";
 import type * as platform_billing_subscriptionQueries from "../platform/billing/subscriptionQueries.js";
 import type * as platform_billing_testSubscription from "../platform/billing/testSubscription.js";
 import type * as platform_billing_webhooks from "../platform/billing/webhooks.js";
@@ -52,10 +54,12 @@ import type * as platform_email_winback from "../platform/email/winback.js";
 import type * as platform_emailEvents from "../platform/emailEvents.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
 import type * as platform_events from "../platform/events.js";
+import type * as platform_growthOps from "../platform/growthOps.js";
 import type * as platform_jobs from "../platform/jobs.js";
 import type * as platform_monitoring from "../platform/monitoring.js";
 import type * as platform_onboarding from "../platform/onboarding.js";
 import type * as platform_storage from "../platform/storage.js";
+import type * as platform_stripeConnect from "../platform/stripeConnect.js";
 import type * as platform_users from "../platform/users.js";
 import type * as platform_workspaces from "../platform/workspaces.js";
 
@@ -77,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   "modules/earnings": typeof modules_earnings;
   "modules/failedTransactions": typeof modules_failedTransactions;
   "modules/growth": typeof modules_growth;
+  "modules/growthProspects": typeof modules_growthProspects;
   "modules/interviewRequests": typeof modules_interviewRequests;
   "modules/licenses": typeof modules_licenses;
   "modules/marketplace": typeof modules_marketplace;
@@ -91,6 +96,7 @@ declare const fullApi: ApiFromModules<{
   "platform/billing": typeof platform_billing;
   "platform/billing/clerkBillingSync": typeof platform_billing_clerkBillingSync;
   "platform/billing/plans": typeof platform_billing_plans;
+  "platform/billing/status": typeof platform_billing_status;
   "platform/billing/subscriptionQueries": typeof platform_billing_subscriptionQueries;
   "platform/billing/testSubscription": typeof platform_billing_testSubscription;
   "platform/billing/webhooks": typeof platform_billing_webhooks;
@@ -110,10 +116,12 @@ declare const fullApi: ApiFromModules<{
   "platform/emailEvents": typeof platform_emailEvents;
   "platform/entitlements": typeof platform_entitlements;
   "platform/events": typeof platform_events;
+  "platform/growthOps": typeof platform_growthOps;
   "platform/jobs": typeof platform_jobs;
   "platform/monitoring": typeof platform_monitoring;
   "platform/onboarding": typeof platform_onboarding;
   "platform/storage": typeof platform_storage;
+  "platform/stripeConnect": typeof platform_stripeConnect;
   "platform/users": typeof platform_users;
   "platform/workspaces": typeof platform_workspaces;
 }>;

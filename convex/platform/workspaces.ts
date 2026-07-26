@@ -5,8 +5,14 @@
 import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
-import { mutation, query } from "../_generated/server";
+import {
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "../_generated/server";
 import { recordEventHelper } from "./events";
+import { recordServerGrowthEvent } from "../modules/growth";
 
 // ============ TYPES ============
 
@@ -195,9 +201,19 @@ export const createWorkspace = mutation({
     slug: v.string(),
     name: v.string(),
     type: v.union(v.literal("producer"), v.literal("engineer")),
-    ownerClerkUserId: v.string(),
+    // Acquisition attribution carried from the signup URL. Optional so existing
+    // callers keep working; when present it is stored on the workspace and
+    // copied onto later funnel events.
+    signupSource: v.optional(v.string()),
+    signupCampaign: v.optional(v.string()),
   },
+  returns: v.id("workspaces"),
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("You must be signed in to create a workspace.");
+    }
+
     // Validate slug format
     const validation = validateSlugFormat(args.slug);
     if (!validation.valid) {
@@ -219,8 +235,10 @@ export const createWorkspace = mutation({
       slug: args.slug,
       name: args.name,
       type: args.type,
-      ownerClerkUserId: args.ownerClerkUserId,
+      ownerClerkUserId: identity.subject,
       paymentsStatus: "unconfigured",
+      signupSource: args.signupSource,
+      signupCampaign: args.signupCampaign,
       createdAt: Date.now(),
     });
 
@@ -236,12 +254,21 @@ export const createWorkspace = mutation({
       workspaceId,
       type: "workspace_created",
       meta: {
-        ownerClerkUserId: args.ownerClerkUserId,
+        ownerClerkUserId: identity.subject,
         slug: args.slug,
         name: args.name,
         workspaceType: args.type,
         source: "onboarding",
       },
+    });
+
+    // Funnel measurement: the signup→workspace step used to be invisible.
+    await recordServerGrowthEvent(ctx, {
+      event: "workspace_created",
+      clerkUserId: identity.subject,
+      role: args.type,
+      source: args.signupSource,
+      campaign: args.signupCampaign,
     });
 
     // Contextual, self-serve onboarding: each action checks the latest state
@@ -334,21 +361,88 @@ export const updateContactDetails = mutation({
  * Update workspace Stripe account
  * Called after Stripe Connect onboarding
  */
-export const updateWorkspaceStripeAccount = mutation({
+export const assertStripeConnectOwnership = internalQuery({
+  args: {
+    workspaceId: v.id("workspaces"),
+    clerkUserId: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const workspace = await ctx.db.get(args.workspaceId);
+    if (!workspace || workspace.ownerClerkUserId !== args.clerkUserId) {
+      throw new Error("You do not have access to this workspace.");
+    }
+    return null;
+  },
+});
+
+/**
+ * Persist Stripe Connect state after the authenticated server action has
+ * exchanged the one-time OAuth code and verified workspace ownership.
+ */
+export const updateWorkspaceStripeAccountInternal = internalMutation({
   args: {
     workspaceId: v.id("workspaces"),
     stripeAccountId: v.string(),
-    paymentsStatus: v.union(
-      v.literal("unconfigured"),
-      v.literal("pending"),
-      v.literal("active")
-    ),
+    paymentsStatus: v.union(v.literal("pending"), v.literal("active")),
+    accountType: v.optional(v.string()),
+    chargesEnabled: v.boolean(),
+    payoutsEnabled: v.boolean(),
+    detailsSubmitted: v.boolean(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
+    const before = await ctx.db.get(args.workspaceId);
+    if (!before) {
+      throw new Error("Workspace not found.");
+    }
+
     await ctx.db.patch(args.workspaceId, {
       stripeAccountId: args.stripeAccountId,
       paymentsStatus: args.paymentsStatus,
     });
+
+    await recordEventHelper(ctx, {
+      workspaceId: args.workspaceId,
+      type: "payments_connected",
+      meta: {
+        stripeAccountId: args.stripeAccountId,
+        paymentsStatus: args.paymentsStatus,
+        accountType: args.accountType,
+        chargesEnabled: args.chargesEnabled,
+        payoutsEnabled: args.payoutsEnabled,
+        detailsSubmitted: args.detailsSubmitted,
+      },
+    });
+
+    // Funnel measurement: emit stripe_ready only on the transition into
+    // "active", so a status refresh that stays active is not double-counted.
+    if (
+      args.paymentsStatus === "active" &&
+      before?.paymentsStatus !== "active"
+    ) {
+      await recordServerGrowthEvent(ctx, {
+        event: "stripe_ready",
+        clerkUserId: before?.ownerClerkUserId,
+        role: before?.type,
+        source: before?.signupSource,
+        campaign: before?.signupCampaign,
+      });
+    }
+
+    if (args.paymentsStatus === "active" && before.paymentsStatus !== "active") {
+      await recordEventHelper(ctx, {
+        workspaceId: args.workspaceId,
+        type: "onboarding_completed",
+        meta: {
+          stripeAccountId: args.stripeAccountId,
+          accountType: args.accountType,
+          completedAt: new Date().toISOString(),
+        },
+      });
+    }
+
+    return null;
   },
 });
 

@@ -58,11 +58,17 @@ export const syncSubscription = internalMutation({
     }
 
     if (status === "active" && existing?.status !== "active") {
+      // Attribute the activation to the campaign/source captured when the
+      // workspace was created, so committed MRR can be traced back to the
+      // acquisition channel rather than stopping at the anonymous session.
+      const workspace = await ctx.db.get(workspaceId);
       await ctx.db.insert("growthEvents", {
         event: "subscription_activated",
         path: "/onboarding",
         clerkUserId,
         plan: planKey,
+        source: workspace?.signupSource,
+        campaign: workspace?.signupCampaign,
         createdAt: now,
       });
     }

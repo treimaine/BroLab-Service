@@ -37,12 +37,12 @@ export const PRICING_FAQ_ITEMS = [
   {
     question: 'What happens if I cancel?',
     answer:
-      'Your storefront remains accessible until the end of your billing period. After that, your storefront goes offline but your data is preserved for 30 days.',
+      'You keep full BASIC or PRO access until the end of your current billing period. After that, your storefront remains visible, but publishing and new orders are paused until you resubscribe. Your catalog and settings remain intact.',
   },
   {
     question: 'Do you offer refunds?',
     answer:
-      'We offer a 14-day money-back guarantee for new subscribers. Contact support within 14 days of your first payment for a full refund.',
+      "Your first month is free, so you can try everything before you're charged — cancel during the trial and you pay nothing. Except where required by applicable law, subscription charges are non-refundable once billing starts. You can cancel at any time to stop future renewals and keep full access until the end of the paid period.",
   },
   {
     question: 'How do I connect Stripe?',

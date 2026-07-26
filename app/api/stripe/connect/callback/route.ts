@@ -6,25 +6,24 @@
  * Requirements: 27.1, 27.2, 27.3, 27.5
  */
 
-import { getAppOrigin, STRIPE_CONFIG } from '@/lib/env'
+import { CONVEX_CONFIG, getAppOrigin } from '@/lib/env'
 import { getPostHogClient } from '@/lib/posthog-server'
+import { auth } from '@clerk/nextjs/server'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
-  apiVersion: '2026-06-24.dahlia',
-})
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
 export async function GET(request: Request) {
   // Redirect back to the origin the callback was reached on (localhost in dev)
   const origin = getAppOrigin(request)
 
   try {
+    const authResult = await auth()
+    if (!authResult.userId) {
+      return NextResponse.redirect(`${origin}/sign-in?redirect_url=/studio`)
+    }
+
     const { searchParams } = new URL(request.url)
     
     // Get authorization code from Stripe
@@ -66,62 +65,21 @@ export async function GET(request: Request) {
       )
     }
 
-    // Exchange authorization code for Stripe account ID
-    const response = await stripe.oauth.token({
-      grant_type: 'authorization_code',
+    if (userId !== authResult.userId) {
+      return NextResponse.redirect(`${origin}/studio?error=invalid_state_owner`)
+    }
+
+    const convexToken = await authResult.getToken({ template: 'convex' })
+    if (!convexToken) {
+      return NextResponse.redirect(`${origin}/studio?error=convex_auth_unavailable`)
+    }
+
+    const convex = new ConvexHttpClient(CONVEX_CONFIG.url)
+    convex.setAuth(convexToken)
+    const account = await convex.action(api.platform.stripeConnect.completeOAuth, {
+      workspaceId: workspaceId as Id<'workspaces'>,
       code,
     })
-
-    const stripeAccountId = response.stripe_user_id
-
-    if (!stripeAccountId) {
-      throw new Error('No stripe_user_id returned from OAuth token exchange')
-    }
-
-    // Verify the connected account exists and get its details
-    const account = await stripe.accounts.retrieve(stripeAccountId)
-
-    // Determine payments status based on account details
-    // Standard accounts need to complete onboarding before they can accept payments
-    let paymentsStatus: 'pending' | 'active' = 'pending'
-    
-    if (account.details_submitted && account.charges_enabled && account.payouts_enabled) {
-      paymentsStatus = 'active'
-    }
-
-    // Update workspace with Stripe account ID and payments status
-    await convex.mutation(api.platform.workspaces.updateWorkspaceStripeAccount, {
-      workspaceId: workspaceId as Id<'workspaces'>,
-      stripeAccountId,
-      paymentsStatus,
-    })
-
-    // Record "payments_connected" event
-    await convex.mutation(api.platform.events.recordEvent, {
-      workspaceId: workspaceId as Id<'workspaces'>,
-      type: 'payments_connected',
-      meta: {
-        stripeAccountId,
-        paymentsStatus,
-        accountType: account.type,
-        chargesEnabled: account.charges_enabled,
-        payoutsEnabled: account.payouts_enabled,
-        detailsSubmitted: account.details_submitted,
-      },
-    })
-
-    // Record "onboarding_completed" event if provider is fully activated
-    if (paymentsStatus === 'active') {
-      await convex.mutation(api.platform.events.recordEvent, {
-        workspaceId: workspaceId as Id<'workspaces'>,
-        type: 'onboarding_completed',
-        meta: {
-          stripeAccountId,
-          accountType: account.type,
-          completedAt: new Date().toISOString(),
-        },
-      })
-    }
 
     const phClient = getPostHogClient()
     if (phClient) {
@@ -130,9 +88,9 @@ export async function GET(request: Request) {
         event: 'stripe_connect_completed',
         properties: {
           workspace_id: workspaceId,
-          payments_status: paymentsStatus,
-          charges_enabled: account.charges_enabled,
-          payouts_enabled: account.payouts_enabled,
+          payments_status: account.paymentsStatus,
+          charges_enabled: account.chargesEnabled,
+          payouts_enabled: account.payoutsEnabled,
         },
       })
       await phClient.flush()
@@ -140,7 +98,7 @@ export async function GET(request: Request) {
 
     // Redirect to studio with success message
     return NextResponse.redirect(
-      `${origin}/studio?success=stripe_connected&status=${paymentsStatus}`
+      `${origin}/studio?success=stripe_connected&status=${account.paymentsStatus}`
     )
   } catch (error) {
     console.error('Stripe Connect callback error:', error)

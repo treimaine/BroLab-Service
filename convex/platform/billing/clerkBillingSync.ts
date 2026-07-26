@@ -18,6 +18,7 @@ import {
   resolvePlanKeyFromClerkPlanId,
   type PlanKey,
 } from "./plans";
+import { mapClerkSubscriptionStatus } from "./status";
 
 /**
  * How long a synced subscription is considered fresh (ms).
@@ -69,21 +70,6 @@ export function resolveClerkPlanKey(
 /**
  * Map a Clerk subscription/item status to our internal status.
  */
-function mapClerkStatus(status?: string): SyncStatus {
-  switch ((status ?? "").toLowerCase()) {
-    case "active":
-    case "trialing":
-      return "active";
-    case "canceled":
-    case "cancelled":
-    case "ended":
-    case "abandoned":
-      return "canceled";
-    default:
-      return "inactive";
-  }
-}
-
 /**
  * Pick the subscription item that should drive entitlements.
  *
@@ -105,7 +91,9 @@ function pickEntitlementItem(
       if (!planKey) return null;
       return {
         planKey,
-        status: mapClerkStatus(item.status ?? subscription.status),
+        status: mapClerkSubscriptionStatus(
+          item.status ?? subscription.status
+        ),
       };
     })
     .filter((c): c is { planKey: PlanKey; status: SyncStatus } => c !== null);

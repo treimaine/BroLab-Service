@@ -11,6 +11,8 @@ import {
     WavyLines
 } from '@/platform/ui'
 import Link from 'next/link'
+import { useCampaignSuffix } from '@/components/growth/useCampaignSuffix'
+import { FOUNDING_OFFER } from './founding-offer'
 
 const PLATFORM_INFO: Array<{ text: string }> = [
   { text: 'Keep 100% of your revenue' },
@@ -69,6 +71,7 @@ const HeroTitle = () => (
 )
 
 export function HeroSection() {
+  const campaignSuffix = useCampaignSuffix()
   return (
     <section className="relative overflow-hidden bg-[rgb(var(--bg))] pt-28 pb-16 lg:pt-32 lg:pb-24">
       <BackgroundPattern />
@@ -108,6 +111,16 @@ export function HeroSection() {
             <HeroTitle />
 
             <div className="space-y-6 max-w-2xl mx-auto xl:mx-0">
+              {FOUNDING_OFFER.enabled && (
+                <div className="flex flex-wrap items-center gap-2 justify-center xl:justify-start">
+                  <span className="inline-flex items-center rounded-full border border-[rgb(var(--accent)/0.35)] bg-[rgb(var(--accent)/0.08)] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-accent">
+                    {FOUNDING_OFFER.badge}
+                  </span>
+                  <span className="text-xs font-semibold text-text">
+                    {FOUNDING_OFFER.priceLock}
+                  </span>
+                </div>
+              )}
               <p className="text-xs font-bold text-accent uppercase tracking-widest">
                 For producers &amp; audio engineers
               </p>
@@ -124,7 +137,7 @@ export function HeroSection() {
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center xl:justify-start">
                 <Link
-                  href="/sign-up?plan=pro&period=month&source=landing"
+                  href={`/sign-up?plan=pro&period=month&source=landing${campaignSuffix}`}
                   data-growth-cta
                 >
                   <PillCTA variant="primary" size="lg">
@@ -139,7 +152,9 @@ export function HeroSection() {
               </div>
 
               <p className="text-xs text-muted">
-                1 month free on BASIC and PRO • Cancel anytime
+                {FOUNDING_OFFER.enabled
+                  ? FOUNDING_OFFER.riskReversal
+                  : '1 month free on BASIC and PRO • Cancel anytime'}
               </p>
             </div>
 

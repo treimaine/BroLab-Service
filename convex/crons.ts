@@ -18,10 +18,27 @@ const crons = cronJobs();
  * which covers both halves of the seller base at a time inboxes are being read
  * rather than triaged.
  */
-crons.weekly(
+crons.cron(
   "weekly seller digest",
-  { dayOfWeek: "monday", hourUTC: 15, minuteUTC: 0 },
+  "0 15 * * 1",
   internal.platform.email.sellerNotifications.dispatchWeeklyDigests,
+  {}
+);
+
+// Keep CRM stages aligned with attributed product events without automating
+// unsolicited outreach. Human approval remains required for every X/DM send.
+crons.cron(
+  "sync attributed prospect stages",
+  "15 * * * *",
+  internal.modules.growthProspects.syncAttributedStages,
+  {}
+);
+
+// 08:00 UTC = 10:00 Paris in July, before the daily outreach block.
+crons.cron(
+  "daily growth operator brief",
+  "0 8 * * *",
+  internal.platform.growthOps.sendDailyBrief,
   {}
 );
 

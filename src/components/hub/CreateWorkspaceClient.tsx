@@ -93,7 +93,6 @@ export function CreateWorkspaceClient() {
         slug: workspaceSlug,
         name: workspaceName,
         type: role,
-        ownerClerkUserId: user.id,
       })
       setStep('complete')
       setTimeout(() => router.push('/studio'), 1500)

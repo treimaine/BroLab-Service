@@ -10,6 +10,7 @@ import { v } from "convex/values";
 import { internalQuery, mutation, query } from "../_generated/server";
 import { logAuditHelper } from "../platform/auditLogs";
 import { assertActiveSubscription } from "../platform/entitlements";
+import { markFirstOfferPublished } from "./growth";
 
 // ============================================================================
 // INTERNAL HELPERS
@@ -157,6 +158,11 @@ export const createService = mutation({
       meta: { title: args.title, priceUSD: args.priceUSD, isActive: args.isActive },
     });
 
+    // Funnel measurement: a service created already-active is a published offer.
+    if (args.isActive) {
+      await markFirstOfferPublished(ctx, args.workspaceId);
+    }
+
     return serviceId;
   },
 });
@@ -255,6 +261,11 @@ export const toggleServiceActive = mutation({
         action: newStatus ? "activated" : "deactivated",
       },
     });
+
+    // Funnel measurement: activating a service is publishing an offer.
+    if (newStatus) {
+      await markFirstOfferPublished(ctx, service.workspaceId);
+    }
 
     return { success: true, isActive: newStatus };
   },

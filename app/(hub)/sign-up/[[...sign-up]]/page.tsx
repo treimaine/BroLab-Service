@@ -17,6 +17,20 @@ function getSearchParam(
 }
 
 /**
+ * Free-form attribution tag (e.g. `july-mrr-sprint`). Unlike plan/period/role
+ * it has no fixed allowlist, so it is sanitised to a safe slug and length-capped
+ * before being carried forward to onboarding and stored on the workspace.
+ */
+function getCampaignParam(
+  value: string | string[] | undefined
+): string | undefined {
+  const raw = Array.isArray(value) ? value[0] : value
+  if (!raw) return undefined
+  const slug = raw.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 80)
+  return slug.length > 0 ? slug : undefined
+}
+
+/**
  * Sign Up Page
  *
  * Uses Clerk's <SignUp /> component with Dribbble styling configured in root layout.
@@ -50,8 +64,10 @@ export default async function SignUpPage({ searchParams }: Readonly<SignUpPagePr
     'founding-creators',
     'direct',
   ]) ?? 'direct'
+  const campaign = getCampaignParam(params.campaign)
   const onboardingParams = new URLSearchParams({ plan, period, source })
   if (role) onboardingParams.set('role', role)
+  if (campaign) onboardingParams.set('campaign', campaign)
 
   return (
     <div className="min-h-screen bg-app flex flex-col">

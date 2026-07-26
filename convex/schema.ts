@@ -31,6 +31,15 @@ export default defineSchema({
       v.literal("pending"),
       v.literal("active")
     ),
+    // Acquisition attribution, captured at workspace creation from the signup
+    // URL. Copied onto later funnel events (stripe_ready, subscription_activated,
+    // first_offer_published) so activation can be attributed to the campaign that
+    // produced it, not just to the anonymous session that saw the landing page.
+    signupSource: v.optional(v.string()),
+    signupCampaign: v.optional(v.string()),
+    // Set the first time this workspace publishes any offer (track or service).
+    // Guards the one-shot first_offer_published growth event.
+    firstOfferPublishedAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_slug", ["slug"])
@@ -115,7 +124,10 @@ export default defineSchema({
       v.literal("pricing_view"),
       v.literal("cta_clicked"),
       v.literal("signup_view"),
-      v.literal("subscription_activated")
+      v.literal("workspace_created"),
+      v.literal("subscription_activated"),
+      v.literal("stripe_ready"),
+      v.literal("first_offer_published")
     ),
     path: v.string(),
     sessionId: v.optional(v.string()),
@@ -130,7 +142,47 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_event_and_createdAt", ["event", "createdAt"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_campaign_and_createdAt", ["campaign", "createdAt"]),
+
+  growthProspects: defineTable({
+    ownerClerkUserId: v.string(),
+    displayName: v.string(),
+    handle: v.string(),
+    platform: v.union(
+      v.literal("x"),
+      v.literal("instagram"),
+      v.literal("email"),
+      v.literal("other")
+    ),
+    profileUrl: v.string(),
+    segment: v.union(v.literal("producer"), v.literal("engineer")),
+    signal: v.string(),
+    currentSalesFlow: v.optional(v.string()),
+    status: v.union(
+      v.literal("new"),
+      v.literal("contacted"),
+      v.literal("replied"),
+      v.literal("qualified"),
+      v.literal("link_sent"),
+      v.literal("trial_started"),
+      v.literal("activated"),
+      v.literal("won"),
+      v.literal("lost")
+    ),
+    campaign: v.string(),
+    notes: v.optional(v.string()),
+    lastContactedAt: v.optional(v.number()),
+    nextFollowUpAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_owner_and_profile_url", ["ownerClerkUserId", "profileUrl"])
+    .index("by_owner_and_updatedAt", ["ownerClerkUserId", "updatedAt"])
+    .index("by_owner_and_nextFollowUpAt", [
+      "ownerClerkUserId",
+      "nextFollowUpAt",
+    ]),
 
   // ============ MODULE TABLES ============
 

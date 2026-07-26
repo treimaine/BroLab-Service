@@ -1,15 +1,86 @@
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { mutation, query, type MutationCtx } from "../_generated/server";
+import { Id } from "../_generated/dataModel";
 
 const MAX_EVENTS_PER_REPORT = 10_000;
 
-const growthEventValidator = v.union(
+const clientGrowthEventValidator = v.union(
   v.literal("landing_view"),
   v.literal("pricing_view"),
   v.literal("cta_clicked"),
-  v.literal("signup_view"),
-  v.literal("subscription_activated")
+  v.literal("signup_view")
 );
+
+/**
+ * Server-authoritative funnel events.
+ *
+ * Unlike the client-beacon events (landing/pricing/cta/signup views), these are
+ * emitted from Convex mutations at the moment real product state changes, so a
+ * browser can neither forge nor drop them. They fill the post-signup half of the
+ * funnel that was previously labelled "unmeasured".
+ */
+export type ServerGrowthEvent =
+  | "workspace_created"
+  | "subscription_activated"
+  | "stripe_ready"
+  | "first_offer_published";
+
+/**
+ * Record a server-authoritative funnel event.
+ *
+ * Callable from any mutation. `path` defaults to "/onboarding" to match the
+ * existing subscription_activated rows. Attribution (source/campaign/role) is
+ * optional and should be threaded through from the workspace where available.
+ */
+export async function recordServerGrowthEvent(
+  ctx: MutationCtx,
+  params: {
+    event: ServerGrowthEvent;
+    path?: string;
+    clerkUserId?: string;
+    plan?: "basic" | "pro";
+    period?: "month" | "annual";
+    role?: "producer" | "engineer" | "artist";
+    source?: string;
+    campaign?: string;
+  }
+): Promise<void> {
+  await ctx.db.insert("growthEvents", {
+    event: params.event,
+    path: params.path ?? "/onboarding",
+    clerkUserId: params.clerkUserId,
+    plan: params.plan,
+    period: params.period,
+    role: params.role,
+    source: params.source,
+    campaign: params.campaign,
+    createdAt: Date.now(),
+  });
+}
+
+/**
+ * Emit `first_offer_published` exactly once per workspace.
+ *
+ * A published track and an active service are both "offers", so this is called
+ * from track publish and service activation alike. `workspace.firstOfferPublishedAt`
+ * is the idempotency guard — the second and later offers are no-ops here.
+ */
+export async function markFirstOfferPublished(
+  ctx: MutationCtx,
+  workspaceId: Id<"workspaces">
+): Promise<void> {
+  const workspace = await ctx.db.get(workspaceId);
+  if (!workspace || workspace.firstOfferPublishedAt) return;
+
+  await ctx.db.patch(workspaceId, { firstOfferPublishedAt: Date.now() });
+  await recordServerGrowthEvent(ctx, {
+    event: "first_offer_published",
+    clerkUserId: workspace.ownerClerkUserId,
+    role: workspace.type,
+    source: workspace.signupSource,
+    campaign: workspace.signupCampaign,
+  });
+}
 
 const planValidator = v.union(v.literal("basic"), v.literal("pro"));
 const periodValidator = v.union(v.literal("month"), v.literal("annual"));
@@ -29,7 +100,10 @@ const diagnosisValidator = v.object({
     v.literal("acquisition"),
     v.literal("cta"),
     v.literal("signup"),
+    v.literal("workspace"),
     v.literal("subscription"),
+    v.literal("stripe"),
+    v.literal("first_offer"),
     v.null()
   ),
   evidence: v.string(),
@@ -51,7 +125,11 @@ function diagnoseFunnel(
   const landingViews = getStageCount("landing_view", counts, uniqueSessions);
   const ctaClicks = getStageCount("cta_clicked", counts, uniqueSessions);
   const signupViews = getStageCount("signup_view", counts, uniqueSessions);
+  // Server-authoritative stages have no sessionId, so they are counted by event.
+  const workspaces = counts.workspace_created ?? 0;
   const subscriptions = counts.subscription_activated ?? 0;
+  const stripeReady = counts.stripe_ready ?? 0;
+  const firstOffers = counts.first_offer_published ?? 0;
 
   if (landingViews === 0) {
     return {
@@ -83,28 +161,60 @@ function diagnoseFunnel(
     };
   }
 
+  if (workspaces === 0) {
+    return {
+      status: "conversion_gap" as const,
+      bottleneck: "workspace" as const,
+      evidence: `${signupViews} signup session(s) produced no created workspace.`,
+      nextAction:
+        "Reproduce account creation and role/slug selection; the drop is before checkout, not at price.",
+    };
+  }
+
   if (subscriptions === 0) {
     return {
       status: "conversion_gap" as const,
       bottleneck: "subscription" as const,
-      evidence: `${signupViews} signup session(s) produced no activated subscription.`,
+      evidence: `${workspaces} workspace(s) produced no activated subscription.`,
       nextAction:
-        "Inspect account creation, workspace onboarding, and checkout as separate steps.",
+        "Confirm the paid-plan CTA and Clerk checkout work; verify the free-month trial is configured.",
+    };
+  }
+
+  if (stripeReady === 0) {
+    return {
+      status: "conversion_gap" as const,
+      bottleneck: "stripe" as const,
+      evidence: `${subscriptions} subscription(s) produced no Stripe-ready workspace.`,
+      nextAction:
+        "Inspect Stripe Connect onboarding and return URLs; sellers cannot be paid until this clears.",
+    };
+  }
+
+  if (firstOffers === 0) {
+    return {
+      status: "conversion_gap" as const,
+      bottleneck: "first_offer" as const,
+      evidence: `${stripeReady} Stripe-ready workspace(s) published no first offer.`,
+      nextAction:
+        "Observe the first upload/publish flow; a live storefront with no offer cannot sell.",
     };
   }
 
   return {
     status: "healthy_signal" as const,
     bottleneck: null,
-    evidence: `${subscriptions} subscription activation(s) are recorded for this period.`,
+    evidence: `${firstOffers} workspace(s) reached a published first offer this period.`,
     nextAction:
-      "Measure workspace creation, Stripe readiness, and first-offer publication before optimizing activation.",
+      "Full activation path is measured end to end; optimize the weakest measured step.",
   };
 }
 
 export const track = mutation({
   args: {
-    event: growthEventValidator,
+    // Browser tracking is intentionally limited to pre-auth navigation events.
+    // Product-state milestones are emitted only by trusted server mutations.
+    event: clientGrowthEventValidator,
     path: v.string(),
     sessionId: v.optional(v.string()),
     plan: v.optional(planValidator),
@@ -178,13 +288,12 @@ export const getFunnel = query({
           "pricing view",
           "CTA click",
           "signup view",
-          "subscription activation",
-        ],
-        notMeasured: [
           "workspace creation",
+          "subscription activation",
           "Stripe Connect readiness",
           "first published offer",
         ],
+        notMeasured: [],
       },
     };
   },

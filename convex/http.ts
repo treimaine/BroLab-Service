@@ -20,6 +20,9 @@ import {
   verifyClerkWebhookSignature,
   verifyStripeWebhookSignature,
 } from "./lib/webhookSignatures";
+import {
+  mapSubscriptionItemEventToStatus,
+} from "./platform/billing/status";
 
 // Stripe event types
 interface StripeCheckoutSession {
@@ -1668,7 +1671,7 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
   // Queue the trial reminder ladder the first time a plan goes active. The
   // mutation is idempotent per stage via the emailEvents dedupeKey, so a
   // repeated "active" event cannot produce duplicate reminders.
-  if (systemStatus === "active") {
+  if (type === "subscriptionItem.active") {
     try {
       await ctx.runMutation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1684,9 +1687,9 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
    * Failed-payment recovery.
    *
    * Keyed off the raw Clerk event type rather than `systemStatus`, because our
-   * mapper collapses pastDue, incomplete, abandoned and ended all into
-   * "inactive" — only the raw type distinguishes a card that failed from a
-   * customer who left. `eventId` becomes the dunning cycle id, so a second
+   * mapper uses several non-active states — only the raw type distinguishes a
+   * card that failed from a customer who left. `eventId` becomes the dunning
+   * cycle id, so a second
    * failure months later opens a genuinely new sequence instead of being
    * swallowed by the previous cycle's dedupe keys.
    */
@@ -1706,9 +1709,8 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
   }
 
   /**
-   * Cancellation: an immediate survey, then the 90-day win-back ladder. Both
-   * re-check live state before sending, so a plan switch that briefly looks
-   * like a cancellation never produces a "sorry to see you go" email.
+   * A cancellation keeps access through the paid period, so only ask for
+   * feedback here. The churn ladder starts from the definitive `ended` event.
    */
   if (eventId && type === "subscriptionItem.canceled") {
     try {
@@ -1720,7 +1722,9 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
     } catch (err: unknown) {
       console.error("Failed to send cancellation survey:", err);
     }
+  }
 
+  if (type === "subscriptionItem.ended") {
     try {
       await ctx.runMutation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1732,10 +1736,17 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
     }
   }
 
-  // Requirement 30.4: Send subscription status email for active/canceled events.
+  // Send once when access starts and once when renewal is canceled. The latter
+  // explicitly explains that access remains until the current period ends.
   // Await the action so Convex keeps the execution alive until Resend responds.
   // Failures remain non-fatal for the webhook.
-  if (eventId && (systemStatus === "active" || systemStatus === "canceled")) {
+  const emailStatus =
+    type === "subscriptionItem.active"
+      ? ("active" as const)
+      : type === "subscriptionItem.canceled"
+        ? ("canceled" as const)
+        : null;
+  if (eventId && emailStatus) {
     try {
       await ctx.runAction(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1744,7 +1755,7 @@ async function handleBillingEvent(ctx: GenericActionCtx<Record<string, never>>, 
           clerkEventId: eventId,
           clerkUserId,
           planKey: resolvedPlan,
-          status: systemStatus,
+          status: emailStatus,
         }
       );
     } catch (err: unknown) {
@@ -1765,23 +1776,6 @@ function resolvePlanKey(planSlug?: string, planId?: string): "basic" | "pro" | n
   if (slug.includes("basic") || id.includes("basic")) return "basic";
 
   return null;
-}
-
-// Map subscriptionItem event type + status to our system status
-function mapSubscriptionItemEventToStatus(eventType: string, itemStatus?: string): "active" | "inactive" | "canceled" {
-  switch (eventType) {
-    case "subscriptionItem.active":
-      return "active";
-    case "subscriptionItem.canceled":
-    case "subscriptionItem.ended":
-    case "subscriptionItem.abandoned":
-      return "canceled";
-    case "subscriptionItem.pastDue":
-    case "subscriptionItem.incomplete":
-      return "inactive";
-    default:
-      return mapClerkStatusToSystem(itemStatus || "");
-  }
 }
 
 // Handle standard Clerk events (user.*, session.*, organization.*)
@@ -1893,23 +1887,6 @@ async function handleStandardEvent(
 }
 
 // Helper function to map Clerk subscription status to system status
-function mapClerkStatusToSystem(clerkStatus: string): "active" | "inactive" | "canceled" {
-  switch (clerkStatus) {
-    case "active":
-    case "trialing":
-      return "active";
-    case "canceled":
-      return "canceled";
-    case "incomplete":
-    case "incomplete_expired":
-    case "past_due":
-    case "unpaid":
-      return "inactive";
-    default:
-      return "inactive";
-  }
-}
-
 // Send artist purchase email notification
 async function sendArtistPurchaseEmailNotification(
   ctx: GenericActionCtx<Record<string, never>>,

@@ -629,13 +629,13 @@ export function subscriptionStatus(
       ].join("\n")
     : [
         badge("Canceled", "warning"),
-        h1(`Your ${p.planLabel} plan is canceled`),
+        h1(`Your ${p.planLabel} renewal is canceled`),
         paragraph(
-          "Your storefront stays publicly visible, but publishing and new orders are paused. Your catalog and settings are kept intact — resubscribing restores everything exactly as it was."
+          "You keep full access through the end of your current billing period. After that date, your storefront stays visible, but publishing and new orders pause. Your catalog and settings remain intact."
         ),
         detailTable([
           { label: "Plan", value: p.planLabel },
-          { label: "Status", value: "Canceled" },
+          { label: "Renewal", value: "Canceled" },
         ]),
         button("Reactivate my plan", p.billingUrl),
       ].join("\n");
@@ -643,23 +643,23 @@ export function subscriptionStatus(
   return {
     subject: p.isActive
       ? `Your ${p.planLabel} subscription is now active`
-      : `Your ${p.planLabel} subscription has been canceled`,
+      : `Your ${p.planLabel} renewal has been canceled`,
     html: renderEmailLayout({
       brand: p.brand,
       preheader: p.isActive
         ? `${p.planLabel} access is enabled. 0% commission on every sale.`
-        : "Your catalog is kept intact and returns when you resubscribe.",
+        : "Full access remains available through the end of your current billing period.",
       body,
       footerNote: "You received this because your subscription status changed.",
     }),
     text: [
       p.isActive
         ? `Your ${p.planLabel} plan is live`
-        : `Your ${p.planLabel} plan is canceled`,
+        : `Your ${p.planLabel} renewal is canceled`,
       "",
       p.isActive
         ? `Full ${p.planLabel} access is enabled. We take 0% commission on your sales.`
-        : "Your storefront stays visible, but publishing and new orders are paused. Your catalog is kept intact.",
+        : "You keep full access through the end of your current billing period. After that, publishing and new orders pause while your catalog stays intact.",
       "",
       `Plan: ${p.planLabel}`,
       `Status: ${p.isActive ? "Active" : "Canceled"}`,

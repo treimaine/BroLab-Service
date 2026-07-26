@@ -239,13 +239,6 @@ export const sendCancellationSurvey = internalAction({
 
     if (!state.clerkUserId) return { sent: false, reason: "workspace_missing" };
 
-    // Clerk emits cancellation events that can be followed by an immediate
-    // reactivation (plan switches look like this). Only send if they are still
-    // gone by the time this runs.
-    if (state.subscriptionStatus === "active") {
-      return { sent: false, reason: "still_active" };
-    }
-
     const email = await fetchClerkEmail(state.clerkUserId);
     if (!email) return { sent: false, reason: "no_email" };
 

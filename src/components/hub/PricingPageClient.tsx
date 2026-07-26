@@ -10,6 +10,8 @@ import {
   PillCTA,
   SectionHeader
 } from '@/platform/ui'
+import { useCampaignSuffix } from '@/components/growth/useCampaignSuffix'
+import { FOUNDING_OFFER } from './founding-offer'
 import { useQuery } from 'convex/react'
 import {
   Check,
@@ -183,6 +185,8 @@ function PlanCard({
   isAnnual: boolean
   planData: PublicPlanInfo | undefined
 }>) {
+  // Called before the early return to satisfy the rules of hooks.
+  const campaignSuffix = useCampaignSuffix()
   if (!planData) {
     return (
       <DribbbleCard padding="lg">
@@ -231,7 +235,7 @@ function PlanCard({
         </div>
 
         <Link
-          href={`/sign-up?plan=${plan}&period=${isAnnual ? 'annual' : 'month'}&source=pricing`}
+          href={`/sign-up?plan=${plan}&period=${isAnnual ? 'annual' : 'month'}&source=pricing${campaignSuffix}`}
           className="block mb-6"
           data-growth-cta
         >
@@ -396,6 +400,7 @@ function TrustBadges() {
 }
 
 function FinalCTASection() {
+  const campaignSuffix = useCampaignSuffix()
   return (
     <section className="py-16 px-4">
       <div className="container mx-auto max-w-3xl">
@@ -424,7 +429,7 @@ function FinalCTASection() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link
-                  href="/sign-up?plan=pro&period=month&source=pricing"
+                  href={`/sign-up?plan=pro&period=month&source=pricing${campaignSuffix}`}
                   data-growth-cta
                 >
                   <PillCTA as="span" variant="primary" size="lg" icon={Sparkles}>
@@ -437,6 +442,11 @@ function FinalCTASection() {
                   </PillCTA>
                 </Link>
               </div>
+              {FOUNDING_OFFER.enabled && (
+                <p className="mt-6 text-xs text-muted">
+                  {FOUNDING_OFFER.priceLock} — {FOUNDING_OFFER.riskReversal}
+                </p>
+              )}
             </div>
           </DribbbleCard>
         </DribbbleSectionEnter>

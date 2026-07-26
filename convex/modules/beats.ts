@@ -10,6 +10,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { assertActiveSubscription, assertQuota } from "../platform/entitlements";
+import { markFirstOfferPublished } from "./growth";
 import { internal } from "../_generated/api";
 
 // ============================================================================
@@ -425,6 +426,9 @@ export const publishTrack = mutation({
       },
       createdAt: Date.now(),
     });
+
+    // Funnel measurement: first published offer for this workspace (idempotent).
+    await markFirstOfferPublished(ctx, track.workspaceId);
 
     return { success: true };
   },

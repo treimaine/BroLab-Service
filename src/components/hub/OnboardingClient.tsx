@@ -572,6 +572,14 @@ export function OnboardingClient() {
   const intendedPlan = searchParams.get('plan') === 'basic' ? 'basic' : 'pro'
   const intendedPeriod = searchParams.get('period') === 'annual' ? 'annual' : 'month'
   const intendedRoleParam = searchParams.get('role')
+  // Acquisition attribution carried from the signup URL. Sanitised here so a
+  // hand-crafted URL cannot inject arbitrary strings into the workspace record.
+  const signupSource = (searchParams.get('source') ?? undefined)?.slice(0, 80) || undefined
+  const signupCampaign =
+    (searchParams.get('campaign') ?? '')
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, '')
+      .slice(0, 80) || undefined
   const intendedRole =
     intendedRoleParam === 'producer' || intendedRoleParam === 'engineer'
       ? intendedRoleParam
@@ -694,7 +702,8 @@ export function OnboardingClient() {
         slug: workspaceSlug,
         name: workspaceName,
         type: selectedRole,
-        ownerClerkUserId: user.id,
+        signupSource,
+        signupCampaign,
       })
       setCreatedWorkspaceId(workspaceId)
 

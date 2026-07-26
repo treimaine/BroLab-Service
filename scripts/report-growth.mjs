@@ -111,15 +111,32 @@ function printHumanReport(report) {
   ]
 
   if (report.acquisition) {
+    const counts = report.acquisition.counts ?? {}
+    const sessions = report.acquisition.uniqueSessions ?? {}
     lines.push(
       'Acquisition tracking',
       `- Query version: ${report.instrumentation.growthQuery}`,
       `- Events: ${report.acquisition.totalEvents}${report.acquisition.isTruncated ? '+' : ''}`,
-      `- Landing sessions: ${report.acquisition.uniqueSessions.landing_view ?? 0}`,
-      `- CTA sessions: ${report.acquisition.uniqueSessions.cta_clicked ?? 0}`,
-      `- Signup sessions: ${report.acquisition.uniqueSessions.signup_view ?? 0}`,
+      '',
+      'Funnel (end to end)',
+      `- Landing sessions: ${sessions.landing_view ?? 0}`,
+      `- CTA sessions: ${sessions.cta_clicked ?? 0}`,
+      `- Signup sessions: ${sessions.signup_view ?? 0}`,
+      `- Workspaces created: ${counts.workspace_created ?? 0}`,
+      `- Subscriptions activated: ${counts.subscription_activated ?? 0}`,
+      `- Stripe-ready workspaces: ${counts.stripe_ready ?? 0}`,
+      `- First offers published: ${counts.first_offer_published ?? 0}`,
       ''
     )
+    if (report.acquisition.coverage) {
+      const notMeasured = report.acquisition.coverage.notMeasured ?? []
+      lines.push(
+        notMeasured.length === 0
+          ? 'Coverage: full funnel is instrumented.'
+          : `Coverage gap (still unmeasured): ${notMeasured.join(', ')}.`,
+        ''
+      )
+    }
   } else {
     lines.push(
       'Acquisition tracking',
