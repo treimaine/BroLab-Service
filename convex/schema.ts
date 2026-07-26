@@ -159,6 +159,14 @@ export default defineSchema({
     segment: v.union(v.literal("producer"), v.literal("engineer")),
     signal: v.string(),
     currentSalesFlow: v.optional(v.string()),
+    outreachDrafts: v.optional(
+      v.object({
+        opener: v.string(),
+        followUp: v.string(),
+        replyBridge: v.string(),
+        trialInvite: v.string()
+      })
+    ),
     status: v.union(
       v.literal("new"),
       v.literal("contacted"),

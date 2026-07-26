@@ -5,7 +5,7 @@ import {
   mutation,
   query,
   type MutationCtx,
-  type QueryCtx,
+  type QueryCtx
 } from "../_generated/server";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -17,10 +17,7 @@ const platformValidator = v.union(
   v.literal("email"),
   v.literal("other")
 );
-const segmentValidator = v.union(
-  v.literal("producer"),
-  v.literal("engineer")
-);
+const segmentValidator = v.union(v.literal("producer"), v.literal("engineer"));
 const statusValidator = v.union(
   v.literal("new"),
   v.literal("contacted"),
@@ -32,6 +29,12 @@ const statusValidator = v.union(
   v.literal("won"),
   v.literal("lost")
 );
+const outreachDraftsValidator = v.object({
+  opener: v.string(),
+  followUp: v.string(),
+  replyBridge: v.string(),
+  trialInvite: v.string()
+});
 
 type ProspectStatus =
   | "new"
@@ -55,13 +58,14 @@ const prospectValidator = v.object({
   segment: segmentValidator,
   signal: v.string(),
   currentSalesFlow: v.optional(v.string()),
+  outreachDrafts: v.optional(outreachDraftsValidator),
   status: statusValidator,
   campaign: v.string(),
   notes: v.optional(v.string()),
   lastContactedAt: v.optional(v.number()),
   nextFollowUpAt: v.optional(v.number()),
   createdAt: v.number(),
-  updatedAt: v.number(),
+  updatedAt: v.number()
 });
 
 const prospectInputValidator = v.object({
@@ -72,6 +76,7 @@ const prospectInputValidator = v.object({
   segment: segmentValidator,
   signal: v.string(),
   currentSalesFlow: v.optional(v.string()),
+  outreachDrafts: v.optional(outreachDraftsValidator)
 });
 
 async function requireIdentity(ctx: QueryCtx | MutationCtx): Promise<string> {
@@ -82,6 +87,29 @@ async function requireIdentity(ctx: QueryCtx | MutationCtx): Promise<string> {
 
 function clean(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
+}
+
+function cleanOutreachDrafts(
+  drafts:
+    | {
+        opener: string;
+        followUp: string;
+        replyBridge: string;
+        trialInvite: string;
+      }
+    | undefined
+) {
+  if (!drafts) return undefined;
+  const cleaned = {
+    opener: clean(drafts.opener, 1200),
+    followUp: clean(drafts.followUp, 1200),
+    replyBridge: clean(drafts.replyBridge, 1200),
+    trialInvite: clean(drafts.trialInvite, 1200)
+  };
+  if (Object.values(cleaned).some((draft) => !draft)) {
+    throw new Error("Every personalized outreach step must contain a draft.");
+  }
+  return cleaned;
 }
 
 function validateProfileUrl(value: string): string {
@@ -145,7 +173,7 @@ export const listMine = query({
       )
       .order("desc")
       .take(MAX_PROSPECTS);
-  },
+  }
 });
 
 export const getMySummary = query({
@@ -161,7 +189,7 @@ export const getMySummary = query({
     trials: v.number(),
     activated: v.number(),
     won: v.number(),
-    lost: v.number(),
+    lost: v.number()
   }),
   handler: async (ctx, args) => {
     const ownerClerkUserId = await requireIdentity(ctx);
@@ -188,18 +216,21 @@ export const getMySummary = query({
       replied: count("replied"),
       qualified: count("qualified"),
       linksSent: count("link_sent"),
-      trials:
-        count("trial_started") + count("activated") + count("won"),
+      trials: count("trial_started") + count("activated") + count("won"),
       activated: count("activated") + count("won"),
       won: count("won"),
-      lost: count("lost"),
+      lost: count("lost")
     };
-  },
+  }
 });
 
 export const bulkUpsert = mutation({
   args: { prospects: v.array(prospectInputValidator) },
-  returns: v.object({ created: v.number(), skipped: v.number() }),
+  returns: v.object({
+    created: v.number(),
+    updated: v.number(),
+    skipped: v.number()
+  }),
   handler: async (ctx, args) => {
     const ownerClerkUserId = await requireIdentity(ctx);
     if (args.prospects.length === 0 || args.prospects.length > 50) {
@@ -207,9 +238,11 @@ export const bulkUpsert = mutation({
     }
 
     let created = 0;
+    let updated = 0;
     let skipped = 0;
     for (const input of args.prospects) {
       const profileUrl = validateProfileUrl(input.profileUrl);
+      const outreachDrafts = cleanOutreachDrafts(input.outreachDrafts);
       const existing = await ctx.db
         .query("growthProspects")
         .withIndex("by_owner_and_profile_url", (q) =>
@@ -219,7 +252,21 @@ export const bulkUpsert = mutation({
         )
         .unique();
       if (existing) {
-        skipped += 1;
+        if (outreachDrafts) {
+          await ctx.db.patch(existing._id, {
+            displayName: clean(input.displayName, 120) || existing.displayName,
+            segment: input.segment,
+            signal: clean(input.signal, 500),
+            currentSalesFlow: input.currentSalesFlow
+              ? clean(input.currentSalesFlow, 300)
+              : existing.currentSalesFlow,
+            outreachDrafts,
+            updatedAt: Date.now()
+          });
+          updated += 1;
+        } else {
+          skipped += 1;
+        }
         continue;
       }
 
@@ -236,22 +283,23 @@ export const bulkUpsert = mutation({
         currentSalesFlow: input.currentSalesFlow
           ? clean(input.currentSalesFlow, 300)
           : undefined,
+        outreachDrafts,
         status: "new",
         campaign: campaignFor(input.platform, handle, profileUrl),
         createdAt: now,
-        updatedAt: now,
+        updatedAt: now
       });
       created += 1;
     }
-    return { created, skipped };
-  },
+    return { created, updated, skipped };
+  }
 });
 
 export const updateStatus = mutation({
   args: {
     prospectId: v.id("growthProspects"),
     status: statusValidator,
-    notes: v.optional(v.string()),
+    notes: v.optional(v.string())
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -270,16 +318,16 @@ export const updateStatus = mutation({
           ? now
           : prospect.lastContactedAt,
       nextFollowUpAt: nextFollowUpFor(args.status, now),
-      updatedAt: now,
+      updatedAt: now
     });
     return null;
-  },
+  }
 });
 
 export const reschedule = mutation({
   args: {
     prospectId: v.id("growthProspects"),
-    nextFollowUpAt: v.number(),
+    nextFollowUpAt: v.number()
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -290,10 +338,10 @@ export const reschedule = mutation({
     }
     await ctx.db.patch(args.prospectId, {
       nextFollowUpAt: args.nextFollowUpAt,
-      updatedAt: Date.now(),
+      updatedAt: Date.now()
     });
     return null;
-  },
+  }
 });
 
 export const remove = mutation({
@@ -307,7 +355,7 @@ export const remove = mutation({
     }
     await ctx.db.delete(args.prospectId);
     return null;
-  },
+  }
 });
 
 const STAGE_RANK: Record<ProspectStatus, number> = {
@@ -319,7 +367,7 @@ const STAGE_RANK: Record<ProspectStatus, number> = {
   trial_started: 5,
   activated: 6,
   won: 7,
-  lost: 8,
+  lost: 8
 };
 
 export const syncAttributedStages = internalMutation({
@@ -358,14 +406,14 @@ export const syncAttributedStages = internalMutation({
         await ctx.db.patch(prospect._id, {
           status: attributedStatus,
           nextFollowUpAt: nextFollowUpFor(attributedStatus, now),
-          updatedAt: now,
+          updatedAt: now
         });
         advanced += 1;
       }
     }
 
     return { checked: prospects.length, advanced };
-  },
+  }
 });
 
 export const getOpsBrief = internalQuery({
@@ -383,7 +431,7 @@ export const getOpsBrief = internalQuery({
     committedMrrUsd: v.number(),
     landingSessions: v.number(),
     ctaSessions: v.number(),
-    signupSessions: v.number(),
+    signupSessions: v.number()
   }),
   handler: async (ctx, args) => {
     const prospects = await ctx.db.query("growthProspects").take(MAX_PROSPECTS);
@@ -403,7 +451,10 @@ export const getOpsBrief = internalQuery({
     const activationEvents = recentEvents.filter(
       (event) => event.event === "subscription_activated"
     );
-    const latestActivationByProspect = new Map<string, (typeof activationEvents)[number]>();
+    const latestActivationByProspect = new Map<
+      string,
+      (typeof activationEvents)[number]
+    >();
     for (const event of activationEvents) {
       latestActivationByProspect.set(
         event.clerkUserId ?? event.campaign ?? event._id,
@@ -440,7 +491,7 @@ export const getOpsBrief = internalQuery({
       committedMrrUsd: proTrials * 29.99 + basicTrials * 9.99,
       landingSessions: sessionCount("landing_view"),
       ctaSessions: sessionCount("cta_clicked"),
-      signupSessions: sessionCount("signup_view"),
+      signupSessions: sessionCount("signup_view")
     };
-  },
+  }
 });
