@@ -20,6 +20,13 @@ type Prospect = Doc<'growthProspects'>
 type ProspectStatus = Prospect['status']
 type ProspectSegment = Prospect['segment']
 type ProspectPlatform = Prospect['platform']
+type ProspectRelationship = 'following' | 'not_following' | 'unknown'
+type ProspectConversationState =
+  | 'none'
+  | 'outbound_unanswered'
+  | 'inbound_unanswered'
+  | 'active'
+  | 'unknown'
 
 const STATUS_OPTIONS: Array<{ value: ProspectStatus; label: string }> = [
   { value: 'new', label: 'New' },
@@ -53,6 +60,19 @@ function setupLink(prospect: Prospect) {
 function draftFor(prospect: Prospect): string {
   const personalized = prospect.outreachDrafts
   if (personalized) {
+    if (
+      prospect.conversationState === 'outbound_unanswered' &&
+      prospect.status === 'new'
+    ) {
+      return personalized.followUp
+    }
+    if (
+      (prospect.conversationState === 'inbound_unanswered' ||
+        prospect.conversationState === 'active') &&
+      prospect.status === 'new'
+    ) {
+      return personalized.reentry ?? personalized.replyBridge
+    }
     if (prospect.status === 'new') return personalized.opener
     if (prospect.status === 'contacted') return personalized.followUp
     if (prospect.status === 'replied') return personalized.replyBridge
@@ -96,7 +116,13 @@ function parseImport(raw: string) {
         rawOpener,
         rawFollowUp,
         rawReplyBridge,
-        rawTrialInvite
+        rawTrialInvite,
+        rawRelationship,
+        rawConversationState,
+        rawConversationSummary,
+        rawFitScore,
+        rawResearchNotes,
+        rawReentry
       ] = line.split('|').map((part) => part.trim())
       const handle = rawHandle?.replace(/^@/, '')
       const segment: ProspectSegment =
@@ -118,6 +144,29 @@ function parseImport(raw: string) {
           `Line ${index + 1}: provide all four personalized drafts or leave all four empty`
         )
       }
+      const relationship: ProspectRelationship | undefined =
+        rawRelationship === 'following' ||
+        rawRelationship === 'not_following' ||
+        rawRelationship === 'unknown'
+          ? rawRelationship
+          : undefined
+      const conversationState: ProspectConversationState | undefined =
+        rawConversationState === 'none' ||
+        rawConversationState === 'outbound_unanswered' ||
+        rawConversationState === 'inbound_unanswered' ||
+        rawConversationState === 'active' ||
+        rawConversationState === 'unknown'
+          ? rawConversationState
+          : undefined
+      const fitScore = rawFitScore ? Number(rawFitScore) : undefined
+      if (
+        fitScore !== undefined &&
+        (!Number.isFinite(fitScore) || fitScore < 0 || fitScore > 100)
+      ) {
+        throw new Error(
+          `Line ${index + 1}: fit score must be between 0 and 100`
+        )
+      }
       return {
         displayName: handle,
         handle,
@@ -132,8 +181,18 @@ function parseImport(raw: string) {
                 opener: rawOpener,
                 followUp: rawFollowUp,
                 replyBridge: rawReplyBridge,
-                trialInvite: rawTrialInvite
+                trialInvite: rawTrialInvite,
+                reentry: rawReentry || undefined
               }
+            : undefined,
+        relationship,
+        conversationState,
+        conversationSummary: rawConversationSummary || undefined,
+        fitScore,
+        researchNotes: rawResearchNotes || undefined,
+        lastResearchedAt:
+          relationship || conversationState || rawResearchNotes
+            ? Date.now()
             : undefined
       }
     })
@@ -179,6 +238,9 @@ export function GrowthPipelineClient() {
         const aDue = a.nextFollowUpAt !== undefined && a.nextFollowUpAt <= now
         const bDue = b.nextFollowUpAt !== undefined && b.nextFollowUpAt <= now
         if (aDue !== bDue) return aDue ? -1 : 1
+        if ((a.fitScore ?? 0) !== (b.fitScore ?? 0)) {
+          return (b.fitScore ?? 0) - (a.fitScore ?? 0)
+        }
         return b.updatedAt - a.updatedAt
       }),
     [prospects, now]
@@ -252,8 +314,9 @@ export function GrowthPipelineClient() {
           <p className="mt-2 text-sm text-muted">
             One per line: handle | profile URL | producer/engineer | specific
             public signal | current sales flow (optional) | opener | follow-up |
-            reply bridge | trial invite. The four drafts are optional as a
-            group. Maximum 50.
+            reply bridge | trial invite | relationship | conversation state |
+            conversation summary | fit score | research notes | re-entry draft.
+            Drafts 1–4 are optional as a group. Maximum 50.
           </p>
           <textarea
             value={importText}
@@ -318,6 +381,27 @@ export function GrowthPipelineClient() {
                       <span className="rounded-full bg-bg px-2.5 py-1 text-xs uppercase text-muted">
                         {prospect.segment}
                       </span>
+                      {prospect.relationship && (
+                        <span className="rounded-full bg-bg px-2.5 py-1 text-xs text-muted">
+                          {prospect.relationship === 'following'
+                            ? 'Following'
+                            : prospect.relationship === 'not_following'
+                              ? 'Not followed'
+                              : 'Follow unknown'}
+                        </span>
+                      )}
+                      {prospect.conversationState && (
+                        <span className="rounded-full bg-bg px-2.5 py-1 text-xs text-muted">
+                          {prospect.conversationState === 'none'
+                            ? 'No prior DM'
+                            : prospect.conversationState.replaceAll('_', ' ')}
+                        </span>
+                      )}
+                      {prospect.fitScore !== undefined && (
+                        <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
+                          Fit {prospect.fitScore}/100
+                        </span>
+                      )}
                       {isDue && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
                           <Clock3 className="h-3 w-3" /> Follow up now
@@ -325,6 +409,16 @@ export function GrowthPipelineClient() {
                       )}
                     </div>
                     <p className="mt-3 text-sm text-muted">{prospect.signal}</p>
+                    {prospect.researchNotes && (
+                      <p className="mt-2 text-xs leading-5 text-muted">
+                        Research: {prospect.researchNotes}
+                      </p>
+                    )}
+                    {prospect.conversationSummary && (
+                      <p className="mt-2 text-xs leading-5 text-muted">
+                        Conversation: {prospect.conversationSummary}
+                      </p>
+                    )}
                     <div className="mt-4 whitespace-pre-line rounded-2xl bg-bg p-4 text-sm leading-6">
                       {draftFor(prospect)}
                     </div>
@@ -347,7 +441,15 @@ export function GrowthPipelineClient() {
                             [
                               '4. Trial invitation',
                               prospect.outreachDrafts.trialInvite
-                            ]
+                            ],
+                            ...(prospect.outreachDrafts.reentry
+                              ? [
+                                  [
+                                    'Existing conversation',
+                                    prospect.outreachDrafts.reentry
+                                  ]
+                                ]
+                              : [])
                           ].map(([label, draft]) => (
                             <div key={label}>
                               <p className="text-xs font-semibold uppercase tracking-wide text-accent">

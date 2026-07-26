@@ -164,9 +164,30 @@ export default defineSchema({
         opener: v.string(),
         followUp: v.string(),
         replyBridge: v.string(),
-        trialInvite: v.string()
+        trialInvite: v.string(),
+        reentry: v.optional(v.string())
       })
     ),
+    relationship: v.optional(
+      v.union(
+        v.literal("following"),
+        v.literal("not_following"),
+        v.literal("unknown")
+      )
+    ),
+    conversationState: v.optional(
+      v.union(
+        v.literal("none"),
+        v.literal("outbound_unanswered"),
+        v.literal("inbound_unanswered"),
+        v.literal("active"),
+        v.literal("unknown")
+      )
+    ),
+    conversationSummary: v.optional(v.string()),
+    fitScore: v.optional(v.number()),
+    researchNotes: v.optional(v.string()),
+    lastResearchedAt: v.optional(v.number()),
     status: v.union(
       v.literal("new"),
       v.literal("contacted"),

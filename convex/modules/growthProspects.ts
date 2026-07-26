@@ -33,8 +33,21 @@ const outreachDraftsValidator = v.object({
   opener: v.string(),
   followUp: v.string(),
   replyBridge: v.string(),
-  trialInvite: v.string()
+  trialInvite: v.string(),
+  reentry: v.optional(v.string())
 });
+const relationshipValidator = v.union(
+  v.literal("following"),
+  v.literal("not_following"),
+  v.literal("unknown")
+);
+const conversationStateValidator = v.union(
+  v.literal("none"),
+  v.literal("outbound_unanswered"),
+  v.literal("inbound_unanswered"),
+  v.literal("active"),
+  v.literal("unknown")
+);
 
 type ProspectStatus =
   | "new"
@@ -59,6 +72,12 @@ const prospectValidator = v.object({
   signal: v.string(),
   currentSalesFlow: v.optional(v.string()),
   outreachDrafts: v.optional(outreachDraftsValidator),
+  relationship: v.optional(relationshipValidator),
+  conversationState: v.optional(conversationStateValidator),
+  conversationSummary: v.optional(v.string()),
+  fitScore: v.optional(v.number()),
+  researchNotes: v.optional(v.string()),
+  lastResearchedAt: v.optional(v.number()),
   status: statusValidator,
   campaign: v.string(),
   notes: v.optional(v.string()),
@@ -76,7 +95,13 @@ const prospectInputValidator = v.object({
   segment: segmentValidator,
   signal: v.string(),
   currentSalesFlow: v.optional(v.string()),
-  outreachDrafts: v.optional(outreachDraftsValidator)
+  outreachDrafts: v.optional(outreachDraftsValidator),
+  relationship: v.optional(relationshipValidator),
+  conversationState: v.optional(conversationStateValidator),
+  conversationSummary: v.optional(v.string()),
+  fitScore: v.optional(v.number()),
+  researchNotes: v.optional(v.string()),
+  lastResearchedAt: v.optional(v.number())
 });
 
 async function requireIdentity(ctx: QueryCtx | MutationCtx): Promise<string> {
@@ -96,6 +121,7 @@ function cleanOutreachDrafts(
         followUp: string;
         replyBridge: string;
         trialInvite: string;
+        reentry?: string;
       }
     | undefined
 ) {
@@ -104,12 +130,42 @@ function cleanOutreachDrafts(
     opener: clean(drafts.opener, 1200),
     followUp: clean(drafts.followUp, 1200),
     replyBridge: clean(drafts.replyBridge, 1200),
-    trialInvite: clean(drafts.trialInvite, 1200)
+    trialInvite: clean(drafts.trialInvite, 1200),
+    reentry: drafts.reentry ? clean(drafts.reentry, 1200) : undefined
   };
-  if (Object.values(cleaned).some((draft) => !draft)) {
+  if (
+    !cleaned.opener ||
+    !cleaned.followUp ||
+    !cleaned.replyBridge ||
+    !cleaned.trialInvite
+  ) {
     throw new Error("Every personalized outreach step must contain a draft.");
   }
   return cleaned;
+}
+
+function cleanFitScore(value: number | undefined) {
+  if (value === undefined) return undefined;
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
+    throw new Error("Fit score must be between 0 and 100.");
+  }
+  return Math.round(value);
+}
+
+function statusFromConversation(
+  state:
+    | "none"
+    | "outbound_unanswered"
+    | "inbound_unanswered"
+    | "active"
+    | "unknown"
+    | undefined,
+  current: ProspectStatus = "new"
+): ProspectStatus {
+  if (current !== "new") return current;
+  if (state === "outbound_unanswered") return "contacted";
+  if (state === "inbound_unanswered" || state === "active") return "replied";
+  return current;
 }
 
 function validateProfileUrl(value: string): string {
@@ -243,6 +299,14 @@ export const bulkUpsert = mutation({
     for (const input of args.prospects) {
       const profileUrl = validateProfileUrl(input.profileUrl);
       const outreachDrafts = cleanOutreachDrafts(input.outreachDrafts);
+      const fitScore = cleanFitScore(input.fitScore);
+      const hasResearchUpdate =
+        input.relationship !== undefined ||
+        input.conversationState !== undefined ||
+        input.conversationSummary !== undefined ||
+        fitScore !== undefined ||
+        input.researchNotes !== undefined ||
+        input.lastResearchedAt !== undefined;
       const existing = await ctx.db
         .query("growthProspects")
         .withIndex("by_owner_and_profile_url", (q) =>
@@ -252,7 +316,12 @@ export const bulkUpsert = mutation({
         )
         .unique();
       if (existing) {
-        if (outreachDrafts) {
+        if (outreachDrafts || hasResearchUpdate) {
+          const status = statusFromConversation(
+            input.conversationState,
+            existing.status
+          );
+          const now = Date.now();
           await ctx.db.patch(existing._id, {
             displayName: clean(input.displayName, 120) || existing.displayName,
             segment: input.segment,
@@ -260,8 +329,25 @@ export const bulkUpsert = mutation({
             currentSalesFlow: input.currentSalesFlow
               ? clean(input.currentSalesFlow, 300)
               : existing.currentSalesFlow,
-            outreachDrafts,
-            updatedAt: Date.now()
+            outreachDrafts: outreachDrafts ?? existing.outreachDrafts,
+            relationship: input.relationship ?? existing.relationship,
+            conversationState:
+              input.conversationState ?? existing.conversationState,
+            conversationSummary: input.conversationSummary
+              ? clean(input.conversationSummary, 1000)
+              : existing.conversationSummary,
+            fitScore: fitScore ?? existing.fitScore,
+            researchNotes: input.researchNotes
+              ? clean(input.researchNotes, 2000)
+              : existing.researchNotes,
+            lastResearchedAt:
+              input.lastResearchedAt ?? existing.lastResearchedAt,
+            status,
+            nextFollowUpAt:
+              status === existing.status
+                ? existing.nextFollowUpAt
+                : nextFollowUpFor(status, now),
+            updatedAt: now
           });
           updated += 1;
         } else {
@@ -272,6 +358,7 @@ export const bulkUpsert = mutation({
 
       const handle = clean(input.handle.replace(/^@/, ""), 80);
       const now = Date.now();
+      const status = statusFromConversation(input.conversationState);
       await ctx.db.insert("growthProspects", {
         ownerClerkUserId,
         displayName: clean(input.displayName, 120) || handle,
@@ -284,8 +371,19 @@ export const bulkUpsert = mutation({
           ? clean(input.currentSalesFlow, 300)
           : undefined,
         outreachDrafts,
-        status: "new",
+        relationship: input.relationship,
+        conversationState: input.conversationState,
+        conversationSummary: input.conversationSummary
+          ? clean(input.conversationSummary, 1000)
+          : undefined,
+        fitScore,
+        researchNotes: input.researchNotes
+          ? clean(input.researchNotes, 2000)
+          : undefined,
+        lastResearchedAt: input.lastResearchedAt,
+        status,
         campaign: campaignFor(input.platform, handle, profileUrl),
+        nextFollowUpAt: nextFollowUpFor(status, now),
         createdAt: now,
         updatedAt: now
       });
