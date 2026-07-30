@@ -18,13 +18,13 @@ const PLAN_COPY = {
   basic: {
     label: 'BASIC',
     monthly: '$9.99/month after trial',
-    annual: '$59.99/year after trial',
+    annual: '$60/year after trial',
     features: ['25 published tracks', '1 GB storage', 'Basic analytics'],
   },
   pro: {
     label: 'PRO',
     monthly: '$29.99/month after trial',
-    annual: '$107.99/year after trial',
+    annual: '$108/year after trial',
     features: ['Unlimited tracks', '50 GB + 2 domains', 'Advanced analytics + priority support'],
   },
 } as const

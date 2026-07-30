@@ -102,17 +102,17 @@ export const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
  * - BASIC: 50% OFF vs (monthly * 12)
  * - PRO: 70% OFF vs (monthly * 12)
  * 
- * Prices may be rounded to end with .99 for pricing psychology,
- * while staying within ±$0.10 of the computed value.
+ * Clerk stores annual pricing as a monthly equivalent, so annual totals are
+ * exact multiples of 12.
  */
 export const PRICING = {
   basic: {
     monthly: 9.99,   // USD per month
-    annual: 59.99,   // USD per year (50% off vs 12 months)
+    annual: 60,      // USD per year (50% off vs 12 months)
   },
   pro: {
     monthly: 29.99,  // USD per month
-    annual: 107.99,  // USD per year (70% off vs 12 months)
+    annual: 108,     // USD per year (70% off vs 12 months)
   },
 } as const;
 

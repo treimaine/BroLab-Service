@@ -274,7 +274,7 @@ export function PricingSection() {
       name: 'BASIC',
       monthly: 9.99,
       annual: 5,
-      annualTotal: 59.99,
+      annualTotal: 60,
       annualDiscount: '50%',
       description: 'Perfect to launch your first store',
       features: [
@@ -292,7 +292,7 @@ export function PricingSection() {
       name: 'PRO',
       monthly: 29.99,
       annual: 9,
-      annualTotal: 107.99,
+      annualTotal: 108,
       annualDiscount: '70%',
       description: 'For serious creators scaling their brand',
       features: [

@@ -20,7 +20,7 @@ import { useId, useState } from 'react'
 
 /** PRO billed monthly — the conservative comparison. Annual billing is cheaper. */
 const BROLAB_PRO_MONTHLY = 29.99
-const BROLAB_PRO_ANNUAL_TOTAL = 107.99
+const BROLAB_PRO_ANNUAL_TOTAL = 108
 
 const COMMISSION_RATES = [10, 15, 20, 30] as const
 

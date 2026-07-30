@@ -120,7 +120,7 @@ export default async function PricingPage() {
     },
     "pricing": {
       "monthly": 9.99,
-      "annual": 59.99
+      "annual": 60
     },
     "annualSavings": 50
   },
@@ -134,7 +134,7 @@ export default async function PricingPage() {
     },
     "pricing": {
       "monthly": 29.99,
-      "annual": 107.99
+      "annual": 108
     },
     "annualSavings": 70
   }
