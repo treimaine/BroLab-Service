@@ -1,6 +1,11 @@
 'use client'
 
 import { MarketingPageShell } from '@/platform/ui'
+import {
+  GOVERNING_LAW,
+  LICENSE_TERMS_RAW,
+  PROHIBITED_USES,
+} from '@/shared/licenses'
 
 /**
  * Terms of Service Page Client Component
@@ -39,7 +44,7 @@ export default function TermsPageClient() {
       seoTitle="Terms of Service - BroLab Entertainment"
       subtitle="The rules and guidelines for using our platform"
       variant="long-form"
-      lastUpdated="January 10, 2026"
+      lastUpdated="July 26, 2026"
       tocItems={TOC_ITEMS}
     >
       {/* Acceptance of Terms */}
@@ -230,6 +235,30 @@ export default function TermsPageClient() {
           All licenses include a 50/50 publishing split between the licensor (Producer) and 
           licensee (Artist) for both writer and publisher shares.
         </p>
+
+        <h3>Terms Common to All Beat Licenses</h3>
+        <p>
+          Each standard beat license is non-exclusive. The Producer retains ownership of the
+          original beat and underlying composition. The Artist owns the new master recording
+          created with the beat, subject to the selected license and its restrictions. No
+          ownership of the original beat is transferred.
+        </p>
+        <p>
+          Producer credit is required on streaming platforms, video descriptions, and metadata
+          fields where available. The standard credit format is “Prod. by [Producer Name]”.
+        </p>
+        <p>{LICENSE_TERMS_RAW.global.common_terms.content_id_policy.note}</p>
+        <p>All standard beat licenses prohibit:</p>
+        <ul>
+          {PROHIBITED_USES.map((prohibitedUse) => (
+            <li key={prohibitedUse}>{prohibitedUse}</li>
+          ))}
+        </ul>
+        <p>
+          The standard beat license is governed by the laws of{' '}
+          {GOVERNING_LAW.jurisdiction}, with venue in {GOVERNING_LAW.venue}. This license agreement is
+          between the Producer and the Artist and is separate from BroLab&apos;s platform terms.
+        </p>
       </section>
 
       {/* Payments & Fees */}
@@ -254,7 +283,9 @@ export default function TermsPageClient() {
         <p>
           Due to the digital nature of the products, all sales are final. Refunds may be issued 
           at the sole discretion of the Provider or in cases of technical issues that prevent 
-          delivery of purchased content.
+          delivery of purchased content. A full refund revokes the associated beat license and
+          download access. A partial refund does not revoke the license unless the Provider and
+          Artist expressly agree otherwise.
         </p>
         
         <h3>Taxes</h3>
@@ -386,24 +417,18 @@ export default function TermsPageClient() {
           dispute within 30 days.
         </p>
         
-        <h3>Arbitration</h3>
+        <h3>Competent Courts</h3>
         <p>
-          If we cannot resolve a dispute informally, you and BroLab agree to resolve any 
-          disputes through binding arbitration, rather than in court, except that either 
-          party may bring claims in small claims court if they qualify.
-        </p>
-        
-        <h3>Class Action Waiver</h3>
-        <p>
-          YOU AND BROLAB AGREE THAT EACH MAY BRING CLAIMS AGAINST THE OTHER ONLY IN YOUR 
-          OR ITS INDIVIDUAL CAPACITY AND NOT AS A PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED 
-          CLASS OR REPRESENTATIVE PROCEEDING.
+          If a dispute cannot be resolved informally, it shall be submitted to the courts of{' '}
+          {GOVERNING_LAW.venue}, subject to any mandatory consumer-protection rules that grant
+          a user the right to bring proceedings before another competent court.
         </p>
         
         <h3>Governing Law</h3>
         <p>
-          These Terms shall be governed by and construed in accordance with the laws of the 
-          State of Delaware, United States, without regard to its conflict of law provisions.
+          These Terms shall be governed by and construed in accordance with the laws of{' '}
+          {GOVERNING_LAW.jurisdiction}, without regard to its conflict of law provisions.
+          The courts of {GOVERNING_LAW.venue} shall have exclusive jurisdiction.
         </p>
       </section>
 

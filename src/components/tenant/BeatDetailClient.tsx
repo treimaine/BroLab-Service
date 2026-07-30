@@ -269,7 +269,9 @@ export function BeatDetailClient() {
                   <div className="space-y-3">
                     {(['basic', 'premium', 'unlimited'] as const).map((tier) => (
                       <button
+                        type="button"
                         key={tier}
+                        aria-pressed={selectedTier === tier}
                         onClick={() => {
                           setSelectedTier(tier)
                           posthog.capture('license_tier_selected', {
@@ -295,6 +297,12 @@ export function BeatDetailClient() {
                       </button>
                     ))}
                   </div>
+                  <Link
+                    href="/terms#licensing"
+                    className="mt-4 inline-flex text-sm font-medium text-accent hover:underline"
+                  >
+                    Compare full license rights and restrictions →
+                  </Link>
                 </DribbbleCard>
               </div>
 
@@ -323,6 +331,14 @@ export function BeatDetailClient() {
                         {purchaseError}
                       </p>
                     )}
+
+                    <p className="mb-4 text-center text-xs text-muted">
+                      By completing the purchase, you accept the selected license and the{' '}
+                      <Link href="/terms#licensing" className="text-accent hover:underline">
+                        license terms
+                      </Link>
+                      .
+                    </p>
                     
                     {/* Trust Badges */}
                     <div className="flex items-center justify-center gap-3 text-xs text-muted mb-4">

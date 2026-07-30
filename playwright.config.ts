@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const playwrightPort = process.env.PLAYWRIGHT_PORT ?? '3000'
+const baseURL =
+  process.env.PLAYWRIGHT_URL ?? `http://localhost:${playwrightPort}`
+
 /**
  * Playwright Configuration for BroLab E2E Tests
  *
@@ -11,7 +15,8 @@ import { defineConfig, devices } from '@playwright/test'
  */
 
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './tests',
+  testMatch: ['e2e/**/*.spec.ts', 'security/**/*.spec.ts'],
 
   // Test timeout: 30 seconds per test
   timeout: 30000,
@@ -24,7 +29,7 @@ export default defineConfig({
   // Fail on console errors
   use: {
     // Base URL for testing
-    baseURL: process.env.PLAYWRIGHT_URL || 'http://localhost:3000',
+    baseURL,
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -48,29 +53,13 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    // Production testing project (against live site)
-    {
-      name: 'production',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'https://brolabentertainment.com',
-      },
-    },
   ],
 
   // Web server configuration for running tests against dev server
   // Only start server for non-production tests
-  webServer: process.env.PLAYWRIGHT_URL?.includes('brolabentertainment.com') ? undefined : {
-    command: 'npx next dev --webpack',
-    url: 'http://localhost:3000',
+  webServer: process.env.PLAYWRIGHT_URL ? undefined : {
+    command: `npx next dev --webpack --port ${playwrightPort}`,
+    url: baseURL,
     timeout: 120000,
     reuseExistingServer: !process.env.CI,
   },

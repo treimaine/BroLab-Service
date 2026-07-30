@@ -7,11 +7,15 @@ import { v } from "convex/values";
 
 export default defineSchema({
   // ============ PLATFORM TABLES ============
-  
+
   users: defineTable({
     clerkUserId: v.string(),
-    role: v.union(v.literal("producer"), v.literal("engineer"), v.literal("artist")),
-    createdAt: v.number(),
+    role: v.union(
+      v.literal("producer"),
+      v.literal("engineer"),
+      v.literal("artist")
+    ),
+    createdAt: v.number()
   }).index("by_clerk_id", ["clerkUserId"]),
 
   workspaces: defineTable({
@@ -19,12 +23,14 @@ export default defineSchema({
     name: v.string(),
     type: v.union(v.literal("producer"), v.literal("engineer")),
     ownerClerkUserId: v.string(),
-    contact: v.optional(v.object({
-      email: v.optional(v.string()),
-      phone: v.optional(v.string()),
-      location: v.optional(v.string()),
-      responseTime: v.optional(v.string()),
-    })),
+    contact: v.optional(
+      v.object({
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        location: v.optional(v.string()),
+        responseTime: v.optional(v.string())
+      })
+    ),
     stripeAccountId: v.optional(v.string()),
     paymentsStatus: v.union(
       v.literal("unconfigured"),
@@ -40,7 +46,7 @@ export default defineSchema({
     // Set the first time this workspace publishes any offer (track or service).
     // Guards the one-shot first_offer_published growth event.
     firstOfferPublishedAt: v.optional(v.number()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerClerkUserId"]),
@@ -48,11 +54,15 @@ export default defineSchema({
   domains: defineTable({
     workspaceId: v.id("workspaces"),
     hostname: v.string(), // Stored normalized (lowercase, no port)
-    status: v.union(v.literal("pending"), v.literal("verified"), v.literal("failed")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("verified"),
+      v.literal("failed")
+    ),
     verificationCheckedAt: v.optional(v.number()),
     verificationError: v.optional(v.string()),
     verifiedAt: v.optional(v.number()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_hostname", ["hostname"]),
@@ -61,8 +71,12 @@ export default defineSchema({
     workspaceId: v.id("workspaces"),
     clerkUserId: v.string(),
     planKey: v.union(v.literal("basic"), v.literal("pro")),
-    status: v.union(v.literal("active"), v.literal("inactive"), v.literal("canceled")),
-    updatedAt: v.number(),
+    status: v.union(
+      v.literal("active"),
+      v.literal("inactive"),
+      v.literal("canceled")
+    ),
+    updatedAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_clerk_user", ["clerkUserId"]),
@@ -71,7 +85,7 @@ export default defineSchema({
     workspaceId: v.id("workspaces"),
     storageUsedBytes: v.number(),
     publishedTracksCount: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   }).index("by_workspace", ["workspaceId"]),
 
   auditLogs: defineTable({
@@ -81,14 +95,14 @@ export default defineSchema({
     entityType: v.string(),
     entityId: v.string(),
     meta: v.any(),
-    createdAt: v.number(),
+    createdAt: v.number()
   }).index("by_workspace", ["workspaceId"]),
 
   events: defineTable({
     workspaceId: v.id("workspaces"),
     type: v.string(),
     meta: v.any(),
-    createdAt: v.number(),
+    createdAt: v.number()
   }).index("by_workspace", ["workspaceId"]),
 
   jobs: defineTable({
@@ -106,7 +120,7 @@ export default defineSchema({
     lockedAt: v.optional(v.number()),
     lockedBy: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_status", ["status"])
@@ -115,7 +129,7 @@ export default defineSchema({
   processedEvents: defineTable({
     provider: v.string(),
     eventId: v.string(),
-    createdAt: v.number(),
+    createdAt: v.number()
   }).index("by_event", ["provider", "eventId"]),
 
   growthEvents: defineTable({
@@ -139,7 +153,7 @@ export default defineSchema({
     ),
     source: v.optional(v.string()),
     campaign: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_event_and_createdAt", ["event", "createdAt"])
     .index("by_createdAt", ["createdAt"])
@@ -204,13 +218,13 @@ export default defineSchema({
     lastContactedAt: v.optional(v.number()),
     nextFollowUpAt: v.optional(v.number()),
     createdAt: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   })
     .index("by_owner_and_profile_url", ["ownerClerkUserId", "profileUrl"])
     .index("by_owner_and_updatedAt", ["ownerClerkUserId", "updatedAt"])
     .index("by_owner_and_nextFollowUpAt", [
       "ownerClerkUserId",
-      "nextFollowUpAt",
+      "nextFollowUpAt"
     ]),
 
   // ============ MODULE TABLES ============
@@ -225,13 +239,15 @@ export default defineSchema({
     priceUsdByTier: v.object({
       basic: v.number(),
       premium: v.number(),
-      unlimited: v.number(),
+      unlimited: v.number()
     }),
-    priceEurByTier: v.optional(v.object({
-      basic: v.number(),
-      premium: v.number(),
-      unlimited: v.number(),
-    })),
+    priceEurByTier: v.optional(
+      v.object({
+        basic: v.number(),
+        premium: v.number(),
+        unlimited: v.number()
+      })
+    ),
     status: v.union(v.literal("draft"), v.literal("published")),
     fullStorageId: v.id("_storage"),
     fileSizeBytes: v.number(), // File size in bytes for usage tracking
@@ -246,7 +262,7 @@ export default defineSchema({
     previewDurationSec: v.number(),
     previewPolicy: v.union(v.literal("none"), v.literal("manual")),
     processingError: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_status", ["status"])
@@ -261,7 +277,7 @@ export default defineSchema({
     turnaround: v.string(),
     features: v.array(v.string()),
     isActive: v.boolean(),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_workspace_active", ["workspaceId", "isActive"]),
@@ -271,17 +287,26 @@ export default defineSchema({
     buyerClerkUserId: v.string(),
     buyerEmail: v.optional(v.string()), // Stored from Stripe session for email sending
     stripeSessionId: v.string(),
+    stripePaymentIntentId: v.optional(v.string()),
     itemType: v.union(v.literal("track"), v.literal("service")),
     itemId: v.string(),
     currency: v.string(),
     amountCents: v.number(),
-    licenseTier: v.optional(v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited"))), // For track orders
-    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed")),
-    createdAt: v.number(),
+    licenseTier: v.optional(
+      v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited"))
+    ), // For track orders
+    status: v.union(
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("refunded")
+    ),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"])
-    .index("by_stripe_session", ["stripeSessionId"]),
+    .index("by_stripe_session", ["stripeSessionId"])
+    .index("by_payment_intent", ["stripePaymentIntentId"]),
 
   purchaseEntitlements: defineTable({
     workspaceId: v.id("workspaces"),
@@ -289,11 +314,15 @@ export default defineSchema({
     buyerClerkUserId: v.string(),
     trackId: v.id("tracks"),
     // License information
-    licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
+    licenseTier: v.union(
+      v.literal("basic"),
+      v.literal("premium"),
+      v.literal("unlimited")
+    ),
     licenseTermsVersion: v.string(), // e.g. "v1.1-2026-01"
     licenseTermsSnapshot: v.any(), // Immutable snapshot of terms at purchase time
     licensePdfStorageId: v.optional(v.id("_storage")), // Generated PDF
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"])
@@ -310,7 +339,7 @@ export default defineSchema({
       v.literal("completed"),
       v.literal("canceled")
     ),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"]),
@@ -326,7 +355,11 @@ export default defineSchema({
     entitlementId: v.id("purchaseEntitlements"),
     // Terms snapshot (immutable)
     termsVersion: v.string(), // "v1.1-2026-01"
-    tierKey: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
+    tierKey: v.union(
+      v.literal("basic"),
+      v.literal("premium"),
+      v.literal("unlimited")
+    ),
     includesStems: v.boolean(),
     rightsSnapshot: v.any(), // Snapshot of tier rights at purchase
     prohibitedUsesSnapshot: v.array(v.string()),
@@ -338,8 +371,12 @@ export default defineSchema({
     licensorPublisherSharePercent: v.optional(v.number()),
     licenseePublisherSharePercent: v.optional(v.number()),
     // Status
-    status: v.union(v.literal("pending"), v.literal("active"), v.literal("revoked")),
-    createdAt: v.number(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("active"),
+      v.literal("revoked")
+    ),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"])
@@ -352,10 +389,14 @@ export default defineSchema({
     licenseId: v.id("licenses"),
     kind: v.union(v.literal("license_pdf")),
     storageId: v.optional(v.id("_storage")),
-    status: v.union(v.literal("pending"), v.literal("generated"), v.literal("failed")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("generated"),
+      v.literal("failed")
+    ),
     error: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   })
     .index("by_license", ["licenseId"])
     .index("by_workspace", ["workspaceId"]),
@@ -367,14 +408,12 @@ export default defineSchema({
     dedupeKey: v.string(), // Unique business key e.g. "stripe:evt_123:artist_purchase"
     emailType: v.optional(v.string()),
     recipient: v.optional(v.string()),
-    status: v.optional(
-      v.union(v.literal("sent"), v.literal("failed"))
-    ),
+    status: v.optional(v.union(v.literal("sent"), v.literal("failed"))),
     providerMessageId: v.optional(v.string()),
     attempts: v.optional(v.number()),
     lastError: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number())
   }).index("by_dedupe", ["provider", "dedupeKey"]),
 
   /**
@@ -411,7 +450,7 @@ export default defineSchema({
     /** Last recorded bounce detail, for support triage. */
     lastBounceDetail: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   }).index("by_email", ["email"]),
 
   // ============ ANALYTICS ============
@@ -423,7 +462,7 @@ export default defineSchema({
     source: v.optional(v.string()), // "marketplace", "search", "featured", "direct"
     referrer: v.optional(v.string()),
     sessionId: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_track", ["trackId"])
     .index("by_workspace", ["workspaceId"])
@@ -435,7 +474,7 @@ export default defineSchema({
     query: v.string(),
     resultsCount: v.number(),
     sessionId: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_query", ["query"])
     .index("by_created_at", ["createdAt"]),
@@ -453,7 +492,7 @@ export default defineSchema({
     ),
     sessionId: v.optional(v.string()),
     amountCents: v.optional(v.number()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_track", ["trackId"])
@@ -463,11 +502,15 @@ export default defineSchema({
   surveyResponses: defineTable({
     clerkUserId: v.string(),
     workspaceId: v.optional(v.id("workspaces")),
-    role: v.union(v.literal("producer"), v.literal("engineer"), v.literal("artist")),
+    role: v.union(
+      v.literal("producer"),
+      v.literal("engineer"),
+      v.literal("artist")
+    ),
     question: v.string(), // e.g. "what_made_you_choose_brolab"
     answer: v.string(), // selected option
     customAnswer: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_clerk_user", ["clerkUserId"])
     .index("by_question", ["question"]),
@@ -476,11 +519,13 @@ export default defineSchema({
     clerkUserId: v.optional(v.string()),
     trackId: v.optional(v.string()),
     workspaceId: v.optional(v.id("workspaces")),
-    licenseTier: v.optional(v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited"))),
+    licenseTier: v.optional(
+      v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited"))
+    ),
     reason: v.string(), // selected multiple choice option
     customReason: v.optional(v.string()),
     checkoutSessionId: v.optional(v.string()),
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_clerk_user", ["clerkUserId"])
     .index("by_track", ["trackId"])
@@ -492,12 +537,17 @@ export default defineSchema({
     name: v.string(),
     company: v.optional(v.string()),
     preferredTimes: v.array(v.string()), // ISO datetime strings
-    status: v.union(v.literal("pending"), v.literal("scheduled"), v.literal("completed"), v.literal("canceled")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("scheduled"),
+      v.literal("completed"),
+      v.literal("canceled")
+    ),
     notes: v.optional(v.string()),
     interviewDate: v.optional(v.number()), // Unix timestamp
     interviewUrl: v.optional(v.string()), // Calendly or Savvycal URL
     createdAt: v.number(),
-    updatedAt: v.number(),
+    updatedAt: v.number()
   })
     .index("by_email", ["email"])
     .index("by_status", ["status"])
@@ -526,7 +576,7 @@ export default defineSchema({
     supportTicketId: v.optional(v.string()), // Associated support ticket ID
     notes: v.optional(v.string()), // Admin notes
     createdAt: v.number(), // When payment failed
-    updatedAt: v.number(),
+    updatedAt: v.number()
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_buyer", ["buyerClerkUserId"])
@@ -550,15 +600,17 @@ export default defineSchema({
       v.literal("onboarding_completed")
     ),
     timestamp: v.number(), // Event timestamp (milliseconds)
-    metadata: v.optional(v.object({
-      error: v.optional(v.string()), // Error message if applicable
-      stage_duration: v.optional(v.number()), // Time spent at this stage (ms)
-      retry_count: v.optional(v.number()), // For failed payment events
-      additional_data: v.optional(v.any()), // Extensible field for extra data
-    })),
+    metadata: v.optional(
+      v.object({
+        error: v.optional(v.string()), // Error message if applicable
+        stage_duration: v.optional(v.number()), // Time spent at this stage (ms)
+        retry_count: v.optional(v.number()), // For failed payment events
+        additional_data: v.optional(v.any()) // Extensible field for extra data
+      })
+    ),
     status: v.optional(v.union(v.literal("blocked"), v.literal("completed"))), // Track if user is stuck
     blocked_reason: v.optional(v.string()), // Why user is blocked if applicable
-    createdAt: v.number(),
+    createdAt: v.number()
   })
     .index("by_user", ["userId"])
     .index("by_event_type", ["eventType"])
@@ -574,10 +626,18 @@ export default defineSchema({
     buyerId: v.string(), // Buyer's Clerk user ID
     amount: v.number(), // Amount in cents
     currency: v.string(), // "usd", "eur", etc.
-    licenseTier: v.union(v.literal("basic"), v.literal("premium"), v.literal("unlimited")),
+    licenseTier: v.union(
+      v.literal("basic"),
+      v.literal("premium"),
+      v.literal("unlimited")
+    ),
     orderId: v.optional(v.id("orders")), // Link to order for transaction details (optional for test data)
-    status: v.union(v.literal("completed"), v.literal("refunded"), v.literal("disputed")),
-    soldAt: v.number(), // Timestamp when sale was completed
+    status: v.union(
+      v.literal("completed"),
+      v.literal("refunded"),
+      v.literal("disputed")
+    ),
+    soldAt: v.number() // Timestamp when sale was completed
   })
     .index("by_beat", ["beatId"])
     .index("by_seller", ["sellerId"])
@@ -591,10 +651,11 @@ export default defineSchema({
     totalEarnings: v.number(), // Total in cents (cached)
     salesCount: v.number(), // Total number of sales
     lastUpdated: v.number(), // Last recalculation timestamp
-    monthlyBreakdown: v.optional(v.object({
-      // JSON object with earnings by month e.g. {"2026-04": 5000, "2026-05": 7500}
-      // Key format: "YYYY-MM", value in cents
-    })),
-  })
-    .index("by_seller", ["sellerId"]),
+    monthlyBreakdown: v.optional(
+      v.object({
+        // JSON object with earnings by month e.g. {"2026-04": 5000, "2026-05": 7500}
+        // Key format: "YYYY-MM", value in cents
+      })
+    )
+  }).index("by_seller", ["sellerId"])
 });

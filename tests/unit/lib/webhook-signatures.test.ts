@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { createHmac, randomBytes } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import {

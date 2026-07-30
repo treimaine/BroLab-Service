@@ -22,6 +22,13 @@ import { Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
+import { getTypicalPriceUsd } from '@/shared/licenses'
+
+const DEFAULT_LICENSE_PRICES = {
+  basic: getTypicalPriceUsd('basic').toFixed(2),
+  premium: getTypicalPriceUsd('premium').toFixed(2),
+  unlimited: getTypicalPriceUsd('unlimited').toFixed(2),
+}
 
 interface TrackUploadFormProps {
   readonly workspaceId: Id<'workspaces'>
@@ -44,9 +51,9 @@ export function TrackUploadForm({
   const [bpm, setBpm] = useState('')
   const [key, setKey] = useState('')
   const [tags, setTags] = useState('')
-  const [priceBasic, setPriceBasic] = useState('9.99')
-  const [pricePremium, setPricePremium] = useState('29.99')
-  const [priceUnlimited, setPriceUnlimited] = useState('99.99')
+  const [priceBasic, setPriceBasic] = useState(DEFAULT_LICENSE_PRICES.basic)
+  const [pricePremium, setPricePremium] = useState(DEFAULT_LICENSE_PRICES.premium)
+  const [priceUnlimited, setPriceUnlimited] = useState(DEFAULT_LICENSE_PRICES.unlimited)
 
   const generateUploadUrl = useMutation(api.modules.beats.generateUploadUrl)
   const createTrack = useMutation(api.modules.beats.createTrack)
@@ -91,6 +98,27 @@ export function TrackUploadForm({
       return
     }
 
+    const licensePrices = {
+      basic: Number.parseFloat(priceBasic),
+      premium: Number.parseFloat(pricePremium),
+      unlimited: Number.parseFloat(priceUnlimited),
+    }
+    if (
+      Object.values(licensePrices).some(
+        (price) => !Number.isFinite(price) || price < 0.5 || price > 100_000
+      )
+    ) {
+      onError?.('Each license price must be between $0.50 and $100,000.')
+      return
+    }
+    if (
+      licensePrices.basic > licensePrices.premium ||
+      licensePrices.premium > licensePrices.unlimited
+    ) {
+      onError?.('License prices must increase from Basic to Premium to Unlimited.')
+      return
+    }
+
     setIsUploading(true)
 
     try {
@@ -123,11 +151,7 @@ export function TrackUploadForm({
         bpm: bpm ? Number.parseInt(bpm, 10) : undefined,
         key: key.trim() || undefined,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        priceUsdByTier: {
-          basic: Number.parseFloat(priceBasic),
-          premium: Number.parseFloat(pricePremium),
-          unlimited: Number.parseFloat(priceUnlimited),
-        },
+        priceUsdByTier: licensePrices,
         generatePreview, // Pass the checkbox value
       })
 
@@ -137,9 +161,9 @@ export function TrackUploadForm({
       setBpm('')
       setKey('')
       setTags('')
-      setPriceBasic('9.99')
-      setPricePremium('29.99')
-      setPriceUnlimited('99.99')
+      setPriceBasic(DEFAULT_LICENSE_PRICES.basic)
+      setPricePremium(DEFAULT_LICENSE_PRICES.premium)
+      setPriceUnlimited(DEFAULT_LICENSE_PRICES.unlimited)
       setGeneratePreview(true)
 
       // Clear file input
@@ -319,7 +343,8 @@ export function TrackUploadForm({
                 onChange={(e) => setPriceBasic(e.target.value)}
                 disabled={isUploading}
                 step="0.01"
-                min="0"
+                min="0.5"
+                max="100000"
                 className="w-full pl-7 pr-4 py-2 bg-card/60 border border-[rgb(var(--border-alpha))] rounded-lg focus:ring-2 focus:ring-[rgb(var(--accent))] focus:border-transparent disabled:opacity-50 transition-all"
               />
             </div>
@@ -337,7 +362,8 @@ export function TrackUploadForm({
                 onChange={(e) => setPricePremium(e.target.value)}
                 disabled={isUploading}
                 step="0.01"
-                min="0"
+                min="0.5"
+                max="100000"
                 className="w-full pl-7 pr-4 py-2 bg-card/60 border border-[rgb(var(--border-alpha))] rounded-lg focus:ring-2 focus:ring-[rgb(var(--accent))] focus:border-transparent disabled:opacity-50 transition-all"
               />
             </div>
@@ -355,7 +381,8 @@ export function TrackUploadForm({
                 onChange={(e) => setPriceUnlimited(e.target.value)}
                 disabled={isUploading}
                 step="0.01"
-                min="0"
+                min="0.5"
+                max="100000"
                 className="w-full pl-7 pr-4 py-2 bg-card/60 border border-[rgb(var(--border-alpha))] rounded-lg focus:ring-2 focus:ring-[rgb(var(--accent))] focus:border-transparent disabled:opacity-50 transition-all"
               />
             </div>

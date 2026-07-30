@@ -75,7 +75,7 @@ test.describe('JWT Storage Security', () => {
     expect(foundForbiddenKeys).toHaveLength(0)
   })
 
-  test('should store Clerk session in cookies', async ({ page, context }) => {
+  test('should apply Clerk security attributes to session cookies', async ({ page, context }) => {
     // Sign in to create a session
     await page.goto('/sign-in')
     
@@ -86,14 +86,14 @@ test.describe('JWT Storage Security', () => {
     const cookies = await context.cookies()
     
     // Check if Clerk cookies exist (they should after sign-in)
-    const clerkCookies = cookies.filter(cookie => 
-      cookie.name === '__session' || cookie.name === '__client_uat'
+    const clerkCookies = cookies.filter(cookie =>
+      ['__session', '__client', '__client_uat'].includes(cookie.name)
     )
 
     // If user is signed in, verify cookie properties
     if (clerkCookies.length > 0) {
       const sessionCookie = clerkCookies.find(c => c.name === '__session')
-      const clientCookie = clerkCookies.find(c => c.name === '__client_uat')
+      const clientCookie = clerkCookies.find(c => c.name === '__client')
 
       // __session cookie should exist and be short-lived
       if (sessionCookie) {
@@ -102,24 +102,23 @@ test.describe('JWT Storage Security', () => {
         // Note: Exact verification depends on Clerk's current implementation
       }
 
-      // __client_uat should be httpOnly (if present)
+      // Clerk's long-lived client token must never be readable by app JavaScript.
       if (clientCookie) {
         expect(clientCookie.httpOnly).toBe(true)
       }
     }
   })
 
-  test('should NOT expose httpOnly cookies to JavaScript', async ({ page }) => {
+  test('should NOT expose the long-lived Clerk client token to JavaScript', async ({ page }) => {
     // Try to access cookies via document.cookie
     const accessibleCookies = await page.evaluate(() => {
       return document.cookie
     })
 
-    // __client_uat should NOT be visible (it's httpOnly)
-    expect(accessibleCookies).not.toContain('__client_uat')
+    expect(accessibleCookies).not.toMatch(/(?:^|;\s*)__client=/)
 
-    // If __session exists, it should be visible (not httpOnly by design)
-    // This is expected and secure (short-lived token)
+    // __session and __client_uat are JavaScript-readable by Clerk design.
+    // __session is mitigated by its short (60 second) lifetime.
   })
 
   test('localStorage should only contain UI preferences', async ({ page }) => {
@@ -209,11 +208,9 @@ test.describe('JWT Storage Security', () => {
 
   test('should have SameSite protection on cookies', async ({ context }) => {
     const cookies = await context.cookies()
-    const clerkCookies = cookies.filter(cookie => 
-      cookie.name === '__session' || cookie.name === '__client_uat'
-    )
+    const clerkCookies = cookies.filter(cookie => cookie.name === '__session')
 
-    // Clerk cookies should have SameSite=Lax for CSRF protection
+    // The app-domain short-lived session cookie uses SameSite=Lax.
     for (const cookie of clerkCookies) {
       expect(cookie.sameSite).toBe('Lax')
     }
@@ -246,8 +243,8 @@ test.describe('XSS Attack Simulation', () => {
       }
     })
 
-    // Verify that httpOnly cookies are not accessible
-    expect(stolenData.cookies).not.toContain('__client_uat')
+    // The long-lived Clerk client token must not be accessible to injected scripts.
+    expect(stolenData.cookies).not.toMatch(/(?:^|;\s*)__client=/)
     
     // Verify that no JWT tokens are in localStorage
     const storageValues = Object.values(stolenData.storage || {})
@@ -279,9 +276,8 @@ test.describe('XSS Attack Simulation', () => {
       }
     })
 
-    // Verify that only short-lived __session is accessible (if any)
-    // Long-lived __client_uat should NOT be accessible
-    expect(exfiltrationAttempt.accessibleCookies).not.toContain('__client_uat')
+    // The long-lived Clerk client token remains outside app JavaScript.
+    expect(exfiltrationAttempt.accessibleCookies).not.toMatch(/(?:^|;\s*)__client=/)
     
     // Even if __session is stolen, it expires in 1 minute
     // This is acceptable risk (short-lived token)

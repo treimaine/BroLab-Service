@@ -61,9 +61,11 @@ export const getFileUrl = query({
 export const getFileMetadata = query({
   args: {
     storageId: v.id("_storage"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.storage.getMetadata(args.storageId);
+    assertWorkerSecret(args.workerSecret);
+    return await ctx.db.system.get("_storage", args.storageId);
   },
 });
 
@@ -79,8 +81,10 @@ export const getFileMetadata = query({
 export const deleteFile = mutation({
   args: {
     storageId: v.id("_storage"),
+    workerSecret: v.string(),
   },
   handler: async (ctx, args) => {
+    assertWorkerSecret(args.workerSecret);
     await ctx.storage.delete(args.storageId);
   },
 });

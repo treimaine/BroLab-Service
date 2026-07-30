@@ -14,7 +14,9 @@ import { expect, test } from '@playwright/test'
 
 // Test environment setup
 const TEST_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  baseUrl:
+    process.env.PLAYWRIGHT_URL ||
+    `http://localhost:${process.env.PLAYWRIGHT_PORT ?? '3000'}`,
   convexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   stripeWebhookSecret: process.env.STRIPE_CONNECT_WEBHOOK_SECRET,

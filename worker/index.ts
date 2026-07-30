@@ -119,6 +119,37 @@ interface LicenseDataForPdf {
     buyerEmail?: string;
     createdAt: number;
   };
+  entitlement: {
+    licenseTermsSnapshot: {
+      commonTerms?: {
+        grant_type: string;
+        ownership: {
+          beat_and_composition_owner: string;
+          master_owner: string;
+          transfer: string;
+        };
+        content_id_policy: {
+          allow_master_claims: boolean;
+          disallow_beat_claims: boolean;
+          note: string;
+        };
+        refund_policy: {
+          default: string;
+          exception: string;
+          note: string;
+        };
+        termination: {
+          breach_cure_days: number;
+          termination_effect: string;
+        };
+        governing_law: {
+          jurisdiction: string;
+          venue: string;
+          note: string;
+        };
+      };
+    };
+  };
   track: {
     title: string;
     bpm?: number;
@@ -242,6 +273,7 @@ async function generateLicensePdf(
   const sectionSpacing = 30;
   
   const context: PdfContext = {
+    pdfDoc,
     page,
     margin,
     yPosition: height - margin,
@@ -261,6 +293,7 @@ async function generateLicensePdf(
   addPublishingSplitSection(context, licenseData);
   addCreditSection(context, licenseData);
   addProhibitedUsesSection(context, licenseData);
+  addLegalTermsSection(context, licenseData);
   addPdfFooter(context, licenseData);
   
   const pdfBytes = await pdfDoc.save();
@@ -348,10 +381,10 @@ function addPublishingSplitSection(
   }
   
   addSectionHeader(context, "PUBLISHING SPLIT");
-  addText(context, `Licensor Writer Share: ${licenseData.license.licensorWriterSharePercent || 50}%`, 11, context.regularFont);
-  addText(context, `Licensee Writer Share: ${licenseData.license.licenseeWriterSharePercent || 50}%`, 11, context.regularFont);
-  addText(context, `Licensor Publisher Share: ${licenseData.license.licensorPublisherSharePercent || 50}%`, 11, context.regularFont);
-  addText(context, `Licensee Publisher Share: ${licenseData.license.licenseePublisherSharePercent || 50}%`, 11, context.regularFont);
+  addText(context, `Licensor Writer Share: ${licenseData.license.licensorWriterSharePercent ?? 50}%`, 11, context.regularFont);
+  addText(context, `Licensee Writer Share: ${licenseData.license.licenseeWriterSharePercent ?? 50}%`, 11, context.regularFont);
+  addText(context, `Licensor Publisher Share: ${licenseData.license.licensorPublisherSharePercent ?? 50}%`, 11, context.regularFont);
+  addText(context, `Licensee Publisher Share: ${licenseData.license.licenseePublisherSharePercent ?? 50}%`, 11, context.regularFont);
 }
 
 function addCreditSection(
@@ -368,8 +401,47 @@ function addProhibitedUsesSection(
 ): void {
   addSectionHeader(context, "PROHIBITED USES");
   for (const prohibition of licenseData.license.prohibitedUsesSnapshot) {
-    addText(context, `• ${prohibition}`, 11, context.regularFont);
+    addText(context, `- ${prohibition}`, 11, context.regularFont);
   }
+}
+
+function addLegalTermsSection(
+  context: PdfContext,
+  licenseData: LicenseDataForPdf
+): void {
+  const terms = licenseData.entitlement.licenseTermsSnapshot.commonTerms;
+  if (!terms) return;
+
+  addSectionHeader(context, "OWNERSHIP AND LICENSE GRANT");
+  addText(
+    context,
+    `Grant: ${terms.grant_type.charAt(0).toUpperCase()}${terms.grant_type.slice(1)} license.`,
+    11,
+    context.regularFont
+  );
+  addText(context, terms.ownership.beat_and_composition_owner, 11, context.regularFont);
+  addText(context, terms.ownership.master_owner, 11, context.regularFont);
+  addText(context, terms.ownership.transfer, 11, context.regularFont);
+
+  addSectionHeader(context, "CONTENT ID");
+  addText(context, terms.content_id_policy.note, 11, context.regularFont);
+
+  addSectionHeader(context, "REFUNDS AND TERMINATION");
+  addText(context, terms.refund_policy.note, 11, context.regularFont);
+  addText(
+    context,
+    `Breach cure period: ${terms.termination.breach_cure_days} days. ${terms.termination.termination_effect}`,
+    11,
+    context.regularFont
+  );
+
+  addSectionHeader(context, "GOVERNING LAW");
+  addText(
+    context,
+    `${terms.governing_law.jurisdiction}; venue: ${terms.governing_law.venue}.`,
+    11,
+    context.regularFont
+  );
 }
 
 function addPdfFooter(
@@ -397,6 +469,7 @@ function addPdfFooter(
 }
 
 interface PdfContext {
+  pdfDoc: PDFDocument;
   page: ReturnType<PDFDocument['addPage']>;
   margin: number;
   yPosition: number;
@@ -415,17 +488,37 @@ function addText(
   font: PdfContext['regularFont'],
   color = context.black
 ): void {
-  context.page.drawText(text, {
-    x: context.margin,
-    y: context.yPosition,
-    size: fontSize,
-    font,
-    color,
-  });
-  context.yPosition -= context.lineHeight;
+  const maxWidth = context.page.getWidth() - context.margin * 2;
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = "";
+
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && font.widthOfTextAtSize(candidate, fontSize) > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+
+  for (const wrappedLine of lines) {
+    ensurePdfSpace(context, context.lineHeight);
+    context.page.drawText(wrappedLine, {
+      x: context.margin,
+      y: context.yPosition,
+      size: fontSize,
+      font,
+      color,
+    });
+    context.yPosition -= context.lineHeight;
+  }
 }
 
 function addSectionHeader(context: PdfContext, title: string): void {
+  ensurePdfSpace(context, context.sectionSpacing + context.lineHeight);
   context.yPosition -= context.sectionSpacing;
   context.page.drawText(title, {
     x: context.margin,
@@ -435,6 +528,16 @@ function addSectionHeader(context: PdfContext, title: string): void {
     color: context.black,
   });
   context.yPosition -= context.lineHeight;
+}
+
+function ensurePdfSpace(context: PdfContext, requiredHeight: number): void {
+  const footerReserve = 70;
+  if (context.yPosition - requiredHeight >= context.margin + footerReserve) {
+    return;
+  }
+
+  context.page = context.pdfDoc.addPage([595, 842]);
+  context.yPosition = context.page.getHeight() - context.margin;
 }
 
 function formatCap(cap: number): string {

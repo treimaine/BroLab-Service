@@ -23,6 +23,8 @@ import {
 import {
   mapSubscriptionItemEventToStatus,
 } from "./platform/billing/status";
+import { resolvePlanKeyFromClerkPlanId } from "./platform/billing/plans";
+import { verifyCheckoutFulfillment } from "../shared/checkoutFulfillment";
 
 // Stripe event types
 interface StripeCheckoutSession {
@@ -30,6 +32,11 @@ interface StripeCheckoutSession {
   amount_total?: number;
   currency?: string;
   customer_email?: string;
+  customer_details?: {
+    email?: string | null;
+  };
+  payment_status?: string;
+  payment_intent?: string;
   metadata?: Record<string, string>;
 }
 
@@ -207,12 +214,20 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     try {
-      const body = await request.json();
-      const { trackId, buyerClerkUserId } = body;
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
 
-      if (!trackId || !buyerClerkUserId) {
+      const body = await request.json();
+      const { trackId } = body;
+
+      if (!trackId) {
         return new Response(
-          JSON.stringify({ error: "Missing trackId or buyerClerkUserId" }),
+          JSON.stringify({ error: "Missing trackId" }),
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
@@ -226,7 +241,7 @@ http.route({
         (internal as any).modules.beats.checkEntitlement,
         {
           trackId,
-          buyerClerkUserId,
+          buyerClerkUserId: identity.subject,
         }
       );
 
@@ -1075,13 +1090,90 @@ async function handleCheckoutCompleted(ctx: GenericActionCtx<Record<string, neve
   }
 
   const metadata = session.metadata!;
-  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = metadata;
+  const {
+    workspaceId,
+    itemType,
+    itemId,
+    buyerClerkUserId,
+    licenseTier,
+    expectedAmountCents,
+    expectedCurrency,
+    connectedAccountId: signedConnectedAccountId,
+    fulfillmentSignature,
+  } = metadata;
   const amountTotal = session.amount_total || 0;
   const currency = session.currency || "usd";
-  const buyerEmail = session.customer_email || undefined;
+  const buyerEmail =
+    session.customer_details?.email || session.customer_email || undefined;
   const connectedAccountId = event.account || null;
 
   try {
+    if (session.payment_status !== "paid") {
+      return jsonResponse({ error: "Checkout session is not paid" }, 400);
+    }
+
+    const fulfillmentSecret =
+      process.env.CHECKOUT_FULFILLMENT_SECRET ??
+      process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
+    const signedAmountCents = Number.parseInt(expectedAmountCents, 10);
+    if (
+      !fulfillmentSecret ||
+      !Number.isSafeInteger(signedAmountCents) ||
+      signedAmountCents <= 0 ||
+      !fulfillmentSignature ||
+      !(await verifyCheckoutFulfillment(
+        fulfillmentSecret,
+        {
+          workspaceId,
+          itemType: itemType as "track" | "service",
+          itemId,
+          licenseTier: licenseTier ?? "",
+          buyerClerkUserId,
+          expectedAmountCents: signedAmountCents,
+          currency: expectedCurrency,
+          connectedAccountId: signedConnectedAccountId,
+        },
+        fulfillmentSignature
+      ))
+    ) {
+      return jsonResponse({ error: "Invalid checkout fulfillment signature" }, 400);
+    }
+
+    const fulfillment =
+      itemType === "track"
+        ? await ctx.runQuery(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (internal as any).modules.orders.validateTrackFulfillment,
+            { workspaceId, trackId: itemId, licenseTier }
+          )
+        : await ctx.runQuery(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (internal as any).modules.orders.validateServiceFulfillment,
+            { workspaceId, serviceId: itemId }
+          );
+
+    if (!fulfillment) {
+      return jsonResponse(
+        { error: "Paid item is no longer valid for fulfillment" },
+        400
+      );
+    }
+
+    if (
+      !connectedAccountId ||
+      connectedAccountId !== fulfillment.stripeAccountId ||
+      connectedAccountId !== signedConnectedAccountId
+    ) {
+      return jsonResponse({ error: "Connected account mismatch" }, 400);
+    }
+
+    if (
+      amountTotal !== signedAmountCents ||
+      currency.toLowerCase() !== expectedCurrency.toLowerCase()
+    ) {
+      return jsonResponse({ error: "Paid amount or currency mismatch" }, 400);
+    }
+
     const orderId = await createOrderFromSession(ctx, {
       workspaceId,
       buyerClerkUserId,
@@ -1168,6 +1260,10 @@ async function createOrderFromSession(
     buyerClerkUserId: params.buyerClerkUserId,
     buyerEmail: params.buyerEmail,
     stripeSessionId: params.session.id,
+    stripePaymentIntentId:
+      typeof params.session.payment_intent === "string"
+        ? params.session.payment_intent
+        : undefined,
     itemType: params.itemType,
     itemId: params.itemId,
     currency: params.currency,
@@ -1414,6 +1510,8 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
     const charge = event.data.object as StripeCheckoutSession & {
       id: string;
       amount?: number;
+      amount_refunded?: number;
+      refunded?: boolean;
       payment_intent?: string;
     };
 
@@ -1423,11 +1521,35 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
       paymentIntentId: charge.payment_intent,
     });
 
-    // Note: In a real system, you'd have a way to map payment_intent → orderId
-    // For now, we'll mark as processed without updating earnings
-    // In production, add a mapping table: paymentIntentId → orderId
+    const isFullyRefunded =
+      charge.refunded === true ||
+      (typeof charge.amount === "number" &&
+        typeof charge.amount_refunded === "number" &&
+        charge.amount_refunded >= charge.amount);
 
-    console.log("Charge refunded - earnings will be updated if orderId mapping exists");
+    let refundedOrderId: string | null = null;
+    if (isFullyRefunded && charge.payment_intent) {
+      const refundedOrder = await ctx.runMutation(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (internal as any).modules.orders.markOrderRefundedByPaymentIntent,
+        { stripePaymentIntentId: charge.payment_intent }
+      );
+
+      if (refundedOrder) {
+        refundedOrderId = refundedOrder.orderId;
+        if (refundedOrder.itemType === "track") {
+          try {
+            await ctx.runMutation(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (internal as any).modules.earnings.recordBeatSaleRefund,
+              { orderId: refundedOrder.orderId }
+            );
+          } catch (earningsError) {
+            console.error("Failed to update refunded beat sale:", earningsError);
+          }
+        }
+      }
+    }
 
     // Mark event as processed
     await markEventProcessed(ctx, event.id);
@@ -1442,7 +1564,11 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
     return jsonResponse({
       received: true,
       processed: true,
-      message: "Refund processed - earnings updated",
+      orderId: refundedOrderId,
+      licenseRevoked: Boolean(refundedOrderId && isFullyRefunded),
+      message: isFullyRefunded
+        ? "Full refund processed"
+        : "Partial refund recorded without revoking the license",
     }, 200);
 
   } catch (error) {
@@ -1465,9 +1591,28 @@ async function handleChargeRefunded(ctx: GenericActionCtx<Record<string, never>>
 // Validate session metadata
 function validateSessionMetadata(session: StripeCheckoutSession): Response | null {
   const metadata = session.metadata;
-  const { workspaceId, itemType, itemId, buyerClerkUserId, licenseTier } = metadata || {};
+  const {
+    workspaceId,
+    itemType,
+    itemId,
+    buyerClerkUserId,
+    licenseTier,
+    expectedAmountCents,
+    expectedCurrency,
+    connectedAccountId,
+    fulfillmentSignature,
+  } = metadata || {};
 
-  if (!workspaceId || !itemType || !itemId || !buyerClerkUserId) {
+  if (
+    !workspaceId ||
+    !itemType ||
+    !itemId ||
+    !buyerClerkUserId ||
+    !expectedAmountCents ||
+    !expectedCurrency ||
+    !connectedAccountId ||
+    !fulfillmentSignature
+  ) {
     console.error("Missing required metadata in checkout session:", metadata);
     return jsonResponse({ error: "Missing required metadata" }, 400);
   }
@@ -1496,6 +1641,7 @@ async function createOrder(ctx: GenericActionCtx<Record<string, never>>, params:
   buyerClerkUserId: string;
   buyerEmail?: string;
   stripeSessionId: string;
+  stripePaymentIntentId?: string;
   itemType: string;
   itemId: string;
   currency: string;
@@ -1772,6 +1918,9 @@ function resolvePlanKey(planSlug?: string, planId?: string): "basic" | "pro" | n
   const slug = (planSlug || "").toLowerCase();
   const id = (planId || "").toLowerCase();
 
+  const exactPlan = resolvePlanKeyFromClerkPlanId(planId);
+  if (exactPlan) return exactPlan;
+
   if (slug.includes("pro") || id.includes("pro")) return "pro";
   if (slug.includes("basic") || id.includes("basic")) return "basic";
 
@@ -1819,8 +1968,13 @@ async function handleStandardEvent(
             (internal as any).platform.email.lifecycle.sendWelcomeEmail,
             { clerkUserId: dataId }
           );
+          await ctx.runMutation(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (internal as any).platform.email.lifecycle.scheduleOnboardingRecovery,
+            { clerkUserId: dataId }
+          );
         } catch (err) {
-          console.error("Failed to send welcome email:", err);
+          console.error("Failed to start onboarding email sequence:", err);
         }
 
         console.log("User upserted in Convex:", dataId);

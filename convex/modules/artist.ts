@@ -31,6 +31,14 @@ export const getPurchasedTracks = query({
     // Fetch track details for each entitlement
     const purchasedTracks = await Promise.all(
       entitlements.map(async (entitlement) => {
+        const license = await ctx.db
+          .query("licenses")
+          .withIndex("by_entitlement", (q) =>
+            q.eq("entitlementId", entitlement._id)
+          )
+          .unique();
+        if (license?.status === "revoked") return null;
+
         const track = await ctx.db.get(entitlement.trackId);
         if (!track) return null;
 

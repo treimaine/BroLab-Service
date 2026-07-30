@@ -1,6 +1,7 @@
 import {
   createLicenseSnapshot,
   formatCap,
+  GOVERNING_LAW,
   getLicenseTerms,
   isValidLicenseTier,
 } from '../../../src/shared/licenses'
@@ -25,6 +26,16 @@ describe('license terms source of truth', () => {
     )
     expect(snapshot.rights.audioStreamingCap).toBe(500_000)
     expect(snapshot.publishingSplit.licenseeWriterSharePercent).toBe(50)
+    expect(snapshot.commonTerms.grant_type).toBe('non-exclusive')
+    expect(snapshot.commonTerms.content_id_policy.disallow_beat_claims).toBe(true)
+    expect(snapshot.commonTerms.termination.breach_cure_days).toBe(7)
+    expect(snapshot.commonTerms.governing_law.jurisdiction).toBe('France')
+    expect(snapshot.commonTerms.governing_law.venue).toBe('Paris')
+    expect(GOVERNING_LAW).toEqual({
+      jurisdiction: 'France',
+      venue: 'Paris',
+      note: 'Canonical jurisdiction for BroLab platform terms and standard beat licenses.',
+    })
   })
 
   it('validates tiers and formats contractual caps', () => {

@@ -337,7 +337,7 @@ export function welcome(
   const body = [
     h1("Welcome — your storefront starts here"),
     paragraph(
-      `You have ${p.trialDays} days of full access, no card charged today. The goal for your first session is simple: get one beat live so your storefront has something to sell.`
+      `Create your storefront, then choose BASIC or PRO to start ${p.trialDays} days free. The goal for your first session is simple: get one beat live so your storefront has something to sell.`
     ),
     bulletList([
       "Claim your storefront name and URL",
@@ -354,7 +354,7 @@ export function welcome(
     subject: "Your storefront is ready to set up",
     html: renderEmailLayout({
       brand: p.brand,
-      preheader: `${p.trialDays} days of full access. First step: get one beat live.`,
+      preheader: `Choose BASIC or PRO for ${p.trialDays} days free. First step: create your storefront.`,
       body,
       unsubscribeUrl: p.unsubscribeUrl,
       footerNote: "You received this because you created an account.",
@@ -362,7 +362,7 @@ export function welcome(
     text: [
       "Welcome — your storefront starts here",
       "",
-      `You have ${p.trialDays} days of full access, no card charged today. The goal for your first session is simple: get one beat live so your storefront has something to sell.`,
+      `Create your storefront, then choose BASIC or PRO to start ${p.trialDays} days free. The goal for your first session is simple: get one beat live so your storefront has something to sell.`,
       "",
       "- Claim your storefront name and URL",
       "- Connect Stripe so payments land in your bank account directly",
@@ -371,6 +371,86 @@ export function welcome(
       `Set up your storefront: ${p.onboardingUrl}`,
       "",
       "We charge a flat subscription and take 0% of your sales.",
+      textFooter(p.brand, p.unsubscribeUrl),
+    ].join("\n"),
+  };
+}
+
+export type OnboardingRecoveryStage =
+  | "one_hour"
+  | "one_day"
+  | "three_days";
+
+export function onboardingRecovery(
+  p: BaseParams & {
+    stage: OnboardingRecoveryStage;
+    onboardingUrl: string;
+    trialDays: number;
+  }
+): RenderedEmail {
+  const content: Record<
+    OnboardingRecoveryStage,
+    { subject: string; heading: string; lead: string; cta: string }
+  > = {
+    one_hour: {
+      subject: "Your storefront name is still available",
+      heading: "Finish the storefront you started",
+      lead:
+        "Your account is ready, but your public storefront has not been created yet. Name it, choose your URL, then pick BASIC or PRO.",
+      cta: "Create my storefront",
+    },
+    one_day: {
+      subject: "One live beat is enough to test BroLab",
+      heading: "Start with one offer, not a full migration",
+      lead:
+        "You do not need to move your whole catalog. Create the storefront, start a free month, and publish one beat or one engineering service to test the complete buyer flow.",
+      cta: "Publish my first offer",
+    },
+    three_days: {
+      subject: "Keep this test small: storefront, Stripe, one offer",
+      heading: "Three steps to a sellable storefront",
+      lead:
+        `Create your URL, choose BASIC or PRO for ${p.trialDays} days free, then connect Stripe. BroLab takes 0% of every sale.`,
+      cta: "Finish setup",
+    },
+  };
+
+  const c = content[p.stage];
+  const body = [
+    h1(c.heading),
+    paragraph(c.lead),
+    bulletList([
+      "Your own branded storefront",
+      "Payments sent directly to your Stripe account",
+      "Automatic PDF licenses for beat sales",
+    ]),
+    button(c.cta, p.onboardingUrl),
+    noteBox(
+      `BASIC and PRO include ${p.trialDays} days free. Cancel before the trial ends to avoid the first charge.`
+    ),
+  ].join("\n");
+
+  return {
+    subject: c.subject,
+    html: renderEmailLayout({
+      brand: p.brand,
+      preheader: c.lead,
+      body,
+      unsubscribeUrl: p.unsubscribeUrl,
+      footerNote: "You received this because you created a BroLab account.",
+    }),
+    text: [
+      c.heading,
+      "",
+      c.lead,
+      "",
+      "- Your own branded storefront",
+      "- Payments sent directly to your Stripe account",
+      "- Automatic PDF licenses for beat sales",
+      "",
+      `${c.cta}: ${p.onboardingUrl}`,
+      "",
+      `BASIC and PRO include ${p.trialDays} days free. Cancel before the trial ends to avoid the first charge.`,
       textFooter(p.brand, p.unsubscribeUrl),
     ].join("\n"),
   };

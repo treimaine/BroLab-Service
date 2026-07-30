@@ -4,6 +4,7 @@ import { DribbbleCard } from '@/platform/ui'
 import { formatCap, getLicenseTerms, getTypicalPriceUsd } from '@/shared/licenses'
 import { motion } from 'framer-motion'
 import { Check, Info } from 'lucide-react'
+import Link from 'next/link'
 
 export interface LicenseTier {
   id: string
@@ -45,8 +46,14 @@ export function LicenseSelector({
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
             >
-              <DribbbleCard
+              <button
+                type="button"
                 onClick={() => onSelect(tier.id)}
+                aria-pressed={isSelected}
+                aria-label={`Select ${tier.name} for $${tier.price}`}
+                className="block w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+              <DribbbleCard
                 className={`cursor-pointer transition-all p-5 relative overflow-hidden ${
                   isSelected
                     ? 'border-2 border-accent shadow-glow'
@@ -94,6 +101,7 @@ export function LicenseSelector({
                   ))}
                 </ul>
               </DribbbleCard>
+              </button>
             </motion.div>
           )
         })}
@@ -101,12 +109,12 @@ export function LicenseSelector({
 
       {/* License Info Footer */}
       <div className="text-center pt-2">
-        <button
-          type="button"
+        <Link
+          href="/terms#licensing"
           className="text-xs text-accent hover:underline"
         >
           Learn more about license types →
-        </button>
+        </Link>
       </div>
     </div>
   )

@@ -42,8 +42,14 @@ export const getLicenseForPdf = query({
       throw new Error(`Order ${license.orderId} not found`);
     }
 
+    const entitlement = await ctx.db.get(license.entitlementId);
+    if (!entitlement) {
+      throw new Error(`Entitlement ${license.entitlementId} not found`);
+    }
+
     return {
       license,
+      entitlement,
       track,
       workspace,
       order,
@@ -65,6 +71,16 @@ export const completeLicensePdfGeneration = mutation({
   },
   handler: async (ctx, args) => {
     assertWorkerSecret(args.workerSecret);
+    const document = await ctx.db.get(args.documentId);
+    if (!document || document.licenseId !== args.licenseId) {
+      throw new Error("License document does not match the requested license");
+    }
+
+    const license = await ctx.db.get(args.licenseId);
+    if (!license) {
+      throw new Error(`License ${args.licenseId} not found`);
+    }
+
     // Update license document
     await ctx.db.patch(args.documentId, {
       storageId: args.storageId,
@@ -72,20 +88,16 @@ export const completeLicensePdfGeneration = mutation({
       updatedAt: Date.now(),
     });
 
-    // Get license to find entitlement
-    const license = await ctx.db.get(args.licenseId);
-    if (!license) {
-      throw new Error(`License ${args.licenseId} not found`);
-    }
-
     // Update purchase entitlement with PDF storage ID
     await ctx.db.patch(license.entitlementId, {
       licensePdfStorageId: args.storageId,
     });
 
-    await ctx.db.patch(args.licenseId, { status: "active" });
+    if (license.status !== "revoked") {
+      await ctx.db.patch(args.licenseId, { status: "active" });
+    }
 
-    if (license.buyerEmail) {
+    if (license.status !== "revoked" && license.buyerEmail) {
       const track = await ctx.db.get(license.trackId);
       if (track) {
         await ctx.scheduler.runAfter(
@@ -99,12 +111,6 @@ export const completeLicensePdfGeneration = mutation({
           }
         );
       }
-    }
-
-    // Get license document to record event
-    const document = await ctx.db.get(args.documentId);
-    if (!document) {
-      throw new Error(`License document ${args.documentId} not found`);
     }
 
     // Record event

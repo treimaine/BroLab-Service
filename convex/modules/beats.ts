@@ -8,7 +8,7 @@
  */
 
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { internalQuery, mutation, query } from "../_generated/server";
 import { assertActiveSubscription, assertQuota } from "../platform/entitlements";
 import { markFirstOfferPublished } from "./growth";
 import { internal } from "../_generated/api";
@@ -27,6 +27,31 @@ const SUPPORTED_FORMATS = ["audio/wav", "audio/mpeg", "audio/mp3"] as const;
  * This is a hard limit regardless of plan
  */
 const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024; // 1GB
+const MAX_LICENSE_PRICE = 100_000;
+
+type TierPrices = {
+  basic: number;
+  premium: number;
+  unlimited: number;
+};
+
+function assertValidTierPrices(prices: TierPrices): void {
+  const values = [prices.basic, prices.premium, prices.unlimited];
+  if (
+    values.some(
+      (price) =>
+        !Number.isFinite(price) || price < 0.5 || price > MAX_LICENSE_PRICE
+    )
+  ) {
+    throw new Error("License prices must be between 0.50 and 100,000");
+  }
+
+  if (prices.basic > prices.premium || prices.premium > prices.unlimited) {
+    throw new Error(
+      "License prices must increase from Basic to Premium to Unlimited"
+    );
+  }
+}
 
 // ============================================================================
 // MUTATIONS
@@ -164,6 +189,11 @@ export const createTrack = mutation({
       throw new Error(
         `Invalid file format: ${args.mimeType}. Supported formats: WAV, MP3`
       );
+    }
+
+    assertValidTierPrices(args.priceUsdByTier);
+    if (args.priceEurByTier) {
+      assertValidTierPrices(args.priceEurByTier);
     }
 
     // Assert storage quota (requirement 7.2)
@@ -321,8 +351,14 @@ export const updateTrack = mutation({
     if (args.bpm !== undefined) updates.bpm = args.bpm;
     if (args.key !== undefined) updates.key = args.key;
     if (args.tags !== undefined) updates.tags = args.tags;
-    if (args.priceUsdByTier !== undefined) updates.priceUsdByTier = args.priceUsdByTier;
-    if (args.priceEurByTier !== undefined) updates.priceEurByTier = args.priceEurByTier;
+    if (args.priceUsdByTier !== undefined) {
+      assertValidTierPrices(args.priceUsdByTier);
+      updates.priceUsdByTier = args.priceUsdByTier;
+    }
+    if (args.priceEurByTier !== undefined) {
+      assertValidTierPrices(args.priceEurByTier);
+      updates.priceEurByTier = args.priceEurByTier;
+    }
 
     // Update track
     await ctx.db.patch(args.trackId, updates);
@@ -863,7 +899,7 @@ export const failPreviewGeneration = mutation({
  * 
  * Requirements: 15.1
  */
-export const checkEntitlement = query({
+export const checkEntitlement = internalQuery({
   args: {
     trackId: v.id("tracks"),
     buyerClerkUserId: v.string(),
@@ -876,7 +912,16 @@ export const checkEntitlement = query({
       )
       .first();
 
-    return entitlement;
+    if (!entitlement) return null;
+
+    const license = await ctx.db
+      .query("licenses")
+      .withIndex("by_entitlement", (q) =>
+        q.eq("entitlementId", entitlement._id)
+      )
+      .unique();
+
+    return license?.status === "revoked" ? null : entitlement;
   },
 });
 
@@ -887,7 +932,7 @@ export const checkEntitlement = query({
  * 
  * Requirements: 15.2
  */
-export const getTrackForDownload = query({
+export const getTrackForDownload = internalQuery({
   args: {
     trackId: v.id("tracks"),
   },

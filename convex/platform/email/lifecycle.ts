@@ -81,6 +81,110 @@ export const sendWelcomeEmail = internalAction({
 });
 
 // ============================================================================
+// Pre-workspace onboarding recovery
+// ============================================================================
+
+type OnboardingRecoveryState = {
+  workspaceExists: boolean;
+};
+
+export const getOnboardingRecoveryState = internalQuery({
+  args: { clerkUserId: v.string() },
+  returns: v.object({ workspaceExists: v.boolean() }),
+  handler: async (ctx, args): Promise<OnboardingRecoveryState> => {
+    const workspace = await ctx.db
+      .query("workspaces")
+      .withIndex("by_owner", (q) =>
+        q.eq("ownerClerkUserId", args.clerkUserId)
+      )
+      .first();
+
+    return { workspaceExists: workspace !== null };
+  },
+});
+
+/**
+ * Recover signups that leave before naming their storefront.
+ *
+ * Each scheduled action checks current state before sending. Once a workspace
+ * exists, every remaining message becomes a no-op.
+ */
+export const scheduleOnboardingRecovery = internalMutation({
+  args: { clerkUserId: v.string() },
+  returns: v.object({ scheduled: v.number() }),
+  handler: async (ctx, args) => {
+    const schedule: Array<{
+      stage: "one_hour" | "one_day" | "three_days";
+      delay: number;
+    }> = [
+      { stage: "one_hour", delay: 60 * 60 * 1000 },
+      { stage: "one_day", delay: DAY_MS },
+      { stage: "three_days", delay: 3 * DAY_MS },
+    ];
+
+    for (const item of schedule) {
+      await ctx.scheduler.runAfter(
+        item.delay,
+        internal.platform.email.lifecycle.sendOnboardingRecovery,
+        { clerkUserId: args.clerkUserId, stage: item.stage }
+      );
+    }
+
+    return { scheduled: schedule.length };
+  },
+});
+
+export const sendOnboardingRecovery = internalAction({
+  args: {
+    clerkUserId: v.string(),
+    stage: v.union(
+      v.literal("one_hour"),
+      v.literal("one_day"),
+      v.literal("three_days")
+    ),
+  },
+  returns: sendResultValidator,
+  handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
+    const state: OnboardingRecoveryState = await ctx.runQuery(
+      internal.platform.email.lifecycle.getOnboardingRecoveryState,
+      { clerkUserId: args.clerkUserId }
+    );
+    if (state.workspaceExists) {
+      return { sent: false, reason: "workspace_exists" };
+    }
+
+    const email = await fetchClerkEmail(args.clerkUserId);
+    if (!email) return { sent: false, reason: "no_email" };
+
+    const brand = resolveBrand();
+    const unsubscribeUrl = await buildUnsubscribeUrl(email);
+    const rendered = templates.onboardingRecovery({
+      brand,
+      unsubscribeUrl,
+      stage: args.stage,
+      onboardingUrl: `${brand.siteUrl}/onboarding?source=direct&campaign=onboarding-recovery`,
+      trialDays: PAID_PLAN_TRIAL_DAYS,
+    });
+
+    return await sendTransactionalEmail(ctx, {
+      dedupeKey: `user:${args.clerkUserId}:onboarding:${args.stage}`,
+      emailType: `onboarding_${args.stage}`,
+      recipient: email,
+      from: fromAddress(brand.brandName),
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      category: "lifecycle",
+      unsubscribeUrl,
+      tags: [
+        { name: "type", value: "onboarding_recovery" },
+        { name: "stage", value: args.stage },
+      ],
+    });
+  },
+});
+
+// ============================================================================
 // Trial conversion
 // ============================================================================
 

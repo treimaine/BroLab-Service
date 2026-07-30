@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+const clerkE2EEnabled = process.env.RUN_CLERK_E2E === 'true'
+
 /**
  * Authentication E2E Tests
  *
@@ -12,6 +14,8 @@ import { expect, test } from '@playwright/test'
  */
 
 test.describe('Sign In Flow', () => {
+  test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
+
   test.beforeEach(async ({ page }) => {
     // Ensure viewport is large enough to show Sign In link (hidden on mobile with "hidden sm:block")
     await page.setViewportSize({ width: 1024, height: 768 })
@@ -32,6 +36,7 @@ test.describe('Sign In Flow', () => {
   })
 
   test('should load Clerk sign-in component', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-in')
 
     // Rather than checking for a specific Clerk container, verify the form is functional
@@ -44,6 +49,7 @@ test.describe('Sign In Flow', () => {
   })
 
   test('should show email and password fields', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-in')
 
     // Wait for Clerk form to load with multiple selectors for cross-browser support
@@ -62,7 +68,7 @@ test.describe('Sign In Flow', () => {
     const testEmail = process.env.TEST_USER_EMAIL
     const testPassword = process.env.TEST_USER_PASSWORD
 
-    if (!testEmail || !testPassword) {
+    if (!clerkE2EEnabled || !testEmail || !testPassword) {
       test.skip()
       return
     }
@@ -96,6 +102,7 @@ test.describe('Sign In Flow', () => {
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-in')
 
     // Wait for email field with extended timeout
@@ -125,6 +132,8 @@ test.describe('Sign In Flow', () => {
 })
 
 test.describe('Sign Up Flow', () => {
+  test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
+
   test.beforeEach(async ({ page }) => {
     // Ensure viewport is large enough
     await page.setViewportSize({ width: 1024, height: 768 })
@@ -138,6 +147,7 @@ test.describe('Sign Up Flow', () => {
   })
 
   test('should load Clerk sign-up component', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-up')
 
     // Rather than checking for a specific Clerk container, verify the form is functional
@@ -149,6 +159,7 @@ test.describe('Sign Up Flow', () => {
   })
 
   test('should show required fields for registration', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-up')
 
     // Wait for email field with cross-browser selectors
@@ -161,6 +172,7 @@ test.describe('Sign Up Flow', () => {
   })
 
   test('should show validation errors for invalid email', async ({ page }) => {
+    test.skip(!clerkE2EEnabled, 'Requires a dedicated Clerk E2E instance')
     await page.goto('/sign-up')
 
     // Wait for form with extended timeout
@@ -187,6 +199,8 @@ test.describe('Sign Up Flow', () => {
 })
 
 test.describe('Authentication Security', () => {
+  test.skip(!clerkE2EEnabled, 'Covered by the credential-free security suite')
+
   test.beforeEach(async ({ page }) => {
     // Ensure page has time to fully hydrate
     await page.setViewportSize({ width: 1024, height: 768 })
@@ -224,4 +238,3 @@ test.describe('Authentication Security', () => {
     expect(clerkCookies.length).toBeGreaterThanOrEqual(0)
   })
 })
-

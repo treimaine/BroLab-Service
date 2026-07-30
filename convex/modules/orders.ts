@@ -3,8 +3,8 @@
 
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
-import { internalMutation, query } from "../_generated/server";
-import { createLicenseSnapshot } from "../../src/shared/licenses";
+import { internalMutation, internalQuery, query } from "../_generated/server";
+import { createLicenseSnapshot } from "../../shared/licenses";
 
 /**
  * Create an order from Stripe checkout session
@@ -17,6 +17,7 @@ export const createOrder = internalMutation({
     buyerClerkUserId: v.string(),
     buyerEmail: v.optional(v.string()),
     stripeSessionId: v.string(),
+    stripePaymentIntentId: v.optional(v.string()),
     itemType: v.union(v.literal("track"), v.literal("service")),
     itemId: v.string(),
     currency: v.string(),
@@ -40,6 +41,7 @@ export const createOrder = internalMutation({
       buyerClerkUserId: args.buyerClerkUserId,
       buyerEmail: args.buyerEmail,
       stripeSessionId: args.stripeSessionId,
+      stripePaymentIntentId: args.stripePaymentIntentId,
       itemType: args.itemType,
       itemId: args.itemId,
       currency: args.currency,
@@ -50,6 +52,108 @@ export const createOrder = internalMutation({
     });
 
     return orderId;
+  },
+});
+
+/**
+ * Revalidates Stripe fulfillment data against the live catalog.
+ *
+ * Metadata on a Stripe object is not an authorization boundary. This query
+ * ensures the paid item belongs to the connected workspace, is still for sale,
+ * and was paid at the server-owned catalog price before any entitlement exists.
+ */
+export const validateTrackFulfillment = internalQuery({
+  args: {
+    workspaceId: v.id("workspaces"),
+    trackId: v.id("tracks"),
+    licenseTier: v.union(
+      v.literal("basic"),
+      v.literal("premium"),
+      v.literal("unlimited")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const [workspace, track] = await Promise.all([
+      ctx.db.get(args.workspaceId),
+      ctx.db.get(args.trackId),
+    ]);
+
+    if (
+      !workspace ||
+      !workspace.stripeAccountId ||
+      workspace.paymentsStatus !== "active" ||
+      !track ||
+      track.workspaceId !== args.workspaceId
+    ) {
+      return null;
+    }
+
+    return {
+      stripeAccountId: workspace.stripeAccountId,
+    };
+  },
+});
+
+export const validateServiceFulfillment = internalQuery({
+  args: {
+    workspaceId: v.id("workspaces"),
+    serviceId: v.id("services"),
+  },
+  handler: async (ctx, args) => {
+    const [workspace, service] = await Promise.all([
+      ctx.db.get(args.workspaceId),
+      ctx.db.get(args.serviceId),
+    ]);
+
+    if (
+      !workspace ||
+      !workspace.stripeAccountId ||
+      workspace.paymentsStatus !== "active" ||
+      !service ||
+      service.workspaceId !== args.workspaceId
+    ) {
+      return null;
+    }
+
+    return {
+      stripeAccountId: workspace.stripeAccountId,
+    };
+  },
+});
+
+/**
+ * A fully refunded digital purchase no longer grants download rights.
+ * The entitlement row remains for auditability; access checks use the
+ * associated license status and deny revoked licenses.
+ */
+export const markOrderRefundedByPaymentIntent = internalMutation({
+  args: {
+    stripePaymentIntentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("orders")
+      .withIndex("by_payment_intent", (q) =>
+        q.eq("stripePaymentIntentId", args.stripePaymentIntentId)
+      )
+      .unique();
+
+    if (!order) return null;
+    if (order.status !== "refunded") {
+      await ctx.db.patch(order._id, { status: "refunded" });
+    }
+
+    if (order.itemType === "track") {
+      const license = await ctx.db
+        .query("licenses")
+        .withIndex("by_order", (q) => q.eq("orderId", order._id))
+        .unique();
+      if (license && license.status !== "revoked") {
+        await ctx.db.patch(license._id, { status: "revoked" });
+      }
+    }
+
+    return { orderId: order._id, itemType: order.itemType };
   },
 });
 
@@ -278,11 +382,12 @@ export const getMySessionPurchaseData = query({
             .withIndex("by_license", (q) => q.eq("licenseId", license._id))
             .first()
         : null;
+      const isRevoked = license?.status === "revoked" || order.status === "refunded";
 
-      const downloadUrl = track.fullStorageId
+      const downloadUrl = !isRevoked && track.fullStorageId
         ? await ctx.storage.getUrl(track.fullStorageId)
         : null;
-      const licenseUrl = entitlement?.licensePdfStorageId
+      const licenseUrl = !isRevoked && entitlement?.licensePdfStorageId
         ? await ctx.storage.getUrl(entitlement.licensePdfStorageId)
         : null;
 

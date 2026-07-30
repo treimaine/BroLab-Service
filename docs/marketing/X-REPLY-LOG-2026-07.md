@@ -112,6 +112,32 @@ This file is the durable deduplication source for the daily X acquisition workfl
 | `@niptechpodcast` | https://x.com/niptechpodcast/status/2081077865466953786 | https://x.com/Treigua/status/2081099523577745624 | French founder |
 | `@StefJambu` | https://x.com/StefJambu/status/2081079575195566385 | https://x.com/Treigua/status/2081099570784702695 | French founder |
 
+## 2026-07-26
+
+| Target account | Source post | Published reply | Pillar |
+|---|---|---|---|
+| `@AudioFixApp` | https://x.com/AudioFixApp/status/2081139960837468289 | https://x.com/Treigua/status/2081325079825092846 | Audio engineering |
+| `@logictemplates_` | https://x.com/logictemplates_/status/2081186623245475939 | https://x.com/Treigua/status/2081325166034870694 | Music production |
+| `@Akshaybaghels` | https://x.com/Akshaybaghels/status/2081323439714107642 | https://x.com/Treigua/status/2081325358054322309 | Product/founder |
+| `@DIHCapital` | https://x.com/DIHCapital/status/2081321495637229637 | https://x.com/Treigua/status/2081325495103193232 | French founder |
+| `@LaRussellGC` | https://x.com/LaRussellGC/status/2081092154718368205 | https://x.com/Treigua/status/2081423322584064382 | Artist/music business |
+| `@maubaron` | https://x.com/maubaron/status/2081407484586045632 | https://x.com/Treigua/status/2081423400162021857 | Product/founder |
+| `@Keshavdotdev` | https://x.com/Keshavdotdev/status/2081402767625846932 | https://x.com/Treigua/status/2081423422861509045 | Product/founder |
+| `@KazTheBeatMaker` | https://x.com/KazTheBeatMaker/status/2081319612499837211 | https://x.com/Treigua/status/2081423445762482350 | Producer/audio |
+| `@guenolekikabou` | https://x.com/guenolekikabou/status/2081064763279216828 | https://x.com/Treigua/status/2081423468881486069 | French founder |
+| `@de_henne` | https://x.com/de_henne/status/2081410589113421881 | https://x.com/Treigua/status/2081423491383918873 | Product/founder |
+| `@terencebuilds` | https://x.com/terencebuilds/status/2081409207560016156 | https://x.com/Treigua/status/2081423513932517653 | Product/founder |
+| `@rewind02` | https://x.com/rewind02/status/2081412359277400501 | https://x.com/Treigua/status/2081423537571578031 | Engineering/AI |
+| `@britinogn` | https://x.com/britinogn/status/2081399895072662002 | https://x.com/Treigua/status/2081425232816906331 | Product/founder |
+| `@stillgoji` | https://x.com/stillgoji/status/2081444041745473592 | https://x.com/Treigua/status/2081461159677374928 | Producer/audio |
+| `@CLWDWLKR_` | https://x.com/CLWDWLKR_/status/2081444618776793336 | https://x.com/Treigua/status/2081461182381072429 | Producer/audio |
+| `@dotjeal` | https://x.com/dotjeal/status/2081447039519293510 | https://x.com/Treigua/status/2081461204258583033 | Music production |
+| `@rupal_developer` | https://x.com/rupal_developer/status/2081441636253683853 | https://x.com/Treigua/status/2081461227285319780 | Product/founder |
+| `@_a_m_i_t_1` | https://x.com/_a_m_i_t_1/status/2081423305727504545 | https://x.com/Treigua/status/2081461248957247964 | Product/founder |
+| `@HouloudeTeamOff` | https://x.com/HouloudeTeamOff/status/2081408282388774944 | https://x.com/Treigua/status/2081461271858200685 | Product/founder |
+| `@mben_dev` | https://x.com/mben_dev/status/2081435886005239890 | https://x.com/Treigua/status/2081461295228781007 | French founder |
+| `@kevton_` | https://x.com/kevton_/status/2081426068414877957 | https://x.com/Treigua/status/2081461318544965974 | French founder |
+
 ## Rules
 
 - Never reply twice to the same source post.

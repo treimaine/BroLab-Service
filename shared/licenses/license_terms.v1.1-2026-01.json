@@ -5,7 +5,7 @@
   "language": "en",
   "currency_base": "USD",
   "created_at": "2026-01-07",
-  "notes": "BeatStars-like fixed tiers (Basic/Premium/Unlimited). Stems only in Unlimited. Publishing split optional. Snapshot these terms into each purchase license record.",
+  "notes": "Fixed tiers (Basic/Premium/Unlimited). Stems only in Unlimited. Publishing split optional. Snapshot these terms into each purchase license record.",
   "global": {
     "definitions": {
       "licensor": "The Provider (Producer/Audio Engineer) selling the Beat/Service",
@@ -81,7 +81,7 @@
       "governing_law": {
         "jurisdiction": "France",
         "venue": "Paris",
-        "note": "Adjust per your company legal setup if needed."
+        "note": "Canonical jurisdiction for BroLab platform terms and standard beat licenses."
       },
       "support_contact": {
         "email": "support@brolabentertainment.com"

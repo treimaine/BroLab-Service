@@ -8,6 +8,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Flame, Loader2, Lock, ShoppingCart, X } from 'lucide-react'
 import { useState } from 'react'
+import Link from 'next/link'
 import { CheckoutAbandonmentSurvey } from './CheckoutAbandonmentSurvey'
 import { DEFAULT_LICENSE_TIERS, LicenseSelector, type LicenseTier } from './LicenseSelector'
 
@@ -286,6 +287,13 @@ export function CheckoutModal({
                     </button>
                     <p className="text-center text-xs text-muted">
                       {CHECKOUT_TIMEOUT_MESSAGE}
+                    </p>
+                    <p className="text-center text-xs text-muted">
+                      By completing the purchase, you accept the selected license and the{' '}
+                      <Link href="/terms#licensing" className="text-accent hover:underline">
+                        license terms
+                      </Link>
+                      .
                     </p>
                   </div>
 

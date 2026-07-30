@@ -20,6 +20,8 @@ import { Id } from 'convex/_generated/dataModel'
 import { ConvexHttpClient } from 'convex/browser'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { isValidLicenseTier } from '@/shared/licenses'
+import { signCheckoutFulfillment } from '../../../../shared/checkoutFulfillment'
 
 // Initialize Stripe with platform secret key
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
@@ -71,15 +73,47 @@ interface WorkspaceData {
 function validateCheckoutRequest(body: CheckoutRequest): { valid: boolean; error?: string } {
   const { workspaceId, itemType, itemId, licenseTier } = body
 
-  if (!workspaceId || !itemType || !itemId) {
+  if (
+    typeof workspaceId !== 'string' ||
+    typeof itemId !== 'string' ||
+    !workspaceId.trim() ||
+    !itemId.trim()
+  ) {
     return { valid: false, error: 'Missing required fields: workspaceId, itemType, itemId' }
   }
 
-  if (itemType === 'track' && !licenseTier) {
-    return { valid: false, error: 'licenseTier is required for track purchases' }
+  if (itemType !== 'track' && itemType !== 'service') {
+    return { valid: false, error: 'itemType must be either track or service' }
+  }
+
+  if (
+    itemType === 'track' &&
+    (typeof licenseTier !== 'string' || !isValidLicenseTier(licenseTier))
+  ) {
+    return {
+      valid: false,
+      error: 'licenseTier must be basic, premium, or unlimited for track purchases',
+    }
+  }
+
+  if (itemType === 'service' && licenseTier !== undefined) {
+    return { valid: false, error: 'licenseTier is only valid for track purchases' }
   }
 
   return { valid: true }
+}
+
+function priceToCents(price: number): number {
+  if (!Number.isFinite(price) || price <= 0) {
+    throw new Error('Item price is invalid')
+  }
+
+  const cents = Math.round(price * 100)
+  if (!Number.isSafeInteger(cents) || cents <= 0) {
+    throw new Error('Item price is invalid')
+  }
+
+  return cents
 }
 
 /**
@@ -102,14 +136,15 @@ function validatePaymentsConfiguration(workspace: WorkspaceData): { valid: boole
 async function getTrackItemData(
   itemId: string,
   licenseTier: LicenseTier,
-  isTestMode?: boolean
+  isTestMode: boolean,
+  workspaceId: string
 ): Promise<ItemData> {
   if (isTestMode && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
     // Test mode: Return mock track data
     const mockPrices = {
       basic: 29.99,
       premium: 49.99,
-      unlimited: 99.99,
+      unlimited: 149.99,
     }
     const tierPrice = mockPrices[licenseTier]
     return {
@@ -119,16 +154,13 @@ async function getTrackItemData(
     }
   }
 
-  const track = await convex.query(api.modules.beats.getTrack, {
+  const track = await convex.query(api.modules.beats.getPublishedTrack, {
     trackId: itemId as Id<'tracks'>,
+    workspaceId: workspaceId as Id<'workspaces'>,
   })
 
   if (!track) {
     throw new Error('Track not found')
-  }
-
-  if (track.status !== 'published') {
-    throw new Error('Track is not available for purchase')
   }
 
   const tierPrice = track.priceUsdByTier[licenseTier]
@@ -137,7 +169,7 @@ async function getTrackItemData(
   }
 
   const itemName = `${track.title} - ${licenseTier.charAt(0).toUpperCase() + licenseTier.slice(1)} License`
-  const priceInCents = Math.round(tierPrice * 100)
+  const priceInCents = priceToCents(tierPrice)
 
   return {
     name: itemName,
@@ -149,7 +181,11 @@ async function getTrackItemData(
 /**
  * Fetch service data and calculate price
  */
-async function getServiceItemData(itemId: string, isTestMode?: boolean): Promise<ItemData> {
+async function getServiceItemData(
+  itemId: string,
+  workspaceId: string,
+  isTestMode?: boolean
+): Promise<ItemData> {
   if (isTestMode && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
     // Test mode: Return mock service data
     return {
@@ -167,13 +203,13 @@ async function getServiceItemData(itemId: string, isTestMode?: boolean): Promise
     throw new Error('Service not found')
   }
 
-  if (!service.isActive) {
+  if (service.workspaceId !== workspaceId || !service.isActive) {
     throw new Error('Service is not available for booking')
   }
 
   return {
     name: service.title,
-    priceInCents: Math.round(service.priceUSD * 100),
+    priceInCents: priceToCents(service.priceUSD),
     currency: 'usd',
   }
 }
@@ -190,7 +226,8 @@ async function createCheckoutSession(
   itemData: ItemData,
   metadata: Record<string, string>,
   successUrl: string,
-  cancelUrl: string
+  cancelUrl: string,
+  idempotencyKey: string | null
 ): Promise<Stripe.Checkout.Session> {
   return await stripe.checkout.sessions.create(
     {
@@ -221,6 +258,7 @@ async function createCheckoutSession(
     },
     {
       stripeAccount: workspace.stripeAccountId, // Direct Charge on connected account
+      idempotencyKey: idempotencyKey ?? undefined,
     }
   )
 }
@@ -347,31 +385,90 @@ function buildCheckoutUrls(
   itemType: ItemType,
   origin: string
 ): { successUrl: string; cancelUrl: string } {
-  const successUrl =
-    body.successUrl ||
+  const defaultSuccessUrl =
     `${origin}/_t/${workspace.slug}/checkout/success?session_id={CHECKOUT_SESSION_ID}`
-  const cancelUrl =
-    body.cancelUrl ||
+  const defaultCancelUrl =
     `${origin}/_t/${workspace.slug}/${itemType === 'track' ? 'beats' : 'services'}/${body.itemId}`
 
+  const successUrl = validateCheckoutRedirect(body.successUrl, defaultSuccessUrl, origin)
+  const cancelUrl = validateCheckoutRedirect(body.cancelUrl, defaultCancelUrl, origin)
+
   return { successUrl, cancelUrl }
+}
+
+function normalizeIdempotencyKey(value: string | null): string | null {
+  if (value === null) return null
+
+  const normalized = value.trim()
+  if (
+    normalized.length === 0 ||
+    normalized.length > 255 ||
+    !/^[\x21-\x7E]+$/.test(normalized)
+  ) {
+    throw new Error('Invalid Idempotency-Key header')
+  }
+
+  return normalized
+}
+
+function validateCheckoutRedirect(
+  candidate: string | undefined,
+  fallback: string,
+  origin: string
+): string {
+  if (!candidate) return fallback
+
+  const resolved = new URL(candidate, origin)
+  if (resolved.origin !== new URL(origin).origin) {
+    throw new Error('Checkout redirect URLs must stay on this site')
+  }
+
+  return resolved.toString()
 }
 
 /**
  * Build metadata for webhook
  */
-function buildMetadata(
+async function buildMetadata(
   workspaceId: string,
   itemType: ItemType,
   itemId: string,
   userId: string,
+  itemData: ItemData,
+  connectedAccountId: string,
   licenseTier?: LicenseTier
-): Record<string, string> {
+): Promise<Record<string, string>> {
+  const fulfillmentSecret =
+    process.env.CHECKOUT_FULFILLMENT_SECRET ??
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET
+  if (!fulfillmentSecret) {
+    throw new Error('Checkout fulfillment signing is not configured')
+  }
+
+  const fulfillmentFields = {
+    workspaceId,
+    itemType,
+    itemId,
+    licenseTier: licenseTier ?? '',
+    buyerClerkUserId: userId,
+    expectedAmountCents: itemData.priceInCents,
+    currency: itemData.currency,
+    connectedAccountId,
+  }
+  const fulfillmentSignature = await signCheckoutFulfillment(
+    fulfillmentSecret,
+    fulfillmentFields
+  )
+
   const metadata: Record<string, string> = {
     workspaceId,
     itemType,
     itemId,
     buyerClerkUserId: userId,
+    expectedAmountCents: String(itemData.priceInCents),
+    expectedCurrency: itemData.currency,
+    connectedAccountId,
+    fulfillmentSignature,
   }
 
   if (licenseTier) {
@@ -450,11 +547,19 @@ async function processCheckoutRequest(
   // Fetch item data
   const itemData =
     itemType === 'track'
-      ? await getTrackItemData(itemId, licenseTier!, isTestMode)
-      : await getServiceItemData(itemId, isTestMode)
+      ? await getTrackItemData(itemId, licenseTier!, isTestMode, workspaceId)
+      : await getServiceItemData(itemId, workspaceId, isTestMode)
 
   // Build metadata and URLs
-  const metadata = buildMetadata(workspaceId, itemType, itemId, userId, licenseTier)
+  const metadata = await buildMetadata(
+    workspaceId,
+    itemType,
+    itemId,
+    userId,
+    itemData,
+    workspace.stripeAccountId!,
+    licenseTier
+  )
   const { successUrl, cancelUrl } = buildCheckoutUrls(body, workspace, itemType, origin)
 
   return { workspace, itemData, metadata, successUrl, cancelUrl }
@@ -469,7 +574,8 @@ async function createOrMockStripeSession(
   itemData: ItemData,
   metadata: Record<string, string>,
   successUrl: string,
-  cancelUrl: string
+  cancelUrl: string,
+  idempotencyKey: string | null
 ): Promise<Stripe.Checkout.Session> {
   if (isTestMode && process.env.ALLOW_TEST_CREDENTIALS_IN_PRODUCTION === 'true') {
     return {
@@ -487,7 +593,8 @@ async function createOrMockStripeSession(
     itemData,
     metadata,
     successUrl,
-    cancelUrl
+    cancelUrl,
+    idempotencyKey
   )
 }
 
@@ -586,11 +693,9 @@ export async function POST(request: Request) {
   let itemId: string | undefined
 
   try {
-    const idempotencyKey = request.headers.get('Idempotency-Key')
-    const cachedResult = checkIdempotencyCache(idempotencyKey)
-    if (cachedResult) {
-      return NextResponse.json(cachedResult)
-    }
+    const idempotencyKey = normalizeIdempotencyKey(
+      request.headers.get('Idempotency-Key')
+    )
 
     const authenticatedUserId = await authenticateUser(request)
     if (!authenticatedUserId) {
@@ -602,6 +707,21 @@ export async function POST(request: Request) {
     const validation = validateCheckoutRequest(body)
     if (!validation.valid) {
       return handleValidationFailure(userId, validation.error, startTime)
+    }
+
+    const scopedCacheKey = idempotencyKey
+      ? [
+          userId,
+          idempotencyKey,
+          body.workspaceId,
+          body.itemType,
+          body.itemId,
+          body.licenseTier ?? '',
+        ].join(':')
+      : null
+    const cachedResult = checkIdempotencyCache(scopedCacheKey)
+    if (cachedResult) {
+      return NextResponse.json(cachedResult)
     }
 
     workspaceId = body.workspaceId
@@ -623,7 +743,8 @@ export async function POST(request: Request) {
       itemData,
       metadata,
       successUrl,
-      cancelUrl
+      cancelUrl,
+      idempotencyKey
     )
 
     const duration = Date.now() - startTime
@@ -656,7 +777,7 @@ export async function POST(request: Request) {
       await phClient.flush()
     }
 
-    cacheIdempotencyResult(idempotencyKey, session.url!, session.id)
+    cacheIdempotencyResult(scopedCacheKey, session.url!, session.id)
 
     return NextResponse.json({
       url: session.url,
