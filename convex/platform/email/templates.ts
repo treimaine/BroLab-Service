@@ -426,7 +426,7 @@ export function onboardingRecovery(
     ]),
     button(c.cta, p.onboardingUrl),
     noteBox(
-      `BASIC and PRO include ${p.trialDays} days free. Cancel before the trial ends to avoid the first charge.`
+      `BASIC and PRO include ${p.trialDays} days free. BroLab takes 0% of every sale. Cancel before the trial ends to avoid the first charge.`
     ),
   ].join("\n");
 
@@ -450,7 +450,7 @@ export function onboardingRecovery(
       "",
       `${c.cta}: ${p.onboardingUrl}`,
       "",
-      `BASIC and PRO include ${p.trialDays} days free. Cancel before the trial ends to avoid the first charge.`,
+      `BASIC and PRO include ${p.trialDays} days free. BroLab takes 0% of every sale. Cancel before the trial ends to avoid the first charge.`,
       textFooter(p.brand, p.unsubscribeUrl),
     ].join("\n"),
   };

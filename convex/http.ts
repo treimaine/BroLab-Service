@@ -1968,13 +1968,18 @@ async function handleStandardEvent(
             (internal as any).platform.email.lifecycle.sendWelcomeEmail,
             { clerkUserId: dataId }
           );
+        } catch (err) {
+          console.error("Failed to send welcome email:", err);
+        }
+
+        try {
           await ctx.runMutation(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (internal as any).platform.email.lifecycle.scheduleOnboardingRecovery,
             { clerkUserId: dataId }
           );
         } catch (err) {
-          console.error("Failed to start onboarding email sequence:", err);
+          console.error("Failed to schedule onboarding recovery:", err);
         }
 
         console.log("User upserted in Convex:", dataId);
