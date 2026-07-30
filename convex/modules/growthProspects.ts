@@ -529,7 +529,8 @@ export const getOpsBrief = internalQuery({
     committedMrrUsd: v.number(),
     landingSessions: v.number(),
     ctaSessions: v.number(),
-    signupSessions: v.number()
+    signupSessions: v.number(),
+    accountsCreated: v.number()
   }),
   handler: async (ctx, args) => {
     const prospects = await ctx.db.query("growthProspects").take(MAX_PROSPECTS);
@@ -589,7 +590,10 @@ export const getOpsBrief = internalQuery({
       committedMrrUsd: proTrials * 29.99 + basicTrials * 9.99,
       landingSessions: sessionCount("landing_view"),
       ctaSessions: sessionCount("cta_clicked"),
-      signupSessions: sessionCount("signup_view")
+      signupSessions: sessionCount("signup_view"),
+      accountsCreated: recentEvents.filter(
+        (event) => event.event === "account_created"
+      ).length
     };
   }
 });

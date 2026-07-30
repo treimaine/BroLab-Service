@@ -5,6 +5,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { internal } from "../_generated/api";
+import { recordServerGrowthEvent } from "../modules/growth";
 
 // ============ TYPES ============
 
@@ -54,6 +55,11 @@ export const createUser = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.clerkUserId) {
+      throw new Error("You can only create your own user profile");
+    }
+
     // Check if user already exists
     const existing = await ctx.db
       .query("users")
@@ -82,6 +88,13 @@ export const createUser = mutation({
       },
     });
 
+    await recordServerGrowthEvent(ctx, {
+      event: "account_created",
+      path: "/sign-up",
+      clerkUserId: args.clerkUserId,
+      source: "authenticated_onboarding",
+    });
+
     return userId;
   },
 });
@@ -108,6 +121,13 @@ export const upsertUserFromClerk = mutation({
       clerkUserId: args.clerkUserId,
       role: "artist", // Default — updated during onboarding
       createdAt: Date.now(),
+    });
+
+    await recordServerGrowthEvent(ctx, {
+      event: "account_created",
+      path: "/sign-up",
+      clerkUserId: args.clerkUserId,
+      source: "clerk_user_created_webhook",
     });
 
     return userId;

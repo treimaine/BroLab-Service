@@ -20,6 +20,7 @@ const clientGrowthEventValidator = v.union(
  * funnel that was previously labelled "unmeasured".
  */
 export type ServerGrowthEvent =
+  | "account_created"
   | "workspace_created"
   | "subscription_activated"
   | "stripe_ready"
@@ -125,6 +126,7 @@ function diagnoseFunnel(
   const landingViews = getStageCount("landing_view", counts, uniqueSessions);
   const ctaClicks = getStageCount("cta_clicked", counts, uniqueSessions);
   const signupViews = getStageCount("signup_view", counts, uniqueSessions);
+  const accounts = counts.account_created ?? 0;
   // Server-authoritative stages have no sessionId, so they are counted by event.
   const workspaces = counts.workspace_created ?? 0;
   const subscriptions = counts.subscription_activated ?? 0;
@@ -161,11 +163,21 @@ function diagnoseFunnel(
     };
   }
 
+  if (accounts === 0) {
+    return {
+      status: "conversion_gap" as const,
+      bottleneck: "signup" as const,
+      evidence: `${signupViews} sign-up page session(s) produced no confirmed Clerk account.`,
+      nextAction:
+        "Check Clerk user.created webhook delivery; page views are not account creations.",
+    };
+  }
+
   if (workspaces === 0) {
     return {
       status: "conversion_gap" as const,
       bottleneck: "workspace" as const,
-      evidence: `${signupViews} signup session(s) produced no created workspace.`,
+      evidence: `${accounts} confirmed Clerk account(s) produced no created workspace.`,
       nextAction:
         "Reproduce account creation and role/slug selection; the drop is before checkout, not at price.",
     };
@@ -288,6 +300,7 @@ export const getFunnel = query({
           "pricing view",
           "CTA click",
           "signup view",
+          "Clerk account creation",
           "workspace creation",
           "subscription activation",
           "Stripe Connect readiness",

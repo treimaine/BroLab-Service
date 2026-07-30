@@ -138,6 +138,7 @@ export default defineSchema({
       v.literal("pricing_view"),
       v.literal("cta_clicked"),
       v.literal("signup_view"),
+      v.literal("account_created"),
       v.literal("workspace_created"),
       v.literal("subscription_activated"),
       v.literal("stripe_ready"),

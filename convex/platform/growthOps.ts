@@ -54,7 +54,8 @@ export const sendDailyBrief = internalAction({
         { label: "Trials started", value: String(brief.trialsStarted) },
         { label: "First offers live", value: String(brief.activated) },
         { label: "Landing → CTA", value: `${brief.landingSessions} → ${brief.ctaSessions}` },
-        { label: "Signup sessions", value: String(brief.signupSessions) },
+        { label: "Sign-up page sessions", value: String(brief.signupSessions) },
+        { label: "Clerk accounts created", value: String(brief.accountsCreated) },
       ]),
       paragraph(
         proTrialsToFloor > 0
@@ -73,7 +74,8 @@ export const sendDailyBrief = internalAction({
       `Links sent: ${brief.linksSent}`,
       `Trials started: ${brief.trialsStarted}`,
       `First offers live: ${brief.activated}`,
-      `Landing / CTA / signup sessions: ${brief.landingSessions} / ${brief.ctaSessions} / ${brief.signupSessions}`,
+      `Landing / CTA / sign-up page sessions: ${brief.landingSessions} / ${brief.ctaSessions} / ${brief.signupSessions}`,
+      `Clerk accounts created: ${brief.accountsCreated}`,
       "",
       `Open pipeline: ${dashboardUrl}`,
       textFooter(brand),
