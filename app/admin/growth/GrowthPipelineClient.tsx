@@ -57,6 +57,16 @@ function setupLink(prospect: Prospect) {
   return `https://brolabentertainment.com/sign-up?${params.toString()}`
 }
 
+function conciergeLink(prospect: Prospect) {
+  const params = new URLSearchParams({
+    source: 'direct',
+    campaign: prospect.campaign,
+    segment: prospect.segment,
+    handle: prospect.handle
+  })
+  return `https://brolabentertainment.com/interviews?${params.toString()}`
+}
+
 function draftFor(prospect: Prospect): string {
   const personalized = prospect.outreachDrafts
   if (personalized) {
@@ -77,7 +87,7 @@ function draftFor(prospect: Prospect): string {
     if (prospect.status === 'contacted') return personalized.followUp
     if (prospect.status === 'replied') return personalized.replyBridge
     if (prospect.status === 'qualified') {
-      return `${personalized.trialInvite}\n\n${setupLink(prospect)}`
+      return `${personalized.trialInvite}\n\nIf you want, I can set up the storefront, Stripe and your first offer with you in 15 minutes — free: ${conciergeLink(prospect)}`
     }
   }
 
@@ -96,7 +106,7 @@ function draftFor(prospect: Prospect): string {
     return `Did the setup link open correctly? Start with one offer only. Once Stripe is connected and that offer is live, the rest can wait: ${setupLink(prospect)}`
   }
   if (prospect.status === 'trial_started') {
-    return `Your free month is active. The fastest path to a sell-ready storefront is: connect Stripe, then publish one ${offer}. The in-app checklist and emails guide each step; reply here only if something blocks you.`
+    return `Your free month is active. The fastest path to a sell-ready storefront is: connect Stripe, then publish one ${offer}. If you want hands-on help, book a free 15-minute setup here: ${conciergeLink(prospect)}`
   }
   return `Thanks for giving BroLab a try. Your storefront progress is saved, and your campaign link remains: ${setupLink(prospect)}`
 }

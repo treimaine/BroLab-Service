@@ -1,123 +1,90 @@
 'use client'
 
-/**
- * Interview Request Page Client Component
- *
- * Client-side wrapper for the interviews page with Framer Motion animations.
- */
-
 import { InterviewRequestForm } from '@/components/interviews/InterviewRequestForm'
-import { DribbbleCard } from '@/platform/ui'
-import { motion } from 'framer-motion'
+import { Check, CreditCard, Rocket, Store } from 'lucide-react'
+
+const outcomes = [
+  {
+    icon: Store,
+    title: 'Storefront configured',
+    description: 'Name, URL and the essential settings — without migrating your whole catalog.'
+  },
+  {
+    icon: CreditCard,
+    title: 'Stripe connected',
+    description: 'Customer payments go directly to you. BroLab takes 0% commission.'
+  },
+  {
+    icon: Rocket,
+    title: 'First offer published',
+    description: 'One beat or one audio service live and ready to share today.'
+  }
+]
 
 export function InterviewsPageClient() {
   return (
-    <div className="min-h-screen bg-bg text-text py-16 px-4">
-      <motion.div
-        className="container mx-auto max-w-2xl"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Join Our Feedback Loop
-          </h1>
-          <p className="text-lg text-muted">
-            Help shape the future of BroLab by sharing your feedback in a quick 15-minute interview.
-          </p>
-        </div>
+    <main className="min-h-screen bg-bg px-4 py-14 text-text sm:px-8 sm:py-20">
+      <div className="mx-auto max-w-6xl">
+        <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          <div className="pt-4">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
+              Free concierge onboarding
+            </p>
+            <h1 className="mt-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+              Publish your first offer with us in 15 minutes.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
+              Bring one beat or one service. We help you configure the storefront,
+              connect Stripe and get that first offer ready to sell. You leave with
+              a concrete result, not another product demo.
+            </p>
 
-        {/* Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {[
-            {
-              icon: Clock,
-              title: 'Only 15 Minutes',
-              description: 'Quick and focused conversation',
-            },
-            {
-              icon: MessageSquare,
-              title: 'Your Voice Matters',
-              description: 'Direct impact on product decisions',
-            },
-            {
-              icon: Mail,
-              title: 'Exclusive Updates',
-              description: 'Get insider news about BroLab',
-            },
-          ].map((benefit) => {
-            const Icon = benefit.icon
-            return (
-              <DribbbleCard key={benefit.title} padding="md" className="text-center">
-                <div className="flex justify-center mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-accent" />
+            <div className="mt-8 space-y-4">
+              {outcomes.map(({ icon: Icon, title, description }) => (
+                <div key={title} className="flex gap-4">
+                  <div className="mt-0.5 rounded-xl bg-accent/15 p-2.5 text-accent">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold">{title}</h2>
+                    <p className="mt-1 text-sm leading-6 text-muted">
+                      {description}
+                    </p>
                   </div>
                 </div>
-                <h3 className="font-semibold mb-1">{benefit.title}</h3>
-                <p className="text-sm text-muted">{benefit.description}</p>
-              </DribbbleCard>
-            )
-          })}
-        </div>
+              ))}
+            </div>
 
-        {/* Form */}
-        <InterviewRequestForm />
+            <div className="mt-8 rounded-2xl border border-border bg-surface p-5">
+              <p className="font-semibold">What to have ready</p>
+              <ul className="mt-3 space-y-2 text-sm text-muted">
+                {[
+                  'One beat file or one service package you already sell',
+                  'A Stripe account, or the information needed to create one',
+                  'Your current price and basic terms'
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-        {/* FAQ */}
-        <div className="mt-12 space-y-4">
-          <h2 className="text-xl font-bold mb-4">Frequently Asked Questions</h2>
+          <InterviewRequestForm />
+        </section>
 
-          {[
-            {
-              q: "What will we talk about?",
-              a: "We'll discuss your experience with BroLab, what's working well, and where we can improve. It's a relaxed conversation focused on your feedback.",
-            },
-            {
-              q: "Do I need to prepare anything?",
-              a: "No preparation needed! Just be ready to share your honest thoughts about your experience with BroLab.",
-            },
-            {
-              q: "Will my feedback be kept confidential?",
-              a: "Absolutely. Your feedback is confidential and used only to improve BroLab. We value your insights and privacy.",
-            },
-          ].map((faq, i) => (
-            <motion.div
-              key={faq.q}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <DribbbleCard padding="md">
-                <h3 className="font-semibold mb-2">{faq.q}</h3>
-                <p className="text-sm text-muted">{faq.a}</p>
-              </DribbbleCard>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
+        <section className="mx-auto mt-16 max-w-3xl border-t border-border pt-10">
+          <h2 className="text-2xl font-bold">A small, hands-on early-access cohort</h2>
+          <p className="mt-3 leading-7 text-muted">
+            We are opening this to producers and audio engineers while we refine
+            BroLab’s onboarding. The setup is free; the BroLab plan still includes
+            its normal one-month free trial. We will never ask for passwords or
+            take control of your Stripe account.
+          </p>
+        </section>
+      </div>
+    </main>
   )
-}
-
-// Icons
-function Clock({ className }: Readonly<{ className?: string }>) {
-  return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-}
-
-function MessageSquare({ className }: Readonly<{ className?: string }>) {
-  return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-  </svg>
-}
-
-function Mail({ className }: Readonly<{ className?: string }>) {
-  return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
 }

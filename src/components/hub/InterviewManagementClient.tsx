@@ -62,6 +62,7 @@ interface InterviewRequest {
 }
 
 function InterviewCard({ request }: Readonly<{ request: InterviewRequest }>) {
+  const isConcierge = request.notes?.includes('[Concierge onboarding]') ?? false
   const statusColors: Record<string, { bg: string; text: string; icon: React.ComponentType<{ className?: string }> }> = {
     pending: {
       bg: 'bg-yellow-500/10 border-yellow-500/30',
@@ -104,6 +105,11 @@ function InterviewCard({ request }: Readonly<{ request: InterviewRequest }>) {
               >
                 {request.status}
               </span>
+              {isConcierge && (
+                <span className="rounded-full bg-accent/15 px-2 py-1 text-xs font-semibold text-accent">
+                  Concierge
+                </span>
+              )}
             </div>
             <p className="text-sm text-muted flex items-center gap-1">
               <Mail className="w-3 h-3" />
@@ -211,10 +217,10 @@ export function InterviewManagementClient() {
                 transition={{ duration: 0.4 }}
               >
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                  Interview Management
+                  Concierge Onboarding
                 </h1>
                 <p className="text-lg text-muted">
-                  Schedule and manage product feedback interviews with customers
+                  Confirm assisted setup requests and track early activation calls
                 </p>
               </motion.div>
 
@@ -287,9 +293,9 @@ export function InterviewManagementClient() {
                 (!scheduledInterviews || scheduledInterviews.length === 0) && (
                   <div className="text-center py-12">
                     <AlertCircle className="w-12 h-12 text-muted mx-auto mb-4 opacity-50" />
-                    <p className="text-muted mb-2">No interview requests yet</p>
+                    <p className="text-muted mb-2">No setup requests yet</p>
                     <p className="text-sm text-muted">
-                      Interview requests will appear here once customers submit them
+                      Concierge requests will appear here once prospects book a slot
                     </p>
                   </div>
                 )}
