@@ -24,6 +24,7 @@ import { sendTransactionalEmail, fetchClerkEmail } from "./actions";
 import { buildUnsubscribeUrl } from "./suppression";
 import * as templates from "./templates";
 import { resolveBrand } from "./theme";
+import { buildOnboardingRecoveryUrl } from "./urls";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -32,6 +33,18 @@ const sendResultValidator = v.object({
   dedupeKey: v.optional(v.string()),
   providerMessageId: v.optional(v.string()),
   reason: v.optional(v.string()),
+});
+
+export const getCreatorLifecycleEligibility = internalQuery({
+  args: { clerkUserId: v.string() },
+  returns: v.object({ eligible: v.boolean() }),
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+      .first();
+    return { eligible: user?.role !== "admin" };
+  },
 });
 
 function fromAddress(brandName: string): string {
@@ -53,6 +66,14 @@ export const sendWelcomeEmail = internalAction({
   args: { clerkUserId: v.string() },
   returns: sendResultValidator,
   handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
+    const lifecycle = await ctx.runQuery(
+      internal.platform.email.lifecycle.getCreatorLifecycleEligibility,
+      { clerkUserId: args.clerkUserId }
+    );
+    if (!lifecycle.eligible) {
+      return { sent: false, reason: "admin_account" };
+    }
+
     const email = await fetchClerkEmail(args.clerkUserId);
     if (!email) return { sent: false, reason: "no_email" };
 
@@ -145,6 +166,14 @@ export const sendOnboardingRecovery = internalAction({
   },
   returns: sendResultValidator,
   handler: async (ctx, args): Promise<{ sent: boolean; reason?: string }> => {
+    const lifecycle = await ctx.runQuery(
+      internal.platform.email.lifecycle.getCreatorLifecycleEligibility,
+      { clerkUserId: args.clerkUserId }
+    );
+    if (!lifecycle.eligible) {
+      return { sent: false, reason: "admin_account" };
+    }
+
     const state: OnboardingRecoveryState = await ctx.runQuery(
       internal.platform.email.lifecycle.getOnboardingRecoveryState,
       { clerkUserId: args.clerkUserId }
@@ -162,7 +191,7 @@ export const sendOnboardingRecovery = internalAction({
       brand,
       unsubscribeUrl,
       stage: args.stage,
-      onboardingUrl: `${brand.siteUrl}/onboarding?source=direct&campaign=onboarding-recovery`,
+      onboardingUrl: buildOnboardingRecoveryUrl(brand.siteUrl),
       trialDays: PAID_PLAN_TRIAL_DAYS,
     });
 

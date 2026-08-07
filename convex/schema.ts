@@ -4,17 +4,14 @@
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { userRoleValidator } from "./platform/userRoles";
 
 export default defineSchema({
   // ============ PLATFORM TABLES ============
 
   users: defineTable({
     clerkUserId: v.string(),
-    role: v.union(
-      v.literal("producer"),
-      v.literal("engineer"),
-      v.literal("artist")
-    ),
+    role: userRoleValidator,
     createdAt: v.number()
   }).index("by_clerk_id", ["clerkUserId"]),
 
@@ -603,6 +600,9 @@ export default defineSchema({
     timestamp: v.number(), // Event timestamp (milliseconds)
     metadata: v.optional(
       v.object({
+        workspaceId: v.optional(v.string()), // Workspace associated with the milestone
+        workspaceName: v.optional(v.string()), // Workspace name captured during onboarding
+        role: v.optional(v.string()), // Role selected during onboarding
         error: v.optional(v.string()), // Error message if applicable
         stage_duration: v.optional(v.number()), // Time spent at this stage (ms)
         retry_count: v.optional(v.number()), // For failed payment events

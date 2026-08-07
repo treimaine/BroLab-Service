@@ -205,6 +205,9 @@ function campaignFor(
 function nextFollowUpFor(status: ProspectStatus, now: number) {
   switch (status) {
     case "contacted":
+      // The concierge motion uses one considered follow-up after three days.
+      // A next-day nudge is too aggressive for cold, research-led outreach.
+      return now + 3 * DAY_MS;
     case "link_sent":
       return now + DAY_MS;
     case "replied":
@@ -534,10 +537,20 @@ export const getOpsBrief = internalQuery({
   }),
   handler: async (ctx, args) => {
     const prospects = await ctx.db.query("growthProspects").take(MAX_PROSPECTS);
-    const recentEvents = await ctx.db
+    const eventBatch = await ctx.db
       .query("growthEvents")
       .withIndex("by_createdAt", (q) => q.gte("createdAt", args.since))
       .take(10_000);
+    const users = await ctx.db.query("users").take(1_000);
+    const adminClerkUserIds = new Set(
+      users
+        .filter((user) => user.role === "admin")
+        .map((user) => user.clerkUserId)
+    );
+    const recentEvents = eventBatch.filter(
+      (event) =>
+        !event.clerkUserId || !adminClerkUserIds.has(event.clerkUserId)
+    );
     const countStatus = (status: ProspectStatus) =>
       prospects.filter((prospect) => prospect.status === status).length;
     const sessionCount = (eventName: string) =>

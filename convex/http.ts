@@ -24,6 +24,10 @@ import {
   mapSubscriptionItemEventToStatus,
 } from "./platform/billing/status";
 import { resolvePlanKeyFromClerkPlanId } from "./platform/billing/plans";
+import {
+  resolveClerkUserRole,
+  shouldStartCreatorLifecycle,
+} from "./platform/userRoles";
 import { verifyCheckoutFulfillment } from "../shared/checkoutFulfillment";
 
 // Stripe event types
@@ -1945,11 +1949,16 @@ async function handleStandardEvent(
     case "user.created":
       console.log("User created:", dataId);
       if (dataId) {
+        const role = resolveClerkUserRole(data);
         await ctx.runMutation(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (internal as any).platform.users.upsertUserFromClerk,
-          { clerkUserId: dataId }
+          {
+            clerkUserId: dataId,
+            role,
+          }
         );
+        if (shouldStartCreatorLifecycle(role)) {
         // Record onboarding event: signup
         await ctx.runMutation(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1981,6 +1990,7 @@ async function handleStandardEvent(
         } catch (err) {
           console.error("Failed to schedule onboarding recovery:", err);
         }
+        }
 
         console.log("User upserted in Convex:", dataId);
       }
@@ -1988,14 +1998,17 @@ async function handleStandardEvent(
 
     case "user.updated":
       console.log("User updated:", dataId);
-      // Our Convex users table only stores clerkUserId, role, and createdAt.
-      // Role is managed by onboarding (updateUserRole), not by Clerk.
-      // We upsert as a safety net in case user.created webhook was missed.
+      // Synchronize metadata changes as well as recovering from a missed
+      // user.created event. Admin lives in public_metadata; creator roles live
+      // in unsafe_metadata.
       if (dataId) {
         await ctx.runMutation(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (internal as any).platform.users.upsertUserFromClerk,
-          { clerkUserId: dataId }
+          {
+            clerkUserId: dataId,
+            role: resolveClerkUserRole(data),
+          }
         );
       }
       break;

@@ -212,7 +212,13 @@ export const getUserCounts = query({
   args: {},
   handler: async (ctx) => {
     const users = await ctx.db.query("users").collect();
-    const counts = { producer: 0, engineer: 0, artist: 0, total: users.length };
+    const counts = {
+      producer: 0,
+      engineer: 0,
+      artist: 0,
+      admin: 0,
+      total: users.length,
+    };
     for (const u of users) {
       counts[u.role]++;
     }
@@ -414,8 +420,18 @@ export const getDashboardMetrics = query({
     const tracks = await ctx.db.query("tracks").collect();
     const orders = await ctx.db.query("orders").collect();
 
-    const userCounts = { producer: 0, engineer: 0, artist: 0, total: users.length };
-    for (const u of users) userCounts[u.role]++;
+    const userCounts = {
+      producer: 0,
+      engineer: 0,
+      artist: 0,
+      admin: 0,
+      creatorTotal: 0,
+      total: users.length,
+    };
+    for (const u of users) {
+      userCounts[u.role]++;
+      if (u.role !== "admin") userCounts.creatorTotal++;
+    }
 
     const completedOrders = orders.filter((o) => o.status === "completed");
     const totalRevenueCents = completedOrders.reduce((s, o) => s + o.amountCents, 0);

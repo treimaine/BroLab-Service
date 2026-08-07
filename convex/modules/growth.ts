@@ -3,6 +3,7 @@ import { mutation, query, type MutationCtx } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 
 const MAX_EVENTS_PER_REPORT = 10_000;
+const MAX_USERS_PER_REPORT = 1_000;
 
 const clientGrowthEventValidator = v.union(
   v.literal("landing_view"),
@@ -271,11 +272,29 @@ export const getFunnel = query({
       .take(MAX_EVENTS_PER_REPORT + 1);
     const isTruncated = eventBatch.length > MAX_EVENTS_PER_REPORT;
     const events = eventBatch.slice(0, MAX_EVENTS_PER_REPORT);
+    const userBatch = await ctx.db.query("users").take(MAX_USERS_PER_REPORT + 1);
+    const usersAreTruncated = userBatch.length > MAX_USERS_PER_REPORT;
+    const adminClerkUserIds = new Set(
+      userBatch
+        .slice(0, MAX_USERS_PER_REPORT)
+        .filter((user) => user.role === "admin")
+        .map((user) => user.clerkUserId)
+    );
 
     const counts: Record<string, number> = {};
     const sessionsByEvent = new Map<string, Set<string>>();
+    let includedEventCount = 0;
 
     for (const event of events) {
+      // Keep historical audit data intact while excluding operational admin
+      // accounts from creator acquisition and conversion diagnostics.
+      if (
+        event.clerkUserId &&
+        adminClerkUserIds.has(event.clerkUserId)
+      ) {
+        continue;
+      }
+      includedEventCount++;
       counts[event.event] = (counts[event.event] ?? 0) + 1;
       if (event.sessionId) {
         const sessions = sessionsByEvent.get(event.event) ?? new Set<string>();
@@ -291,8 +310,8 @@ export const getFunnel = query({
     return {
       counts,
       uniqueSessions,
-      totalEvents: events.length,
-      isTruncated,
+      totalEvents: includedEventCount,
+      isTruncated: isTruncated || usersAreTruncated,
       diagnosis: diagnoseFunnel(counts, uniqueSessions),
       coverage: {
         measured: [

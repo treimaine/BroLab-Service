@@ -50,6 +50,7 @@ import type * as platform_email_suppression from "../platform/email/suppression.
 import type * as platform_email_templates from "../platform/email/templates.js";
 import type * as platform_email_theme from "../platform/email/theme.js";
 import type * as platform_email_unsubscribeActions from "../platform/email/unsubscribeActions.js";
+import type * as platform_email_urls from "../platform/email/urls.js";
 import type * as platform_email_winback from "../platform/email/winback.js";
 import type * as platform_emailEvents from "../platform/emailEvents.js";
 import type * as platform_entitlements from "../platform/entitlements.js";
@@ -60,6 +61,7 @@ import type * as platform_monitoring from "../platform/monitoring.js";
 import type * as platform_onboarding from "../platform/onboarding.js";
 import type * as platform_storage from "../platform/storage.js";
 import type * as platform_stripeConnect from "../platform/stripeConnect.js";
+import type * as platform_userRoles from "../platform/userRoles.js";
 import type * as platform_users from "../platform/users.js";
 import type * as platform_workspaces from "../platform/workspaces.js";
 
@@ -112,6 +114,7 @@ declare const fullApi: ApiFromModules<{
   "platform/email/templates": typeof platform_email_templates;
   "platform/email/theme": typeof platform_email_theme;
   "platform/email/unsubscribeActions": typeof platform_email_unsubscribeActions;
+  "platform/email/urls": typeof platform_email_urls;
   "platform/email/winback": typeof platform_email_winback;
   "platform/emailEvents": typeof platform_emailEvents;
   "platform/entitlements": typeof platform_entitlements;
@@ -122,6 +125,7 @@ declare const fullApi: ApiFromModules<{
   "platform/onboarding": typeof platform_onboarding;
   "platform/storage": typeof platform_storage;
   "platform/stripeConnect": typeof platform_stripeConnect;
+  "platform/userRoles": typeof platform_userRoles;
   "platform/users": typeof platform_users;
   "platform/workspaces": typeof platform_workspaces;
 }>;

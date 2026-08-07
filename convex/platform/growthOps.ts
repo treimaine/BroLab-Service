@@ -14,7 +14,9 @@ import {
   textFooter,
 } from "./email/theme";
 
-const SPRINT_START = Date.UTC(2026, 6, 25);
+const REPORTING_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+const COMMITTED_MRR_TARGET_USD = 500;
+const PRO_MONTHLY_PRICE_USD = 29.99;
 
 export const sendDailyBrief = internalAction({
   args: {},
@@ -29,13 +31,16 @@ export const sendDailyBrief = internalAction({
     const now = Date.now();
     const brief = await ctx.runQuery(
       internal.modules.growthProspects.getOpsBrief,
-      { now, since: SPRINT_START }
+      { now, since: now - REPORTING_WINDOW_MS }
     );
     const brand = resolveBrand();
     const dashboardUrl = `${brand.siteUrl}/admin/growth`;
     const dateKey = new Date(now).toISOString().slice(0, 10);
-    const gapToFloor = Math.max(0, 200 - brief.committedMrrUsd);
-    const proTrialsToFloor = Math.ceil(gapToFloor / 29.99);
+    const gapToTarget = Math.max(
+      0,
+      COMMITTED_MRR_TARGET_USD - brief.committedMrrUsd
+    );
+    const proTrialsToTarget = Math.ceil(gapToTarget / PRO_MONTHLY_PRICE_USD);
 
     const body = [
       badge("Daily growth brief"),
@@ -58,9 +63,9 @@ export const sendDailyBrief = internalAction({
         { label: "Clerk accounts created", value: String(brief.accountsCreated) },
       ]),
       paragraph(
-        proTrialsToFloor > 0
-          ? `${proTrialsToFloor} additional PRO trial${proTrialsToFloor === 1 ? "" : "s"} would reach the $200 committed-MRR floor. Only count a trial after Clerk activates it.`
-          : "The $200 committed-MRR floor is reached. Protect activation and first-charge retention before increasing outreach volume."
+        proTrialsToTarget > 0
+          ? `${proTrialsToTarget} additional PRO trial${proTrialsToTarget === 1 ? "" : "s"} would reach the $500 committed-MRR target. Only count a trial after Clerk activates it.`
+          : "The $500 committed-MRR target is reached. Protect first-offer activation and first-charge retention before increasing outreach volume."
       ),
       button("Open growth pipeline", dashboardUrl),
     ].join("\n");
@@ -89,7 +94,7 @@ export const sendDailyBrief = internalAction({
       subject,
       html: renderEmailLayout({
         brand,
-        preheader: `${brief.dueFollowUps} follow-ups due. ${proTrialsToFloor} PRO trials to the floor.`,
+        preheader: `${brief.dueFollowUps} follow-ups due. ${proTrialsToTarget} PRO trials to the $500 target.`,
         body,
         footerNote: "Internal BroLab growth operations brief.",
       }),

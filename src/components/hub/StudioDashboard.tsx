@@ -226,6 +226,22 @@ export function StudioDashboard() {
     }
   }, [user, router])
 
+  useEffect(() => {
+    if (user && workspaces !== undefined && workspaces.length === 0) {
+      router.replace('/onboarding?resume=1&step=workspace')
+    }
+  }, [router, user, workspaces])
+
+  // Do not render an empty Studio while Convex resolves the workspace or while
+  // the recovery redirect is in flight.
+  if (user && (workspaces === undefined || !workspace)) {
+    return (
+      <div className="min-h-screen bg-[rgb(var(--bg))] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--accent))]" />
+      </div>
+    )
+  }
+
   return (
     <>
       <AuthLoading>

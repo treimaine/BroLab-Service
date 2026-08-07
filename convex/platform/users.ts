@@ -3,13 +3,18 @@
 // Requirements: 2.1, 2.2, 2.3, 2.4
 
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { internalMutation, mutation, query } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { recordServerGrowthEvent } from "../modules/growth";
+import {
+  shouldStartCreatorLifecycle,
+  type UserRole,
+  userRoleValidator,
+} from "./userRoles";
 
 // ============ TYPES ============
 
-export type UserRole = "producer" | "engineer" | "artist";
+export type { UserRole } from "./userRoles";
 
 // ============ QUERIES ============
 
@@ -65,7 +70,11 @@ export const createUser = mutation({
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", args.clerkUserId))
       .first();
-    
+
+    if (existing?.role === "admin") {
+      throw new Error("Admin accounts cannot enter creator onboarding");
+    }
+
     if (existing) {
       // User already exists (e.g. created by webhook before onboarding) — just update the role
       await ctx.db.patch(existing._id, { role: args.role });
@@ -100,12 +109,15 @@ export const createUser = mutation({
 });
 
 /**
- * Upsert user from Clerk webhook user.created event.
- * Creates with default role "artist" if not already present.
- * The role will be updated during onboarding via updateUserRole.
+ * Synchronize a user from Clerk user.created and user.updated webhooks.
+ * Clerk metadata is authoritative when it carries a recognized role.
+ * Users without role metadata receive the default "artist" role.
  */
-export const upsertUserFromClerk = mutation({
-  args: { clerkUserId: v.string() },
+export const upsertUserFromClerk = internalMutation({
+  args: {
+    clerkUserId: v.string(),
+    role: v.union(userRoleValidator, v.null()),
+  },
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("users")
@@ -113,22 +125,27 @@ export const upsertUserFromClerk = mutation({
       .first();
 
     if (existing) {
-      // Already exists (e.g. created during onboarding before webhook fired)
+      const synchronizedRole = args.role ?? "artist";
+      if (existing.role !== synchronizedRole) {
+        await ctx.db.patch(existing._id, { role: synchronizedRole });
+      }
       return existing._id;
     }
 
     const userId = await ctx.db.insert("users", {
       clerkUserId: args.clerkUserId,
-      role: "artist", // Default — updated during onboarding
+      role: args.role ?? "artist",
       createdAt: Date.now(),
     });
 
-    await recordServerGrowthEvent(ctx, {
-      event: "account_created",
-      path: "/sign-up",
-      clerkUserId: args.clerkUserId,
-      source: "clerk_user_created_webhook",
-    });
+    if (shouldStartCreatorLifecycle(args.role)) {
+      await recordServerGrowthEvent(ctx, {
+        event: "account_created",
+        path: "/sign-up",
+        clerkUserId: args.clerkUserId,
+        source: "clerk_user_created_webhook",
+      });
+    }
 
     return userId;
   },
@@ -148,6 +165,11 @@ export const updateUserRole = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.clerkUserId) {
+      throw new Error("You can only update your own user profile");
+    }
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkUserId", args.clerkUserId))
@@ -155,6 +177,10 @@ export const updateUserRole = mutation({
     
     if (!user) {
       throw new Error("User not found");
+    }
+
+    if (user.role === "admin") {
+      throw new Error("Admin accounts cannot enter creator onboarding");
     }
 
     await ctx.db.patch(user._id, {

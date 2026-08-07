@@ -123,20 +123,16 @@ function isProviderRole(role: string | undefined): boolean {
 function handleOnboardingRedirect(
   role: string | undefined,
   req: Request,
-  isOnOnboardingPage: boolean,
-  isResumingOnboarding: boolean
+  isOnOnboardingPage: boolean
 ): NextResponse | null {
   // User has no role and not on onboarding page -> redirect to onboarding
   if (!role && !isOnOnboardingPage) {
     return NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
-  // User has role and on onboarding page -> redirect to dashboard
-  if (role && isOnOnboardingPage && !isResumingOnboarding) {
-    const dashboardPath = getDashboardUrl(role)
-    return NextResponse.redirect(new URL(dashboardPath, req.url))
-  }
-
+  // A role alone does not mean onboarding is complete. The onboarding client
+  // resolves the first incomplete step from the user's workspace, plan, and
+  // Stripe state; middleware cannot safely inspect that Convex state.
   return null
 }
 
@@ -238,8 +234,7 @@ export default clerkMiddleware(async (auth, req) => {
   const onboardingRedirect = handleOnboardingRedirect(
     role,
     req,
-    isOnboardingPath,
-    req.nextUrl.searchParams.get('resume') === '1'
+    isOnboardingPath
   )
   if (onboardingRedirect) return applySecurityHeaders(onboardingRedirect, req, pathname)
 

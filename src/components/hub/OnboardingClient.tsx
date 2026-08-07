@@ -36,6 +36,7 @@ import type { Id } from 'convex/_generated/dataModel'
 import { PostSignupSurvey } from './PostSignupSurvey'
 import { PaidPlanCheckout } from './PaidPlanCheckout'
 import posthog from 'posthog-js'
+import { resolveOnboardingDestination } from '@/lib/onboarding-state'
 
 type UserRole = 'producer' | 'engineer' | 'artist'
 type OnboardingStep = 'role' | 'workspace' | 'plan' | 'stripe' | 'complete'
@@ -59,14 +60,6 @@ function getSteps(role: UserRole | null) {
 
 function getStepIndex(step: OnboardingStep, role: UserRole | null): number {
   return getSteps(role).findIndex((s) => s.key === step)
-}
-
-function getRedirectPath(role: string): string {
-  return role === 'artist' ? '/artist' : '/studio'
-}
-
-function shouldRedirectUser(clerkRole: string | undefined, existingUser: unknown): boolean {
-  return Boolean(clerkRole && existingUser)
 }
 
 // ─── Progress Bar ────────────────────────────────────────────────────────────
@@ -538,12 +531,12 @@ function CompleteStep({
 
       <div className="space-y-3">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
-          {isArtist ? "You're in!" : "You're live!"}
+          {isArtist ? "You're in!" : 'Storefront created'}
         </h1>
         <p className="text-base text-muted max-w-sm mx-auto">
           {isArtist
             ? 'Your account is ready. Start discovering beats and booking services.'
-            : 'Your storefront is created. Upload your first beat and start earning.'}
+            : 'Connect Stripe and publish your first offer before sharing your storefront.'}
         </p>
       </div>
 
@@ -595,7 +588,8 @@ export function OnboardingClient() {
   const [isCreating, setIsCreating] = useState(false)
   const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(null)
   const [showSurvey, setShowSurvey] = useState(false)
-  const isOnboardingActiveRef = useRef(false)
+  const [isOnboardingResolved, setIsOnboardingResolved] = useState(false)
+  const hasInitializedOnboardingRef = useRef(false)
 
   const createUser = useMutation(api.platform.users.createUser)
   const createWorkspace = useMutation(api.platform.workspaces.createWorkspace)
@@ -610,31 +604,68 @@ export function OnboardingClient() {
     user ? { clerkUserId: user.id } : 'skip'
   )
   const existingWorkspaces = useQuery(api.platform.workspaces.listUserWorkspaces)
+  const subscriptionData = useQuery(
+    api.platform.billing.subscriptionQueries.getSubscriptionByClerkUserId,
+    user ? { clerkUserId: user.id } : 'skip'
+  )
 
   useEffect(() => {
-    if (!isResumeIntent || !user || !existingUser || !existingWorkspaces?.[0]) return
+    if (
+      hasInitializedOnboardingRef.current ||
+      isLoading ||
+      !isAuthenticated ||
+      !user ||
+      existingUser === undefined ||
+      existingWorkspaces === undefined ||
+      subscriptionData === undefined
+    ) return
 
-    const clerkRole = user.unsafeMetadata?.role as UserRole | undefined
-    if (clerkRole !== 'producer' && clerkRole !== 'engineer') return
-
-    isOnboardingActiveRef.current = true
-    setSelectedRole(clerkRole)
-    setCreatedWorkspaceId(existingWorkspaces[0]._id)
-    setWorkspaceName(existingWorkspaces[0].name)
-    setWorkspaceSlug(existingWorkspaces[0].slug)
-    setCurrentStep(requestedStep === 'plan' ? 'plan' : 'stripe')
-  }, [existingUser, existingWorkspaces, isResumeIntent, requestedStep, user])
-
-  // Redirect if already onboarded (but not when showing survey)
-  useEffect(() => {
-    if (isLoading || !isAuthenticated || !user || showSurvey) return
-    if (isResumeIntent) return
-    if (isOnboardingActiveRef.current) return
-    const clerkRole = user.unsafeMetadata?.role as string | undefined
-    if (shouldRedirectUser(clerkRole, existingUser)) {
-      router.push(getRedirectPath(clerkRole!))
+    const publicRole = user.publicMetadata?.role as string | undefined
+    if (publicRole === 'admin') {
+      hasInitializedOnboardingRef.current = true
+      router.replace('/admin/growth')
+      return
     }
-  }, [existingUser, user, router, isLoading, isAuthenticated, showSurvey, isResumeIntent])
+
+    const clerkRole = user.unsafeMetadata?.role as string | undefined
+    const workspace = existingWorkspaces[0] ?? null
+    const destination = resolveOnboardingDestination({
+      role: clerkRole,
+      hasUserProfile: existingUser !== null,
+      workspace,
+      subscription: subscriptionData?.subscription ?? null,
+      requestedStep,
+      isResumeIntent,
+    })
+
+    hasInitializedOnboardingRef.current = true
+
+    if (destination.kind === 'redirect') {
+      router.replace(destination.path)
+      return
+    }
+
+    if (clerkRole === 'producer' || clerkRole === 'engineer' || clerkRole === 'artist') {
+      setSelectedRole(clerkRole)
+    }
+    if (workspace) {
+      setCreatedWorkspaceId(workspace._id)
+      setWorkspaceName(workspace.name)
+      setWorkspaceSlug(workspace.slug)
+    }
+    setCurrentStep(destination.step)
+    setIsOnboardingResolved(true)
+  }, [
+    existingUser,
+    existingWorkspaces,
+    isAuthenticated,
+    isLoading,
+    isResumeIntent,
+    requestedStep,
+    router,
+    subscriptionData,
+    user,
+  ])
 
   // Auto-generate slug from workspace name
   useEffect(() => {
@@ -659,7 +690,6 @@ export function OnboardingClient() {
     if (!user || isCreating) return
     setSelectedRole(role)
     setIsCreating(true)
-    isOnboardingActiveRef.current = true
     try {
       await user.update({ unsafeMetadata: { role } })
       await user.reload()
@@ -698,6 +728,9 @@ export function OnboardingClient() {
     if (selectedRole === 'artist') return
     setIsCreating(true)
     try {
+      // Recovery can start from Clerk metadata before the user webhook has
+      // created its Convex profile. This mutation is idempotent.
+      await createUser({ clerkUserId: user.id, role: selectedRole })
       const workspaceId = await createWorkspace({
         slug: workspaceSlug,
         name: workspaceName,
@@ -794,7 +827,7 @@ export function OnboardingClient() {
     router.push(selectedRole === 'artist' ? '/artist' : '/studio')
   }
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && user && !isOnboardingResolved)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[rgb(var(--accent))]" />

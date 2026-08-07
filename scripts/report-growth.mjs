@@ -31,7 +31,11 @@ function getFallbackDiagnosis(activation, instrumentationStatus) {
       ? 'Acquisition events are readable, but the deployed query lacks the diagnostic and coverage fields.'
       : 'Acquisition events cannot be read until the growth query is deployed.'
 
-  if (activation.userCounts.total === 0 && activation.totalWorkspaces === 0) {
+  const creatorUsers =
+    activation.userCounts.creatorTotal ??
+    Math.max(0, activation.userCounts.total - (activation.userCounts.admin ?? 0))
+
+  if (creatorUsers === 0 && activation.totalWorkspaces === 0) {
     return {
       status: 'pre_launch',
       priority: 'instrumentation_and_acquisition',
@@ -49,7 +53,7 @@ function getFallbackDiagnosis(activation, instrumentationStatus) {
     status: 'measurement_gap',
     priority: 'instrumentation',
     evidence: [
-      `${activation.userCounts.total} registered user(s) exist in production.`,
+      `${creatorUsers} creator user(s) exist in production after excluding admins.`,
       `${activation.totalWorkspaces} workspace(s) exist in production.`,
       trackingEvidence,
     ],
@@ -60,6 +64,9 @@ function getFallbackDiagnosis(activation, instrumentationStatus) {
 
 async function getReport() {
   const activation = await convex.query(getDashboardMetrics, {})
+  const creatorUsers =
+    activation.userCounts.creatorTotal ??
+    Math.max(0, activation.userCounts.total - (activation.userCounts.admin ?? 0))
   let acquisition = null
   let acquisitionError = null
 
@@ -80,7 +87,8 @@ async function getReport() {
     generatedAt: new Date().toISOString(),
     acquisition,
     activation: {
-      users: activation.userCounts.total,
+      users: creatorUsers,
+      admins: activation.userCounts.admin ?? 0,
       workspaces: activation.totalWorkspaces,
       tracks: activation.totalTracks,
       orders: activation.totalOrders,
@@ -102,7 +110,8 @@ function printHumanReport(report) {
     `BroLab production funnel — ${report.generatedAt}`,
     '',
     'Known facts',
-    `- Registered users: ${report.activation.users}`,
+    `- Registered creator users: ${report.activation.users}`,
+    `- Admin users excluded: ${report.activation.admins}`,
     `- Workspaces: ${report.activation.workspaces}`,
     `- Tracks: ${report.activation.tracks}`,
     `- Orders: ${report.activation.orders}`,
