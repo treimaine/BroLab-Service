@@ -15,6 +15,7 @@ out/
 # Production
 build/
 dist/
+docs/
 
 # Misc
 .DS_Store
@@ -74,6 +75,7 @@ convex/**/*.d.ts.map
 .playwright-mcp/
 # Worker build output
 worker/dist/
+docs/
 
 # Design reference files
 *.mov
